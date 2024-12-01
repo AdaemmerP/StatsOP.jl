@@ -6,8 +6,8 @@
     "section": "",
     "text": "SQINMA11\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nSQINMA11(dgp_params, eps_params, m, n, prerun)\n\nSpatial quadratic integer moving-average SQINMA(1, 1) model as defined by Weiß and Kim (2024) on page 7. The struct contains the following fields:\n\ndgp_params::Tuple{Float64, Float64, Float64}: A tuple of the parameters of the DGP. The first element is the parameter β₁, the second element is the parameter β₂, and the third element is the parameter β₃. Note that β₁, β₂, and β₃ ∈ [0, 1].\neps_params::Tuple{Int, Int, Int}: A tuple of the parameters of the DGP, indicating which error terms shall be squared. Note that eps_params ∈ {1, 2}.\nm::Int: The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.\nn::Int: The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.\nprerun::Int: A value to initialize the DGP. This value should be set to 1.\n\n\nsqinma11 = SQINMA11((0.5, 0.3, 0.2), (1, 1, 2), 11, 11, 1)",
     "crumbs": [
-      "Reference",
-      "DGPs for Spatial Data",
+      "API",
+      "Types for spatial data",
       "SQINMA11"
     ]
   },
@@ -26,181 +26,11 @@
     "text": "compute_p_mat\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\ncompute_p_mat(data::Array{Float64,3})\n\nCompute the matrix of p-hat values for a given 3D array of data. These values are used for bootstrapping."
   },
   {
-    "objectID": "reference/SAR1.html",
-    "href": "reference/SAR1.html",
-    "title": "SAR1",
+    "objectID": "reference/arl_acf.html",
+    "href": "reference/arl_acf.html",
+    "title": "arl_acf",
     "section": "",
-    "text": "SAR1\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nSAR1(dgp_params, eps_params, m, n, prerun)\n\nFirst-order simultaneous autoregressive (SAR(1)) model as defined by Weiß and Kim (2024) on page 8. The struct contains the following fields:\n\ndgp_params::Tuple{Float64, Float64, Float64, Float64}: A tuple of the parameters of the DGP. The first element is the parameter β₁, the second element is the parameter β₂, and the third element is the parameter β₃. Note that β₁, β₂, and β₃ ∈ [0, 1].\nm::Int: The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.\nn::Int: The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.\nmargin::Int: The margin for the spatial matrix used for initialization.\n\n\nsar1 = SAR1((0.5, 0.3, 0.2, 0.1), 11, 11, 1)",
-    "crumbs": [
-      "Reference",
-      "DGPs for Spatial Data",
-      "SAR1"
-    ]
-  },
-  {
-    "objectID": "reference/PoiBin.html",
-    "href": "reference/PoiBin.html",
-    "title": "PoiBin",
-    "section": "",
-    "text": "PoiBin\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nPoiBin{T &lt;: Real}  &lt;: DiscreteUnivariateDistribution\n\nA struct to define a Poisson-Binomial distribution.\n#| eval: false\ndist = PoiBin(0.5, 5)\nrand(dist)"
-  },
-  {
-    "objectID": "reference/rl_sop.html",
-    "href": "reference/rl_sop.html",
-    "title": "rl_sop",
-    "section": "",
-    "text": "rl_sop\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nrl_sop(m, n, lookup_array_sop, lam, cl, reps_range, chart_choice, dist)\n\nA function to compute the run length for a given control limit and in-control distribution. The input parameters are:\n\nm::Int: The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.\nn::Int: The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.\nlookup_array_sop::Array{Int, 4}: A 4D array with the lookup array for the sops. This can be automatically computed using lookuparraysop = compute_lookup_array(). This will be used to find the index of the sops.\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nreps_range::UnitRange{Int}: A range of integers for the number of repetitions. This has to be a range to be compatible with arl_sop() which uses threading and multi-processing.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\ndist::Distribution: A distribution for the in-control data. Here you can use any univariate distribution from the Distributions.jl package.\n\n\n\n\n\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nrl_sop(lam, cl, reps_range, chart_choice, p_mat::Matrix{Float64})\n\nA function to compute the run length for a given control limit using bootstraping instead of a theoretical in-control distribution. The input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nreps_range::UnitRange{Int}: A range of integers for the number of repetitions. This has to be a range to be compatible with arl_sop() which uses threading and multi-processing.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\np_mat::Matrix{Float64}: A matrix with the values of each pattern group obtained by compute_p_mat(). This matrix will be used for re-sampling\n\n\n\n\n\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nrl_sop(m, n, lookup_array_sop, lam, cl, p_reps, chart_choice, spatial_dgp, dist_error, dist_ao)\n\nComputes the run length for a given out-of-control DGP. The input parameters are:\n\nm::Int: The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.\nn::Int: The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.\nlookup_array_sop::Array{Int, 4}: A 4D array with the lookup array for the sops. This can be automatically computed using lookup_array_sop = compute_lookup_array(). This will be used to find the index of the sops.\nlam: A scalar value for lambda for the EWMA chart. This has to be between 0 and 1.\ncl::Float64: A scalar value for the control limit.\np_reps::UInt: An unsigned integer value for the number of repetitions. This has to be an unsigned integer to be compatible with arl_sop() which uses threading and multi-processing.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\nspatial_dgp::AbstractSpatialDGP: A struct for type for the spatial DGP. This can be either SAR11, SINAR11, SQMA11, BSQMA11 or SAR1. Look at their documentation for more information.\ndist_error::Distribution: A distribution for the error term. Here you can use any univariate distribution from the Distributions.jl package.\ndist_ao::Distribution: A distribution for the out-of-control data. Here you can use any univariate distribution from the Distributions.jl package."
-  },
-  {
-    "objectID": "reference/crit_val_sacf.html",
-    "href": "reference/crit_val_sacf.html",
-    "title": "crit_val_sacf",
-    "section": "",
-    "text": "crit_val_sacf\n\n\n\n\n\n\ndocblock\n\n\n\n\n\ncritvalsacf(M, N, alpha)\nComputes the critical value for the SACF of lag 1. The input parameters are:\n\nM::Int64: The number of rows in the data matrix.\nN::Int64: The number of columns in the data matrix.\nalpha::Float64: The significance level.\n\n\nExamples\n#| eval: false\n# compute critical value\ncrit_val_sacf(11, 11, 0.05)"
-  },
-  {
-    "objectID": "reference/stat_sop.html",
-    "href": "reference/stat_sop.html",
-    "title": "stat_sop",
-    "section": "",
-    "text": "stat_sop\n\n\n\n\n\n\ndocblock\n\n\n\n\n\nstatsop(data::Matrix{Float64}, chartchoice)\nComputes the test statistic for a single picture and chosen test statistic. chart_coice is an integer value for the chart choice. The options are 1-4.\n\nExamples\n#| eval: false\ndata = rand(20, 20);\n\nstat_sop(data, 2)\n\n\n\n\n\n\n\n\n\n\n\n\ndocblock\n\n\n\n\n\nstatsop(data::Array{Float64,3}, addnoise::Bool, lam::Float64, chart_choice::Int)\nComputes the test statistic for a 3D array of data, a given lambda value, and a given chart choice. The input parameters are:\n\ndata::Array{Float64,3}: A 3D array of data.\nadd_noise::Bool: A boolean value whether to add noise to the data. This is necessary when the matrices consist of count data.\nlam::Float64: A scalar value for lambda.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\n\n\nExamples\n#| eval: false\ndata = rand(20, 20, 10);\nlam = 0.1;\nchart_choice = 2;\n\nstat_sop(data, false, lam, chart_choice)"
-  },
-  {
-    "objectID": "reference/sop_frequencies.html",
-    "href": "reference/sop_frequencies.html",
-    "title": "sop_frequencies",
-    "section": "",
-    "text": "sop_frequencies\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nsop_frequencies(m::Int, n::Int, lookup_array_sop, n_sops, data, sop)\n\nCompute the frequencies of the spatial ordinal patterns. n_sops has to equal 24, as there are 4! = 24 possible patterns when using a 2x2 grid."
-  },
-  {
-    "objectID": "reference/compute_lookup_array.html",
-    "href": "reference/compute_lookup_array.html",
-    "title": "compute_lookup_array",
-    "section": "",
-    "text": "compute_lookup_array\n\n\n\n\n\n\ndocblock\n\n\n\n\n\nCompute a 4D array to lookup the index of the sops. The original SOPs are based on ranks. Here we use sortperm which computes the order of the elements in the vector."
-  },
-  {
-    "objectID": "reference/SAR11.html",
-    "href": "reference/SAR11.html",
-    "title": "SAR11",
-    "section": "",
-    "text": "SAR11\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nSAR11(dgp_params, m, n, prerun)\n\nFirst-order spatial autoregressive (SAR(1, 1)) model as defined by Weiß and Kim (2024) on page 6. The struct contains the following fields:\n\ndgp_params::Tuple{Float64, Float64, Float64}: A tuple of the parameters of the DGP. The first element is the parameter α₁, the second element is the parameter α₂, and the third element is the parameter α₃. The requirements to guarantee stationarity for the process are |α₁| &lt; 1, |α₂| &lt; 1, |α₁ + α₂| &lt; 1 - α₃, and |α₁ - α₂| &lt; 1 + α₃.\nm::Int: The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.\nn::Int: The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.\nprerun::Int: A value to initialize the DGP to achieve stationarity. These number of rows and columns will be discarded after the initialization.\n\n\nsar11 = SAR11((0.5, 0.3, 0.2), 11, 11, 100)",
-    "crumbs": [
-      "Reference",
-      "DGPs for Spatial Data",
-      "SAR11"
-    ]
-  },
-  {
-    "objectID": "reference/arl_sacf.html",
-    "href": "reference/arl_sacf.html",
-    "title": "arl_sacf",
-    "section": "",
-    "text": "arl_sacf\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\narl_sacf(m::Int, n::Int, lam, cl, reps::Int, dist_error)\n\nCompute the in-control average run length (ARL), using the spatial autocorrelation function (SACF) for a lag length of 1. The function returns the ARL for a given control limit cl and a given number of repetitions reps. The input arguments are:\n\nm::Int: The number of rows in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).\nn::Int: The number of columns in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\nreps: The number of repetitions to compute the ARL.\ndist_error: The distribution to use for the error term in the SACF function. This can be any univariate distribution from the Distributions.jl package or a custom distribution with a defined method for rand() and rand!().\n\n\n#--- Example\n# Set parameters\nm = 10\nn = 10\nlam = 0.1\ncl = .001\nreps = 100\ndist_error = Normal(0, 1)\n\n# Compute average run length\narl = arl_sacf(m, n, lam, cl, reps, dist_error)\n\n\n\n\n\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\narl_sacf(lam, cl, reps, spatial_dgp, dist_error::UnivariateDistribution, dist_ao::Union{UnivariateDistribution,Nothing})\n\nCompute the out-of-control average run length (ARL), using the spatial autocorrelation function (SACF) for a lag length of 1. The function returns the ARL for a given control limit cl and a given number of repetitions reps. The input arguments are:\n\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\nreps: The number of repetitions to compute the ARL.\nspatial_dgp: The spatial data generating process (DGP) to use for the SACF function. This can be one of the following: SAR1, SAR11, SINAR11, SQMA11, SQINMA11, or BSQMA11.\ndist_error: The distribution to use for the error term in the SACF function. This can be any univariate distribution from the Distributions.jl package with a defined mean or a custom distribution.\ndist_ao: The distribution to use for additive outliers. This can be any univariate distribution from the Distributions.jl package or a custom distribution.\n\n\n#--- Example\n# Set parameters\nlam = 0.1\ncl = .001\nreps = 100\nspatial_dgp = SAR11((0.1, 0.1, 0.1), 10, 10, 100)\ndist_error = Normal(0, 1)\ndist_ao = nothing\n\n# Compute average run length\narl = arl_sacf(lam, cl, reps, spatial_dgp, dist_error, dist_ao)",
-    "crumbs": [
-      "Reference",
-      "ARL functions",
-      "arl_sacf"
-    ]
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "OrdinalPatterns.jl",
-    "section": "",
-    "text": "OrdinalPatterns.jl\n\n\n\nBuild Status\n\n\nThis package provides functions…"
-  },
-  {
-    "objectID": "reference.html",
-    "href": "reference.html",
-    "title": "Reference",
-    "section": "",
-    "text": "Reference\nThis page shows all references",
-    "crumbs": [
-      "Reference"
-    ]
-  },
-  {
-    "objectID": "tutorials/tutorial-01.html",
-    "href": "tutorials/tutorial-01.html",
-    "title": "First tutorial",
-    "section": "",
-    "text": "First tutorial\nThis is my first tutorial!",
-    "crumbs": [
-      "Tutorials",
-      "First tutorial"
-    ]
-  },
-  {
-    "objectID": "tutorials.html",
-    "href": "tutorials.html",
-    "title": "Tutorials",
-    "section": "",
-    "text": "Tutorials\nDescribe your tutorials here.",
-    "crumbs": [
-      "Tutorials"
-    ]
-  },
-  {
-    "objectID": "reference/BinomialCvec.html",
-    "href": "reference/BinomialCvec.html",
-    "title": "BinomialCvec",
-    "section": "",
-    "text": "BinomialCvec\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nBinomialCvec{T &lt;: Real}  &lt;: DiscreteUnivariateDistribution\n\nA struct to define a binomial distribution, which gets multiplied by a value from vector c_vec.\n`julia-repl dist = BinomialCvec(0.5, [-10; 10]) rand(dist)``"
-  },
-  {
-    "objectID": "reference/crit_val_sop.html",
-    "href": "reference/crit_val_sop.html",
-    "title": "crit_val_sop",
-    "section": "",
-    "text": "crit_val_sop\n\n\n\n\n\n\ndocblock\n\n\n\n\n\ncritvalsop(m, n, alpha, chart_choice, approximate::Bool)\nComputes the critical value for the SOP test. Also allows the approximation of the critical value. The input parameters are:\n\nm::Int64: The number of rows in the sop-matrix. Note that the data matrix has dimensions M = m + 1.\nn::Int64: The number of columns in the sop-matrix. Note that the data matrix has dimensions N = n + 1.\nalpha::Float64: The significance level.\nchart_choice::Int64: The choice of chart.\napproximate::Bool: If true, the approximate critical value is computed. If false, the exact critical value is computed.\n\n\nExamples\n#| eval: false\n# compute approximate critical value for chart 1 \ncrit_val_sop(10, 10, 0.05, 1, true)\n\n\n\n\n\n\n\n\n\n\n\n\ndocblock\n\n\n\n\n\ncritvalsop(m, n, alpha, chart_choice, approximate::Bool)\nComputes the exact critical value for the SOP test. The input parameters are:\n\nm::Int64: The number of rows in the sop-matrix. Note that the data matrix has dimensions M = m + 1.\nn::Int64: The number of columns in the sop-matrix. Note that the data matrix has dimensions N = n + 1.\nalpha::Float64: The significance level.\nchart_choice::Int64: The choice of chart. The options are:\n\n\nExamples\n#| eval: false\n# compute approximate critical value for chart 1 \ncrit_val_sop(10, 10, 0.05, 1, true)"
-  },
-  {
-    "objectID": "reference/ZIP.html",
-    "href": "reference/ZIP.html",
-    "title": "ZIP",
-    "section": "",
-    "text": "ZIP\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nZIP &lt;: DiscreteUnivariateDistribution\n\nA struct to define a zero-inflated Poisson distribution.\n#| eval: false\ndist = ZIP(5.0, 0.2)\nrand(dist)"
-  },
-  {
-    "objectID": "reference/SINAR11.html",
-    "href": "reference/SINAR11.html",
-    "title": "SINAR11",
-    "section": "",
-    "text": "SINAR11\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nSINAR11(dgp_params, m, n, prerun)\n\nFirst-order integer spatial autoregressive (SINAR(1, 1)) model as defined by Weiß and Kim (2024) on page 6. The struct contains the following fields:\n\ndgp_params::Tuple{Float64, Float64, Float64}: A tuple of the parameters of the DGP. The first element is the parameter α₁, the second element is the parameter α₂, and the third element is the parameter α₃. Note that α₁, α₂, and α₃ ∈ [0, 1) and α₁ + α₂ + α₃ &lt; 1 to guarantee stationarity.\nm::Int: The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.\nn::Int: The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.\nprerun::Int: A value to initialize the DGP to guarantee stationarity. These number of rows and columns will be discarded for the final spatial matrix.\n\n\nsar11 = SINAR((0.5, 0.3, 0.2), 11, 11, 100)"
-  },
-  {
-    "objectID": "reference/chart_stat_sop.html",
-    "href": "reference/chart_stat_sop.html",
-    "title": "chart_stat_sop",
-    "section": "",
-    "text": "chart_stat_sop\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nchart_stat_sop(p_ewma, chart_choice)\n\nCompute the the test statistic for spatial ordinal patterns. The first input is a vector with three values, based on SOP counts. The second input is the chart."
-  },
-  {
-    "objectID": "reference/cl_sacf.html",
-    "href": "reference/cl_sacf.html",
-    "title": "cl_sacf",
-    "section": "",
-    "text": "cl_sacf\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\ncl_sacf(m, n, lam, L0, reps, clinit, jmin, jmax, verbose, dist_error)\n\nCompute the control limit for the exponentially weighted moving average (EWMA) control chart using the spatial autocorrelation function (SACF) for a lag length of 1. The function returns the control limit for a given average run length (ARL) L0 and a given number of repetitions reps. The input arguments are:\n\nm::Int: The number of rows in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).\nn::Int: The number of columns in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).\nlam: The smoothing parameter for the EWMA control chart.\nL0: The average run length (ARL) to use for the control limit.\nreps: The number of repetitions to compute the ARL.\nclinit: The initial control limit to use for the EWMA control chart. If set to 0, the function will search for the control limit that gives an ARL greater than L0.\njmin: The minimum number of values to change after the decimal point in the control limit.\njmax: The maximum number of values to change after the decimal point in the control limit.\nverbose: A boolean to indicate whether to print the control limit and ARL for each iteration.\ndist_error: The distribution to use for the error term in the SACF function. This can be any univariate distribution from the Distributions.jl package or a custom distribution with a defined method for rand() and rand!().\n\n\n#--- Example\n# Set parameters\nm = 10\nn = 10\nlam = 0.1\nL0 = 370\nreps = 1000\nclinit = 0.05\njmin = 4\njmax = 7\nverbose = true\ndist_error = Normal(0, 1)\n\n# Compute control limit\ncl = cl_sacf(m, n, lam, L0, reps, clinit, jmin, jmax, verbose, dist_error)"
-  },
-  {
-    "objectID": "reference/rl_sacf.html",
-    "href": "reference/rl_sacf.html",
-    "title": "rl_sacf",
-    "section": "",
-    "text": "rl_sacf\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nrl_sacf(m::Int, n::Int, lam, cl, p_reps, dist_error)\n\nCompute the in-control run length (RL) using the spatial autocorrelation function (SACF) for a lag length of 1. The function returns the RL for a given control limit cl and a given number of repetitions p_reps. The input arguments are:\n\nm::Int: The number of rows in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).\nn::Int: The number of columns in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\np_reps: The number of repetitions to compute the RL. This has to be a unit range of integers to allow for parallel processing, since the function is called by arl_sacf().\ndist_error: The distribution to use for the error term in the SACF function.\n\n#| eval: false\n#--- Example\n# Set parameters\nm = 10\nn = 10\nlam = 0.1\ncl = .001\np_reps = 1:10\ndist_error = Normal(0, 1)\n\n# Compute run length\nrls = rl_sacf(m, n, lam, cl, p_reps, dist_error)\n\n\n\n\n\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nrl_sacf(m::Int, n::Int, lam, cl, p_reps::UnitRange, spatial_dgp, dist_error::UnivariateDistribution, dist_ao::Union{UnivariateDistribution, Nothing})\n\nCompute the out-of-control run length (RL) using the spatial autocorrelation function (SACF) for a lag length of 1. The function returns the RL for a given control limit cl and a given number of repetitions p_reps. The input arguments are:\n\nm::Int: The number of rows in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).\nn::Int: The number of columns in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\np_reps: The number of repetitions to compute the RL. This has to be a unit range of integers to allow for parallel processing, since the function is called by arl_sacf().\nspatial_dgp: The spatial data generating process (DGP) to use for the SACF function. This can be one of the following: SAR1, SAR11, SINAR11, SQMA11, SQINMA11, or BSQMA11.\ndist_error: The distribution to use for the error term in the SACF function. This can be any univariate distribution from the Distributions.jl package with a defined mean or a custom distribution.\ndist_ao: The distribution to use for for additive outliers. This can be any univariate distribution from the Distributions.jl package or a custom distribution.\n\n#| eval: false\n#--- Example\n# Set parameters\nm = 10\nn = 10\nlam = 0.1\ncl = .001\np_reps = 1:10\nspatial_dgp = SAR11((0.1, 0.1, 0.1), 10, 10, 100)\ndist_error = Normal(0, 1)\ndist_ao = nothing\n\n# Compute run length\nrls = rl_sacf(m, n, lam, cl, p_reps, spatial_dgp, dist_error, dist_ao)"
-  },
-  {
-    "objectID": "reference/arl_sop.html",
-    "href": "reference/arl_sop.html",
-    "title": "arl_sop",
-    "section": "",
-    "text": "arl_sop\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\narl_sop(m::Int, n::Int, lam, cl, reps, chart_choice, dist::UnivariateDistribution)\n\nFunction to compute the average run length (ARL) for a given control-limit and in-control distribution. The input parameters are:\n\nm::Int: The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.\nn::Int: The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nreps::Int: An integer value for the number of repetitions.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\ndist::Distribution: A distribution for the in-control data. Here you can use any univariate distribution from the Distributions.jl package.\n\n\n\n\n\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\narl_sop(lam, cl, reps, chart_choice, data::Array{Float64, 3})\n\nFunction to compute the average run length (ARL) using a bootstraping approach. The input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nreps::Int: An integer value for the number of repetitions.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\np_mat::Array{Float64, 3}: A 3D array with the data. The data has to be in the form of a 3D array.\n\n\n\n\n\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\narl_sop(lam, cl, reps, chart_choice, spatial_dgp, dist_error::UnivariateDistribution, dist_ao::Union{Nothing, UnivariateDistribution})\n\nFunction to compute the average run length (ARL) for a given out-of-control DGP. The input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\nspatial_dgp::AbstractSpatialDGP: A struct for type for the spatial DGP. This can be either SAR11, SINAR11, SQMA11, BSQMA11 or SAR1. Look at their documentation for more information.\ndist_error::Distribution: A distribution for the error term. Here you can use any univariate distribution from the Distributions.jl package.\ndist_ao::Distribution: A distribution for the out-of-control data. Here you can use any univariate distribution from the Distributions.jl package.",
-    "crumbs": [
-      "Reference",
-      "ARL functions",
-      "arl_sop"
-    ]
+    "text": "arl_acf\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\narl_acf(lam, cl, acf_dgp, reps=10000)\n\nFunction to compute the average run length (ARL) for a specified DGP using the ACF statistic by XXX.\n\nlam::Float64: Smoothing parameter for the EWMA statistic.\ncl::Float64: Control limit for the ACF statistic.\nacf_dgp::Union{IC, AR1, TEAR1}: DGP.\nreps::Int64: Number of replications.\n\n\narl_acf(0.1, 3.0, IC(Normal(0, 1)), 10000)"
   },
   {
     "objectID": "reference/BinomialC.html",
@@ -210,14 +40,275 @@
     "text": "BinomialC\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nBinomialC{T &lt;: Real}  &lt;: DiscreteUnivariateDistribution\n\nA struct to define a binomial distribution, which gets multiplied by a constant c.\n`julia-repl dist = BinomialC(0.5, 2) rand(dist)``"
   },
   {
+    "objectID": "reference/PoiBin.html",
+    "href": "reference/PoiBin.html",
+    "title": "PoiBin",
+    "section": "",
+    "text": "PoiBin\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nPoiBin{T &lt;: Real}  &lt;: DiscreteUnivariateDistribution\n\nA struct to define a Poisson-Binomial distribution.\n#| eval: false\ndist = PoiBin(0.5, 5)\nrand(dist)"
+  },
+  {
+    "objectID": "reference/rl_acf.html",
+    "href": "reference/rl_acf.html",
+    "title": "rl_acf",
+    "section": "",
+    "text": "rl_acf\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nrl_acf(lam, cl, p_reps, acf_dgp)\n\nFunction to compute the run length (RL) for a specified DGP using the ACF statistic by XXX.\n\nlam::Float64: Smoothing parameter for the EWMA statistic.\ncl::Float64: Control limit for the ACF statistic.\np_reps::Vector{Int64}: Unit range for number of replications.\nacf_dgp::Union{IC, AR1, TEAR1}: DGP.\n\n\nrl_acf(0.1, 3.0, 10_000, IC(Normal(0, 1)))"
+  },
+  {
+    "objectID": "reference/rl_sacf.html",
+    "href": "reference/rl_sacf.html",
+    "title": "rl_sacf",
+    "section": "",
+    "text": "rl_sacf\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nrl_sacf(m::Int, n::Int, lam, cl, p_reps, dist_error)\n\nCompute the in-control run length (RL) using the spatial autocorrelation function (SACF) for a lag length of 1. The function returns the RL for a given control limit cl and a given number of repetitions p_reps. The input arguments are:\n\nm::Int: The number of rows in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).\nn::Int: The number of columns in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\np_reps: The number of repetitions to compute the RL. This has to be a unit range of integers to allow for parallel processing, since the function is called by arl_sacf().\ndist_error: The distribution to use for the error term in the SACF function.\n\n#| eval: false\n#--- Example\n# Set parameters\nm = 10\nn = 10\nlam = 0.1\ncl = .001\np_reps = 1:10\ndist_error = Normal(0, 1)\n\n# Compute run length\nrls = rl_sacf(m, n, lam, cl, p_reps, dist_error)\n\n\n\n\n\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nrl_sacf(m::Int, n::Int, lam, cl, p_reps::UnitRange, spatial_dgp, dist_error::UnivariateDistribution, dist_ao::Union{UnivariateDistribution, Nothing})\n\nCompute the out-of-control run length (RL) using the spatial autocorrelation function (SACF) for a lag length of 1. The function returns the RL for a given control limit cl and a given number of repetitions p_reps. The input arguments are:\n\nm::Int: The number of rows in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).\nn::Int: The number of columns in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\np_reps: The number of repetitions to compute the RL. This has to be a unit range of integers to allow for parallel processing, since the function is called by arl_sacf().\nspatial_dgp: The spatial data generating process (DGP) to use for the SACF function. This can be one of the following: SAR1, SAR11, SINAR11, SQMA11, SQINMA11, or BSQMA11.\ndist_error: The distribution to use for the error term in the SACF function. This can be any univariate distribution from the Distributions.jl package with a defined mean or a custom distribution.\ndist_ao: The distribution to use for for additive outliers. This can be any univariate distribution from the Distributions.jl package or a custom distribution.\n\n#| eval: false\n#--- Example\n# Set parameters\nm = 10\nn = 10\nlam = 0.1\ncl = .001\np_reps = 1:10\nspatial_dgp = SAR11((0.1, 0.1, 0.1), 10, 10, 100)\ndist_error = Normal(0, 1)\ndist_ao = nothing\n\n# Compute run length\nrls = rl_sacf(m, n, lam, cl, p_reps, spatial_dgp, dist_error, dist_ao)"
+  },
+  {
+    "objectID": "reference/cl_sacf.html",
+    "href": "reference/cl_sacf.html",
+    "title": "cl_sacf",
+    "section": "",
+    "text": "cl_sacf\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\ncl_sacf(m, n, lam, L0, reps, clinit, jmin, jmax, verbose, dist_error)\n\nCompute the control limit for the exponentially weighted moving average (EWMA) control chart using the spatial autocorrelation function (SACF) for a lag length of 1. The function returns the control limit for a given average run length (ARL) L0 and a given number of repetitions reps. The input arguments are:\n\nm::Int: The number of rows in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).\nn::Int: The number of columns in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).\nlam: The smoothing parameter for the EWMA control chart.\nL0: The average run length (ARL) to use for the control limit.\nreps: The number of repetitions to compute the ARL.\nclinit: The initial control limit to use for the EWMA control chart. If set to 0, the function will search for the control limit that gives an ARL greater than L0.\njmin: The minimum number of values to change after the decimal point in the control limit.\njmax: The maximum number of values to change after the decimal point in the control limit.\nverbose: A boolean to indicate whether to print the control limit and ARL for each iteration.\ndist_error: The distribution to use for the error term in the SACF function. This can be any univariate distribution from the Distributions.jl package or a custom distribution with a defined method for rand() and rand!().\n\n\n#--- Example\n# Set parameters\nm = 10\nn = 10\nlam = 0.1\nL0 = 370\nreps = 1000\nclinit = 0.05\njmin = 4\njmax = 7\nverbose = true\ndist_error = Normal(0, 1)\n\n# Compute control limit\ncl = cl_sacf(m, n, lam, L0, reps, clinit, jmin, jmax, verbose, dist_error)"
+  },
+  {
+    "objectID": "reference/chart_stat_sop.html",
+    "href": "reference/chart_stat_sop.html",
+    "title": "chart_stat_sop",
+    "section": "",
+    "text": "chart_stat_sop\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nchart_stat_sop(p_ewma, chart_choice)\n\nCompute the the test statistic for spatial ordinal patterns. The first input is a vector with three values, based on SOP counts. The second input is the chart."
+  },
+  {
+    "objectID": "reference/SINAR11.html",
+    "href": "reference/SINAR11.html",
+    "title": "SINAR11",
+    "section": "",
+    "text": "SINAR11\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nSINAR11(dgp_params, m, n, prerun)\n\nFirst-order integer spatial autoregressive (SINAR(1, 1)) model as defined by Weiß and Kim (2024) on page 6. The struct contains the following fields:\n\ndgp_params::Tuple{Float64, Float64, Float64}: A tuple of the parameters of the DGP. The first element is the parameter α₁, the second element is the parameter α₂, and the third element is the parameter α₃. Note that α₁, α₂, and α₃ ∈ [0, 1) and α₁ + α₂ + α₃ &lt; 1 to guarantee stationarity.\nm::Int: The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.\nn::Int: The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.\nprerun::Int: A value to initialize the DGP to guarantee stationarity. These number of rows and columns will be discarded for the final spatial matrix.\n\n\nsar11 = SINAR((0.5, 0.3, 0.2), 11, 11, 100)"
+  },
+  {
+    "objectID": "reference/ZIP.html",
+    "href": "reference/ZIP.html",
+    "title": "ZIP",
+    "section": "",
+    "text": "ZIP\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nZIP &lt;: DiscreteUnivariateDistribution\n\nA struct to define a zero-inflated Poisson distribution.\n#| eval: false\ndist = ZIP(5.0, 0.2)\nrand(dist)"
+  },
+  {
+    "objectID": "reference/crit_val_sop.html",
+    "href": "reference/crit_val_sop.html",
+    "title": "crit_val_sop",
+    "section": "",
+    "text": "crit_val_sop\n\n\n\n\n\n\ndocblock\n\n\n\n\n\ncritvalsop(m, n, alpha, chart_choice, approximate::Bool)\nComputes the critical value for the SOP test. Also allows the approximation of the critical value. The input parameters are:\n\nm::Int64: The number of rows in the sop-matrix. Note that the data matrix has dimensions M = m + 1.\nn::Int64: The number of columns in the sop-matrix. Note that the data matrix has dimensions N = n + 1.\nalpha::Float64: The significance level.\nchart_choice::Int64: The choice of chart.\napproximate::Bool: If true, the approximate critical value is computed. If false, the exact critical value is computed.\n\n\nExamples\n#| eval: false\n# compute approximate critical value for chart 1 \ncrit_val_sop(10, 10, 0.05, 1, true)\n\n\n\n\n\n\n\n\n\n\n\n\ndocblock\n\n\n\n\n\ncritvalsop(m, n, alpha, chart_choice, approximate::Bool)\nComputes the exact critical value for the SOP test. The input parameters are:\n\nm::Int64: The number of rows in the sop-matrix. Note that the data matrix has dimensions M = m + 1.\nn::Int64: The number of columns in the sop-matrix. Note that the data matrix has dimensions N = n + 1.\nalpha::Float64: The significance level.\nchart_choice::Int64: The choice of chart. The options are:\n\n\nExamples\n#| eval: false\n# compute approximate critical value for chart 1 \ncrit_val_sop(10, 10, 0.05, 1, true)"
+  },
+  {
+    "objectID": "reference/BinomialCvec.html",
+    "href": "reference/BinomialCvec.html",
+    "title": "BinomialCvec",
+    "section": "",
+    "text": "BinomialCvec\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nBinomialCvec{T &lt;: Real}  &lt;: DiscreteUnivariateDistribution\n\nA struct to define a binomial distribution, which gets multiplied by a value from vector c_vec.\n`julia-repl dist = BinomialCvec(0.5, [-10; 10]) rand(dist)``"
+  },
+  {
+    "objectID": "page_files/op.html",
+    "href": "page_files/op.html",
+    "title": "Ordinal Patterns (OPs)",
+    "section": "",
+    "text": "Ordinal Patterns (OPs)\nOrdinal Patterns (OPs) are a method to. They have been used in the context of …",
+    "crumbs": [
+      "OPs",
+      "Ordinal Patterns (OPs)"
+    ]
+  },
+  {
+    "objectID": "page_files/sop_replication.html",
+    "href": "page_files/sop_replication.html",
+    "title": "SOP Replication",
+    "section": "",
+    "text": "SOP Replication",
+    "crumbs": [
+      "SOPs",
+      "SOP Applications",
+      "SOP Replication"
+    ]
+  },
+  {
+    "objectID": "page_files/op_replication.html",
+    "href": "page_files/op_replication.html",
+    "title": "OP Replication",
+    "section": "",
+    "text": "OP Replication",
+    "crumbs": [
+      "OPs",
+      "OP Applications",
+      "OP Replication"
+    ]
+  },
+  {
+    "objectID": "page_files/sop_tutorial.html",
+    "href": "page_files/sop_tutorial.html",
+    "title": "SOP Tutorial",
+    "section": "",
+    "text": "SOP Tutorial\nDescribe your tutorials here.",
+    "crumbs": [
+      "SOPs",
+      "SOP Applications",
+      "SOP Tutorial"
+    ]
+  },
+  {
+    "objectID": "tutorials/tutorial-01.html",
+    "href": "tutorials/tutorial-01.html",
+    "title": "First tutorial",
+    "section": "",
+    "text": "First tutorial\nThis is my first tutorial!"
+  },
+  {
+    "objectID": "page_files/sop.html",
+    "href": "page_files/sop.html",
+    "title": "Spatial Ordinal Patterns (SOPs)",
+    "section": "",
+    "text": "Spatial Ordinal Patterns (SOPs)\nSpatial Ordinal Patterns (SOPs) are a way to …",
+    "crumbs": [
+      "SOPs",
+      "Spatial Ordinal Patterns (SOPs)"
+    ]
+  },
+  {
+    "objectID": "page_files/op_tutorial.html",
+    "href": "page_files/op_tutorial.html",
+    "title": "OP Tutorial",
+    "section": "",
+    "text": "OP Tutorial",
+    "crumbs": [
+      "OPs",
+      "OP Applications",
+      "OP Tutorial"
+    ]
+  },
+  {
+    "objectID": "page_files/installation.html",
+    "href": "page_files/installation.html",
+    "title": "Installation",
+    "section": "",
+    "text": "Installation\nThe package is currently not registered and has to be installed manually from GitHub."
+  },
+  {
+    "objectID": "page_files/api_reference.html",
+    "href": "page_files/api_reference.html",
+    "title": "API",
+    "section": "",
+    "text": "API",
+    "crumbs": [
+      "API"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "OrdinalPatterns.jl",
+    "section": "",
+    "text": "Build Status\n\n\nThis package provides functions to compute ordinal patterns from time series data. The package is based on the work of Bandt and Pompe (2002). The package is highly optimized and fast. The package is designed to be easy to use and provides a simple interface to compute ordinal patterns from time series data.\n\n\nThe documentation for the package can be found here."
+  },
+  {
+    "objectID": "index.html#documentation",
+    "href": "index.html#documentation",
+    "title": "OrdinalPatterns.jl",
+    "section": "",
+    "text": "The documentation for the package can be found here."
+  },
+  {
+    "objectID": "reference/arl_sacf.html",
+    "href": "reference/arl_sacf.html",
+    "title": "arl_sacf",
+    "section": "",
+    "text": "arl_sacf\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\narl_sacf(m::Int, n::Int, lam, cl, reps::Int, dist_error)\n\nCompute the in-control average run length (ARL), using the spatial autocorrelation function (SACF) for a lag length of 1. The function returns the ARL for a given control limit cl and a given number of repetitions reps. The input arguments are:\n\nm::Int: The number of rows in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).\nn::Int: The number of columns in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\nreps: The number of repetitions to compute the ARL.\ndist_error: The distribution to use for the error term in the SACF function. This can be any univariate distribution from the Distributions.jl package or a custom distribution with a defined method for rand() and rand!().\n\n\n#--- Example\n# Set parameters\nm = 10\nn = 10\nlam = 0.1\ncl = .001\nreps = 100\ndist_error = Normal(0, 1)\n\n# Compute average run length\narl = arl_sacf(m, n, lam, cl, reps, dist_error)\n\n\n\n\n\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\narl_sacf(lam, cl, reps, spatial_dgp, dist_error::UnivariateDistribution, dist_ao::Union{UnivariateDistribution,Nothing})\n\nCompute the out-of-control average run length (ARL), using the spatial autocorrelation function (SACF) for a lag length of 1. The function returns the ARL for a given control limit cl and a given number of repetitions reps. The input arguments are:\n\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\nreps: The number of repetitions to compute the ARL.\nspatial_dgp: The spatial data generating process (DGP) to use for the SACF function. This can be one of the following: SAR1, SAR11, SINAR11, SQMA11, SQINMA11, or BSQMA11.\ndist_error: The distribution to use for the error term in the SACF function. This can be any univariate distribution from the Distributions.jl package with a defined mean or a custom distribution.\ndist_ao: The distribution to use for additive outliers. This can be any univariate distribution from the Distributions.jl package or a custom distribution.\n\n\n#--- Example\n# Set parameters\nlam = 0.1\ncl = .001\nreps = 100\nspatial_dgp = SAR11((0.1, 0.1, 0.1), 10, 10, 100)\ndist_error = Normal(0, 1)\ndist_ao = nothing\n\n# Compute average run length\narl = arl_sacf(lam, cl, reps, spatial_dgp, dist_error, dist_ao)",
+    "crumbs": [
+      "API",
+      "Functions for spatial data",
+      "arl_sacf"
+    ]
+  },
+  {
+    "objectID": "reference/SAR11.html",
+    "href": "reference/SAR11.html",
+    "title": "SAR11",
+    "section": "",
+    "text": "SAR11\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nSAR11(dgp_params, m, n, prerun)\n\nFirst-order spatial autoregressive (SAR(1, 1)) model as defined by Weiß and Kim (2024) on page 6. The struct contains the following fields:\n\ndgp_params::Tuple{Float64, Float64, Float64}: A tuple of the parameters of the DGP. The first element is the parameter α₁, the second element is the parameter α₂, and the third element is the parameter α₃. The requirements to guarantee stationarity for the process are |α₁| &lt; 1, |α₂| &lt; 1, |α₁ + α₂| &lt; 1 - α₃, and |α₁ - α₂| &lt; 1 + α₃.\nm::Int: The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.\nn::Int: The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.\nprerun::Int: A value to initialize the DGP to achieve stationarity. These number of rows and columns will be discarded after the initialization.\n\n\nsar11 = SAR11((0.5, 0.3, 0.2), 11, 11, 100)",
+    "crumbs": [
+      "API",
+      "Types for spatial data",
+      "SAR11"
+    ]
+  },
+  {
+    "objectID": "reference/compute_lookup_array.html",
+    "href": "reference/compute_lookup_array.html",
+    "title": "compute_lookup_array",
+    "section": "",
+    "text": "compute_lookup_array\n\n\n\n\n\n\ndocblock\n\n\n\n\n\nCompute a 4D array to lookup the index of the sops. The original SOPs are based on ranks. Here we use sortperm which computes the order of the elements in the vector."
+  },
+  {
+    "objectID": "reference/sop_frequencies.html",
+    "href": "reference/sop_frequencies.html",
+    "title": "sop_frequencies",
+    "section": "",
+    "text": "sop_frequencies\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nsop_frequencies(m::Int, n::Int, lookup_array_sop, n_sops, data, sop)\n\nCompute the frequencies of the spatial ordinal patterns. n_sops has to equal 24, as there are 4! = 24 possible patterns when using a 2x2 grid."
+  },
+  {
+    "objectID": "reference/stat_sop.html",
+    "href": "reference/stat_sop.html",
+    "title": "stat_sop",
+    "section": "",
+    "text": "stat_sop\n\n\n\n\n\n\ndocblock\n\n\n\n\n\nstatsop(data::Matrix{Float64}, chartchoice)\nComputes the test statistic for a single picture and chosen test statistic. chart_coice is an integer value for the chart choice. The options are 1-4.\n\nExamples\n#| eval: false\ndata = rand(20, 20);\n\nstat_sop(data, 2)\n\n\n\n\n\n\n\n\n\n\n\n\ndocblock\n\n\n\n\n\nstatsop(data::Array{Float64,3}, addnoise::Bool, lam::Float64, chart_choice::Int)\nComputes the test statistic for a 3D array of data, a given lambda value, and a given chart choice. The input parameters are:\n\ndata::Array{Float64,3}: A 3D array of data.\nadd_noise::Bool: A boolean value whether to add noise to the data. This is necessary when the matrices consist of count data.\nlam::Float64: A scalar value for lambda.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\n\n\nExamples\n#| eval: false\ndata = rand(20, 20, 10);\nlam = 0.1;\nchart_choice = 2;\n\nstat_sop(data, false, lam, chart_choice)"
+  },
+  {
+    "objectID": "reference/crit_val_sacf.html",
+    "href": "reference/crit_val_sacf.html",
+    "title": "crit_val_sacf",
+    "section": "",
+    "text": "crit_val_sacf\n\n\n\n\n\n\ndocblock\n\n\n\n\n\ncritvalsacf(M, N, alpha)\nComputes the critical value for the SACF of lag 1. The input parameters are:\n\nM::Int64: The number of rows in the data matrix.\nN::Int64: The number of columns in the data matrix.\nalpha::Float64: The significance level.\n\n\nExamples\n#| eval: false\n# compute critical value\ncrit_val_sacf(11, 11, 0.05)"
+  },
+  {
+    "objectID": "reference/rl_sop.html",
+    "href": "reference/rl_sop.html",
+    "title": "rl_sop",
+    "section": "",
+    "text": "rl_sop\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nrl_sop(m, n, lookup_array_sop, lam, cl, reps_range, chart_choice, dist)\n\nA function to compute the run length for a given control limit and in-control distribution. The input parameters are:\n\nm::Int: The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.\nn::Int: The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.\nlookup_array_sop::Array{Int, 4}: A 4D array with the lookup array for the sops. This can be automatically computed using lookuparraysop = compute_lookup_array(). This will be used to find the index of the sops.\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nreps_range::UnitRange{Int}: A range of integers for the number of repetitions. This has to be a range to be compatible with arl_sop() which uses threading and multi-processing.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\ndist::Distribution: A distribution for the in-control data. Here you can use any univariate distribution from the Distributions.jl package.\n\n\n\n\n\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nrl_sop(lam, cl, reps_range, chart_choice, p_mat::Matrix{Float64})\n\nA function to compute the run length for a given control limit using bootstraping instead of a theoretical in-control distribution. The input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nreps_range::UnitRange{Int}: A range of integers for the number of repetitions. This has to be a range to be compatible with arl_sop() which uses threading and multi-processing.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\np_mat::Matrix{Float64}: A matrix with the values of each pattern group obtained by compute_p_mat(). This matrix will be used for re-sampling\n\n\n\n\n\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nrl_sop(m, n, lookup_array_sop, lam, cl, p_reps, chart_choice, spatial_dgp, dist_error, dist_ao)\n\nComputes the run length for a given out-of-control DGP. The input parameters are:\n\nm::Int: The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.\nn::Int: The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.\nlookup_array_sop::Array{Int, 4}: A 4D array with the lookup array for the sops. This can be automatically computed using lookup_array_sop = compute_lookup_array(). This will be used to find the index of the sops.\nlam: A scalar value for lambda for the EWMA chart. This has to be between 0 and 1.\ncl::Float64: A scalar value for the control limit.\np_reps::UInt: An unsigned integer value for the number of repetitions. This has to be an unsigned integer to be compatible with arl_sop() which uses threading and multi-processing.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\nspatial_dgp::AbstractSpatialDGP: A struct for type for the spatial DGP. This can be either SAR11, SINAR11, SQMA11, BSQMA11 or SAR1. Look at their documentation for more information.\ndist_error::Distribution: A distribution for the error term. Here you can use any univariate distribution from the Distributions.jl package.\ndist_ao::Distribution: A distribution for the out-of-control data. Here you can use any univariate distribution from the Distributions.jl package."
+  },
+  {
+    "objectID": "reference/arl_sop.html",
+    "href": "reference/arl_sop.html",
+    "title": "arl_sop",
+    "section": "",
+    "text": "arl_sop\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\narl_sop(m::Int, n::Int, lam, cl, reps, chart_choice, dist::UnivariateDistribution)\n\nFunction to compute the average run length (ARL) for a given control-limit and in-control distribution. The input parameters are:\n\nm::Int: The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.\nn::Int: The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nreps::Int: An integer value for the number of repetitions.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\ndist::Distribution: A distribution for the in-control data. Here you can use any univariate distribution from the Distributions.jl package.\n\n\n\n\n\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\narl_sop(lam, cl, reps, chart_choice, data::Array{Float64, 3})\n\nFunction to compute the average run length (ARL) using a bootstraping approach. The input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nreps::Int: An integer value for the number of repetitions.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\np_mat::Array{Float64, 3}: A 3D array with the data. The data has to be in the form of a 3D array.\n\n\n\n\n\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\narl_sop(lam, cl, reps, chart_choice, spatial_dgp, dist_error::UnivariateDistribution, dist_ao::Union{Nothing, UnivariateDistribution})\n\nFunction to compute the average run length (ARL) for a given out-of-control DGP. The input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\nspatial_dgp::AbstractSpatialDGP: A struct for type for the spatial DGP. This can be either SAR11, SINAR11, SQMA11, BSQMA11 or SAR1. Look at their documentation for more information.\ndist_error::Distribution: A distribution for the error term. Here you can use any univariate distribution from the Distributions.jl package.\ndist_ao::Distribution: A distribution for the out-of-control data. Here you can use any univariate distribution from the Distributions.jl package.",
+    "crumbs": [
+      "API",
+      "Functions for spatial data",
+      "arl_sop"
+    ]
+  },
+  {
+    "objectID": "reference/cl_acf.html",
+    "href": "reference/cl_acf.html",
+    "title": "cl_acf",
+    "section": "",
+    "text": "cl_acf\n\n\n\n\n\n\ndocblock\n\n\n\n\n\nclacf(lam, L0, acfdgp, clinit, preps=10000; jmin=4, jmax=6, verbose=false)\nFunction to compute the control limit for the ACF statistic by XXX.\n\nlam::Float64: Smoothing parameter for the EWMA statistic.\nL0::Float64: In-control ARL.\nacf_dgp::Union{IC, AR1, TEAR1}: DGP.\ncl_init::Float64: Initial guess for the control limit.\np_reps::Int64: Number of replications.\njmin::Int64: Minimum number of iterations.\n\n\n# Compute initial values via quantiles\n if j == 1 || j == 2\n      cl_init = quantile(stat_op(data, lam[i], j)[1], 0.01)                \n  else\n      cl_init = quantile(stat_op(data, lam[i], j)[1], 0.99)\nend \n\ncl_acf(0.1, 3.0, IC(Normal(0, 1)), cl_init, 10000)"
+  },
+  {
+    "objectID": "reference/SAR1.html",
+    "href": "reference/SAR1.html",
+    "title": "SAR1",
+    "section": "",
+    "text": "SAR1\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nSAR1(dgp_params, eps_params, m, n, prerun)\n\nFirst-order simultaneous autoregressive (SAR(1)) model as defined by Weiß and Kim (2024) on page 8. The struct contains the following fields:\n\ndgp_params::Tuple{Float64, Float64, Float64, Float64}: A tuple of the parameters of the DGP. The first element is the parameter β₁, the second element is the parameter β₂, and the third element is the parameter β₃. Note that β₁, β₂, and β₃ ∈ [0, 1].\nm::Int: The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.\nn::Int: The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.\nmargin::Int: The margin for the spatial matrix used for initialization.\n\n\nsar1 = SAR1((0.5, 0.3, 0.2, 0.1), 11, 11, 1)",
+    "crumbs": [
+      "API",
+      "Types for spatial data",
+      "SAR1"
+    ]
+  },
+  {
     "objectID": "reference/SQMA11.html",
     "href": "reference/SQMA11.html",
     "title": "SQMA11",
     "section": "",
     "text": "SQMA11\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nSQMA11(dgp_params, eps_params, m, n, prerun)\n\nSpatial quadratic moving-average (SQMA(1, 1)) model as defined by Weiß and Kim (2024) on page 7. The struct contains the following fields:\n\ndgp_params::Tuple{Float64, Float64, Float64}: A tuple of the parameters of the DGP. The first element is the parameter β₁, the second element is the parameter β₂, and the third element is the parameter β₃.\neps_params::Tuple{Int, Int, Int}: A tuple of the parameters of the DGP, indicating which error terms shall be squared. Note that eps_params ∈ {1, 2}.\nm::Int: The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.\nn::Int: The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.\nprerun::Int: A value to initialize the DGP. This value should be set to 1.\n\n\nsqma11 = SQMA11((0.5, 0.3, 0.2), (1, 1, 2), 11, 11, 1)",
     "crumbs": [
-      "Reference",
-      "DGPs for Spatial Data",
+      "API",
+      "Types for spatial data",
       "SQMA11"
     ]
   },

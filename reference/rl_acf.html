@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>crit_val_sop</title>
+<title>rl_acf</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +19,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -128,7 +162,7 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#sec-doc" id="toc-sec-doc" class="nav-link active" data-scroll-target="#sec-doc">crit_val_sop</a></li>
+  <li><a href="#sec-doc" id="toc-sec-doc" class="nav-link active" data-scroll-target="#sec-doc">rl_acf</a></li>
   </ul>
 </nav>
     </div>
@@ -139,7 +173,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 <section id="sec-doc" class="level1">
-<h1>crit_val_sop</h1>
+<h1>rl_acf</h1>
 <div class="callout callout-style-simple callout-note callout-titled" title="docblock">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -152,53 +186,19 @@ docblock
 </div>
 <div id="callout-1" class="callout-1-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
-<p>crit<em>val</em>sop(m, n, alpha, chart_choice, approximate::Bool)</p>
-<p>Computes the critical value for the SOP test. Also allows the approximation of the critical value. The input parameters are:</p>
+<div id="2" class="cell" data-execution_count="0">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rl_acf</span>(lam, cl, p_reps, acf_dgp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Function to compute the run length (RL) for a specified DGP using the ACF statistic by XXX.</p>
 <ul>
-<li><code>m::Int64</code>: The number of rows in the sop-matrix. Note that the data matrix has dimensions <code>M = m + 1</code>.</li>
-<li><code>n::Int64</code>: The number of columns in the sop-matrix. Note that the data matrix has dimensions <code>N = n + 1</code>.</li>
-<li><code>alpha::Float64</code>: The significance level.</li>
-<li><code>chart_choice::Int64</code>: The choice of chart.</li>
-<li><code>approximate::Bool</code>: If <code>true</code>, the approximate critical value is computed. If <code>false</code>, the exact critical value is computed.</li>
+<li><code>lam::Float64</code>: Smoothing parameter for the EWMA statistic.</li>
+<li><code>cl::Float64</code>: Control limit for the ACF statistic.</li>
+<li><code>p_reps::Vector{Int64}</code>: Unit range for number of replications.</li>
+<li><code>acf_dgp::Union{IC, AR1, TEAR1}</code>: DGP.</li>
 </ul>
-<section id="examples" class="level3">
-<h3 class="anchored" data-anchor-id="examples">Examples</h3>
-<pre class="{julia-repl}"><code>#| eval: false
-# compute approximate critical value for chart 1 
-crit_val_sop(10, 10, 0.05, 1, true)
-</code></pre>
-</section>
+<div id="4" class="cell" data-execution_count="0">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rl_acf</span>(<span class="fl">0.1</span>, <span class="fl">3.0</span>, <span class="fl">10_000</span>, <span class="fu">IC</span>(<span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</div>
-</div>
-<hr>
-<div class="callout callout-style-simple callout-note callout-titled" title="docblock">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="true" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-docblock
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-2" class="callout-2-contents callout-collapse collapse show">
-<div class="callout-body-container callout-body">
-<p>crit<em>val</em>sop(m, n, alpha, chart_choice, approximate::Bool)</p>
-<p>Computes the exact critical value for the SOP test. The input parameters are:</p>
-<ul>
-<li><code>m::Int64</code>: The number of rows in the sop-matrix. Note that the data matrix has dimensions <code>M = m + 1</code>.</li>
-<li><code>n::Int64</code>: The number of columns in the sop-matrix. Note that the data matrix has dimensions <code>N = n + 1</code>.</li>
-<li><code>alpha::Float64</code>: The significance level.</li>
-<li><code>chart_choice::Int64</code>: The choice of chart. The options are:</li>
-</ul>
-<section id="examples-1" class="level3">
-<h3 class="anchored" data-anchor-id="examples-1">Examples</h3>
-<pre class="{julia-repl}"><code>#| eval: false
-# compute approximate critical value for chart 1 
-crit_val_sop(10, 10, 0.05, 1, true)
-</code></pre>
-</section>
 </div>
 </div>
 </div>
