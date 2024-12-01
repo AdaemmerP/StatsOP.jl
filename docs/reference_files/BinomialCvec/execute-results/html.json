@@ -1,0 +1,12 @@
+{
+  "hash": "cd1702bb0a3b87f60aa6bdfdf802327d",
+  "result": {
+    "engine": "julia",
+    "markdown": "---\nengine: julia\n---\n\n\n\n\n\n# BinomialCvec {#sec-doc}\n    \n\n::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n\n\n\n\n\n\n::: {#2 .cell execution_count=0}\n``` {.julia .cell-code}\nBinomialCvec{T <: Real}  <: DiscreteUnivariateDistribution\n\n```\n:::\n\n\n\n\n\n\n\nA struct to define a binomial distribution, which gets multiplied by a value from vector `c_vec`. \n \n`julia-repl dist = BinomialCvec(0.5, [-10; 10]) rand(dist)``\n \n\n\n:::\n\n\n",
+    "supporting": [
+      "BinomialCvec_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

@@ -1,0 +1,31 @@
+---
+engine: julia
+---
+
+# ZIP {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+ZIP <: DiscreteUnivariateDistribution
+
+```
+
+A struct to define a zero-inflated Poisson distribution.
+ 
+
+```{julia-repl}
+#| eval: false
+dist = ZIP(5.0, 0.2)
+rand(dist)
+
+```
+
+
+
+:::
+    
+

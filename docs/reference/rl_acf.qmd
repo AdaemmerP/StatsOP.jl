@@ -1,0 +1,34 @@
+---
+engine: julia
+---
+
+# rl_acf {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+rl_acf(lam, cl, p_reps, acf_dgp)
+
+```
+
+Function to compute the run length (RL) for a specified DGP using the ACF statistic by XXX.
+ 
+  * `lam::Float64`: Smoothing parameter for the EWMA statistic.
+  * `cl::Float64`: Control limit for the ACF statistic.
+  * `p_reps::Vector{Int64}`: Unit range for number of replications.
+  * `acf_dgp::Union{IC, AR1, TEAR1}`: DGP.
+
+```{julia}
+#| eval: false
+rl_acf(0.1, 3.0, 10_000, IC(Normal(0, 1)))
+
+```
+
+
+
+:::
+    
+

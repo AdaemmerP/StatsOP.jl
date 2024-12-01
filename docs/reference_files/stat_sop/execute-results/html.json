@@ -1,0 +1,12 @@
+{
+  "hash": "9da2b6a2823a187ef24ae2b043cdf551",
+  "result": {
+    "engine": "julia",
+    "markdown": "---\nengine: julia\n---\n\n\n\n\n\n# stat_sop {#sec-doc}\n    \n\n::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n\nstat*sop(data::Matrix{Float64}, chart*choice)\n \nComputes the test statistic for a single picture and chosen test statistic. `chart_coice` is an integer value for the chart choice. The options are 1-4.\n \n\n### Examples\n    \n\n```{julia-repl}\n#| eval: false\ndata = rand(20, 20);\n\nstat_sop(data, 2)\n\n```\n\n\n\n:::\n    \n\n --- \n \n::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n\nstat*sop(data::Array{Float64,3}, add*noise::Bool, lam::Float64, chart_choice::Int)\n \nComputes the test statistic for a 3D array of data, a given lambda value, and a given chart choice. The input parameters are:\n \n  * `data::Array{Float64,3}`: A 3D array of data.\n  * `add_noise::Bool`: A boolean value whether to add noise to the data. This is necessary when the matrices consist of count data.\n  * `lam::Float64`: A scalar value for lambda.\n  * `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.\n\n### Examples\n    \n\n```{julia-repl}\n#| eval: false\ndata = rand(20, 20, 10);\nlam = 0.1;\nchart_choice = 2;\n\nstat_sop(data, false, lam, chart_choice)\n\n```\n\n\n\n:::\n\n\n",
+    "supporting": [
+      "stat_sop_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

@@ -1,0 +1,38 @@
+---
+engine: julia
+---
+
+# cl_acf {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+cl*acf(lam, L0, acf*dgp, cl*init, p*reps=10000; jmin=4, jmax=6, verbose=false)
+ 
+Function to compute the control limit for the ACF statistic by XXX.
+ 
+  * `lam::Float64`: Smoothing parameter for the EWMA statistic.
+  * `L0::Float64`: In-control ARL.
+  * `acf_dgp::Union{IC, AR1, TEAR1}`: DGP.
+  * `cl_init::Float64`: Initial guess for the control limit.
+  * `p_reps::Int64`: Number of replications.
+  * `jmin::Int64`: Minimum number of iterations.
+
+```{julia}
+#| eval: false
+# Compute initial values via quantiles
+ if j == 1 || j == 2
+      cl_init = quantile(stat_op(data, lam[i], j)[1], 0.01)                
+  else
+      cl_init = quantile(stat_op(data, lam[i], j)[1], 0.99)
+end 
+
+cl_acf(0.1, 3.0, IC(Normal(0, 1)), cl_init, 10000)
+
+```
+
+
+
+:::
+    
+

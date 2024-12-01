@@ -1,0 +1,12 @@
+{
+  "hash": "e335f2850bbc210cbb4bf6910a988362",
+  "result": {
+    "engine": "julia",
+    "markdown": "---\nengine: julia\n---\n\n\n\n\n\n# SQINMA11 {#sec-doc}\n    \n\n::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n\n\n\n\n\n\n::: {#2 .cell execution_count=0}\n``` {.julia .cell-code}\nSQINMA11(dgp_params, eps_params, m, n, prerun)\n\n```\n:::\n\n\n\n\n\n\n\nSpatial quadratic integer moving-average SQINMA(1, 1) model as defined by Weiß and Kim (2024) on page 7. The struct contains the following fields:\n \n  * `dgp_params::Tuple{Float64, Float64, Float64}`: A tuple of the parameters of the DGP. The first element is the parameter β₁, the second element is the parameter β₂, and the third element is the parameter β₃. Note that β₁, β₂, and β₃ ∈ [0, 1].\n  * `eps_params::Tuple{Int, Int, Int}`: A tuple of the parameters of the DGP, indicating which error terms shall be squared. Note that `eps_params` ∈ {1, 2}.\n  * `m::Int`: The number of rows for the final \"SOP\" matrix. Note that the final spatial matrix (\"picture\") equals m + 1.\n  * `n::Int`: The number of columns for the final \"SOP\" matrix. Note that the final spatial matrix (\"picture\") equals n + 1.\n  * `prerun::Int`: A value to initialize the DGP. This value should be set to 1.\n\n\n\n\n\n::: {#4 .cell execution_count=0}\n``` {.julia .cell-code}\nsqinma11 = SQINMA11((0.5, 0.3, 0.2), (1, 1, 2), 11, 11, 1)\n\n```\n:::\n\n\n\n\n\n\n\n\n\n:::\n\n\n",
+    "supporting": [
+      "SQINMA11_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

@@ -1,0 +1,23 @@
+---
+engine: julia
+---
+
+# compute_p_mat {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+compute_p_mat(data::Array{Float64,3})
+
+```
+
+Compute the matrix of p-hat values for a given 3D array of data. These values are used for bootstrapping. 
+ 
+
+
+:::
+    
+

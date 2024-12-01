@@ -1,0 +1,12 @@
+{
+  "hash": "41bb7c5cc8f67cbd298623c7d1a2e52c",
+  "result": {
+    "engine": "julia",
+    "markdown": "---\nengine: julia\n---\n\n\n\n\n\n# sacf_11 {#sec-doc}\n    \n\n::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n\n\n\n\n\n\n::: {#2 .cell execution_count=0}\n``` {.julia .cell-code}\nsacf_11(data, cdata, cx_t_cx_t1, cdata_sq)\n\n```\n:::\n\n\n\n\n\n\n\nCompute the spatial autocorrelation function (SACF) for a given matrix `data`. The function returns the SACF for the first lag (ρ(1, 1)). The input arguments are:\n \n  * `data`: A matrix of size M x N.\n  * `cdata`: A matrix of size M x N to store the demeaned data.\n  * `cx_t_cx_t1`: A matrix of size M x N to store the element-wise multiplication of the current and lagged data.\n\n\n:::\n\n\n",
+    "supporting": [
+      "sacf_11_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

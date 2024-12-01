@@ -1,0 +1,87 @@
+---
+engine: julia
+---
+
+# arl_sacf {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+arl_sacf(m::Int, n::Int, lam, cl, reps::Int, dist_error)
+
+```
+
+Compute the in-control average run length (ARL), using the spatial autocorrelation function (SACF) for a lag length of 1. The function returns the ARL for a given control limit `cl` and a given number of repetitions `reps`. The input arguments are:    
+ 
+  * `m::Int`: The number of rows in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).
+  * `n::Int`: The number of columns in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).
+  * `lam`: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.
+  * `cl`: The control limit for the EWMA control chart.
+  * `reps`: The number of repetitions to compute the ARL.
+  * `dist_error`: The distribution to use for the error term in the SACF function. This can be any univariate distribution from the `Distributions.jl` package or a custom distribution with a defined method for `rand()` and `rand!()`.
+
+```{julia}
+#| eval: false
+#--- Example
+# Set parameters
+m = 10
+n = 10
+lam = 0.1
+cl = .001
+reps = 100
+dist_error = Normal(0, 1)
+
+# Compute average run length
+arl = arl_sacf(m, n, lam, cl, reps, dist_error)
+
+```
+
+
+
+:::
+    
+
+ --- 
+ 
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+arl_sacf(lam, cl, reps, spatial_dgp, dist_error::UnivariateDistribution, dist_ao::Union{UnivariateDistribution,Nothing})
+
+```
+
+Compute the out-of-control average run length (ARL), using the spatial autocorrelation function (SACF) for a lag length of 1. The function returns the ARL for a given control limit `cl` and a given number of repetitions `reps`. The input arguments are:    
+ 
+  * `lam`: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.
+  * `cl`: The control limit for the EWMA control chart.
+  * `reps`: The number of repetitions to compute the ARL.
+  * `spatial_dgp`: The spatial data generating process (DGP) to use for the SACF function. This can be one of the following: `SAR1`, `SAR11`, `SINAR11`, `SQMA11`, `SQINMA11`, or `BSQMA11`.
+  * `dist_error`: The distribution to use for the error term in the SACF function. This can be any univariate distribution from the `Distributions.jl` package with a defined mean or a custom distribution.
+  * `dist_ao`: The distribution to use for additive outliers. This can be any univariate distribution from the `Distributions.jl` package or a custom distribution.
+
+```{julia}
+#| eval: false
+#--- Example
+# Set parameters
+lam = 0.1
+cl = .001
+reps = 100
+spatial_dgp = SAR11((0.1, 0.1, 0.1), 10, 10, 100)
+dist_error = Normal(0, 1)
+dist_ao = nothing
+
+# Compute average run length
+arl = arl_sacf(lam, cl, reps, spatial_dgp, dist_error, dist_ao)
+
+```
+
+
+
+:::
+    
+

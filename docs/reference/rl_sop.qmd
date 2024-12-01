@@ -1,0 +1,82 @@
+---
+engine: julia
+---
+
+# rl_sop {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+rl_sop(m, n, lookup_array_sop, lam, cl, reps_range, chart_choice, dist)
+
+```
+
+A function to compute the run length for a given control limit and in-control distribution. The input parameters are:
+ 
+  * `m::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
+  * `n::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1.
+  * `lookup_array_sop::Array{Int, 4}`: A 4D array with the lookup array for the sops. This can be automatically computed using lookup*array*sop = `compute_lookup_array()`. This will be used to find the index of the sops.
+  * `lam::Float64`: A scalar value for lambda for the EWMA chart.
+  * `cl::Float64`: A scalar value for the control limit.
+  * `reps_range::UnitRange{Int}`: A range of integers for the number of repetitions. This has to be a range to be compatible with `arl_sop()` which uses threading and multi-processing.
+  * `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
+  * `dist::Distribution`: A distribution for the in-control data. Here you can use any univariate distribution from the `Distributions.jl` package.
+
+
+:::
+    
+
+ --- 
+ 
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+rl_sop(lam, cl, reps_range, chart_choice, p_mat::Matrix{Float64})
+
+```
+
+A function to compute the run length for a given control limit using bootstraping instead of a theoretical in-control distribution. The input parameters are:
+ 
+  * `lam::Float64`: A scalar value for lambda for the EWMA chart.
+  * `cl::Float64`: A scalar value for the control limit.
+  * `reps_range::UnitRange{Int}`: A range of integers for the number of repetitions. This has to be a range to be compatible with `arl_sop()` which uses threading and multi-processing.
+  * `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
+  * `p_mat::Matrix{Float64}`: A matrix with the values of each pattern group obtained by `compute_p_mat()`. This matrix will be used for re-sampling
+
+
+:::
+    
+
+ --- 
+ 
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+rl_sop(m, n, lookup_array_sop, lam, cl, p_reps, chart_choice, spatial_dgp, dist_error, dist_ao)
+
+```
+
+Computes the run length for a given out-of-control DGP. The input parameters are:
+ 
+  * `m::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
+  * `n::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1.
+  * `lookup_array_sop::Array{Int, 4}`: A 4D array with the lookup array for the sops. This can be automatically computed using `lookup_array_sop = compute_lookup_array()`. This will be used to find the index of the sops.
+  * `lam`: A scalar value for lambda for the EWMA chart. This has to be between 0 and 1.
+  * `cl::Float64`: A scalar value for the control limit.
+  * `p_reps::UInt`: An unsigned integer value for the number of repetitions. This has to be an unsigned integer to be compatible with `arl_sop()` which uses threading and multi-processing.
+  * `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
+  * `spatial_dgp::AbstractSpatialDGP`: A struct for type for the spatial DGP. This can be either `SAR11`, `SINAR11`, `SQMA11`, `BSQMA11` or `SAR1`. Look at their documentation for more information.
+  * `dist_error::Distribution`: A distribution for the error term. Here you can use any univariate distribution from the `Distributions.jl` package.
+  * `dist_ao::Distribution`: A distribution for the out-of-control data. Here you can use any univariate distribution from the `Distributions.jl` package.
+
+
+:::
+    
+

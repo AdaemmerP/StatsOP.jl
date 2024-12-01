@@ -1,0 +1,12 @@
+{
+  "hash": "23debc8b3b6c4b51390ea954f2f563e4",
+  "result": {
+    "engine": "julia",
+    "markdown": "---\nengine: julia\n---\n\n\n\n\n\n# chart_stat_sop {#sec-doc}\n    \n\n::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n\n\n\n\n\n\n::: {#2 .cell execution_count=0}\n``` {.julia .cell-code}\nchart_stat_sop(p_ewma, chart_choice)\n\n```\n:::\n\n\n\n\n\n\n\nCompute the the test statistic for spatial ordinal patterns. The first input is a vector with three values, based on SOP counts. The second input is the chart.     \n \n\n\n:::\n\n\n",
+    "supporting": [
+      "chart_stat_sop_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

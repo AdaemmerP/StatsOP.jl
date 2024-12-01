@@ -1,0 +1,23 @@
+---
+engine: julia
+---
+
+# sop_frequencies {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+sop_frequencies(m::Int, n::Int, lookup_array_sop, n_sops, data, sop)
+
+```
+
+Compute the frequencies of the spatial ordinal patterns. `n_sops` has to equal 24, as there are 4! = 24 possible patterns when using a 2x2 grid. 
+ 
+
+
+:::
+    
+

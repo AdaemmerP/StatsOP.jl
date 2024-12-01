@@ -1,0 +1,12 @@
+{
+  "hash": "96ba3daea69344470f9922f6cdd12711",
+  "result": {
+    "engine": "julia",
+    "markdown": "---\nengine: julia\n---\n\n\n\n\n\n# PoiBin {#sec-doc}\n    \n\n::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n\n\n\n\n\n\n::: {#2 .cell execution_count=0}\n``` {.julia .cell-code}\nPoiBin{T <: Real}  <: DiscreteUnivariateDistribution\n\n```\n:::\n\n\n\n\n\n\n\nA struct to define a Poisson-Binomial distribution. \n \n\n```{julia-repl}\n#| eval: false\ndist = PoiBin(0.5, 5)\nrand(dist)\n\n```\n\n\n\n:::\n\n\n",
+    "supporting": [
+      "PoiBin_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

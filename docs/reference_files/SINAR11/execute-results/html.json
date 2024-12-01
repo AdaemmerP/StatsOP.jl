@@ -1,0 +1,12 @@
+{
+  "hash": "70f554a7c94d200827a4ddd1449d06f8",
+  "result": {
+    "engine": "julia",
+    "markdown": "---\nengine: julia\n---\n\n\n\n\n\n# SINAR11 {#sec-doc}\n    \n\n::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n\n\n\n\n\n\n::: {#2 .cell execution_count=0}\n``` {.julia .cell-code}\nSINAR11(dgp_params, m, n, prerun)\n\n```\n:::\n\n\n\n\n\n\n\nFirst-order integer spatial autoregressive (SINAR(1, 1)) model as defined by Weiß and Kim (2024) on page 6. The struct contains the following fields:\n \n  * `dgp_params::Tuple{Float64, Float64, Float64}`: A tuple of the parameters of the DGP. The first element is the parameter α₁, the second element is the parameter α₂, and the third element is the parameter α₃. Note that α₁, α₂, and α₃ ∈ [0, 1) and α₁ + α₂ + α₃ < 1 to guarantee stationarity.\n  * `m::Int`: The number of rows for the final \"SOP\" matrix. Note that the final spatial matrix (\"picture\") equals m + 1.\n  * `n::Int`: The number of columns for the final \"SOP\" matrix. Note that the final spatial matrix (\"picture\") equals n + 1.\n  * `prerun::Int`: A value to initialize the DGP to guarantee stationarity. These number of rows and columns will be discarded for the final spatial matrix.\n\n\n\n\n\n::: {#4 .cell execution_count=0}\n``` {.julia .cell-code}\nsar11 = SINAR((0.5, 0.3, 0.2), 11, 11, 100)\n\n```\n:::\n\n\n\n\n\n\n\n\n\n:::\n\n\n",
+    "supporting": [
+      "SINAR11_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

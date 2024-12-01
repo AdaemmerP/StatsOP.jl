@@ -1,0 +1,34 @@
+---
+engine: julia
+---
+
+# arl_acf {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+arl_acf(lam, cl, acf_dgp, reps=10000)
+
+```
+
+Function to compute the average run length (ARL) for a specified DGP using the ACF statistic by XXX.
+ 
+  * `lam::Float64`: Smoothing parameter for the EWMA statistic.
+  * `cl::Float64`: Control limit for the ACF statistic.
+  * `acf_dgp::Union{IC, AR1, TEAR1}`: DGP.
+  * `reps::Int64`: Number of replications.
+
+```{julia}
+#| eval: false
+arl_acf(0.1, 3.0, IC(Normal(0, 1)), 10000)
+
+```
+
+
+
+:::
+    
+

@@ -1,0 +1,12 @@
+{
+  "hash": "7fb1af472428f08178945392d12d2b60",
+  "result": {
+    "engine": "julia",
+    "markdown": "---\nengine: julia\n---\n\n\n\n\n\n# compute_lookup_array {#sec-doc}\n    \n\n::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n\nCompute a 4D array to lookup the index of the sops. The original SOPs are based on ranks. Here we use sortperm which computes the order of the elements in the vector.\n \n\n\n:::\n\n\n",
+    "supporting": [
+      "compute_lookup_array_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

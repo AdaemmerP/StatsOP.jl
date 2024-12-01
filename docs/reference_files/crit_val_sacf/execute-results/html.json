@@ -1,0 +1,12 @@
+{
+  "hash": "9df2946dc8aecba6708a6c5f5820c22e",
+  "result": {
+    "engine": "julia",
+    "markdown": "---\nengine: julia\n---\n\n\n\n\n\n# crit_val_sacf {#sec-doc}\n    \n\n::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n\ncrit*val*sacf(M, N, alpha)\n \nComputes the critical value for the SACF of lag 1. The input parameters are:\n \n  * `M::Int64`: The number of rows in the data matrix.\n  * `N::Int64`: The number of columns in the data matrix.\n  * `alpha::Float64`: The significance level.\n\n### Examples\n    \n\n```{julia-repl}\n#| eval: false\n# compute critical value\ncrit_val_sacf(11, 11, 0.05)\n\n```\n\n\n\n:::\n\n\n",
+    "supporting": [
+      "crit_val_sacf_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

@@ -1,0 +1,43 @@
+---
+engine: julia
+---
+
+# cl_sop {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+cl_sop(m::Int, n::Int, lam, L0, reps::Int, cl_init, jmin, jmax, verbose, chart_choice, dist)
+
+```
+
+Compute the control limit for a given in-control distribution. The input parameters are:
+ 
+  * `m::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
+  * `n::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1.
+  * `lam::Float64`: A scalar value for lambda for the EWMA chart. The value has to be between 0 and 1.
+  * `L0::Float64`: A scalar value for the in-control ARL.
+  * `reps::Int`: An integer value for the number of repetitions.
+  * `cl_init::Float64`: A scalar value for the initial control limit. The value has to be between 0 and 1.
+  * `jmin::Int`: An integer value for the minimum number of values to change after the decimal point.
+  * `jmax::Int`: An integer value for the maximum number of values to change after the decimal point.
+  * `verbose::Bool`: A boolean value whether to print the control limit and ARL.
+  * `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
+  * `dist::Distribution`: A distribution for the in-control data. Here you can use any univariate distribution from the `Distributions.jl` package.
+```julia-repl #– Example
+ 
+
+### Parameters
+    
+m = 10 n = 10 lam = 0.1 L0 = 370 reps = 10 cl*init = 0.03 jmin = 4 jmax = 7 verbose = true chart*choice = 3 dist = Normal(0, 1)
+ 
+cl*sop(m, n, lam, L0, reps, cl*init, jmin, jmax, verbose, chart_choice, dist)
+ 
+
+
+:::
+    
+

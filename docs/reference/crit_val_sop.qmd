@@ -1,0 +1,62 @@
+---
+engine: julia
+---
+
+# crit_val_sop {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+crit*val*sop(m, n, alpha, chart_choice, approximate::Bool)
+ 
+Computes the critical value for the SOP test. Also allows the approximation of the critical value. The input parameters are:
+ 
+  * `m::Int64`: The number of rows in the sop-matrix. Note that the data matrix has dimensions `M = m + 1`.
+  * `n::Int64`: The number of columns in the sop-matrix. Note that the data matrix has dimensions `N = n + 1`.
+  * `alpha::Float64`: The significance level.
+  * `chart_choice::Int64`: The choice of chart.
+  * `approximate::Bool`: If `true`, the approximate critical value is computed. If `false`, the exact critical value is computed.
+
+### Examples
+    
+
+```{julia-repl}
+#| eval: false
+# compute approximate critical value for chart 1 
+crit_val_sop(10, 10, 0.05, 1, true)
+
+```
+
+
+
+:::
+    
+
+ --- 
+ 
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+crit*val*sop(m, n, alpha, chart_choice, approximate::Bool)
+ 
+Computes the exact critical value for the SOP test. The input parameters are:
+ 
+  * `m::Int64`: The number of rows in the sop-matrix. Note that the data matrix has dimensions `M = m + 1`.
+  * `n::Int64`: The number of columns in the sop-matrix. Note that the data matrix has dimensions `N = n + 1`.
+  * `alpha::Float64`: The significance level.
+  * `chart_choice::Int64`: The choice of chart. The options are:
+
+### Examples
+    
+
+```{julia-repl}
+#| eval: false
+# compute approximate critical value for chart 1 
+crit_val_sop(10, 10, 0.05, 1, true)
+
+```
+
+
+
+:::
+    
+

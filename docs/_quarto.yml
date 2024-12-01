@@ -1,0 +1,72 @@
+project:
+  type: website
+  output-dir: site
+execute:
+  freeze: false
+  cache: false
+  warning: false
+website:
+  # title: "OrdinalPatterns.jl"
+  page-navigation: true
+  bread-crumbs: true
+
+
+  search:
+    show-item-context: true
+    type: overlay
+
+  navbar:
+    background: primary
+
+    left:
+      - text: "OrdinalPatterns.jl"
+        href: index.qmd
+      - text: "Reference"
+        href: reference.qmd
+      - text: "Tutorials"
+        href: tutorials.qmd
+    
+    tools:
+    - icon: github
+      href: https://github.com/AdaemmerP/OrdinalPatterns.jl
+      text: "OrdinalPatterns.jl"
+
+  sidebar:
+    - title: "Reference"
+      style: "docked"
+      background: light
+      contents:
+        - reference.qmd
+        - section: "DGPs for Spatial Data"
+          contents:
+            - reference/SAR1.qmd
+            - reference/SAR11.qmd
+            - reference/SQINMA11.qmd
+            - reference/SQMA11.qmd
+        - section: "ARL functions"
+          contents:
+            - reference/arl_sop.qmd
+            - reference/arl_sacf.qmd
+
+    - title: "Tutorials"
+      style: "docked"
+      background: light
+      contents:
+        - tutorials.qmd
+        - auto: "tutorials/*"
+        
+  page-footer: "Website generated with [Quarto](https://quarto.org/) and [QuartoDocBuilder.jl](https://github.com/vituri/QuartoDocBuilder.jl)"
+
+
+engine: julia
+
+format:
+  html:
+    theme: flatly
+    css: styles.css
+    code-copy: true
+    code-overflow: wrap
+    preview-links: true
+    toc: true
+    toc-depth: 3
+    toc-expand: true 

@@ -1,0 +1,61 @@
+---
+engine: julia
+---
+
+# stat_sop {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+stat*sop(data::Matrix{Float64}, chart*choice)
+ 
+Computes the test statistic for a single picture and chosen test statistic. `chart_coice` is an integer value for the chart choice. The options are 1-4.
+ 
+
+### Examples
+    
+
+```{julia-repl}
+#| eval: false
+data = rand(20, 20);
+
+stat_sop(data, 2)
+
+```
+
+
+
+:::
+    
+
+ --- 
+ 
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+stat*sop(data::Array{Float64,3}, add*noise::Bool, lam::Float64, chart_choice::Int)
+ 
+Computes the test statistic for a 3D array of data, a given lambda value, and a given chart choice. The input parameters are:
+ 
+  * `data::Array{Float64,3}`: A 3D array of data.
+  * `add_noise::Bool`: A boolean value whether to add noise to the data. This is necessary when the matrices consist of count data.
+  * `lam::Float64`: A scalar value for lambda.
+  * `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
+
+### Examples
+    
+
+```{julia-repl}
+#| eval: false
+data = rand(20, 20, 10);
+lam = 0.1;
+chart_choice = 2;
+
+stat_sop(data, false, lam, chart_choice)
+
+```
+
+
+
+:::
+    
+

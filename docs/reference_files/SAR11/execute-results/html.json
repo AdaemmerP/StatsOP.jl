@@ -1,0 +1,12 @@
+{
+  "hash": "071f81af479373e342a19e41802dea64",
+  "result": {
+    "engine": "julia",
+    "markdown": "---\nengine: julia\n---\n\n\n\n\n\n# SAR11 {#sec-doc}\n    \n\n::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n\n\n\n\n\n\n::: {#2 .cell execution_count=0}\n``` {.julia .cell-code}\nSAR11(dgp_params, m, n, prerun)\n\n```\n:::\n\n\n\n\n\n\n\nFirst-order spatial autoregressive (SAR(1, 1)) model as defined by Weiß and Kim (2024) on page 6. The struct contains the following fields:\n \n  * `dgp_params::Tuple{Float64, Float64, Float64}`: A tuple of the parameters of the DGP. The first element is the parameter α₁, the second element is the parameter α₂, and the third element is the parameter α₃. The requirements to guarantee stationarity for the process are |α₁| < 1, |α₂| < 1, |α₁ + α₂| < 1 - α₃, and |α₁ - α₂| < 1 + α₃.\n  * `m::Int`: The number of rows for the final \"SOP\" matrix. Note that the final spatial matrix (\"picture\") equals m + 1.\n  * `n::Int`: The number of columns for the final \"SOP\" matrix. Note that the final spatial matrix (\"picture\") equals n + 1.\n  * `prerun::Int`: A value to initialize the DGP to achieve stationarity. These number of rows and columns will be discarded after the initialization.\n\n\n\n\n\n::: {#4 .cell execution_count=0}\n``` {.julia .cell-code}\nsar11 = SAR11((0.5, 0.3, 0.2), 11, 11, 100)\n\n```\n:::\n\n\n\n\n\n\n\n\n\n:::\n\n\n",
+    "supporting": [
+      "SAR11_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

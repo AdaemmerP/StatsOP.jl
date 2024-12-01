@@ -8,6 +8,10 @@ using Combinatorics
 using Distributions
 using Distributed
 
+# ---------------------------------------------#
+# SOP related functions and structs  to export #
+# ---------------------------------------------#
+
 # Helper functions
 export order_vec!,
        sop_frequencies,
@@ -53,13 +57,24 @@ export BinomialC,
        PoiBin,
        BinNorm
 
-# Include files
-include("sop_arl_functions.jl")
-include("sop_dgp_structs.jl")
-include("sop_dgp_functions.jl")
-include("sop_distributions.jl")
-include("sop_test_functions.jl")
-include("sacf_functions.jl")
+# ---------------------------------------------#
+# OP related functions and structs  to export #
+# ---------------------------------------------#
 
+# ACF functions to export
+export rl_acf,
+       arl_acf   
+
+# Include files for OPs
+include("op/op_acf_functions.jl")
+
+
+# Include files for SOPs
+include("sop/sop_arl_functions.jl")
+include("sop/sop_dgp_structs.jl")
+include("sop/sop_dgp_functions.jl")
+include("sop/sop_distributions.jl")
+include("sop/sop_test_functions.jl")
+include("sop/sacf_functions.jl")
 
 end

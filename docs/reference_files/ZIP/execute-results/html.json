@@ -1,0 +1,12 @@
+{
+  "hash": "94283a2539f18df9d5008fdd8021d088",
+  "result": {
+    "engine": "julia",
+    "markdown": "---\nengine: julia\n---\n\n\n\n\n\n# ZIP {#sec-doc}\n    \n\n::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n\n\n\n\n\n\n::: {#2 .cell execution_count=0}\n``` {.julia .cell-code}\nZIP <: DiscreteUnivariateDistribution\n\n```\n:::\n\n\n\n\n\n\n\nA struct to define a zero-inflated Poisson distribution.\n \n\n```{julia-repl}\n#| eval: false\ndist = ZIP(5.0, 0.2)\nrand(dist)\n\n```\n\n\n\n:::\n\n\n",
+    "supporting": [
+      "ZIP_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

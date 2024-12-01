@@ -1,0 +1,12 @@
+{
+  "hash": "68eb564a0a27b5eeff9f5c9a829603b5",
+  "result": {
+    "engine": "julia",
+    "markdown": "---\nengine: julia\n---\n\n\n\n\n\n# cl_sacf {#sec-doc}\n    \n\n::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n\n\n\n\n\n\n::: {#2 .cell execution_count=0}\n``` {.julia .cell-code}\ncl_sacf(m, n, lam, L0, reps, clinit, jmin, jmax, verbose, dist_error)\n\n```\n:::\n\n\n\n\n\n\n\nCompute the control limit for the exponentially weighted moving average (EWMA) control chart using the spatial autocorrelation function (SACF) for a lag length of 1. The function returns the control limit for a given average run length (ARL) `L0` and a given number of repetitions `reps`. The input arguments are:\n \n  * `m::Int`: The number of rows in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).\n  * `n::Int`: The number of columns in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).\n  * `lam`: The smoothing parameter for the EWMA control chart.\n  * `L0`: The average run length (ARL) to use for the control limit.\n  * `reps`: The number of repetitions to compute the ARL.\n  * `clinit`: The initial control limit to use for the EWMA control chart. If set to 0, the function will search for the control limit that gives an ARL greater than `L0`.\n  * `jmin`: The minimum number of values to change after the decimal point in the control limit.\n  * `jmax`: The maximum number of values to change after the decimal point in the control limit.\n  * `verbose`: A boolean to indicate whether to print the control limit and ARL for each iteration.\n  * `dist_error`: The distribution to use for the error term in the SACF function. This can be any univariate distribution from the `Distributions.jl` package or a custom distribution with a defined method for `rand()` and `rand!()`.\n\n\n\n\n\n::: {#4 .cell execution_count=0}\n``` {.julia .cell-code}\n#--- Example\n# Set parameters\nm = 10\nn = 10\nlam = 0.1\nL0 = 370\nreps = 1000\nclinit = 0.05\njmin = 4\njmax = 7\nverbose = true\ndist_error = Normal(0, 1)\n\n# Compute control limit\ncl = cl_sacf(m, n, lam, L0, reps, clinit, jmin, jmax, verbose, dist_error)\n\n```\n:::\n\n\n\n\n\n\n\n\n\n:::\n\n\n",
+    "supporting": [
+      "cl_sacf_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

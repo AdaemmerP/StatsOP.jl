@@ -1,0 +1,16 @@
+---
+engine: julia
+---
+
+# compute_lookup_array {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+Compute a 4D array to lookup the index of the sops. The original SOPs are based on ranks. Here we use sortperm which computes the order of the elements in the vector.
+ 
+
+
+:::
+    
+

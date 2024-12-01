@@ -1,0 +1,12 @@
+{
+  "hash": "391574615b6a816fb235124f26aa5163",
+  "result": {
+    "engine": "julia",
+    "markdown": "---\nengine: julia\n---\n\n\n\n\n\n# compute_p_mat {#sec-doc}\n    \n\n::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n\n\n\n\n\n\n::: {#2 .cell execution_count=0}\n``` {.julia .cell-code}\ncompute_p_mat(data::Array{Float64,3})\n\n```\n:::\n\n\n\n\n\n\n\nCompute the matrix of p-hat values for a given 3D array of data. These values are used for bootstrapping. \n \n\n\n:::\n\n\n",
+    "supporting": [
+      "compute_p_mat_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

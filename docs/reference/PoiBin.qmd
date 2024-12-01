@@ -1,0 +1,31 @@
+---
+engine: julia
+---
+
+# PoiBin {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+PoiBin{T <: Real}  <: DiscreteUnivariateDistribution
+
+```
+
+A struct to define a Poisson-Binomial distribution. 
+ 
+
+```{julia-repl}
+#| eval: false
+dist = PoiBin(0.5, 5)
+rand(dist)
+
+```
+
+
+
+:::
+    
+

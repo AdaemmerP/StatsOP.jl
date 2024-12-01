@@ -1,0 +1,12 @@
+{
+  "hash": "d4020eb77d983c9579a560ed64916c7b",
+  "result": {
+    "engine": "julia",
+    "markdown": "---\nengine: julia\n---\n\n\n\n\n\n# cl_sop {#sec-doc}\n    \n\n::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n\n\n\n\n\n\n::: {#2 .cell execution_count=0}\n``` {.julia .cell-code}\ncl_sop(m::Int, n::Int, lam, L0, reps::Int, cl_init, jmin, jmax, verbose, chart_choice, dist)\n\n```\n:::\n\n\n\n\n\n\n\nCompute the control limit for a given in-control distribution. The input parameters are:\n \n  * `m::Int`: The number of rows for the final \"SOP\" matrix. Note that the final spatial matrix (\"picture\") equals m + 1.\n  * `n::Int`: The number of columns for the final \"SOP\" matrix. Note that the final spatial matrix (\"picture\") equals n + 1.\n  * `lam::Float64`: A scalar value for lambda for the EWMA chart. The value has to be between 0 and 1.\n  * `L0::Float64`: A scalar value for the in-control ARL.\n  * `reps::Int`: An integer value for the number of repetitions.\n  * `cl_init::Float64`: A scalar value for the initial control limit. The value has to be between 0 and 1.\n  * `jmin::Int`: An integer value for the minimum number of values to change after the decimal point.\n  * `jmax::Int`: An integer value for the maximum number of values to change after the decimal point.\n  * `verbose::Bool`: A boolean value whether to print the control limit and ARL.\n  * `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.\n  * `dist::Distribution`: A distribution for the in-control data. Here you can use any univariate distribution from the `Distributions.jl` package.\n```julia-repl #– Example\n \n\n### Parameters\n    \nm = 10 n = 10 lam = 0.1 L0 = 370 reps = 10 cl*init = 0.03 jmin = 4 jmax = 7 verbose = true chart*choice = 3 dist = Normal(0, 1)\n \ncl*sop(m, n, lam, L0, reps, cl*init, jmin, jmax, verbose, chart_choice, dist)\n \n\n\n:::\n\n\n",
+    "supporting": [
+      "cl_sop_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}
