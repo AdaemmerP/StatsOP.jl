@@ -1,0 +1,3 @@
+# Installation
+
+The package is currently not registered and has to be installed manually from GitHub.

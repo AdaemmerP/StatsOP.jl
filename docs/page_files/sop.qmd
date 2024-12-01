@@ -1,0 +1,4 @@
+
+# Spatial Ordinal Patterns (SOPs)
+ 
+ Spatial Ordinal Patterns (SOPs) are a way to ...

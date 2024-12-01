@@ -20,41 +20,67 @@ website:
 
     left:
       - text: "OrdinalPatterns.jl"
-        href: index.qmd
-      - text: "Reference"
-        href: reference.qmd
-      - text: "Tutorials"
-        href: tutorials.qmd
-    
+        href: index.qmd      
+      - text: "Installation"
+        href: page_files/installation.qmd  
+      - text: "Introduction"
+        href: page_files/introduction.qmd  
+      - text: "OPs"
+        href: page_files/op.qmd
+      - text: "SOPs"
+        href: page_files/sop.qmd
+      - text: "GOPs"
+        href: page_files/gop_tutorials.qmd
+      - text: "API"
+        href: page_files/api_reference.qmd
+
     tools:
     - icon: github
       href: https://github.com/AdaemmerP/OrdinalPatterns.jl
       text: "OrdinalPatterns.jl"
 
   sidebar:
-    - title: "Reference"
+    - title: "API"    
       style: "docked"
       background: light
+      #collapse-level: 1
       contents:
-        - reference.qmd
-        - section: "DGPs for Spatial Data"
+        - page_files/api_reference.qmd
+        - section: "Types for ordinal patterns"
+          contents:
+        - section: "Types for generalized ordinal patterns"
+          contents:  
+        - section: "Types for spatial data"
           contents:
             - reference/SAR1.qmd
             - reference/SAR11.qmd
             - reference/SQINMA11.qmd
             - reference/SQMA11.qmd
-        - section: "ARL functions"
+        - section: "Functions for spatial data"
           contents:
             - reference/arl_sop.qmd
             - reference/arl_sacf.qmd
-
-    - title: "Tutorials"
+    - title: "SOPs"
       style: "docked"
       background: light
+      #collapse-level: 1
       contents:
-        - tutorials.qmd
-        - auto: "tutorials/*"
-        
+        - page_files/sop.qmd
+        - section: "SOP Applications"
+          contents:
+            - page_files/sop_tutorial.qmd
+            - page_files/sop_replication.qmd   
+    - title: "OPs"
+      style: "docked"
+      background: light
+      #collapse-level: 1
+      contents:
+        - page_files/op.qmd
+        - section: "OP Applications"
+          contents:
+            - page_files/op_tutorial.qmd
+            - page_files/op_replication.qmd                 
+
   page-footer: "Website generated with [Quarto](https://quarto.org/) and [QuartoDocBuilder.jl](https://github.com/vituri/QuartoDocBuilder.jl)"
 
 
