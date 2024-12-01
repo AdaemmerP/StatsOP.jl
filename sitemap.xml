@@ -2,51 +2,51 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://AdaemmerP.github.io/OrdinalPatterns.jl/reference/SQINMA11.html</loc>
-    <lastmod>2024-11-24T14:49:33.850Z</lastmod>
+    <lastmod>2024-12-01T12:01:28.811Z</lastmod>
   </url>
   <url>
     <loc>https://AdaemmerP.github.io/OrdinalPatterns.jl/reference/sacf_11.html</loc>
-    <lastmod>2024-11-24T14:49:33.849Z</lastmod>
+    <lastmod>2024-12-01T12:01:28.628Z</lastmod>
   </url>
   <url>
     <loc>https://AdaemmerP.github.io/OrdinalPatterns.jl/reference/compute_p_mat.html</loc>
-    <lastmod>2024-11-24T14:49:33.849Z</lastmod>
+    <lastmod>2024-12-01T12:01:28.805Z</lastmod>
   </url>
   <url>
     <loc>https://AdaemmerP.github.io/OrdinalPatterns.jl/reference/SAR1.html</loc>
-    <lastmod>2024-11-24T14:49:33.850Z</lastmod>
+    <lastmod>2024-12-01T12:01:28.806Z</lastmod>
   </url>
   <url>
     <loc>https://AdaemmerP.github.io/OrdinalPatterns.jl/reference/PoiBin.html</loc>
-    <lastmod>2024-11-24T14:49:33.848Z</lastmod>
+    <lastmod>2024-12-01T12:01:28.627Z</lastmod>
   </url>
   <url>
     <loc>https://AdaemmerP.github.io/OrdinalPatterns.jl/reference/rl_sop.html</loc>
-    <lastmod>2024-11-24T14:49:33.849Z</lastmod>
+    <lastmod>2024-12-01T12:01:28.629Z</lastmod>
   </url>
   <url>
     <loc>https://AdaemmerP.github.io/OrdinalPatterns.jl/reference/crit_val_sacf.html</loc>
-    <lastmod>2024-11-24T14:49:33.848Z</lastmod>
+    <lastmod>2024-12-01T12:01:28.533Z</lastmod>
   </url>
   <url>
     <loc>https://AdaemmerP.github.io/OrdinalPatterns.jl/reference/stat_sop.html</loc>
-    <lastmod>2024-11-24T14:49:33.850Z</lastmod>
+    <lastmod>2024-12-01T12:01:28.806Z</lastmod>
   </url>
   <url>
     <loc>https://AdaemmerP.github.io/OrdinalPatterns.jl/reference/sop_frequencies.html</loc>
-    <lastmod>2024-11-24T14:49:33.848Z</lastmod>
+    <lastmod>2024-12-01T12:01:28.575Z</lastmod>
   </url>
   <url>
     <loc>https://AdaemmerP.github.io/OrdinalPatterns.jl/reference/compute_lookup_array.html</loc>
-    <lastmod>2024-11-24T14:49:33.848Z</lastmod>
+    <lastmod>2024-12-01T12:01:28.628Z</lastmod>
   </url>
   <url>
     <loc>https://AdaemmerP.github.io/OrdinalPatterns.jl/reference/SAR11.html</loc>
-    <lastmod>2024-11-24T14:49:33.849Z</lastmod>
+    <lastmod>2024-12-01T12:01:28.805Z</lastmod>
   </url>
   <url>
     <loc>https://AdaemmerP.github.io/OrdinalPatterns.jl/reference/arl_sacf.html</loc>
-    <lastmod>2024-11-24T14:49:33.850Z</lastmod>
+    <lastmod>2024-12-01T12:01:28.811Z</lastmod>
   </url>
   <url>
     <loc>https://AdaemmerP.github.io/OrdinalPatterns.jl/index.html</loc>
@@ -66,50 +66,50 @@
   </url>
   <url>
     <loc>https://AdaemmerP.github.io/OrdinalPatterns.jl/reference/BinomialCvec.html</loc>
-    <lastmod>2024-11-24T14:49:33.850Z</lastmod>
+    <lastmod>2024-12-01T12:01:28.806Z</lastmod>
   </url>
   <url>
     <loc>https://AdaemmerP.github.io/OrdinalPatterns.jl/reference/crit_val_sop.html</loc>
-    <lastmod>2024-11-24T14:49:33.849Z</lastmod>
+    <lastmod>2024-12-01T12:01:28.628Z</lastmod>
   </url>
   <url>
     <loc>https://AdaemmerP.github.io/OrdinalPatterns.jl/reference/ZIP.html</loc>
-    <lastmod>2024-11-24T14:49:33.849Z</lastmod>
+    <lastmod>2024-12-01T12:01:28.805Z</lastmod>
   </url>
   <url>
     <loc>https://AdaemmerP.github.io/OrdinalPatterns.jl/reference/SINAR11.html</loc>
-    <lastmod>2024-11-24T14:49:33.848Z</lastmod>
+    <lastmod>2024-12-01T12:01:28.627Z</lastmod>
   </url>
   <url>
     <loc>https://AdaemmerP.github.io/OrdinalPatterns.jl/reference/chart_stat_sop.html</loc>
-    <lastmod>2024-11-24T14:49:33.849Z</lastmod>
+    <lastmod>2024-12-01T12:01:28.805Z</lastmod>
   </url>
   <url>
     <loc>https://AdaemmerP.github.io/OrdinalPatterns.jl/reference/cl_sacf.html</loc>
-    <lastmod>2024-11-24T14:49:33.848Z</lastmod>
+    <lastmod>2024-12-01T12:01:28.576Z</lastmod>
   </url>
   <url>
     <loc>https://AdaemmerP.github.io/OrdinalPatterns.jl/reference/rl_sacf.html</loc>
-    <lastmod>2024-11-24T14:49:33.848Z</lastmod>
+    <lastmod>2024-12-01T12:01:28.548Z</lastmod>
   </url>
   <url>
     <loc>https://AdaemmerP.github.io/OrdinalPatterns.jl/reference/arl_sop.html</loc>
-    <lastmod>2024-11-24T14:49:33.849Z</lastmod>
+    <lastmod>2024-12-01T12:01:28.628Z</lastmod>
   </url>
   <url>
     <loc>https://AdaemmerP.github.io/OrdinalPatterns.jl/reference/BinomialC.html</loc>
-    <lastmod>2024-11-24T14:49:33.848Z</lastmod>
+    <lastmod>2024-12-01T12:01:28.576Z</lastmod>
   </url>
   <url>
     <loc>https://AdaemmerP.github.io/OrdinalPatterns.jl/reference/SQMA11.html</loc>
-    <lastmod>2024-11-24T14:49:33.849Z</lastmod>
+    <lastmod>2024-12-01T12:01:28.805Z</lastmod>
   </url>
   <url>
     <loc>https://AdaemmerP.github.io/OrdinalPatterns.jl/reference/cl_sop.html</loc>
-    <lastmod>2024-11-24T14:49:33.850Z</lastmod>
+    <lastmod>2024-12-01T12:01:28.811Z</lastmod>
   </url>
   <url>
     <loc>https://AdaemmerP.github.io/OrdinalPatterns.jl/reference/BSQMA11.html</loc>
-    <lastmod>2024-11-24T14:49:33.850Z</lastmod>
+    <lastmod>2024-12-01T12:01:28.806Z</lastmod>
   </url>
 </urlset>
