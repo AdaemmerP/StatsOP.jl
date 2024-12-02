@@ -126,10 +126,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">Installation</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../page_files/introduction.html"> 
-<span class="menu-text">Introduction</span></a>
-  </li>  
-  <li class="nav-item">
     <a class="nav-link" href="../page_files/op.html"> 
 <span class="menu-text">OPs</span></a>
   </li>  
@@ -198,13 +194,8 @@ docblock
 </ul>
 <div id="2" class="cell" data-execution_count="0">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute initial values via quantiles</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a> <span class="cf">if</span> j <span class="op">==</span> <span class="fl">1</span> <span class="op">||</span> j <span class="op">==</span> <span class="fl">2</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>      cl_init <span class="op">=</span> <span class="fu">quantile</span>(<span class="fu">stat_op</span>(data, lam[i], j)[<span class="fl">1</span>], <span class="fl">0.01</span>)                </span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>      cl_init <span class="op">=</span> <span class="fu">quantile</span>(<span class="fu">stat_op</span>(data, lam[i], j)[<span class="fl">1</span>], <span class="fl">0.99</span>)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span> </span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">cl_acf</span>(<span class="fl">0.1</span>, <span class="fl">3.0</span>, <span class="fu">IC</span>(<span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>)), cl_init, <span class="fl">10000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cl_acf</span>(<span class="fl">0.1</span>, <span class="fl">3.0</span>, <span class="fu">IC</span>(<span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>)), cl_init, <span class="fl">10000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>

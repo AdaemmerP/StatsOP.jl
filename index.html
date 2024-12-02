@@ -20,7 +20,27 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -92,10 +112,6 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Installation</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./page_files/introduction.html"> 
-<span class="menu-text">Introduction</span></a>
-  </li>  
-  <li class="nav-item">
     <a class="nav-link" href="./page_files/op.html"> 
 <span class="menu-text">OPs</span></a>
   </li>  
@@ -143,22 +159,22 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="ordinalpatterns.jl" class="level1">
 <h1>OrdinalPatterns.jl</h1>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><a href="https://github.com/AdaemmerP/OrdinalPatterns.jl/actions/workflows/CI.yml?query=branch%3Amain"><img src="https://github.com/AdaemmerP/OrdinalPatterns.jl/actions/workflows/CI.yml/badge.svg?branch=main" class="img-fluid figure-img" alt="Build Status"></a></p>
-<figcaption>Build Status</figcaption>
-</figure>
-</div>
-<p>This package provides functions to compute ordinal patterns from time series data. The package is based on the work of Bandt and Pompe (2002). The package is highly optimized and fast. The package is designed to be easy to use and provides a simple interface to compute ordinal patterns from time series data.</p>
+<!-- [![Build Status](https://github.com/AdaemmerP/OrdinalPatterns.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/AdaemmerP/OrdinalPatterns.jl/actions/workflows/CI.yml?query=branch%3Amain) -->
+<p><code>OrdinalPatterns.jl</code> is a Julia package that provides functions to compute ordinal patterns from time series data. The package is based on the work of <span class="citation" data-cites="bandt2002">(<a href="#ref-bandt2002" role="doc-biblioref">Bandt and Pompe 2002</a>)</span>. The package is highly optimized and fast. The package is designed to be easy to use and provides a simple interface to compute ordinal patterns from time series data.</p>
 <section id="documentation" class="level2">
 <h2 class="anchored" data-anchor-id="documentation">Documentation</h2>
 <p>The documentation for the package can be found <a href="https://adaemmerp.github.io/OrdinalPatterns.jl">here</a>.</p>
 
 
+
 </section>
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-bandt2002" class="csl-entry" role="listitem">
+Bandt, Christoph, and Bernd Pompe. 2002. <span>“Permutation Entropy: A Natural Complexity Measure for Time Series.”</span> <em>Physical Review Letters</em> 88 (17). <a href="https://doi.org/10.1103/physrevlett.88.174102">https://doi.org/10.1103/physrevlett.88.174102</a>.
+</div>
+</div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
