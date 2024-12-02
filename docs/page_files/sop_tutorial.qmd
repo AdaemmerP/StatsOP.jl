@@ -1,4 +1,14 @@
+---
+engine: julia
+julia:
+  exeflags: ["--project=../."]
+---
 
 # SOP Tutorial
         
-    Describe your tutorials here.
+The tutorials using SOPs will be shown here...
+
+
+```{julia}
+1+1
+```    

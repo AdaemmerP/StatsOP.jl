@@ -108,11 +108,6 @@ Function to compute the control limit for the ACF statistic by XXX.
 
 ```julia
 # Compute initial values via quantiles
- if j == 1 || j == 2
-      cl_init = quantile(stat_op(data, lam[i], j)[1], 0.01)                
-  else
-      cl_init = quantile(stat_op(data, lam[i], j)[1], 0.99)
-end 
 
 cl_acf(0.1, 3.0, IC(Normal(0, 1)), cl_init, 10000)
 ```

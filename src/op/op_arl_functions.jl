@@ -165,8 +165,51 @@ function rl_op(lam, cl, lookup_array_op, p_reps, op_dgp,
   return rls
 end
 
-#--- Function to compute average run length for ordinal patterns
-function arl_op(lam, cl, op_dgp, reps=10_000; chart_choice, d=1, ced=false, ad=100) 
+"""
+    arl_op(lam, cl, op_dgp, reps=10_000; chart_choice, d=1, ced=false, ad=100)
+
+Function to compute the average run length (ARL) for ordinal patterns using the EWMA statistic. The function implements the test statistics by Weiss and Testik (2023), who use a pattern length of 3. 
+
+* `lam::Float64` Smoothing parameter for the EWMA statistic.
+* `cl::Float64` Control limit for the EWMA statistic.
+* `op_dgp::Union{IC, AR1, MA1, MA2, TEAR1, AAR1, QAR1}` DGP.
+* `reps::Int64` Number of replications.
+* `chart_choice::Int` 
+  1. ``\\widehat{H}^{(d)}=-\\sum_{k=1}^{m!} \\hat{p}_k{ }^{(d)} \\ln \\hat{p}_k{ }^{(d)}``
+  2. ``\\widehat{H}_{\\mathrm{ex}}^{(d)}=-\\sum_{k=1}^{m!}\\left(1-\\hat{p}_k{ }^{(d)}\\right) \\ln \\left(1-\\hat{p}_k{ }^{(d)}\\right)``
+  3. ``\\widehat{\\Delta}^{(d)}=\\sum_{k=1}^{m!}\\left(\\hat{p}_k^{(d)}-1 / m!\\right)^2``
+  4. ``\\hat{\\beta}^{(d)}=\\hat{p}_6^{(d)}-\\hat{p}_1^{(d)}``
+  5. ``\\hat{\\tau}^{(d)}=\\hat{p}_6^{(d)}+\\hat{p}_1^{(d)}-\\frac{1}{3}``
+  6. ``\\hat{\\delta}^{(d)}=\\hat{p}_4^{(d)}+\\hat{p}_5^{(d)}-\\hat{p}_3^{(d)}-\\hat{p}_2^{(d)}``
+
+  The patterns are categorized as follows:
+
+  ``
+  \\qquad p_1 = (3,2,1);  \\quad p_2=(3,1,2);  \\quad p_3 = (2,3,1); 
+  ``
+
+  ``
+  \\qquad p_4 = (1,3,2);  \\quad p_5 = (2,1,3);  \\quad p_ 6 = (1,2,3)
+  ``
+
+* `d::Union{Int,Vector{Int}}=1`: Delay vector. Default is 1. A vector would denote the indices of the observations to use. For example, 
+`d = [1, 3, 4]` would denote the first, third, and fourth observations.
+* `ced::Bool=false`: Use conditional expected delay? Default is false.
+* `ad::Int=100`: Number of iterations for ced.
+
+```julia
+# Compute initial values via function cl_op()
+ if j == 1 || j == 2
+      cl_init = quantile(stat_op(data, lam[i], j)[1], 0.01)                
+  else
+      cl_init = quantile(stat_op(data, lam[i], j)[1], 0.99)
+end 
+
+# Run function
+arl_op(0.1, cl_init, IC(Normal(0, 1)), 10_000; chart_choice=1, d=1, ced=false, ad=100)
+```
+"""
+function arl_op(lam, cl, op_dgp, reps=10_000; chart_choice, d::Union{Int,Vector{Int}}=1, ced=false, ad=100) 
 
   # Compute lookup array and number of ops
   lookup_array_op = compute_lookup_array_op()
@@ -201,7 +244,40 @@ function arl_op(lam, cl, op_dgp, reps=10_000; chart_choice, d=1, ced=false, ad=1
   return (mean(rlvec), std(rlvec) / sqrt(reps))
 end
 
-# --- Function to compute control limit for OPs --- #
+"""
+    cl_op(lam, L0, op_dgp, cl_init, reps=10000; chart_choice, jmin=4, jmax=6, verbose=false, d=1, ced=false, ad=100)
+
+Function to compute the control limit for ordinal patterns.
+
+- `lam::Float64`: Smoothing parameter for the EWMA statistic.
+- `L0::Float64`: In-control ARL.
+- `op_dgp::Union{IC, AR1, MA1, MA2, TEAR1, AAR1, QAR1}`: DGP.
+- `cl_init::Float64`: Initial guess for the control limit.
+- `reps::Int64`: Number of replications.  
+* `chart_choice::Int` 
+  1. ``\\widehat{H}^{(d)}=-\\sum_{k=1}^{m!} \\hat{p}_k{ }^{(d)} \\ln \\hat{p}_k{ }^{(d)}``
+  2. ``\\widehat{H}_{\\mathrm{ex}}^{(d)}=-\\sum_{k=1}^{m!}\\left(1-\\hat{p}_k{ }^{(d)}\\right) \\ln \\left(1-\\hat{p}_k{ }^{(d)}\\right)``
+  3. ``\\widehat{\\Delta}^{(d)}=\\sum_{k=1}^{m!}\\left(\\hat{p}_k^{(d)}-1 / m!\\right)^2``
+  4. ``\\hat{\\beta}^{(d)}=\\hat{p}_6^{(d)}-\\hat{p}_1^{(d)}``
+  5. ``\\hat{\\tau}^{(d)}=\\hat{p}_6^{(d)}+\\hat{p}_1^{(d)}-\\frac{1}{3}``
+  6. ``\\hat{\\delta}^{(d)}=\\hat{p}_4^{(d)}+\\hat{p}_5^{(d)}-\\hat{p}_3^{(d)}-\\hat{p}_2^{(d)}``
+
+  The patterns are categorized as follows:
+
+  ``
+  \\qquad p_1 = (3,2,1);  \\quad p_2=(3,1,2);  \\quad p_3 = (2,3,1); 
+  ``
+
+  ``
+  \\qquad p_4 = (1,3,2);  \\quad p_5 = (2,1,3);  \\quad p_ 6 = (1,2,3)
+  ``
+- `jmin::Int` Minimum number of decimals for final control limit to optimize.
+- `jmax::Int` Maximum number of decimals for final control limit to optimize.
+- `verbose::Bool=false` Print intermediate results?
+- `d::Union{Int,Vector{Int}}=1`: Delay vector. 
+- `ced::Bool=false`: Use conditional expected delay? Default is false.
+- `ad::Int=100`: Number of iterations for ced.
+"""
 function cl_op(lam, L0, op_dgp, cl_init, reps=10000; chart_choice, jmin=4, jmax=6, verbose=false, d=1, ced=false, ad=100)
          
   L1 = zeros(2)

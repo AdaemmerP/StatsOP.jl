@@ -1,0 +1,27 @@
+---
+engine: julia
+---
+
+# QAR1 {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+A struct to define a QAR(1) (quadratic AR) process:
+ 
+$\qquad X_t=\alpha \cdot X_{t-1}^2+\epsilon_t.$
+ 
+`dist` specifies the distribution of $\epsilon$ using `Distributions.jl`.
+ 
+
+```{julia}
+#| eval: false
+qar1 = QAR1(0.5, Normal(0, 1))
+
+```
+
+
+
+:::
+    
+

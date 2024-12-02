@@ -1,3 +1,4 @@
 [deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 OrdinalPatterns = "8611b07d-f603-454a-913b-9db0632d0769"
 QuartoDocBuilder = "164f4f01-dadb-4e86-a767-9a3bba57cbbb"

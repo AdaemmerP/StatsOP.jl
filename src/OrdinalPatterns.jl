@@ -42,7 +42,7 @@ export init_mat!,
        build_sar1_matrix,
        stat_sop
 
-# SOP DGP-structs to export (from 'sop_dgp_structs.jl')
+# SOP Types to export (from 'sop_dgp_structs.jl')
 export SAR11,
        SINAR11,
        SQMA11,
@@ -61,12 +61,23 @@ export BinomialC,
 # OP related functions and structs  to export #
 # ---------------------------------------------#
 
-# ACF functions to export
+# ACF functions to export (from 'op_acf_functions.jl')
 export rl_acf,
        arl_acf   
 
+# OP Types to export (from 'op_dgp_structs.jl')  
+export IC,
+       AR1,
+       TEAR1     
+
+# OP functions to export
+export rl_op,
+       arl_op
+
 # Include files for OPs
+include("op/op_dgp_structs.jl")
 include("op/op_acf_functions.jl")
+include("op/op_arl_functions.jl")
 
 
 # Include files for SOPs

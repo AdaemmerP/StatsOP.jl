@@ -1,0 +1,27 @@
+---
+engine: julia
+---
+
+# AAR1 {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+A struct to define a AAR(1) (absolute AR) process:
+ 
+$\qquad X_t=\alpha \cdot\left|X_{t-1}\right|+\epsilon_t.$
+ 
+`dist` specifies the distribution of $\epsilon$ using `Distributions.jl`. 
+ 
+
+```{julia}
+#| eval: false
+aar1 = AAR1(0.5, Normal(0, 1))
+
+```
+
+
+
+:::
+    
+

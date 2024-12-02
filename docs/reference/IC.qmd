@@ -1,0 +1,30 @@
+---
+engine: julia
+---
+
+# IC {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+IC(dist::UnivariateDistribution)
+
+```
+
+A struct to define the in-control (IC) process. The struct contains one field, namely `dist::UnivariateDistribution`, which is the distribution of the in-control process.   
+ 
+
+```{julia}
+#| eval: false
+ic = IC(Normal(0, 1))
+
+```
+
+
+
+:::
+    
+

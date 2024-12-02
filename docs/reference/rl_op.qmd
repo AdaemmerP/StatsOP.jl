@@ -1,0 +1,41 @@
+---
+engine: julia
+---
+
+# rl_op {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+rl_op(lam, cl, lookup_array_op, p_reps, op_dgp,
+  op_dgp_dist, chart_choice; d::Union{Int,Vector{Int}}=1, ced=false, ad=100)
+
+```
+
+Function to compute run length for ordinal patterns. 
+ 
+  * `lam::Float64`: Smoothing parameter for EWMA chart.
+  * `cl::Float64`: Control limit for the EWMA chart.
+  * `lookup_array_op: Array to lookup ordinal patterns. Can be created with function`compute*lookup*array_op()`.
+  * `p_reps::Vector{Int}`: Unit range of repetitions.
+  * `op_dgp::Union{IC, AR1, MA1, MA2, TEAR1, AAR1, QAR1}`: DGP.
+  * `op_dgp_dist::UnivariateDistribution`: Distribution of the DGP.
+  * `chart_choice::Int`: Chart choice (1: XXX, 2: XXX, 3: XXX, 4: XXX, 5: XXX, 6: XXX).
+  * `d::Union{Int,Vector{Int}}=1`: Delay vector. Default is 1.
+  * `ced::Bool=false`: Use conditional expected delay? Default is false.
+  * `ad::Int=100`: Number of iterations for ced.
+
+```{julia}
+#| eval: false
+rl_op(0.1, 3.0, lookup_array_op, 1:10_000, IC(Normal(0, 1)), Normal(0, 1), 1; d=1, ced=false, ad=100)
+
+```
+
+
+
+:::
+    
+

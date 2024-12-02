@@ -1,0 +1,38 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# Ordinal Patterns (OPs)\n",
+        "\n",
+        "Ordinal Patterns (OPs) are a method to. They have been used in the context of ...\n"
+      ],
+      "id": "c372c039"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "engine": "julia"
+      },
+      "source": [
+        "using Pkg\n",
+        "\n",
+        "1+1"
+      ],
+      "id": "d5a91b65",
+      "execution_count": null,
+      "outputs": []
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "julia-1.10",
+      "language": "julia",
+      "display_name": "Julia 1.10.5",
+      "path": "/home/adaemmerp/.local/share/jupyter/kernels/julia-1.10"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+}

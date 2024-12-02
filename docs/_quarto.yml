@@ -23,8 +23,6 @@ website:
         href: index.qmd      
       - text: "Installation"
         href: page_files/installation.qmd  
-      - text: "Introduction"
-        href: page_files/introduction.qmd  
       - text: "OPs"
         href: page_files/op.qmd
       - text: "SOPs"
@@ -43,27 +41,36 @@ website:
     - title: "API"    
       style: "docked"
       background: light
-      #collapse-level: 1
+      collapse-level: 1
       contents:
         - page_files/api_reference.qmd
         - section: "Types for ordinal patterns"
           contents:
+            - reference/AR1.qmd
+            - reference/MA1.qmd
+            - reference/MA2.qmd
+            - reference/TEAR1.qmd
+            - reference/QAR1.qmd
         - section: "Types for generalized ordinal patterns"
           contents:  
-        - section: "Types for spatial data"
+        - section: "Types for spatial ordinal patterns"
           contents:
             - reference/SAR1.qmd
             - reference/SAR11.qmd
             - reference/SQINMA11.qmd
             - reference/SQMA11.qmd
-        - section: "Functions for spatial data"
+        - section: "Functions for ordinal patterns"
+          contents:
+            - reference/arl_op.qmd
+            - reference/cl_op.qmd    
+        - section: "Functions for ordinal patterns"
           contents:
             - reference/arl_sop.qmd
             - reference/arl_sacf.qmd
     - title: "SOPs"
       style: "docked"
       background: light
-      #collapse-level: 1
+      collapse-level: 1
       contents:
         - page_files/sop.qmd
         - section: "SOP Applications"

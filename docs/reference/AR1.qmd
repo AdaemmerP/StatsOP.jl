@@ -1,0 +1,32 @@
+---
+engine: julia
+---
+
+# AR1 {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+AR1(α::Float64, dist::UnivariateDistribution)
+
+```
+
+$\qquad X_t = α  \cdot X_{t-1} + \epsilon_t.$
+ 
+`dist` specifies the distribution of $\epsilon$ using `Distributions.jl`. 
+ 
+
+```{julia}
+#| eval: false
+ar1 = AR1(0.5, Normal(0, 1))
+
+```
+
+
+
+:::
+    
+
