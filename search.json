@@ -156,7 +156,7 @@
     "text": "arl_sacf\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\narl_sacf(m::Int, n::Int, lam, cl, reps::Int, dist_error)\n\nCompute the in-control average run length (ARL), using the spatial autocorrelation function (SACF) for a lag length of 1. The function returns the ARL for a given control limit cl and a given number of repetitions reps. The input arguments are:\n\nm::Int: The number of rows in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).\nn::Int: The number of columns in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\nreps: The number of repetitions to compute the ARL.\ndist_error: The distribution to use for the error term in the SACF function. This can be any univariate distribution from the Distributions.jl package or a custom distribution with a defined method for rand() and rand!().\n\n\n#--- Example\n# Set parameters\nm = 10\nn = 10\nlam = 0.1\ncl = .001\nreps = 100\ndist_error = Normal(0, 1)\n\n# Compute average run length\narl = arl_sacf(m, n, lam, cl, reps, dist_error)\n\n\n\n\n\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\narl_sacf(lam, cl, reps, spatial_dgp, dist_error::UnivariateDistribution, dist_ao::Union{UnivariateDistribution,Nothing})\n\nCompute the out-of-control average run length (ARL), using the spatial autocorrelation function (SACF) for a lag length of 1. The function returns the ARL for a given control limit cl and a given number of repetitions reps. The input arguments are:\n\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\nreps: The number of repetitions to compute the ARL.\nspatial_dgp: The spatial data generating process (DGP) to use for the SACF function. This can be one of the following: SAR1, SAR11, SINAR11, SQMA11, SQINMA11, or BSQMA11.\ndist_error: The distribution to use for the error term in the SACF function. This can be any univariate distribution from the Distributions.jl package with a defined mean or a custom distribution.\ndist_ao: The distribution to use for additive outliers. This can be any univariate distribution from the Distributions.jl package or a custom distribution.\n\n\n#--- Example\n# Set parameters\nlam = 0.1\ncl = .001\nreps = 100\nspatial_dgp = SAR11((0.1, 0.1, 0.1), 10, 10, 100)\ndist_error = Normal(0, 1)\ndist_ao = nothing\n\n# Compute average run length\narl = arl_sacf(lam, cl, reps, spatial_dgp, dist_error, dist_ao)",
     "crumbs": [
       "API",
-      "Functions for ordinal patterns",
+      "Functions for spatial ordinal patterns",
       "arl_sacf"
     ]
   },
@@ -276,7 +276,14 @@
     "href": "index.html",
     "title": "OrdinalPatterns.jl",
     "section": "",
-    "text": "OrdinalPatterns.jl is a Julia package that provides functions to compute ordinal patterns from time series data. The package is based on the work of Bandt and Pompe (2002). The package is highly optimized and fast. The package is designed to be easy to use and provides a simple interface to compute ordinal patterns from time series data.\n\n\nThe documentation for the package can be found here."
+    "text": "OrdinalPatterns.jl is a Julia package that provides functions to compute ordinal patterns from time series data. The package is based on the work of Bandt and Pompe (2002). The package is highly optimized and fast. The package is designed to be easy to use and provides a simple interface to compute ordinal patterns from time series data.\n\n\nThe package is currently not registered and has to be installed manually from GitHub.\n\n\n\nThe documentation for the package can be found here."
+  },
+  {
+    "objectID": "index.html#installation",
+    "href": "index.html#installation",
+    "title": "OrdinalPatterns.jl",
+    "section": "",
+    "text": "The package is currently not registered and has to be installed manually from GitHub."
   },
   {
     "objectID": "index.html#documentation",
@@ -368,7 +375,7 @@
     "text": "arl_sop\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\narl_sop(m::Int, n::Int, lam, cl, reps, chart_choice, dist::UnivariateDistribution)\n\nFunction to compute the average run length (ARL) for a given control-limit and in-control distribution. The input parameters are:\n\nm::Int: The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.\nn::Int: The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nreps::Int: An integer value for the number of repetitions.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\ndist::Distribution: A distribution for the in-control data. Here you can use any univariate distribution from the Distributions.jl package.\n\n\n\n\n\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\narl_sop(lam, cl, reps, chart_choice, data::Array{Float64, 3})\n\nFunction to compute the average run length (ARL) using a bootstraping approach. The input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nreps::Int: An integer value for the number of repetitions.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\np_mat::Array{Float64, 3}: A 3D array with the data. The data has to be in the form of a 3D array.\n\n\n\n\n\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\narl_sop(lam, cl, reps, chart_choice, spatial_dgp, dist_error::UnivariateDistribution, dist_ao::Union{Nothing, UnivariateDistribution})\n\nFunction to compute the average run length (ARL) for a given out-of-control DGP. The input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\nspatial_dgp::AbstractSpatialDGP: A struct for type for the spatial DGP. This can be either SAR11, SINAR11, SQMA11, BSQMA11 or SAR1. Look at their documentation for more information.\ndist_error::Distribution: A distribution for the error term. Here you can use any univariate distribution from the Distributions.jl package.\ndist_ao::Distribution: A distribution for the out-of-control data. Here you can use any univariate distribution from the Distributions.jl package.",
     "crumbs": [
       "API",
-      "Functions for ordinal patterns",
+      "Functions for spatial ordinal patterns",
       "arl_sop"
     ]
   },
