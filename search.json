@@ -193,7 +193,6 @@
     "text": "SOP Replication",
     "crumbs": [
       "SOPs",
-      "SOP Applications",
       "SOP Replication"
     ]
   },
@@ -205,7 +204,6 @@
     "text": "OP Replication",
     "crumbs": [
       "OPs",
-      "OP Applications",
       "OP Replication"
     ]
   },
@@ -217,7 +215,6 @@
     "text": "SOP Tutorial\nThe tutorials using SOPs will be shown here…\n\n1+1\n\n2",
     "crumbs": [
       "SOPs",
-      "SOP Applications",
       "SOP Tutorial"
     ]
   },
@@ -247,7 +244,6 @@
     "text": "OP Tutorial",
     "crumbs": [
       "OPs",
-      "OP Applications",
       "OP Tutorial"
     ]
   },
@@ -280,7 +276,7 @@
     "href": "index.html",
     "title": "OrdinalPatterns.jl",
     "section": "",
-    "text": "OrdinalPatterns.jl is a Julia package that provides functions to compute ordinal patterns from time series data. The package is based on the work of (Bandt and Pompe 2002). The package is highly optimized and fast. The package is designed to be easy to use and provides a simple interface to compute ordinal patterns from time series data.\n\n\nThe documentation for the package can be found here."
+    "text": "OrdinalPatterns.jl is a Julia package that provides functions to compute ordinal patterns from time series data. The package is based on the work of Bandt and Pompe (2002). The package is highly optimized and fast. The package is designed to be easy to use and provides a simple interface to compute ordinal patterns from time series data.\n\n\nThe documentation for the package can be found here."
   },
   {
     "objectID": "index.html#documentation",
