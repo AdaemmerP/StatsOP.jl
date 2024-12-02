@@ -4,7 +4,7 @@
     "href": "reference/MA2.html",
     "title": "MA2",
     "section": "",
-    "text": "MA2\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nMA2(α₁::Float64, α₂::Float64, dist::UnivariateDistribution)\n\n\\(\\qquad X_t = α₁  \\cdot \\epsilon_{t-1} + α₂  \\cdot \\epsilon_{t-2} + \\epsilon_t.\\)\ndist specifies the distribution of \\(\\epsilon\\) using Distributions.jl.\n\nma2 = MA2(0.5, 0.3, Normal(0, 1))",
+    "text": "MA2\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nMA2(α₁::Float64, α₂::Float64, dist::UnivariateDistribution)\n\nA struct to define an MA(2) process:\n\\(\\qquad X_t = α₁  \\cdot \\epsilon_{t-1} + α₂  \\cdot \\epsilon_{t-2} + \\epsilon_t.\\)\ndist specifies the distribution of \\(\\epsilon\\) using Distributions.jl.\n\nma2 = MA2(0.5, 0.3, Normal(0, 1))",
     "crumbs": [
       "API",
       "Types for ordinal patterns",
@@ -16,7 +16,7 @@
     "href": "reference/MA1.html",
     "title": "MA1",
     "section": "",
-    "text": "MA1\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nMA1(α::Float64, dist::UnivariateDistribution)\n\n\\(\\qquad X_t = α  \\cdot \\epsilon_{t-1} + \\epsilon_t.\\)\ndist specifies the distribution of \\(\\epsilon\\) using Distributions.jl.\n\nma1 = MA1(0.5, Normal(0, 1))",
+    "text": "MA1\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nMA1(α::Float64, dist::UnivariateDistribution)\n\nA struct to define an MA(1) process:\n\\(\\qquad X_t = α  \\cdot \\epsilon_{t-1} + \\epsilon_t.\\)\ndist specifies the distribution of \\(\\epsilon\\) using Distributions.jl.\n\nma1 = MA1(0.5, Normal(0, 1))",
     "crumbs": [
       "API",
       "Types for ordinal patterns",
@@ -122,7 +122,7 @@
     "href": "reference/AR1.html",
     "title": "AR1",
     "section": "",
-    "text": "AR1\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nAR1(α::Float64, dist::UnivariateDistribution)\n\n\\(\\qquad X_t = α  \\cdot X_{t-1} + \\epsilon_t.\\)\ndist specifies the distribution of \\(\\epsilon\\) using Distributions.jl.\n\nar1 = AR1(0.5, Normal(0, 1))",
+    "text": "AR1\n\n\n\n\n\n\ndocblock\n\n\n\n\n\n\nAR1(α::Float64, dist::UnivariateDistribution)\n\nA struct to define an AR(1) process:\n\\(\\qquad X_t = α  \\cdot X_{t-1} + \\epsilon_t.\\)\ndist specifies the distribution of \\(\\epsilon\\) using Distributions.jl.\n\nar1 = AR1(0.5, Normal(0, 1))",
     "crumbs": [
       "API",
       "Types for ordinal patterns",
