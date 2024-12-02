@@ -21,8 +21,6 @@ website:
     left:
       - text: "OrdinalPatterns.jl"
         href: index.qmd      
-      - text: "Installation"
-        href: page_files/installation.qmd  
       - text: "OPs"
         href: page_files/op.qmd
       - text: "SOPs"
@@ -63,7 +61,7 @@ website:
           contents:
             - reference/arl_op.qmd
             - reference/cl_op.qmd    
-        - section: "Functions for ordinal patterns"
+        - section: "Functions for spatial ordinal patterns"
           contents:
             - reference/arl_sop.qmd
             - reference/arl_sacf.qmd
@@ -73,20 +71,15 @@ website:
       collapse-level: 1
       contents:
         - page_files/sop.qmd
-        - section: "SOP Applications"
-          contents:
-            - page_files/sop_tutorial.qmd
-            - page_files/sop_replication.qmd   
+        - page_files/sop_tutorial.qmd
+        - page_files/sop_replication.qmd   
     - title: "OPs"
       style: "docked"
       background: light
-      #collapse-level: 1
       contents:
         - page_files/op.qmd
-        - section: "OP Applications"
-          contents:
-            - page_files/op_tutorial.qmd
-            - page_files/op_replication.qmd                 
+        - page_files/op_tutorial.qmd
+        - page_files/op_replication.qmd                 
 
   page-footer: "Website generated with [Quarto](https://quarto.org/) and [QuartoDocBuilder.jl](https://github.com/vituri/QuartoDocBuilder.jl)"
 
