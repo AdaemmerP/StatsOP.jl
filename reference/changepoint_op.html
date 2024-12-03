@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>chart_stat_sop</title>
+<title>changepoint_op</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -154,7 +154,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#sec-doc" id="toc-sec-doc" class="nav-link active" data-scroll-target="#sec-doc">chart_stat_sop</a></li>
+  <li><a href="#sec-doc" id="toc-sec-doc" class="nav-link active" data-scroll-target="#sec-doc">changepoint_op</a></li>
   </ul>
 </nav>
     </div>
@@ -165,7 +165,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <section id="sec-doc" class="level1">
-<h1>chart_stat_sop</h1>
+<h1>changepoint_op</h1>
 <div class="callout callout-style-simple callout-note callout-titled" title="docblock">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -179,9 +179,23 @@ docblock
 <div id="callout-1" class="callout-1-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <div id="2" class="cell" data-execution_count="0">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">chart_stat_sop</span>(p_ewma, chart_choice)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">changepoint_op</span>(tsx, tsy; conf_level<span class="op">=</span><span class="fl">0.95</span>, weight<span class="op">=</span><span class="cn">true</span>, bn<span class="op">=</span><span class="fu">log</span>(<span class="fu">length</span>(tsx)), op_length<span class="op">::</span><span class="dt">Int</span>=<span class="fl">3</span>, d<span class="op">=</span><span class="fl">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Compute the the test statistic for spatial ordinal patterns. The first input is a vector with three values, based on SOP counts. The second input is the chart.</p>
+<p>Compute the changepoint in dependence between two time series based on Schnurr and Dehling (2017) <a href="doi:10.1080/01621459.2016.1164706" class="uri">doi:10.1080/01621459.2016.1164706</a>.</p>
+<ul>
+<li><code>tsx</code>: First time series for which the ordinal patterns are counted.</li>
+<li><code>tsy</code>: Second time series for which the ordinal patterns are counted.</li>
+<li><code>conf_level::Float64=0.95</code>: Confidence level for the changepoint detection. Default is 0.95.</li>
+<li><code>weight::Bool=true</code>: Whether to use a weight function. Default is true.</li>
+<li><code>bn::Float64=log(length(tsx))</code>: Bandwidth for the kernel function. Default is log(length(tsx)).</li>
+<li><code>op_length::Int=3</code>: Length of the ordinal patterns. Default is 3. Minimum is 2, maximum is 4.</li>
+<li><code>d::Int=1</code>: Time delay. Default is 1.</li>
+</ul>
+<div id="4" class="cell" data-execution_count="0">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>tsx <span class="op">=</span> <span class="fu">rand</span>(<span class="fl">100</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>tsy <span class="op">=</span> <span class="fu">rand</span>(<span class="fl">100</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">changepoint_op</span>(tsx, tsy; conf_level<span class="op">=</span><span class="fl">0.95</span>, weight<span class="op">=</span><span class="cn">true</span>, bn<span class="op">=</span><span class="fu">log</span>(<span class="fu">length</span>(tsx)), op_length<span class="op">=</span><span class="fl">3</span>, d<span class="op">=</span><span class="fl">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </div>
 </div>
 </div>

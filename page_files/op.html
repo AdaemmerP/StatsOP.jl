@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.37">
+<meta name="generator" content="quarto-1.6.39">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -30,16 +30,16 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../page_files/op_tutorial.html" rel="next">
+<link href="../page_files/op_dependence.html" rel="next">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-29e2c20b02301cfff04dc8050bf30c7e.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-b0991b5fbb5a8e7f92166f89ed33fed0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-7cbbb1abdb06a11083cc54098d906374.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -116,7 +116,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../page_files/op.html">Ordinal Patterns (OPs)</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../page_files/op.html">Ordinal Patterns</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -131,19 +131,31 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../page_files/op.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Ordinal Patterns (OPs)</span></a>
+ <span class="menu-text">Ordinal Patterns</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../page_files/op_dependence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Dependency test</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../page_files/op_changepoint.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Changepoint test</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../page_files/op_tutorial.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">OP Tutorial</span></a>
+ <span class="menu-text">Tutorial</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../page_files/op_replication.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">OP Replication</span></a>
+ <span class="menu-text">Replication</span></a>
   </div>
 </li>
     </ul>
@@ -156,7 +168,7 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#ordinal-patterns-ops" id="toc-ordinal-patterns-ops" class="nav-link active" data-scroll-target="#ordinal-patterns-ops">Ordinal Patterns (OPs)</a></li>
+  <li><a href="#ordinal-patterns" id="toc-ordinal-patterns" class="nav-link active" data-scroll-target="#ordinal-patterns">Ordinal Patterns</a></li>
   </ul>
 </nav>
     </div>
@@ -166,8 +178,8 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<section id="ordinal-patterns-ops" class="level1">
-<h1>Ordinal Patterns (OPs)</h1>
+<section id="ordinal-patterns" class="level1">
+<h1>Ordinal Patterns</h1>
 <p>Ordinal Patterns (OPs) are a method to. They have been used in the context of …</p>
 
 
@@ -595,8 +607,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   <div class="nav-page nav-page-previous">
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../page_files/op_tutorial.html" class="pagination-link" aria-label="OP Tutorial">
-        <span class="nav-page-text">OP Tutorial</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../page_files/op_dependence.html" class="pagination-link" aria-label="Dependency test">
+        <span class="nav-page-text">Dependency test</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
