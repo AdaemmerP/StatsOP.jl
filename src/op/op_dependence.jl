@@ -1,5 +1,19 @@
 
-# Function to only count the number of ordinal patterns in bins for one time series
+"""
+    count_uv_op(ts; op_length::Int=3, d=1)
+
+Count the number of ordinal patterns in bins for a single time series `ts`. 
+  
+- `ts::Vector{Float64}`: Time series for which the ordinal patterns are counted.
+- `op_length::Int=3`: Length of the ordinal patterns. Default is 3. Minimum is 2, maximum is 4.
+- `d::Int=1`: Time delay. Default is 1.
+
+```julia
+
+ts = rand(100)
+count_uv_op(ts; op_length=3, d=1)
+```
+"""
 function count_uv_op(ts; op_length::Int=3, d=1)
 
   # Assert that 2 <= op_length <= 4
@@ -34,11 +48,27 @@ function count_uv_op(ts; op_length::Int=3, d=1)
   end
 
   # Return tuple with relative frequencies and counts
-  return ([p_count ./ length(dindex_ranges)], [p_count])
+  return ([p_count ./ length(dindex_ranges)], p_count)
 
 end
 
-# Function to only count the number of ordinal patterns in bins for two time series  
+"""
+    count_mv_op(tsx, tsy; op_length::Int=3, d=1)
+
+Count the number of ordinal patterns in bins for two time series `tsx` and `tsy`. The output will be used
+to compute the ordinal pattern dependence coefficient by Schnurr and Dehling (2017) <doi:10.1080/01621459.2016.1164706>.
+
+- `tsx`: First time series for which the ordinal patterns are counted.
+- `tsy`: Second time series for which the ordinal patterns are counted.
+- `op_length::Int=3`: Length of the ordinal patterns. Default is 3. Minimum is 2, maximum is 4.
+- `d::Int=1`: Time delay. Default is 1.
+
+```julia
+tsx = rand(100)
+tsy = rand(100)
+count_mv_op(tsx, tsy; op_length=3, d=1)
+```
+"""
 function count_mv_op(tsx, tsy; op_length::Int=3, d=1)
 
   # Assert that time series have the same length
@@ -121,8 +151,6 @@ function count_mv_op(tsx, tsy; op_length::Int=3, d=1)
 
   end
 
-  #end
-
   # Create return array
   return_array = (count_x, count_y, count_yrev, count_eq, count_neq, pattern_seq_tsx, pattern_seq_tsy)
 
@@ -130,6 +158,13 @@ function count_mv_op(tsx, tsy; op_length::Int=3, d=1)
 
 end
 
+
+"""
+    dependence_op(tsx, tsy; op_length::Int=3, d=1)
+
+Compute the ordinal pattern dependence coefficient by Schnurr and Dehling (2017) <doi:10.1080/01621459.2016.1164706>.
+
+"""
 function dependence_op(tsx, tsy; op_length::Int=3, d=1)
 
   @assert length(tsx) == length(tsy) "The time series must have the same length"
@@ -181,6 +216,25 @@ function weightfun(maxdif, x)
   return return ((maxdif - x) / maxdif)
 end
 
+"""
+    changepoint_op(tsx, tsy; conf_level=0.95, weight=true, bn=log(length(tsx)), op_length::Int=3, d=1)
+
+Compute the changepoint in dependence between two time series based on Schnurr and Dehling (2017) <doi:10.1080/01621459.2016.1164706>.
+
+- `tsx`: First time series for which the ordinal patterns are counted.
+- `tsy`: Second time series for which the ordinal patterns are counted.
+- `conf_level::Float64=0.95`: Confidence level for the changepoint detection. Default is 0.95.
+- `weight::Bool=true`: Whether to use a weight function. Default is true.
+- `bn::Float64=log(length(tsx))`: Bandwidth for the kernel function. Default is log(length(tsx)).
+- `op_length::Int=3`: Length of the ordinal patterns. Default is 3. Minimum is 2, maximum is 4.
+- `d::Int=1`: Time delay. Default is 1.
+
+```julia
+tsx = rand(100)
+tsy = rand(100)
+changepoint_op(tsx, tsy; conf_level=0.95, weight=true, bn=log(length(tsx)), op_length=3, d=1)
+```
+"""
 function changepoint_op(tsx, tsy; conf_level=0.95, weight=true, bn=log(length(tsx)), op_length::Int=3, d=1)
 
   # Check whether op_length is 2, 3, or 4
@@ -233,7 +287,7 @@ function changepoint_op(tsx, tsy; conf_level=0.95, weight=true, bn=log(length(ts
 
   # Calculation of long-run-variance
   n = length(obs)
-  weightv = kernel_change.(collect(0:floor(bn)) ./ bn)
+  #weightv = kernel_change.(collect(0:floor(bn)) ./ bn)
   acfv = StatsBase.autocov(obs, 0:floor(Int, bn), demean=true)
   sigma = acfv[1] + 2 * sum(acfv[2:floor(Int, bn)])
 
@@ -242,7 +296,7 @@ function changepoint_op(tsx, tsy; conf_level=0.95, weight=true, bn=log(length(ts
   Tn_max = findmax(Tn)
   changepoint = Tn_max[2]
   Tnmax = Tn_max[1]
-  p_value = 1 - cdf(Kolmogorov(), Tnmax) # pKS2(Tnmax)
+  p_value = 1 - cdf(Kolmogorov(), Tnmax)
   conf_iv = (-1, 1) .* quantile(Kolmogorov(), conf_level)
 
   return (Tnmax, changepoint, p_value, conf_iv)

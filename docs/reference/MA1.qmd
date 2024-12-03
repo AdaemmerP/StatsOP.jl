@@ -14,6 +14,8 @@ MA1(α::Float64, dist::UnivariateDistribution)
 
 ```
 
+A struct to define an MA(1) process:        
+ 
 $\qquad X_t = α  \cdot \epsilon_{t-1} + \epsilon_t.$
  
 `dist` specifies the distribution of $\epsilon$ using `Distributions.jl`. 

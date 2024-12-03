@@ -1,0 +1,39 @@
+---
+engine: julia
+---
+
+# changepoint_op {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+changepoint_op(tsx, tsy; conf_level=0.95, weight=true, bn=log(length(tsx)), op_length::Int=3, d=1)
+
+```
+
+Compute the changepoint in dependence between two time series based on Schnurr and Dehling (2017) <doi:10.1080/01621459.2016.1164706>.
+ 
+  * `tsx`: First time series for which the ordinal patterns are counted.
+  * `tsy`: Second time series for which the ordinal patterns are counted.
+  * `conf_level::Float64=0.95`: Confidence level for the changepoint detection. Default is 0.95.
+  * `weight::Bool=true`: Whether to use a weight function. Default is true.
+  * `bn::Float64=log(length(tsx))`: Bandwidth for the kernel function. Default is log(length(tsx)).
+  * `op_length::Int=3`: Length of the ordinal patterns. Default is 3. Minimum is 2, maximum is 4.
+  * `d::Int=1`: Time delay. Default is 1.
+
+```{julia}
+#| eval: false
+tsx = rand(100)
+tsy = rand(100)
+changepoint_op(tsx, tsy; conf_level=0.95, weight=true, bn=log(length(tsx)), op_length=3, d=1)
+
+```
+
+
+
+:::
+    
+

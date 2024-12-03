@@ -1,0 +1,38 @@
+---
+engine: julia
+julia:
+  exeflags: ["--project=../."]
+---
+
+
+# Changepoint test
+
+`OrdinalPatterns.jl` allows to compute the chanegpoint statistic based on @schnurr2017.
+
+
+```{julia}
+#| warning: false
+using RCall
+using OrdinalPatterns
+using BenchmarkTools
+
+tsx = rand(100)
+tsy = rand(100)
+
+# R
+@rput tsx tsy 
+R"""
+library(ordinalpattern)
+result_dep = patterndependence(tsx, tsy)
+result_dep$patterncoef |> print()
+
+microbenchmark::microbenchmark(
+  timing = patterndependence(tsx, tsy, tiesmethod="first"), times = 100
+  )
+"""
+```
+
+
+```{julia}
+changepoint_op(tsx, tsy, op_length=3)
+```

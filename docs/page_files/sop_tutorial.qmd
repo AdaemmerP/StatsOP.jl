@@ -4,7 +4,7 @@ julia:
   exeflags: ["--project=../."]
 ---
 
-# SOP Tutorial
+# Tutorial
         
 The tutorials using SOPs will be shown here...
 

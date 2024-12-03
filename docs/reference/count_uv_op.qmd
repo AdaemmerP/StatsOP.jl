@@ -1,0 +1,35 @@
+---
+engine: julia
+---
+
+# count_uv_op {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+count_uv_op(ts; op_length::Int=3, d=1)
+
+```
+
+Count the number of ordinal patterns in bins for a single time series `ts`. 
+ 
+  * `ts::Vector{Float64}`: Time series for which the ordinal patterns are counted.
+  * `op_length::Int=3`: Length of the ordinal patterns. Default is 3. Minimum is 2, maximum is 4.
+  * `d::Int=1`: Time delay. Default is 1.
+
+```{julia}
+#| eval: false
+
+ts = rand(100)
+count_uv_op(ts; op_length=3, d=1)
+
+```
+
+
+
+:::
+    
+

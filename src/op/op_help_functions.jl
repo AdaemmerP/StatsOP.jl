@@ -1,12 +1,12 @@
 
-  # In-place function to sort vector with ops (same function as for sops)
-  function order_vec!(x, ix)
+  # # In-place function to sort vector with ops (same function as for sops)
+  # function order_vec!(x, ix)
   
-    sortperm!(ix, x)
+  #   sortperm!(ix, x)
   
-    return ix
+  #   return ix
   
-  end
+  # end
   
   # --- Function to select abort criterium --- #
   # see Equation (6), page 342, Weiss and Testik (2023)

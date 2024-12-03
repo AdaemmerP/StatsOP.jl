@@ -7,6 +7,8 @@ using Statistics
 using Combinatorics
 using Distributions
 using Distributed
+using StaticArrays
+using StatsBase
 
 # ---------------------------------------------#
 # SOP related functions and structs  to export #
@@ -72,12 +74,18 @@ export IC,
 
 # OP functions to export
 export rl_op,
-       arl_op
+       arl_op,
+       count_uv_op,
+       count_mv_op,
+       dependence_op,
+       changepoint_op
 
 # Include files for OPs
 include("op/op_dgp_structs.jl")
 include("op/op_acf_functions.jl")
 include("op/op_arl_functions.jl")
+include("op/op_dependence.jl")
+include("op/op_help_functions.jl")
 
 
 # Include files for SOPs

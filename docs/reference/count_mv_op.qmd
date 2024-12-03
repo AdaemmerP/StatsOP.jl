@@ -1,0 +1,36 @@
+---
+engine: julia
+---
+
+# count_mv_op {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+count_mv_op(tsx, tsy; op_length::Int=3, d=1)
+
+```
+
+Count the number of ordinal patterns in bins for two time series `tsx` and `tsy`. The output will be used to compute the ordinal pattern dependence coefficient by Schnurr and Dehling (2017) <doi:10.1080/01621459.2016.1164706>.
+ 
+  * `tsx`: First time series for which the ordinal patterns are counted.
+  * `tsy`: Second time series for which the ordinal patterns are counted.
+  * `op_length::Int=3`: Length of the ordinal patterns. Default is 3. Minimum is 2, maximum is 4.
+  * `d::Int=1`: Time delay. Default is 1.
+
+```{julia}
+#| eval: false
+tsx = rand(100)
+tsy = rand(100)
+count_mv_op(tsx, tsy; op_length=3, d=1)
+
+```
+
+
+
+:::
+    
+

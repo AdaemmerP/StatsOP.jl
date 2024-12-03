@@ -14,6 +14,8 @@ end
 """
     AR1(α::Float64, dist::UnivariateDistribution)
 
+A struct to define an AR(1) process:    
+
 `` \\qquad X_t = α  \\cdot X_{t-1} + \\epsilon_t.``
 
 `dist` specifies the distribution of ``\\epsilon`` using `Distributions.jl`. 
@@ -30,6 +32,8 @@ end
 """
     MA1(α::Float64, dist::UnivariateDistribution)
 
+A struct to define an MA(1) process:        
+
 `` \\qquad X_t = α  \\cdot \\epsilon_{t-1} + \\epsilon_t.``
 
 `dist` specifies the distribution of ``\\epsilon`` using `Distributions.jl`. 
@@ -45,6 +49,8 @@ end
 
 """
     MA2(α₁::Float64, α₂::Float64, dist::UnivariateDistribution)
+
+A struct to define an MA(2) process:    
 
 `` \\qquad X_t = α₁  \\cdot \\epsilon_{t-1} + α₂  \\cdot \\epsilon_{t-2} + \\epsilon_t.``    
 

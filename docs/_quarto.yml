@@ -78,6 +78,8 @@ website:
       background: light
       contents:
         - page_files/op.qmd
+        - page_files/op_dependence.qmd
+        - page_files/op_changepoint.qmd
         - page_files/op_tutorial.qmd
         - page_files/op_replication.qmd                 
 

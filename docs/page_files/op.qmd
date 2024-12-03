@@ -1,4 +1,4 @@
-# Ordinal Patterns (OPs)
+# Ordinal Patterns
 
 Ordinal Patterns (OPs) are a method to. They have been used in the context of ...
 
