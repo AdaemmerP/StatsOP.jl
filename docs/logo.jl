@@ -7,7 +7,7 @@ Drawing(600, 600, "op_logo.svg")
 p_size = 50
 
 origin()
-setcolor(0.2, 0.2, 0.3)
+#setcolor(0.1, 0.2, 0.3)
 squircle(O, 300, 300, rt=0.5, action = :fill)
 
 # Write package name
