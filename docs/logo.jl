@@ -4,23 +4,21 @@ using Colors
 @png begin
 Drawing(600, 600, "op_logo.svg")
 
-p_size = 70
+p_size = 60
 
 origin()
-setcolor(0, 0.1, 0.1)
-squircle(O, 320, 320, rt=0.5, action = :fill)
+setcolor(0.2, 0.2, 0.3)
+squircle(O, 300, 220, rt=0.5, action = :fill)
 
 # Write package name
-#setcolor(Luxor.julia_blue)
-setcolor("black")
-fontsize(70)
-setcolor(Luxor.julia_purple)  
-text("OrdinalPatterns.jl", Point(0, 250), halign=:center, valign=:bottom)
+#fontsize(68)
+#setcolor(Luxor.julia_purple)  
+#text("OrdinalPatterns.jl", Point(0, 220), halign=:center, valign=:bottom)
 
 # Three points 
-point1 = Point(-210, -175)
-point2 = Point(-20, 80)
-point3 = Point(220, -80)
+point1 = Point(-210, -135)
+point2 = Point(-20, 150)
+point3 = Point(230, 0)
 
 # First point
 setcolor(Luxor.julia_green)
