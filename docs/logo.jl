@@ -7,7 +7,7 @@ Drawing(600, 600, "op_logo.svg")
 p_size = 60
 
 origin()
-setcolor(0.2, 0.2, 0.3)
+setcolor(1, 1, 1)
 squircle(O, 300, 220, rt=0.5, action = :fill)
 
 # Three points 
@@ -45,6 +45,7 @@ red_purple = blend(point2, point3, Luxor.julia_red, Luxor.julia_purple)
 setblend(red_purple)
 line(point2, point3)
 strokepath()
+
 
 # setcolor(Luxor.julia_blue)
 # setline(8)
