@@ -7,7 +7,7 @@ Drawing(600, 600, "op_logo.svg")
 p_size = 60
 
 origin()
-setcolor(1, 1, .9)
+setcolor(1, 1, 1)
 squircle(O, 300, 220, rt=0.5, action = :fill)
 
 # Three points 
