@@ -4,21 +4,23 @@ using Colors
 @png begin
 Drawing(600, 600, "op_logo.svg")
 
-p_size = 50
+p_size = 70
 
 origin()
-setcolor(0.1, 0.2, 0.3)
-squircle(O, 300, 300, rt=0.5, action = :fill)
+setcolor(0, 0.1, 0.1)
+squircle(O, 320, 320, rt=0.5, action = :fill)
 
 # Write package name
-setcolor(Luxor.julia_blue)
-fontsize(65)
-text("OrdinalPatterns.jl", Point(0, -150), halign=:center, valign=:bottom)
+#setcolor(Luxor.julia_blue)
+setcolor("black")
+fontsize(70)
+setcolor(Luxor.julia_purple)  
+text("OrdinalPatterns.jl", Point(0, 250), halign=:center, valign=:bottom)
 
 # Three points 
-point1 = Point(-220, -50)
-point2 = Point(0, 200)
-point3 = Point(240, 30)
+point1 = Point(-210, -175)
+point2 = Point(-20, 80)
+point3 = Point(220, -80)
 
 # First point
 setcolor(Luxor.julia_green)
@@ -40,16 +42,11 @@ circle(point3, p_size, action = :stroke)
 
 # Draw lines to connect the points
 setcolor(Luxor.julia_blue)
-setline(5)
+setline(8)
 line(point1, point2, action = :stroke)
 line(point2, point3, action = :stroke)
-fontsize(20)
-# Set font size for the title
-fontsize(30)
-# Draw the title at a specified position
-#text("OrdinalPatterns.jl", Point(200, 0), halign=:center, valign=:bottom)
+
 finish()
-#Luxor.saveimage("my-drawing.svg")
 preview()
 end
 
