@@ -16,9 +16,9 @@ squircle(O, 300, 220, rt=0.5, action = :fill)
 #text("OrdinalPatterns.jl", Point(0, 220), halign=:center, valign=:bottom)
 
 # Three points 
-point1 = Point(-210, -135)
-point2 = Point(-20, 150)
-point3 = Point(230, 0)
+point1 = Point(-190, -110)
+point2 = Point(-10, 130)
+point3 = Point(210, -20)
 
 # First point
 setcolor(Luxor.julia_green)
