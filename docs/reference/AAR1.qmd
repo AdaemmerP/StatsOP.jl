@@ -7,6 +7,13 @@ engine: julia
 
 ::: {.callout-note appearance="simple" title="docblock" collapse=false}    
 
+
+```{julia}
+#| eval: false
+AAR1(α::Float64, dist::UnivariateDistribution)
+
+```
+
 A struct to define a AAR(1) (absolute AR) process:
  
 $\qquad X_t=\alpha \cdot\left|X_{t-1}\right|+\epsilon_t.$

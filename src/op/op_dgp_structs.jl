@@ -86,6 +86,9 @@ struct TEAR1
 end
 
 """
+
+    AAR1(α::Float64, dist::UnivariateDistribution)
+
 A struct to define a AAR(1) (absolute AR) process:
 
 `` \\qquad X_t=\\alpha \\cdot\\left|X_{t-1}\\right|+\\epsilon_t.``
@@ -102,6 +105,9 @@ struct AAR1
 end
 
 """
+
+    QAR1(α::Float64, dist::UnivariateDistribution)
+
 A struct to define a QAR(1) (quadratic AR) process:
 
 `` \\qquad X_t=\\alpha \\cdot X_{t-1}^2+\\epsilon_t.``

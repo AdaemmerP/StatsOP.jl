@@ -14,7 +14,9 @@ SAR1(dgp_params, eps_params, m, n, prerun)
 
 ```
 
-First-order simultaneous autoregressive (SAR(1)) model as defined by Weiß and Kim (2024) on page 8. The struct contains the following fields:
+A struct to define a first-order simultaneous autoregressive (SAR(1)) model:    
+ 
+$\qquad Y_{t_1, t_2}=a_1 \cdot Y_{t_1-1, t_2}+a_2 \cdot Y_{t_1, t_2-1}+a_3 \cdot Y_{t_1, t_2+1}+a_4 \cdot Y_{t_1+1, t_2}+\varepsilon_{t_1, t_2}.$
  
   * `dgp_params::Tuple{Float64, Float64, Float64, Float64}`: A tuple of the parameters of the DGP. The first element is the parameter β₁, the second element is the parameter β₂, and the third element is the parameter β₃. Note that β₁, β₂, and β₃ ∈ [0, 1].
   * `m::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.

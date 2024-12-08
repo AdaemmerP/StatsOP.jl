@@ -1,6 +1,8 @@
 [deps]
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+Colors = "5ae59095-9a9b-59fe-a467-6f913c188581"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+Luxor = "ae8d54c2-7ccd-5906-9d76-62fc9837b5bc"
 OrdinalPatterns = "8611b07d-f603-454a-913b-9db0632d0769"
 QuartoDocBuilder = "164f4f01-dadb-4e86-a767-9a3bba57cbbb"
 RCall = "6f49c342-dc21-5d91-9882-a32aef131414"

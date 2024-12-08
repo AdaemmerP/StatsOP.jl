@@ -1,9 +1,11 @@
 """ 
     SAR11(dgp_params, m, n, prerun)
 
-First-order spatial autoregressive (SAR(1, 1)) model as defined by Weiß and Kim (2024) on page 6. The struct contains the following fields:
+A struct to define a first-order spatial autoregressive (SAR(1, 1)) process:
 
-- `dgp_params::Tuple{Float64, Float64, Float64}`: A tuple of the parameters of the DGP. The first element is the parameter α₁, the second element is the parameter α₂, and the third element is the parameter α₃. The requirements to guarantee stationarity for the process are |α₁| < 1, |α₂| < 1, |α₁ + α₂| < 1 - α₃, and |α₁ - α₂| < 1 + α₃.
+`` \\qquad \\qquad Y_{t_1, t_2}=\\alpha_1 \\cdot Y_{t_1-1, t_2}+\\alpha_2 \\cdot Y_{t_1, t_2-1}+\\alpha_3 \\cdot Y_{t_1-1, t_2-1}+\\varepsilon_{t_1, t_2} ``  
+
+- `dgp_params::Tuple(α₁::Float64, α₂::Float64, α₃::Float64)` The requirements to guarantee stationarity for the process are |α₁| < 1, |α₂| < 1, |α₁ + α₂| < 1 - α₃, and |α₁ - α₂| < 1 + α₃.
 - `m::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
 - `n::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1. 
 - `prerun::Int`: A value to initialize the DGP to achieve stationarity. These number of rows and columns will be discarded after the initialization. 
@@ -33,12 +35,15 @@ end
 """ 
     SINAR11(dgp_params, m, n, prerun)
 
-First-order integer spatial autoregressive (SINAR(1, 1)) model as defined by Weiß and Kim (2024) on page 6. The struct contains the following fields:
+A struct to define a first-order integer spatial autoregressive (SINAR(1, 1)) model:
 
-- `dgp_params::Tuple{Float64, Float64, Float64}`: A tuple of the parameters of the DGP. The first element is the parameter α₁, the second element is the parameter α₂, and the third element is the parameter α₃. Note that α₁, α₂, and α₃ ∈ [0, 1) and α₁ + α₂ + α₃ < 1 to guarantee stationarity.
-- `m::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
-- `n::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1. 
-- `prerun::Int`: A value to initialize the DGP to guarantee stationarity. These number of rows and columns will be discarded for the final spatial matrix. 
+
+`` \\qquad X_{t_1, t_2}=\\alpha_1 \\circ X_{t_1-1, t_2}+\\alpha_2 \\circ X_{t_1, t_2-1}+\\alpha_3 \\circ X_{t_1-1, t_2-1}+\\epsilon_{t_1, t_2}.`` 
+
+- `dgp_params::Tuple(α₁::Float64, α₂::Float64, α₃::Float64)` Note that α₁, α₂, and α₃ ∈ [0, 1) and α₁ + α₂ + α₃ < 1 to guarantee stationarity.
+- `m::Int` The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
+- `n::Int` The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1. 
+- `prerun::Int` A value to initialize the DGP to guarantee stationarity. These number of rows and columns will be discarded for the final spatial matrix. 
 
 ```julia
 sar11 = SINAR((0.5, 0.3, 0.2), 11, 11, 100)
@@ -64,10 +69,13 @@ end
 """ 
     SQMA11(dgp_params, eps_params, m, n, prerun)
 
-Spatial quadratic moving-average (SQMA(1, 1)) model as defined by Weiß and Kim (2024) on page 7. The struct contains the following fields:
+A struct to define a Spatial quadratic moving-average (SQMA(1, 1)):
 
-- `dgp_params::Tuple{Float64, Float64, Float64}`: A tuple of the parameters of the DGP. The first element is the parameter β₁, the second element is the parameter β₂, and the third element is the parameter β₃. 
-- `eps_params::Tuple{Int, Int, Int}`: A tuple of the parameters of the DGP, indicating which error terms shall be squared. Note that `eps_params` ∈ {1, 2}.
+`` \\qquad  Y_{t_1, t_2}=\\beta_1 \\cdot \\varepsilon_{t_1-1, t_2}^a+\\beta_2 \\cdot \\varepsilon_{t_1, t_2-1}^b+\\beta_3 \\cdot \\varepsilon_{t_1-1, t_2-1}^c+\\varepsilon_{t_1, t_2}``
+
+
+- `dgp_params::Tuple(β₁::Float64, β₂::Float64, β₃::Float64)`: A tuple of the parameters of the DGP. The first element is the parameter β₁, the second element is the parameter β₂, and the third element is the parameter β₃. 
+- `eps_params::Tuple(a::Int, b::Int, c::Int)`: A tuple of the parameters of the DGP, indicating which error terms shall be squared. Note that `eps_params` ∈ {1, 2}.
 - `m::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
 - `n::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1. 
 - `prerun::Int`: A value to initialize the DGP. This value should be set to 1.
@@ -88,13 +96,16 @@ end
 """ 
     SQINMA11(dgp_params, eps_params, m, n, prerun)
 
-Spatial quadratic integer moving-average SQINMA(1, 1) model as defined by Weiß and Kim (2024) on page 7. The struct contains the following fields:
+A struct to define a Spatial quadratic integer moving-average SQINMA(1, 1):    
 
-- `dgp_params::Tuple{Float64, Float64, Float64}`: A tuple of the parameters of the DGP. The first element is the parameter β₁, the second element is the parameter β₂, and the third element is the parameter β₃. Note that β₁, β₂, and β₃ ∈ [0, 1].
-- `eps_params::Tuple{Int, Int, Int}`: A tuple of the parameters of the DGP, indicating which error terms shall be squared. Note that `eps_params` ∈ {1, 2}.
-- `m::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
-- `n::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1. 
-- `prerun::Int`: A value to initialize the DGP. This value should be set to 1.
+``\\qquad X_{t_1, t_2}=\\beta_1 \\circ \\epsilon_{t_1-1, t_2}^a+\\beta_2 \\circ \\epsilon_{t_1, t_2-1}^b+\\beta_3 \\circ \\epsilon_{t_1-1, t_2-1}^c+\\epsilon_{t_1, t_2}.``
+
+
+- `dgp_params::Tuple(β₁::Float64, β₂::Float64, β₃::Float64).` Note that β₁, β₂, and β₃ ∈ [0, 1].
+- `eps_params::Tuple(a::Int, b::Int, c::Int).` A tuple of the parameters of the DGP, indicating which error terms shall be squared. Note that `eps_params` ∈ {1, 2}.
+- `m::Int.` The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
+- `n::Int.` The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1. 
+- `prerun::Int.` A value to initialize the DGP. This value should be set to 1.
 
 ```julia
 sqinma11 = SQINMA11((0.5, 0.3, 0.2), (1, 1, 2), 11, 11, 1)
@@ -117,9 +128,12 @@ end
 """ 
     SAR1(dgp_params, eps_params, m, n, prerun)
 
-First-order simultaneous autoregressive (SAR(1)) model as defined by Weiß and Kim (2024) on page 8. The struct contains the following fields:
+A struct to define a first-order simultaneous autoregressive (SAR(1)) model:    
 
-- `dgp_params::Tuple{Float64, Float64, Float64, Float64}`: A tuple of the parameters of the DGP. The first element is the parameter β₁, the second element is the parameter β₂, and the third element is the parameter β₃. Note that β₁, β₂, and β₃ ∈ [0, 1].
+``\\qquad Y_{t_1, t_2}=a_1 \\cdot Y_{t_1-1, t_2}+a_2 \\cdot Y_{t_1, t_2-1}+a_3 \\cdot Y_{t_1, t_2+1}+a_4 \\cdot Y_{t_1+1, t_2}+\\varepsilon_{t_1, t_2}.``
+
+
+- `dgp_params::Tuple{a₁::Float64, a₂::Float64, Float64, Float64}`: A tuple of the parameters of the DGP. The first element is the parameter a₁, the second element is the parameter a₂, and the third element is the parameter a₃. a₄.
 - `m::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
 - `n::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1. 
 - `margin::Int`: The margin for the spatial matrix used for initialization.
@@ -164,24 +178,4 @@ end
 
 
 
-
-
-
-
-  # DGP 3
-  # Yₜ₁,ₜ₂ = α_1 * Yₜ₁₋₁,ₜ₂ + α_2 * Yₜ₁,ₜ₂₋₁ + α_3 * Yₜ₁₋₁,ₜ₂₋₁ + εₜ₁,ₜ₂
-
-  # DGP 4
-  # Xₜ₁,ₜ₂ = α_1 ∘ Xₜ₁₋₁,ₜ₂ + α_2 ∘ Xₜ₁,ₜ₂₋₁ + α_3 ∘ Xₜ₁₋₁,ₜ₂₋₁ + εₜ₁,ₜ₂
-
-  # DGP 5
-  # Yₜ₁,ₜ₂ = α_1 * Yₜ₁₋₁,ₜ₂ + α_2 * Yₜ₁,ₜ₂₋₁ + α_3 * Yₜ₁₋₁,ₜ₂₋₁ + ε*ₜ₁,ₜ₂ + κₜ₁,ₜ₂ ⋅ ε**ₜ₁,ₜ₂
-
-  # DGP 6
-  # Xₜ₁,ₜ₂ = α_1 ∘ Xₜ₁₋₁,ₜ₂ + α_2 ∘ Xₜ₁,ₜ₂₋₁ + α_3 ∘ Xₜ₁₋₁,ₜ₂₋₁ + ε*ₜ₁,ₜ₂ + κₜ₁,ₜ₂ ⋅ ε**ₜ₁,ₜ₂
-
- # DGP 7
-  # Yₜ₁,ₜ₂ = α_1 * Yₜ₁₋₁,ₜ₂ + α_2 * Yₜ₁,ₜ₂₋₁ + α_3 * Yₜ₁₋₁,ₜ₂₋₁ + εₜ₁,ₜ₂ + κₜ₁,ₜ₂ ⋅ ε**ₜ₁,ₜ₂
-
-  # DGP 8
 

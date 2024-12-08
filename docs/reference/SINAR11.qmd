@@ -14,12 +14,14 @@ SINAR11(dgp_params, m, n, prerun)
 
 ```
 
-First-order integer spatial autoregressive (SINAR(1, 1)) model as defined by Weiß and Kim (2024) on page 6. The struct contains the following fields:
+A struct to define a first-order integer spatial autoregressive (SINAR(1, 1)) model:
  
-  * `dgp_params::Tuple{Float64, Float64, Float64}`: A tuple of the parameters of the DGP. The first element is the parameter α₁, the second element is the parameter α₂, and the third element is the parameter α₃. Note that α₁, α₂, and α₃ ∈ [0, 1) and α₁ + α₂ + α₃ < 1 to guarantee stationarity.
-  * `m::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
-  * `n::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1.
-  * `prerun::Int`: A value to initialize the DGP to guarantee stationarity. These number of rows and columns will be discarded for the final spatial matrix.
+$\qquad X_{t_1, t_2}=\alpha_1 \circ X_{t_1-1, t_2}+\alpha_2 \circ X_{t_1, t_2-1}+\alpha_3 \circ X_{t_1-1, t_2-1}+\epsilon_{t_1, t_2}.$ 
+ 
+  * `dgp_params::Tuple(α₁::Float64, α₂::Float64, α₃::Float64)` Note that α₁, α₂, and α₃ ∈ [0, 1) and α₁ + α₂ + α₃ < 1 to guarantee stationarity.
+  * `m::Int` The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
+  * `n::Int` The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1.
+  * `prerun::Int` A value to initialize the DGP to guarantee stationarity. These number of rows and columns will be discarded for the final spatial matrix.
 
 ```{julia}
 #| eval: false

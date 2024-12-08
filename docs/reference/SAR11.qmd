@@ -14,9 +14,11 @@ SAR11(dgp_params, m, n, prerun)
 
 ```
 
-First-order spatial autoregressive (SAR(1, 1)) model as defined by Weiß and Kim (2024) on page 6. The struct contains the following fields:
+A struct to define a first-order spatial autoregressive (SAR(1, 1)) process:
  
-  * `dgp_params::Tuple{Float64, Float64, Float64}`: A tuple of the parameters of the DGP. The first element is the parameter α₁, the second element is the parameter α₂, and the third element is the parameter α₃. The requirements to guarantee stationarity for the process are |α₁| < 1, |α₂| < 1, |α₁ + α₂| < 1 - α₃, and |α₁ - α₂| < 1 + α₃.
+$\qquad \qquad Y_{t_1, t_2}=\alpha_1 \cdot Y_{t_1-1, t_2}+\alpha_2 \cdot Y_{t_1, t_2-1}+\alpha_3 \cdot Y_{t_1-1, t_2-1}+\varepsilon_{t_1, t_2}$  
+ 
+  * `dgp_params::Tuple(α₁::Float64, α₂::Float64, α₃::Float64)` The requirements to guarantee stationarity for the process are |α₁| < 1, |α₂| < 1, |α₁ + α₂| < 1 - α₃, and |α₁ - α₂| < 1 + α₃.
   * `m::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
   * `n::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1.
   * `prerun::Int`: A value to initialize the DGP to achieve stationarity. These number of rows and columns will be discarded after the initialization.
