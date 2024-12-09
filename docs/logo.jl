@@ -9,7 +9,7 @@ p_size = 60
 
 origin()
 setcolor(1, 1, 1)
-squircle(O, 300, 220, rt=0.5, action = :fill)
+#squircle(O, 300, 220, rt=0.5, action = :fill)
 
 # Three points 
 point1 = Point(-220, 10)
