@@ -19,6 +19,7 @@ point3 = Point(210, -100)
 setcolor(Luxor.julia_green)
 circle(point1, p_size, action = :fill)
 setcolor(Luxor.julia_blue)
+setline(12)
 circle(point1, p_size, action = :stroke)
 
 # Second point
@@ -34,7 +35,7 @@ setcolor(Luxor.julia_blue)
 circle(point3, p_size, action = :stroke)
 
 # Draw first lines
-setline(8)
+setline(10)
 green_red = blend(point1, point2, Luxor.julia_green, Luxor.julia_red)
 setblend(green_red)
 line(point1, point2)
@@ -45,12 +46,6 @@ red_purple = blend(point2, point3, Luxor.julia_red, Luxor.julia_purple)
 setblend(red_purple)
 line(point2, point3)
 strokepath()
-
-
-# setcolor(Luxor.julia_blue)
-# setline(8)
-# line(point1, point2, action = :stroke)
-# line(point2, point3, action = :stroke)
 
 finish()
 preview()
