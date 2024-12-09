@@ -8,7 +8,7 @@ using Colors
     p_size = 60
 
     origin()
-    setcolor(.9,.9,.9)
+    #setcolor(.9,.9,.9)
     squircle(O, 300, 220, rt=0.5, action = :fill)
 
     # Three points 
