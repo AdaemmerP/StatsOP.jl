@@ -259,7 +259,7 @@
     "href": "page_files/op_dependence.html",
     "title": "Dependency test",
     "section": "",
-    "text": "Dependency test\nOrdinalPatterns.jl allows to compute the dependency statistic based on @schnurr2017.\n\nusing RCall\nusing OrdinalPatterns\nusing BenchmarkTools\n\ntsx = rand(100)\ntsy = rand(100)\n\n# R\n@rput tsx tsy \nR\"\"\"\nlibrary(ordinalpattern)\nresult_dep = patterndependence(tsx, tsy)\nresult_dep$patterncoef |&gt; print()\n\nmicrobenchmark::microbenchmark(\n  timing = patterndependence(tsx, tsy, tiesmethod=\"first\"), times = 100\n  )\n\"\"\"\n\n[1] -0.03345818\n\n\nRObject{VecSxp}\nUnit: microseconds\n   expr     min       lq     mean   median      uq      max neval\n timing 211.696 218.0585 246.4126 222.7125 231.289 1085.976   100\n\n\n\ndependence_op(tsx, tsy; op_length=3, d=1)\n@btime dependence_op(tsx, tsy; op_length=3, d=1)\n\n  7.617 μs (44 allocations: 6.41 KiB)\n\n\n(-0.033458177278401995, [5, 6, 3, 2, 6, 4, 5, 3, 2, 6  …  2, 6, 6, 4, 5, 3, 5, 6, 3, 1], [3, 2, 6, 4, 1, 5, 3, 2, 3, 5  …  4, 1, 1, 5, 4, 5, 3, 2, 4, 5])\n\n\n\nchangepoint_op(tsx, tsy, op_length=3)\n\n(0.8037766587059255, 67, 0.5380101346749995, (-1.3580986393225503, 1.3580986393225503))",
+    "text": "Dependency test\nOrdinalPatterns.jl allows to compute the dependency statistic based on @schnurr2017.\n\nusing RCall\nusing OrdinalPatterns\nusing BenchmarkTools\n\ntsx = rand(100)\ntsy = rand(100)\n\n# R\n@rput tsx tsy \nR\"\"\"\nlibrary(ordinalpattern)\nresult_dep = patterndependence(tsx, tsy)\nresult_dep$patterncoef |&gt; print()\n\nmicrobenchmark::microbenchmark(\n  timing = patterndependence(tsx, tsy, tiesmethod=\"first\"), times = 100\n  )\n\"\"\"\n\n[1] 0.06161018\n\n\nRObject{VecSxp}\nUnit: microseconds\n   expr     min       lq     mean  median      uq      max neval\n timing 198.723 205.9165 232.1966 211.131 219.111 1006.608   100\n\n\n\ndependence_op(tsx, tsy; op_length=3, d=1)\n@btime dependence_op(tsx, tsy; op_length=3, d=1)\n\n  7.224 μs (44 allocations: 6.41 KiB)\n\n\n(0.06161018016882953, [6, 3, 2, 6, 4, 1, 5, 6, 3, 2  …  6, 3, 2, 4, 5, 3, 2, 3, 2, 6], [2, 4, 5, 6, 3, 2, 6, 6, 3, 2  …  6, 3, 2, 6, 3, 1, 1, 5, 4, 2])\n\n\n\nchangepoint_op(tsx, tsy, op_length=3)\n\n(0.7509540563131285, 33, 0.625561138056554, (-1.3580986393225503, 1.3580986393225503))",
     "crumbs": [
       "OPs",
       "Dependency test"
@@ -288,7 +288,7 @@
     "href": "page_files/op_changepoint.html",
     "title": "Changepoint test",
     "section": "",
-    "text": "Changepoint test\nOrdinalPatterns.jl allows to compute the chanegpoint statistic based on @schnurr2017.\n\nusing RCall\nusing OrdinalPatterns\nusing BenchmarkTools\n\ntsx = rand(100)\ntsy = rand(100)\n\n# R\n@rput tsx tsy \nR\"\"\"\nlibrary(ordinalpattern)\nresult_dep = patterndependence(tsx, tsy)\nresult_dep$patterncoef |&gt; print()\n\nmicrobenchmark::microbenchmark(\n  timing = patterndependence(tsx, tsy, tiesmethod=\"first\"), times = 100\n  )\n\"\"\"\n\n[1] 0.1508226\n\n\nRObject{VecSxp}\nUnit: microseconds\n   expr     min       lq     mean  median       uq      max neval\n timing 203.712 211.9225 240.1841 215.018 228.3435 1112.656   100\n\n\n\nchangepoint_op(tsx, tsy, op_length=3)\n\n(0.6686097439679828, 89, 0.7626507291334023, (-1.3580986393225503, 1.3580986393225503))",
+    "text": "Changepoint test\nOrdinalPatterns.jl allows to compute the chanegpoint statistic based on @schnurr2017.\n\nusing RCall\nusing OrdinalPatterns\nusing BenchmarkTools\n\ntsx = rand(100)\ntsy = rand(100)\n\n# R\n@rput tsx tsy \nR\"\"\"\nlibrary(ordinalpattern)\nresult_dep = patterndependence(tsx, tsy)\nresult_dep$patterncoef |&gt; print()\n\nmicrobenchmark::microbenchmark(\n  timing = patterndependence(tsx, tsy, tiesmethod=\"first\"), times = 100\n  )\n\"\"\"\n\n[1] 0\n\n\nRObject{VecSxp}\nUnit: microseconds\n   expr     min       lq     mean median      uq     max neval\n timing 212.629 217.4275 248.2273 221.62 237.385 1162.28   100\n\n\n\nchangepoint_op(tsx, tsy, op_length=3)\n\n(1.012640344335368, 24, 0.2566957374914707, (-1.3580986393225503, 1.3580986393225503))",
     "crumbs": [
       "OPs",
       "Changepoint test"
@@ -316,7 +316,7 @@
     "href": "index.html",
     "title": "OrdinalPatterns.jl",
     "section": "",
-    "text": "OrdinalPatterns.jl is a Julia package that provides functions to compute ordinal patterns from time series data. The package is based on the work of Bandt and Pompe (2002). The package is highly optimized and fast. The package is designed to be easy to use and provides a simple interface to compute ordinal patterns from time series data.\n\n\nThe package is currently not registered and has to be installed manually from GitHub.\n\n\n\nThe documentation for the package can be found here."
+    "text": "OrdinalPatterns.jl is a Julia package that provides functions to conduct (sequential) tests for time series data, using ordinal patterns. The package builds on the seminal work of Bandt and Pompe (2002). The package is highly optimized and fast. The package is designed to be easy to use and provides a simple interface to compute ordinal patterns from time series data.\n\n\nThe package is currently not registered and has to be installed manually from GitHub.\n\n\n\nThe documentation for the package can be found here."
   },
   {
     "objectID": "index.html#installation",
