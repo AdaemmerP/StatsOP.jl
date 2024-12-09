@@ -18,7 +18,7 @@ A struct to define a first-order simultaneous autoregressive (SAR(1)) model:
  
 $\qquad Y_{t_1, t_2}=a_1 \cdot Y_{t_1-1, t_2}+a_2 \cdot Y_{t_1, t_2-1}+a_3 \cdot Y_{t_1, t_2+1}+a_4 \cdot Y_{t_1+1, t_2}+\varepsilon_{t_1, t_2}.$
  
-  * `dgp_params::Tuple{Float64, Float64, Float64, Float64}`: A tuple of the parameters of the DGP. The first element is the parameter β₁, the second element is the parameter β₂, and the third element is the parameter β₃. Note that β₁, β₂, and β₃ ∈ [0, 1].
+  * `dgp_params::Tuple{a₁::Float64, a₂::Float64, Float64, Float64}`: A tuple of the parameters of the DGP. The first element is the parameter a₁, the second element is the parameter a₂, and the third element is the parameter a₃. a₄.
   * `m::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
   * `n::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1.
   * `margin::Int`: The margin for the spatial matrix used for initialization.
