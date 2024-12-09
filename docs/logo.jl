@@ -17,7 +17,7 @@ using Colors
     point3 = Point(210, -100)
 
     # First point
-    setline(30) # Line width for :stroke
+    setline(20) # Line width for :stroke
     setcolor(Luxor.julia_green)
     circle(point1, p_size, action=:fill)
     setcolor(Luxor.julia_blue)
