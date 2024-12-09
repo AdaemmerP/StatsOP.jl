@@ -302,7 +302,7 @@
       font-size: .8em;
     }
     }
-    
+   
     
     @media (min-width: 991.98px) {
     #quarto-header {
@@ -623,5 +623,5 @@
     }
 
     .navbar-nav .nav-link {
-      font-size: 1.6rem; /* Adjust size as needed */
+      font-size: 1.4rem; /* Adjust size as needed */
   }
