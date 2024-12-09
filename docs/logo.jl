@@ -8,13 +8,13 @@ using Colors
     p_size = 60
 
     origin()
-    setcolor(.9,.9, .9)
+    setcolor(.95,.95, .95)
     squircle(O, 300, 220, rt=0.5, action = :fill)
 
     # Three points 
-    point1 = Point(-220, 10)
+    point1 = Point(-233, 10)
     point2 = Point(10, 150)
-    point3 = Point(210, -100)
+    point3 = Point(220, -120)
 
     # First point
     setline(15) # Line width for :stroke
