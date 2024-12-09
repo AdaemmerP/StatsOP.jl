@@ -1,4 +1,5 @@
-#  OrdinalPatterns.jl <a ><img src='docs/op_logo.svg' align="right" height="160" /></a>
+<a ><img src='docs/op_logo.svg' align="left" height="160" /></a>
+#  OrdinalPatterns.jl 
 
 [![Build Status](https://github.com/AdaemmerP/OrdinalPatterns.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/AdaemmerP/OrdinalPatterns.jl/actions/workflows/CI.yml?query=branch%3Amain)
 

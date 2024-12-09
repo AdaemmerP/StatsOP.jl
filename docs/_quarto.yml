@@ -17,6 +17,7 @@ website:
 
   navbar:
     background: primary
+    logo: op_logo.svg
 
     left:
       - text: "OrdinalPatterns.jl"
