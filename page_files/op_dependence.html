@@ -241,29 +241,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="st">  )</span></span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.06161018</code></pre>
+<pre><code>[1] 0</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>RObject{VecSxp}
 Unit: microseconds
-   expr     min       lq     mean  median      uq      max neval
- timing 198.723 205.9165 232.1966 211.131 219.111 1006.608   100</code></pre>
+   expr     min      lq     mean   median      uq      max neval
+ timing 200.736 209.683 241.0795 215.0535 228.894 1237.289   100</code></pre>
 </div>
 </div>
 <div id="4" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dependence_op</span>(tsx, tsy; op_length<span class="op">=</span><span class="fl">3</span>, d<span class="op">=</span><span class="fl">1</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="pp">@btime</span> <span class="fu">dependence_op</span>(tsx, tsy; op_length<span class="op">=</span><span class="fl">3</span>, d<span class="op">=</span><span class="fl">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  7.224 μs (44 allocations: 6.41 KiB)</code></pre>
+<pre><code>  7.244 μs (44 allocations: 6.41 KiB)</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>(0.06161018016882953, [6, 3, 2, 6, 4, 1, 5, 6, 3, 2  …  6, 3, 2, 4, 5, 3, 2, 3, 2, 6], [2, 4, 5, 6, 3, 2, 6, 6, 3, 2  …  6, 3, 2, 6, 3, 1, 1, 5, 4, 2])</code></pre>
+<pre><code>(0.0, [5, 6, 3, 2, 6, 4, 2, 3, 5, 4  …  4, 1, 1, 5, 4, 2, 6, 3, 2, 6], [2, 6, 3, 1, 2, 6, 3, 5, 4, 2  …  2, 3, 2, 4, 5, 3, 2, 4, 5, 4])</code></pre>
 </div>
 </div>
 <div id="6" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">changepoint_op</span>(tsx, tsy, op_length<span class="op">=</span><span class="fl">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>(0.7509540563131285, 33, 0.625561138056554, (-1.3580986393225503, 1.3580986393225503))</code></pre>
+<pre><code>(0.690958105091736, 32, 0.7262301791916438, (-1.3580986393225503, 1.3580986393225503))</code></pre>
 </div>
 </div>
 

@@ -614,3 +614,14 @@
     .illustration {
       border: 1px solid #dee2e6;
     }
+
+    .navbar-logo {
+      height: 80px !important;
+      width: 90px !important;
+      max-width: unset !important;
+      max-height: unset !important;
+    }
+
+    .navbar-nav .nav-link {
+      font-size: 1.6rem; /* Adjust size as needed */
+  }
