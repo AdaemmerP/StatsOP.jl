@@ -8,8 +8,8 @@ using Colors
     p_size = 60
 
     origin()
-    #setcolor(1, 1, 1)
-    #squircle(O, 300, 220, rt=0.5, action = :fill)
+    setcolor(.9,.9, .9)
+    squircle(O, 300, 220, rt=0.5, action = :fill)
 
     # Three points 
     point1 = Point(-220, 10)
