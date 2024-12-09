@@ -36,7 +36,7 @@ using Colors
     circle(point3, p_size, action=:stroke)
 
     # Draw first lines
-    setline(12)
+    setline(20)
     green_red = blend(point1, point2, Luxor.julia_green, Luxor.julia_red)
     setblend(green_red)
     line(point1, point2)
