@@ -18,13 +18,13 @@ using Colors
 
     # First point
     setline(15) # Line width for :stroke
-    setcolor(Luxor.julia_green)
+    setcolor(Luxor.julia_red)
     circle(point1, p_size, action=:fill)
     setcolor(Luxor.julia_blue)
     circle(point1, p_size, action=:stroke)
 
     # Second point
-    setcolor(Luxor.julia_red)
+    setcolor(Luxor.julia_green)
     circle(point2, p_size, action=:fill)
     setcolor(Luxor.julia_blue)
     circle(point2, p_size, action=:stroke)
@@ -51,13 +51,13 @@ using Colors
 
     # Draw first lines
     setline(20)
-    green_red = blend(point1, point2, Luxor.julia_green, Luxor.julia_red)
+    green_red = blend(point1, point2, Luxor.julia_red, Luxor.julia_green)
     setblend(green_red)
     line(point1, point2)
     strokepath()
 
     # Draw second line
-    red_purple = blend(point2, point3, Luxor.julia_red, Luxor.julia_purple)
+    red_purple = blend(point2, point3, Luxor.julia_green, Luxor.julia_purple)
     setblend(red_purple)
     line(point2, point3)
     strokepath()

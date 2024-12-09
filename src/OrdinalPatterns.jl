@@ -9,6 +9,10 @@ using Distributions
 using Distributed
 using StaticArrays
 using StatsBase
+using Reexport
+
+# Reexport
+@reexport using Distributions
 
 # ---------------------------------------------#
 # SOP related functions and structs  to export #
