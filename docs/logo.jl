@@ -18,14 +18,14 @@ using Colors
 
     # First point
     setline(30) # Line width for :stroke
-    #setcolor(Luxor.julia_green)
-    #circle(point1, p_size, action=:fill)
+    setcolor(Luxor.julia_green)
+    circle(point1, p_size, action=:fill)
     setcolor(Luxor.julia_blue)
     circle(point1, p_size, action=:stroke)
 
     # Second point
-    #setcolor(Luxor.julia_red)
-    #circle(point2, p_size, action=:fill)
+    setcolor(Luxor.julia_red)
+    circle(point2, p_size, action=:fill)
     setcolor(Luxor.julia_blue)
     circle(point2, p_size, action=:stroke)
 
@@ -35,19 +35,19 @@ using Colors
     setcolor(Luxor.julia_blue)
     circle(point3, p_size, action=:stroke)
 
-    # Blend to fill
-    green_red = blend(Point(0, 0), 5, Point(0, 0), 250, Luxor.julia_green, Luxor.julia_red)
-    red_green = blend(Point(0, 0), 5, Point(0, 0), 250, Luxor.julia_red, Luxor.julia_green)
-    green_purple = blend(Point(0, 0), 5, Point(0, 0), 250, Luxor.julia_green, Luxor.julia_purple)
-    # First point
-    setblend(green_red)
-    circle(point1, p_size, action=:fill)
-    # Second point
-    setblend(red_green)    
-    circle(point2, p_size, action=:fill)
-    # Third point
-    setblend(green_purple)
-    circle(point3, p_size, action=:fill)
+    # # Blend to fill
+    # green_red = blend(Point(0, 0), 5, Point(0, 0), 250, Luxor.julia_green, Luxor.julia_red)
+    # red_green = blend(Point(0, 0), 5, Point(0, 0), 250, Luxor.julia_red, Luxor.julia_green)
+    # green_purple = blend(Point(0, 0), 5, Point(0, 0), 250, Luxor.julia_green, Luxor.julia_purple)
+    # # First point
+    # setblend(green_red)
+    # circle(point1, p_size, action=:fill)
+    # # Second point
+    # setblend(red_green)    
+    # circle(point2, p_size, action=:fill)
+    # # Third point
+    # setblend(green_purple)
+    # circle(point3, p_size, action=:fill)
 
     # Draw first lines
     setline(20)
@@ -61,12 +61,6 @@ using Colors
     setblend(red_purple)
     line(point2, point3)
     strokepath()
-
-    # sethue(Luxor.julia_blue)
-    # textformat("OrdinalPatterns.jl",
-    #     fontsize=60,
-    #     position=Point(-220, 280)
-    # )
 
     finish()
     preview()
