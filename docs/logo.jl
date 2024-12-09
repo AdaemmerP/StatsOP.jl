@@ -2,6 +2,7 @@ using Luxor
 using Colors
 
 @png begin
+cd(@__DIR__)    
 Drawing(600, 600, "op_logo.svg")
 
 p_size = 60
