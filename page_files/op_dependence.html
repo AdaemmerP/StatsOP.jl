@@ -74,7 +74,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-29e2c20b02301cfff04dc8050bf30c7e.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-b0991b5fbb5a8e7f92166f89ed33fed0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-6967c74d8e905c54e2268fc057f33527.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -241,29 +241,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="st">  )</span></span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] -0.009792311</code></pre>
+<pre><code>[1] 0</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>RObject{VecSxp}
 Unit: microseconds
-   expr     min       lq     mean  median       uq     max neval
- timing 200.726 209.8235 235.6815 212.238 222.7725 985.928   100</code></pre>
+   expr     min       lq     mean   median      uq      max neval
+ timing 207.659 213.6455 249.8971 220.0025 232.115 1204.879   100</code></pre>
 </div>
 </div>
 <div id="4" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dependence_op</span>(tsx, tsy; op_length<span class="op">=</span><span class="fl">3</span>, d<span class="op">=</span><span class="fl">1</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="pp">@btime</span> <span class="fu">dependence_op</span>(tsx, tsy; op_length<span class="op">=</span><span class="fl">3</span>, d<span class="op">=</span><span class="fl">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  7.484 μs (44 allocations: 6.41 KiB)</code></pre>
+<pre><code>  7.753 μs (44 allocations: 6.41 KiB)</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>(-0.00979231147572163, [6, 3, 5, 3, 1, 5, 4, 1, 5, 4  …  2, 4, 1, 5, 4, 2, 3, 2, 4, 5], [2, 3, 2, 4, 5, 6, 6, 6, 3, 2  …  3, 1, 5, 4, 2, 6, 4, 1, 1, 1])</code></pre>
+<pre><code>(0.0, [3, 2, 3, 2, 6, 4, 1, 2, 6, 4  …  3, 1, 5, 6, 3, 2, 3, 5, 4, 5], [5, 6, 3, 2, 6, 4, 1, 1, 2, 6  …  4, 1, 5, 4, 2, 4, 1, 5, 4, 5])</code></pre>
 </div>
 </div>
 <div id="6" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">changepoint_op</span>(tsx, tsy, op_length<span class="op">=</span><span class="fl">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>(0.584652373102427, 85, 0.8839288229990032, (-1.3580986393225503, 1.3580986393225503))</code></pre>
+<pre><code>(0.7554888412733636, 82, 0.6179345143371354, (-1.3580986393225503, 1.3580986393225503))</code></pre>
 </div>
 </div>
 
