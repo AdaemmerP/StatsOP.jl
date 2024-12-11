@@ -244,18 +244,18 @@ function stat_sop(data::Array{Float64,3}, add_noise, lam, chart_choice)
 
 end
 
-#--- Function to create empty matrix which will be filled (either via Monte Carlo or Bootstrap)
-empty_data = function (m, n, dist)
+# #--- Function to create empty matrix which will be filled (either via Monte Carlo or Bootstrap)
+# empty_data = function (m, n, dist)
 
-  if dist isa Distribution
-    data = zeros(m + 1, n + 1)
-  else
-    data = zeros(size(dist[:, :, 1]))
-  end
+#   if dist isa Distribution
+#     data = zeros(m + 1, n + 1)
+#   else
+#     data = zeros(size(dist[:, :, 1]))
+#   end
 
-  return data
+#   return data
 
-end
+# end
 
 #========================================================================
 
@@ -286,11 +286,16 @@ function rl_sop(m, n, lookup_array_sop, lam, cl, reps_range, chart_choice, dist)
   n_sops = 24 # factorial(4)
   freq_sop = zeros(Int, n_sops)
   win = zeros(Int, 4)
-  data_tmp = empty_data(m, n, dist)
+  data_tmp = zeros(m+1, n+1) #empty_data(m, n, dist)
   p_ewma = zeros(3)
   p_hat = zeros(3)
   rls = zeros(Int, length(reps_range))
   sop = zeros(4)
+
+  # Pre-allocate for sum of frequencies
+  s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
+  s_2 = [2, 5, 7, 9, 16, 18, 20, 23]
+  s_3 = [4, 6, 10, 12, 13, 15, 19, 21]
 
   for r in 1:length(reps_range)
     fill!(p_ewma, 1.0 / 3.0)
@@ -316,9 +321,18 @@ function rl_sop(m, n, lookup_array_sop, lam, cl, reps_range, chart_choice, dist)
       # Compute frequencies of SOPs
       sop_frequencies!(m, n, lookup_array_sop, data_tmp, sop, win, freq_sop)
 
-      @views p_hat[1] = sum(freq_sop[[1, 3, 8, 11, 14, 17, 22, 24]])
-      @views p_hat[2] = sum(freq_sop[[2, 5, 7, 9, 16, 18, 20, 23]])
-      @views p_hat[3] = sum(freq_sop[[4, 6, 10, 12, 13, 15, 19, 21]])
+      #@views p_hat[1] = sum(freq_sop[[1, 3, 8, 11, 14, 17, 22, 24]])
+       for i in s_1
+         p_hat[1] += freq_sop[i] 
+       end
+      #@views p_hat[2] = sum(freq_sop[[2, 5, 7, 9, 16, 18, 20, 23]])
+       for i in s_2
+         p_hat[2] += freq_sop[i] 
+       end
+      #@views p_hat[3] = sum(freq_sop[[4, 6, 10, 12, 13, 15, 19, 21]])
+       for i in s_3
+         p_hat[3] += freq_sop[i] 
+       end
       p_hat ./= m * n # Divide each element of p_hat by m*n
 
       @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
@@ -328,6 +342,7 @@ function rl_sop(m, n, lookup_array_sop, lam, cl, reps_range, chart_choice, dist)
       # Reset win and freq_sop
       fill!(win, 0)
       fill!(freq_sop, 0)
+      fill!(p_hat, 0)
     end
 
     rls[r] = rl
@@ -508,7 +523,12 @@ Function to compute the average run length (ARL) for a given control-limit and i
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 - `dist::Distribution`: A distribution for the in-control data. Here you can use any univariate distribution from the `Distributions.jl` package.
 """
-function arl_sop(m::Int, n::Int, lam, cl, reps, chart_choice, dist::UnivariateDistribution)
+function arl_sop(lam, cl, sop_dgp::ICSOP, reps=10_000; chart_choice, d=1)     
+
+  # Extract values
+  m = sop_dgp.m_rows
+  n = sop_dgp.n_cols
+  dist = sop_dgp.dist
 
   # Compute lookup array and number of sops
   lookup_array_sop = compute_lookup_array()

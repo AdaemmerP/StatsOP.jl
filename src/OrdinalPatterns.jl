@@ -49,7 +49,8 @@ export init_mat!,
        stat_sop
 
 # SOP Types to export (from 'sop_dgp_structs.jl')
-export SAR11,
+export ICSOP,
+       SAR11,
        SINAR11,
        SQMA11,
        SQINMA11,
@@ -93,8 +94,8 @@ include("op/op_help_functions.jl")
 
 
 # Include files for SOPs
-include("sop/sop_arl_functions.jl")
 include("sop/sop_dgp_structs.jl")
+include("sop/sop_arl_functions.jl")
 include("sop/sop_dgp_functions.jl")
 include("sop/sop_distributions.jl")
 include("sop/sop_test_functions.jl")

@@ -1,3 +1,19 @@
+"""
+    IC(m_rows, n_cols, dist)
+
+A struct to define an independent and identically distributed (IID) process for in-control
+  
+- `m_rows::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
+- `n_cols::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1.
+- `dist::UnivariateDistribution`: A distribution from the Distributions.jl package.
+"""
+struct ICSOP
+  m_rows::Int
+  n_cols::Int
+  dist::UnivariateDistribution
+end
+
+
 """ 
     SAR11(dgp_params, m, n, prerun)
 

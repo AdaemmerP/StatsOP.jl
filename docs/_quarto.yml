@@ -6,7 +6,6 @@ execute:
   cache: false
   warning: false
 website:
-  # title: "OrdinalPatterns.jl"
   page-navigation: true
   bread-crumbs: true
 
@@ -92,7 +91,7 @@ engine: julia
 
 format:
   html:
-    theme: flatly
+    theme: pulse # cosmo flatly materia minty pulse spacelab
     css: styles.css
     code-copy: true
     code-overflow: wrap
