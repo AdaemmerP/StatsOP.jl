@@ -182,33 +182,34 @@ end
 
 
 """
-    arl_sacf(m::Int, n::Int, lam, cl, reps::Int, dist_error)
+    arl_sacf(lam, cl, sp_dgp::ICSP, reps=10_000)
 
 Compute the in-control average run length (ARL), using the spatial autocorrelation function (SACF) for a lag length of 1. The function returns the ARL for a given control limit `cl` and a given number of repetitions `reps`. The input arguments are:    
 
-- `m::Int`: The number of rows in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).  
-- `n::Int`: The number of columns in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).
 - `lam`: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.
 - `cl`: The control limit for the EWMA control chart.
+- `sp_dgp`: The in-control spatial data generating process (DGP) to use for the SACF function. 
 - `reps`: The number of repetitions to compute the ARL.
-- `dist_error`: The distribution to use for the error term in the SACF function. This can be any univariate distribution from the `Distributions.jl` package or a custom distribution with a defined method for `rand()` and `rand!()`.
+
 
 ```julia
 #--- Example
 # Set parameters
-m = 10
-n = 10
 lam = 0.1
-cl = .001
+cl = .1
 reps = 100
-dist_error = Normal(0, 1)
+sp_dgp = ICSP(10, 10, Normal(0, 1))
 
-# Compute average run length
-arl = arl_sacf(m, n, lam, cl, reps, dist_error)
+arls = arl_sacf(lam, cl, sp_dgp, reps)
 ```
 """
-function arl_sacf(m::Int, n::Int, lam, cl, reps::Int, dist_error::UnivariateDistribution)
-
+function arl_sacf(lam, cl, sp_dgp::ICSP, reps=10_000)
+  
+  # Extract        
+  m = sp_dgp.m_rows
+  n = sp_dgp.n_cols
+  dist = sp_dgp.dist        
+         
   # Check whether to use threading or multi processing
   if nprocs() == 1 # Threading
 
@@ -217,7 +218,7 @@ function arl_sacf(m::Int, n::Int, lam, cl, reps::Int, dist_error::UnivariateDist
 
     # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
     par_results = map(chunks) do i
-      Threads.@spawn rl_sacf(m, n, lam, cl, i, dist_error)
+      Threads.@spawn rl_sacf(m, n, lam, cl, i, dist)
     end
 
   elseif nprocs() > 1 # Multi Processing
@@ -226,7 +227,7 @@ function arl_sacf(m::Int, n::Int, lam, cl, reps::Int, dist_error::UnivariateDist
     chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
 
     par_results = pmap(chunks) do i
-      rl_sacf(m, n, lam, cl, i, dist_error)
+      rl_sacf(m, n, lam, cl, i, dist)
     end
 
   end
@@ -263,11 +264,13 @@ dist_ao = nothing
 arl = arl_sacf(lam, cl, reps, spatial_dgp, dist_error, dist_ao)
 ```
 """
-function arl_sacf(lam, cl, reps, spatial_dgp, dist_error::UnivariateDistribution, dist_ao::Union{UnivariateDistribution,Nothing})
+function arl_sacf(lam, cl, sp_dgp, reps=10_000)
 
   # extract m and n from spatial_dgp
-  m = spatial_dgp.m
-  n = spatial_dgp.n
+  m = sp_dgp.m_rows
+  n = sp_dgp.n_cols
+  dist = sp_dgp.dist
+  dist_ao = sp_dgp.dist_ao
 
   # Check whether to use threading or multi processing
   if nprocs() == 1 # Threading
@@ -277,7 +280,7 @@ function arl_sacf(lam, cl, reps, spatial_dgp, dist_error::UnivariateDistribution
 
     # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
     par_results = map(chunks) do i
-      Threads.@spawn rl_sacf(m, n, lam, cl, i, spatial_dgp, dist_error, dist_ao)
+      Threads.@spawn rl_sacf(m, n, lam, cl, i, sp_dgp, dist, dist_ao)
     end
 
   elseif nprocs() > 1 # Multi Processing
@@ -286,7 +289,7 @@ function arl_sacf(lam, cl, reps, spatial_dgp, dist_error::UnivariateDistribution
     chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
 
     par_results = pmap(chunks) do i
-      rl_sacf(m, n, lam, cl, i, spatial_dgp, dist_error, dist_ao)
+      rl_sacf(m, n, lam, cl, i, sp_dgp, dist, dist_ao)
     end
 
   end
@@ -333,6 +336,15 @@ cl = cl_sacf(m, n, lam, L0, reps, clinit, jmin, jmax, verbose, dist_error)
 ```
 """
 function cl_sacf(m::Int, n::Int, lam, L0, reps::Int, clinit::Float64, jmin, jmax, verbose, dist_error)
+
+  arl_sacf(lam, cl, sp_dgp, reps=10_000)
+
+  # extract m and n from spatial_dgp
+  m = sp_dgp.m_rows
+  n = sp_dgp.n_cols
+  dist = sp_dgp.dist
+  dist_ao = sp_dgp.dist_ao
+
   L1 = zeros(2)
   ii = Int       # set inital value depending on λbda
   if clinit == 0

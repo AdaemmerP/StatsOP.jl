@@ -1,5 +1,5 @@
 """
-    IC(m_rows, n_cols, dist)
+    ICSP(m_rows, n_cols, dist)
 
 A struct to define an independent and identically distributed (IID) process for in-control
   
@@ -7,7 +7,7 @@ A struct to define an independent and identically distributed (IID) process for 
 - `n_cols::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1.
 - `dist::UnivariateDistribution`: A distribution from the Distributions.jl package.
 """
-struct ICSOP
+struct ICSP
   m_rows::Int
   n_cols::Int
   dist::UnivariateDistribution
@@ -15,7 +15,7 @@ end
 
 
 """ 
-    SAR11(dgp_params, m, n, prerun)
+    SAR11(dgp_params, m_rows, n_cols, dist, dist_ao, prerun)
 
 A struct to define a first-order spatial autoregressive (SAR(1, 1)) process:
 
@@ -25,22 +25,26 @@ A struct to define a first-order spatial autoregressive (SAR(1, 1)) process:
 - `m::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
 - `n::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1. 
 - `prerun::Int`: A value to initialize the DGP to achieve stationarity. These number of rows and columns will be discarded after the initialization. 
-
+- `dist::Distribution`: A distribution for \\varepsilon_{t_1, t_2}. You can use any univariate distribution from the `Distributions.jl` package.
+- `dist_ao::Union{Nothing, Distribution}`: Nothing or a distribution for additive outliers. For additive outliers you can use any univariate distribution from the `Distributions.jl` package.
+- `prerun::Int`: A value to initialize the DGP to guarantee stationarity. These number of rows and columns will be discarded for the final spatial matrix.
 ```julia
-sar11 = SAR11((0.5, 0.3, 0.2), 11, 11, 100)
+sar11 = SAR11((0.5, 0.3, 0.2), 11, 11, Normal(0, 1), nothing, 100)
 ```
 """
 struct SAR11
   dgp_params::Tuple{Float64, Float64, Float64}
-  m::Int
-  n::Int
+  m_rows::Int
+  n_cols::Int
+  dist::UnivariateDistribution
+  dist_ao::Union{Nothing, UnivariateDistribution}
   prerun::Int  
-  SAR11(dgp_params, m, n, prerun) = 
+  SAR11(dgp_params, m_rows, n_cols, dist, dist_ao, prerun) =
     abs(dgp_params[1]) < 1 && 
     abs(dgp_params[2]) < 1 && 
     abs(dgp_params[1] + dgp_params[2] ) < 1 - dgp_params[3] &&
     abs(dgp_params[1] - dgp_params[2] ) < 1 + dgp_params[3]  ?
-    new(dgp_params, m, n, prerun) : 
+    new(dgp_params, m_rows, n_cols, dist, dist_ao, prerun) :
     @warn "
     Note that the parameters provided do not guarantee stationarity.
     The requirements to guarantee stationarity are |α₁| < 1, |α₂| < 1, |α₁ + α₂| < 1 - α₃, and |α₁ - α₂| < 1 + α₃.    
@@ -49,33 +53,37 @@ end
 
 
 """ 
-    SINAR11(dgp_params, m, n, prerun)
+    SINAR11(dgp_params, m_rows, n_cols, dist, dist_ao, prerun)
 
 A struct to define a first-order integer spatial autoregressive (SINAR(1, 1)) model:
 
 
-`` \\qquad X_{t_1, t_2}=\\alpha_1 \\circ X_{t_1-1, t_2}+\\alpha_2 \\circ X_{t_1, t_2-1}+\\alpha_3 \\circ X_{t_1-1, t_2-1}+\\epsilon_{t_1, t_2}.`` 
+`` \\qquad X_{t_1, t_2}=\\alpha_1 \\circ X_{t_1-1, t_2}+\\alpha_2 \\circ X_{t_1, t_2-1}+\\alpha_3 \\circ X_{t_1-1, t_2-1}+\\varepsilon_{t_1, t_2}.`` 
 
 - `dgp_params::Tuple(α₁::Float64, α₂::Float64, α₃::Float64)` Note that α₁, α₂, and α₃ ∈ [0, 1) and α₁ + α₂ + α₃ < 1 to guarantee stationarity.
 - `m::Int` The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
 - `n::Int` The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1. 
 - `prerun::Int` A value to initialize the DGP to guarantee stationarity. These number of rows and columns will be discarded for the final spatial matrix. 
-
+- `dist::Distribution` A distribution for \\varepsilon_{t_1, t_2}. You can use any univariate distribution from the `Distributions.jl` package.
+- `dist_ao::Union{Nothing, Distribution}` Nothing or a distribution for additive outliers. For additive outliers you can use any univariate distribution from the `Distributions.jl` package.
+- `prerun::Int` A value to initialize the DGP to achieve stationarity. These number of rows and columns will be discarded after the initialization.
 ```julia
 sar11 = SINAR((0.5, 0.3, 0.2), 11, 11, 100)
 ```
 """
 struct SINAR11
   dgp_params::Tuple{Float64, Float64, Float64}
-  m::Int
-  n::Int
+  m_rows::Int
+  n_cols::Int
+  dist::UnivariateDistribution
+  dist_ao::Union{Nothing, UnivariateDistribution}
   prerun::Int
-  SINAR11(dgp_params, m, n, prerun) = 
+  SINAR11(dgp_params, m, n, dist, dist_ao, prerun) =
     0.00 <= dgp_params[1] < 1 && 
     0.00 <= dgp_params[2] < 1 && 
     0.00 <= dgp_params[3] < 1 &&  
     dgp_params[1] + dgp_params[2] + dgp_params[3] < 1 ?
-    new(dgp_params, m, n, prerun) : 
+    new(dgp_params, m, n, dist, dist_ao, prerun) :
     @warn "
     Note that the parameters provided do not guarantee stationarity.
     The requirements to guarantee stationarity are α₁, α₂, and α₃ ∈ [0, 1) and α₁ + α₂ + α₃ < 1.    
@@ -83,7 +91,7 @@ struct SINAR11
 end
 
 """ 
-    SQMA11(dgp_params, eps_params, m, n, prerun)
+    SQMA11(dgp_params, eps_params, m_rows, n_cols, dist, dist_ao, prerun)
 
 A struct to define a Spatial quadratic moving-average (SQMA(1, 1)):
 
@@ -92,25 +100,28 @@ A struct to define a Spatial quadratic moving-average (SQMA(1, 1)):
 
 - `dgp_params::Tuple(β₁::Float64, β₂::Float64, β₃::Float64)`: A tuple of the parameters of the DGP. The first element is the parameter β₁, the second element is the parameter β₂, and the third element is the parameter β₃. 
 - `eps_params::Tuple(a::Int, b::Int, c::Int)`: A tuple of the parameters of the DGP, indicating which error terms shall be squared. Note that `eps_params` ∈ {1, 2}.
-- `m::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
-- `n::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1. 
-- `prerun::Int`: A value to initialize the DGP. This value should be set to 1.
-
+- `m_rows::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
+- `n_cols::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1. 
+- `dist::Distribution` A distribution for \\varepsilon_{t_1, t_2}. You can use any univariate distribution from the `Distributions.jl` package.
+- `dist_ao::Nothing`.
+- `prerun::Int` A value to initialize the DGP to achieve stationarity. These number of rows and columns will be discarded after the initialization.
 ```julia
-sqma11 = SQMA11((0.5, 0.3, 0.2), (1, 1, 2), 11, 11, 1)
+sqma11 = SQMA11((0.5, 0.3, 0.2), (1, 1, 2), 10, 10, Normal(0,1), nothing, 1)
 ```
 """
 struct SQMA11
   dgp_params::Tuple{Float64, Float64, Float64}
   eps_params::Tuple{Int, Int, Int}
-  m::Int
-  n::Int
-  prerun::Int  
+  m_rows::Int
+  n_cols::Int
+  dist::UnivariateDistribution
+  dist_ao::Union{Nothing, UnivariateDistribution}
+  prerun::Int
 end
 
 
 """ 
-    SQINMA11(dgp_params, eps_params, m, n, prerun)
+    SQINMA11(dgp_params, eps_params, m_rows, n_cols, dist, dist_ao, prerun)
 
 A struct to define a Spatial quadratic integer moving-average SQINMA(1, 1):    
 
@@ -119,30 +130,34 @@ A struct to define a Spatial quadratic integer moving-average SQINMA(1, 1):
 
 - `dgp_params::Tuple(β₁::Float64, β₂::Float64, β₃::Float64).` Note that β₁, β₂, and β₃ ∈ [0, 1].
 - `eps_params::Tuple(a::Int, b::Int, c::Int).` A tuple of the parameters of the DGP, indicating which error terms shall be squared. Note that `eps_params` ∈ {1, 2}.
-- `m::Int.` The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
-- `n::Int.` The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1. 
-- `prerun::Int.` A value to initialize the DGP. This value should be set to 1.
+- `m_rows::Int.` The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
+- `n_cols::Int.` The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1. 
+- `dist::Distribution` A distribution for \\varepsilon_{t_1, t_2}. You can use any univariate distribution from the `Distributions.jl` package.
+- `dist_ao::Nothing`.
+- `prerun::Int` A value to initialize the DGP to achieve stationarity. These number of rows and columns will be discarded after the initialization.
 
 ```julia
-sqinma11 = SQINMA11((0.5, 0.3, 0.2), (1, 1, 2), 11, 11, 1)
+sqinma11 = SQINMA11((0.5, 0.3, 0.2), (1, 1, 2), 10, 10, Normal(0, 1), nothing, 1)
 ```
 """
 struct SQINMA11
   dgp_params::Tuple{Float64, Float64, Float64}
   eps_params::Tuple{Int, Int, Int}
-  m::Int
-  n::Int
+  m_rows::Int
+  n_cols::Int
+  dist::UnivariateDistribution
+  dist_ao::Nothing
   prerun::Int
-  SQINMA11(dgp_params, eps_params, m, n, prerun) = 
+  SQINMA11(dgp_params, eps_params, m_rows, n_cols, dist, dist_ao, prerun) = 
     0.00 <= dgp_params[1] < 1 && 
     0.00 <= dgp_params[2] < 1 && 
     0.00 <= dgp_params[3] < 1 ?
-    new(dgp_params, eps_params, m, n, prerun) : 
+    new(dgp_params, eps_params, m_rows, n_cols, dist, dist_ao, prerun) : 
     error("Note that β₁, β₂, and β₃ ∈ [0, 1] is required for binomial thinning.")
 end
 
 """ 
-    SAR1(dgp_params, eps_params, m, n, prerun)
+    SAR1(dgp_params, m_rows, n_cols, dist, dist_ao, margin)
 
 A struct to define a first-order simultaneous autoregressive (SAR(1)) model:    
 
@@ -150,42 +165,52 @@ A struct to define a first-order simultaneous autoregressive (SAR(1)) model:
 
 
 - `dgp_params::Tuple{a₁::Float64, a₂::Float64, Float64, Float64}`: A tuple of the parameters of the DGP. The first element is the parameter a₁, the second element is the parameter a₂, and the third element is the parameter a₃. a₄.
-- `m::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
-- `n::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1. 
+- `m_rows::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
+- `n_cols::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1. 
+- `dist::Distribution`: A distribution for \\varepsilon_{t_1, t_2}. You can use any univariate distribution from the `Distributions.jl` package.
+- `dist_ao::Union{Nothing, Distribution}`: Nothing or a distribution for additive outliers. For additive outliers you can use any univariate distribution from the `Distributions.jl` package.
 - `margin::Int`: The margin for the spatial matrix used for initialization.
 
 ```julia
-sar1 = SAR1((0.5, 0.3, 0.2, 0.1), 11, 11, 1)
+sar1 = SAR1((0.5, 0.3, 0.2, 0.1), 10, 10, Normal(0, 1), nothing, 100) 
 ```
 """
 struct SAR1
   dgp_params::Tuple{Float64, Float64, Float64, Float64}
-  m::Int
-  n::Int
-  margin::Int  
+  m_rows::Int
+  n_cols::Int
+  dist::UnivariateDistribution
+  dist_ao::Union{Nothing, UnivariateDistribution}
+  margin::Int
 end
 
 
 """ 
-    BSQMA11(dgp_params, eps_params, m, n, prerun)
+    BSQMA11(dgp_params, eps_params, m_rows, n_cols, dist, dist_ao, prerun)
 
-Bilateral spatial quadratic moving-average (BSQMA(1, 1)) model as defined by Weiß and Kim (2024) on page 9. The struct contains the following fields:
+A struct to define a bilateral spatial quadratic moving-average (BSQMA(1, 1)) process:
 
+Y_{t_1, t_2}=b_1 \\cdot \\varepsilon_{t_1-1, t_2-1}^a+b_2 \\cdot \\varepsilon_{t_1+1, t_2-1}^b+b_3 \\cdot \\varepsilon_{t_1+1, t_2+1}^c+b_4 \\cdot \\varepsilon_{t_1-1, t_2+1}^d+\\varepsilon_{t_1, t_2},
+    
 - `dgp_params::Tuple{Float64, Float64, Float64, Float64}`: A tuple of the parameters of the DGP. The parameters correspond to b₁, b₂, b₃ and b₄, respectively. 
 - `eps_params::Tuple{Int, Int, Int, Int}`: A tuple of the parameters of the DGP, indicating which error terms shall be squared. Note that `eps_params` ∈ {1, 2}.
-- `m::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
-- `n::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1. 
+- `m_rows::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
+- `n_cols::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1. 
+- `dist::Distribution`: A distribution for \\varepsilon_{t_1, t_2}. You can use any univariate distribution from the `Distributions.jl` package.
+- `dist_ao::Nothing`: Nothing.
 - `prerun::Int`: A value to initialize the DGP. This value should be set to 1.
 
 ```julia
-bsqma11 = BSQMA11((0.5, 0.3, 0.2, 0.1), (1, 1, 2, 2), 11, 11, 1)
+bsqma11 = BSQMA11((0.5, 0.3, 0.2, 0.1), (1, 1, 2, 2), 10, 10, Normal(0, 1), nothing, 1)
 ```
 """
 struct BSQMA11
   dgp_params::Tuple{Float64, Float64, Float64, Float64}
   eps_params::Tuple{Int, Int, Int, Int}
-  m::Int
-  n::Int
+  m_rows::Int
+  n_cols::Int
+  dist::UnivariateDistribution
+  dist_ao::Nothing
   prerun::Int
 end
 

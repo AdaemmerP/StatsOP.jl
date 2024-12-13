@@ -12,7 +12,3 @@ bibliography: references.bib
 ## Installation
 
 The package is currently not registered and has to be installed manually from GitHub.
-
-## Documentation
-
-The documentation for the package can be found [here](https://adaemmerp.github.io/OrdinalPatterns.jl).

@@ -49,7 +49,7 @@ export init_mat!,
        stat_sop
 
 # SOP Types to export (from 'sop_dgp_structs.jl')
-export ICSOP,
+export ICSP,
        SAR11,
        SINAR11,
        SQMA11,

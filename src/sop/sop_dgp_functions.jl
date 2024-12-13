@@ -48,8 +48,8 @@ end
 function build_sar1_matrix(dgp::SAR1)
 
   margin = dgp.margin
-  m  = dgp.m 
-  n  = dgp.n 
+  m  = dgp.m_rows 
+  n  = dgp.n_cols 
 
   α₁ = dgp.dgp_params[1]
   α₂ = dgp.dgp_params[2]
@@ -97,8 +97,8 @@ function fill_mat_dgp_sop!(dgp::SAR1, dist_error, dist_ao::Nothing, mat, mat_ao:
 
    # draw MA-errors  
    margin = dgp.margin
-   m = dgp.m
-   n = dgp.n
+   m = dgp.m_rows
+   n = dgp.n_cols
  
    M = m + 1 + 2 * margin
    N = n + 1 + 2 * margin
@@ -116,8 +116,8 @@ function fill_mat_dgp_sop!(dgp::SAR1, dist_error::UnivariateDistribution, dist_a
 
   # draw MA-errors  
   margin = dgp.margin
-  m = dgp.m
-  n = dgp.n
+  m = dgp.m_rows
+  n = dgp.n_cols
 
   M = m + 1 + 2 * margin
   N = n + 1 + 2 * margin

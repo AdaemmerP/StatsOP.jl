@@ -292,7 +292,7 @@ function rl_sop(m, n, lookup_array_sop, lam, cl, reps_range, chart_choice, dist)
   rls = zeros(Int, length(reps_range))
   sop = zeros(4)
 
-  # Pre-allocate for sum of frequencies
+  # Pre-allocate indexes to compute sum of frequencies
   s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
   s_2 = [2, 5, 7, 9, 16, 18, 20, 23]
   s_3 = [4, 6, 10, 12, 13, 15, 19, 21]
@@ -419,7 +419,6 @@ Computes the run length for a given out-of-control DGP. The input parameters are
 function rl_sop(m::Int, n::Int, lookup_array_sop, lam, cl, p_reps::UnitRange, chart_choice, spatial_dgp, dist_error::UnivariateDistribution, dist_ao::Union{Nothing, UnivariateDistribution})
 
   # pre-allocate
-
   n_sops = 24 # factorial(4)
   freq_sop = zeros(Int, n_sops)
   win = zeros(Int, 4)
@@ -428,6 +427,11 @@ function rl_sop(m::Int, n::Int, lookup_array_sop, lam, cl, p_reps::UnitRange, ch
   p_hat = zeros(3)
   rls = zeros(Int, length(p_reps))
   sop = zeros(4)
+
+  # pre-allocate indexes to compute sum of frequencies
+  s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
+  s_2 = [2, 5, 7, 9, 16, 18, 20, 23]
+  s_3 = [4, 6, 10, 12, 13, 15, 19, 21]
 
   # pre-allocate mat, mat_ao and mat_ma
   if spatial_dgp isa SAR1
@@ -482,9 +486,18 @@ function rl_sop(m::Int, n::Int, lookup_array_sop, lam, cl, p_reps::UnitRange, ch
       # Compute sum of frequencies for each pattern group
       sop_frequencies!(m, n, lookup_array_sop, data, sop, win, freq_sop)
 
-      @views p_hat[1] = sum(freq_sop[[1, 3, 8, 11, 14, 17, 22, 24]])
-      @views p_hat[2] = sum(freq_sop[[2, 5, 7, 9, 16, 18, 20, 23]])
-      @views p_hat[3] = sum(freq_sop[[4, 6, 10, 12, 13, 15, 19, 21]])
+      #@views p_hat[1] = sum(freq_sop[[1, 3, 8, 11, 14, 17, 22, 24]])
+      for i in s_1
+        p_hat[1] += freq_sop[i] 
+      end
+      #@views p_hat[2] = sum(freq_sop[[2, 5, 7, 9, 16, 18, 20, 23]])
+      for i in s_2
+        p_hat[2] += freq_sop[i] 
+      end
+      #@views p_hat[3] = sum(freq_sop[[4, 6, 10, 12, 13, 15, 19, 21]])
+      for i in s_3
+        p_hat[3] += freq_sop[i] 
+      end
       p_hat ./= m * n # Divide each element of p_hat by m*n
 
       @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
@@ -494,6 +507,7 @@ function rl_sop(m::Int, n::Int, lookup_array_sop, lam, cl, p_reps::UnitRange, ch
       # Reset win and freq_sop
       fill!(win, 0)
       fill!(freq_sop, 0)
+      fill!(p_hat, 0)
     end
 
     rls[r] = rl
@@ -511,19 +525,18 @@ Multiple Dispatch for 'arl_sop()':
 ========================================================================#
 
 """
-    arl_sop(m::Int, n::Int, lam, cl, reps, chart_choice, dist::UnivariateDistribution)
+    arl_sop(lam, cl, sop_dgp::ICSP, reps=10_000; chart_choice, d=1)
 
 Function to compute the average run length (ARL) for a given control-limit and in-control distribution. The input parameters are:
 
-- `m::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
-- `n::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1. 
 - `lam::Float64`: A scalar value for lambda for the EWMA chart.
 - `cl::Float64`: A scalar value for the control limit.
+- `sop_dgp::ICSP`: A struct for the in-control spatial DGP.
 - `reps::Int`: An integer value for the number of repetitions.  
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
-- `dist::Distribution`: A distribution for the in-control data. Here you can use any univariate distribution from the `Distributions.jl` package.
+- `d::Int` An integer value for the embedding dimension. The default value is 1.
 """
-function arl_sop(lam, cl, sop_dgp::ICSOP, reps=10_000; chart_choice, d=1)     
+function arl_sop(lam, cl, sop_dgp::ICSP, reps=10_000; chart_choice, d=1)     
 
   # Extract values
   m = sop_dgp.m_rows
@@ -609,22 +622,25 @@ end
 
 
 """
-    arl_sop(lam, cl, reps, chart_choice, spatial_dgp, dist_error::UnivariateDistribution, dist_ao::Union{Nothing, UnivariateDistribution})
+    arl_sop(lam, cl, spatial_dgp, reps = 10_000; chart_choice, d = 1)
 
 Function to compute the average run length (ARL) for a given out-of-control DGP. The input parameters are:
   
 - `lam::Float64`: A scalar value for lambda for the EWMA chart.
 - `cl::Float64`: A scalar value for the control limit.
-- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 - `spatial_dgp::AbstractSpatialDGP`: A struct for type for the spatial DGP. This can be either `SAR11`, `SINAR11`, `SQMA11`, `BSQMA11` or `SAR1`. Look at their documentation for more information.
-- `dist_error::Distribution`: A distribution for the error term. Here you can use any univariate distribution from the `Distributions.jl` package.
-- `dist_ao::Distribution`: A distribution for the out-of-control data. Here you can use any univariate distribution from the `Distributions.jl` package.
+- `reps::Int`: An integer value for the number of repetitions.
+- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
+- `d::Int` An integer value for the embedding dimension. The default value is 1.
 """
-function arl_sop(lam, cl, reps, chart_choice, spatial_dgp, dist_error::UnivariateDistribution, dist_ao::Union{Nothing, UnivariateDistribution})
+#function arl_sop(lam, cl, reps, chart_choice, spatial_dgp, dist_error::UnivariateDistribution, dist_ao::Union{Nothing, UnivariateDistribution})
+function arl_sop(lam, cl, spatial_dgp, reps = 10_000; chart_choice, d = 1)
 
   # Compute m and n
-  m = spatial_dgp.m
-  n = spatial_dgp.n
+  m_rows = spatial_dgp.m_rows
+  n_cols = spatial_dgp.n_cols
+  dist_error = spatial_dgp.dist
+  dist_ao = spatial_dgp.dist_ao
 
   # Compute lookup array to finde SOPs
   lookup_array_sop = compute_lookup_array()
@@ -635,13 +651,13 @@ function arl_sop(lam, cl, reps, chart_choice, spatial_dgp, dist_error::Univariat
     chunks = Iterators.partition(1:reps, div(reps, Threads.nthreads())) #|> collect
     # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
     par_results = map(chunks) do i  
-      Threads.@spawn rl_sop(m, n, lookup_array_sop, lam, cl, i, chart_choice, spatial_dgp, dist_error, dist_ao)
+      Threads.@spawn rl_sop(m_rows, n_cols, lookup_array_sop, lam, cl, i, chart_choice, spatial_dgp, dist_error, dist_ao)
     end
 
   elseif nprocs() > 1 # Multi Processing
     chunks = Iterators.partition(1:reps, div(reps, nworkers())) #|> collect
     par_results = pmap(chunks) do i  
-      rl_sop(m, n, lookup_array_sop, lam, cl, i, chart_choice, spatial_dgp, dist_error, dist_ao)
+      rl_sop(m_rows, n_cols, lookup_array_sop, lam, cl, i, chart_choice, spatial_dgp, dist_error, dist_ao)
     end
 
   end
@@ -662,47 +678,45 @@ Multiple Dispatch for 'cl_sop()':
 ========================================================================#
 
 """
-    cl_sop(m::Int, n::Int, lam, L0, reps::Int, cl_init, jmin, jmax, verbose, chart_choice, dist)
+    cl_sop(lam, L0, sop_dgp::ICSP, cl_init, reps=10_000; chart_choice, jmin=4, jmax=6, verbose=false, d=1)
 
 Compute the control limit for a given in-control distribution. The input parameters are:
   
-- `m::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
-- `n::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1.
-- `lam::Float64`: A scalar value for lambda for the EWMA chart. The value has to be between 0 and 1.
-- `L0::Float64`: A scalar value for the in-control ARL.  
+- `lam::Float64`: A scalar value for lambda for the EWMA chart.
+- `L0::Float64`: A scalar value for the desired average run length.
+- `sop_dgp::ICSP`: A struct for the in-control spatial DGP.
+- `cl_init::Float64`: A scalar value for the initial control limit. This is used to find the control limit.
 - `reps::Int`: An integer value for the number of repetitions.
-- `cl_init::Float64`: A scalar value for the initial control limit. The value has to be between 0 and 1.
-- `jmin::Int`: An integer value for the minimum number of values to change after the decimal point.
-- `jmax::Int`: An integer value for the maximum number of values to change after the decimal point.
-- `verbose::Bool`: A boolean value whether to print the control limit and ARL.
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
-- `dist::Distribution`: A distribution for the in-control data. Here you can use any univariate distribution from the `Distributions.jl` package.
+- `jmin::Int`: An integer value for the minimum value for the control limit.
+- `jmax::Int`: An integer value for the maximum value for the control limit.
+- `verbose::Bool`: A boolean value whether to print the control limit and the average run length.
+- `d::Int` An integer value for the embedding dimension. The default value is 1.
+
 
 ```julia-repl
 #-- Example
 # Parameters
-m = 10
-n = 10
 lam = 0.1
 L0 = 370
-reps = 10
-cl_init = 0.03
+sop_dgp = ICSP(20, 20, Normal(0, 1))
+cl_init = 0.5
+reps = 10_000
+chart_choice = 2
 jmin = 4
-jmax = 7
+jmax = 6
 verbose = true
-chart_choice = 3
-dist = Normal(0, 1)
-
-cl_sop(m, n, lam, L0, reps, cl_init, jmin, jmax, verbose, chart_choice, dist)
-
+d = 1
+cl_sop(lam, L0, sop_dgp, cl_init, reps; chart_choice, jmin, jmax, verbose, d)
+```
 """
-function cl_sop(m::Int, n::Int, lam, L0, reps::Int, cl_init, jmin, jmax, verbose, chart_choice, dist)
+function cl_sop(lam, L0, sop_dgp::ICSP, cl_init, reps=10_000; chart_choice, jmin=4, jmax=6, verbose=false, d=1)
 
   L1 = zeros(2)
   ii = Int
   if cl_init == 0
     for i in 1:50
-      L1 = arl_sop(m, n, lam, cl_init, reps, chart_choice, dist)
+      L1 = arl_sop(lam,  i / 50, sop_dgp, reps; chart_choice, d=d)
       if verbose
         println("cl = ", i / 50, "\t", "ARL = ", L1[1])
       end
@@ -718,7 +732,7 @@ function cl_sop(m::Int, n::Int, lam, L0, reps::Int, cl_init, jmin, jmax, verbose
     for dh in 1:40
       #println("j: $j, dh: $dh")
       cl_init = cl_init + (-1)^j * dh / 10^j
-      L1 = arl_sop(m, n, lam, cl_init, reps, chart_choice, dist)
+      L1 = arl_sop(lam, cl_init, sop_dgp, reps; chart_choice, d=d) 
       if verbose
         println("cl = ", cl_init, "\t", "ARL = ", L1[1])
       end
