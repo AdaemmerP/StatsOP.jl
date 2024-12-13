@@ -237,6 +237,138 @@
     "text": "Generalized Ordinal Patterns"
   },
   {
+    "objectID": "tutorials/replication_tm.html",
+    "href": "tutorials/replication_tm.html",
+    "title": "Replication of Adaemmer et al. (2024)",
+    "section": "",
+    "text": "# Load packages\nusing OrdinalPatterns\nusing LinearAlgebra\nBLAS.set_num_threads(1); # Set BLAS threads to 1 when using multithreading\n\n# Parameters\nreps = 1_000;\nlam = 0.1\ncl = 0.03049\n\n# In-control limits SOPs\nic_sop = [\n    0.03049 0.05426 0.03174 0.05209;\n    0.02036 0.03626 0.02122 0.03476;\n    0.01223 0.0218 0.01276 0.02087;\n    0.00967 0.01724 0.01009 0.01650\n]\n\nic_sacf_cont = [0.05313, 0.03701, 0.02310, 0.01847]   \nic_sacf_count = [0.05305, 0.03698, 0.02309, 0.01847]  \n\n\n\n\n# Build struct\nsop_dgp = ICSP(\n    10,\n    10,\n    Normal(0, 1)\n)\n\n# SACF\nL0 = 370\ncl_init = 0.01\ncl_sop(lam, L0, sop_dgp, cl_init, reps; chart_choice=1, jmin=4, jmax=6, verbose=false, d=1)\n\n\n# Verify ARL\nlam = 0.1\ncl = 0.03049\narl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)\n\n(368.527, 12.14343107153778)\n\n\n\n\n\n\nmn_vec = [(10, 10), (15, 15), (25, 25), (40, 25)]\nresults_mat = zeros(4, 5)\n\nfor (i, mn_tup) in enumerate(mn_vec)\n  m = mn_tup[1]\n  n = mn_tup[2]\n    for chart in 1:4\n        cl_sop = ic_sop[i, chart]\n        cl_sacf = ic_sacf_cont[i]      \n        sop_dgp = SAR11((0.1, 0.1, 0.1), m, n, Normal(0, 1), nothing, 100)        \n        res_sop = arl_sop(lam, cl_sop, sop_dgp, reps; chart_choice=chart, d=1)\n        res_sacf = arl_sacf(lam, cl_sacf, sop_dgp, reps)\n        results_mat[i, chart] = res_sop[1]\n        results_mat[i, 5] = res_sacf[1]\n    end\n    println(i)\nend\nround.(results_mat, digits = 2)\n\n1\n2\n3\n4\n\n\n4×5 Matrix{Float64}:\n 69.29  89.09  52.21  204.83  9.53\n 36.66  46.09  26.01  149.26  4.97\n 15.9   19.49  11.54   66.45  2.78\n 11.59  13.06   8.24   46.38  2.22\n\n\n\n\n\n\nsop_dgp = SINAR11((0.1, 0.1, 0.1), 10, 10, Poisson(5), nothing, 100)\narl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)\n\n(77.931, 2.0364413402630412)\n\n\n\n\n\n\nsop_dgp = SAR11((0.1, 0.1, 0.1), 10, 10, Normal(0, 1), BinomialC(0.1, 10), 100)\narl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)\n\n(150.843, 4.478988914106921)\n\n\n\n\n\n\nsop_dgp = SINAR11((0.1, 0.1, 0.1), 10, 10, Poisson(5), PoiBin(0.1, 25), 100)\narl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)\n\n(163.303, 4.659192125493675)\n\n\n\n\n\n\nsop_dgp = SINAR11((0.1, 0.1, 0.1), 10, 10, ZIP(5, 0.9), nothing, 100)\narl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)\n\n(6.285, 0.07275347461165046)\n\n\n\n\n\n\nsop_dgp = SQMA11((0.8, 0.8, 0.8), (2, 2, 2), 10, 10, Normal(0, 1), nothing, 1)\narl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)\n\n(13.624, 0.2409163021978062)\n\n\n\n\n\n\nsop_dgp = SQINMA11((0.8, 0.8, 0.8), (2, 2, 2), 10, 10, Poisson(5), nothing, 1)\narl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)\n\n(5.054, 0.051514442030732875)\n\n\n\n\n\n\nsop_dgp = SAR1((0.1, 0.1, 0.1, 0.1), 10, 10, Normal(0, 1), nothing, 20)\narl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)\n\n(8.712, 0.12337048381309154)\n\n\n\n\n\n\nsop_dgp = SAR1((0.1, 0.1, 0.1, 0.1), 10, 10, Normal(0, 1), BinomialCvec(0.1, [-5; 5]), 20)\narl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)\n\n(19.455, 0.38086353465779843)\n\n\n\n\n\n\nsop_dgp = BSQMA11((0.8, 0.8, 0.8, 0.8), (2, 2, 2, 2), 10, 10, Normal(0, 1), nothing, 1)\narl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)\n\n(42.957, 1.1454777476102582)",
+    "crumbs": [
+      "SOPs",
+      "Replication of Adaemmer et al. (2024)"
+    ]
+  },
+  {
+    "objectID": "tutorials/replication_tm.html#table-1",
+    "href": "tutorials/replication_tm.html#table-1",
+    "title": "Replication of Adaemmer et al. (2024)",
+    "section": "",
+    "text": "# Build struct\nsop_dgp = ICSP(\n    10,\n    10,\n    Normal(0, 1)\n)\n\n# SACF\nL0 = 370\ncl_init = 0.01\ncl_sop(lam, L0, sop_dgp, cl_init, reps; chart_choice=1, jmin=4, jmax=6, verbose=false, d=1)\n\n\n# Verify ARL\nlam = 0.1\ncl = 0.03049\narl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)\n\n(368.527, 12.14343107153778)",
+    "crumbs": [
+      "SOPs",
+      "Replication of Adaemmer et al. (2024)"
+    ]
+  },
+  {
+    "objectID": "tutorials/replication_tm.html#table-a.1",
+    "href": "tutorials/replication_tm.html#table-a.1",
+    "title": "Replication of Adaemmer et al. (2024)",
+    "section": "",
+    "text": "mn_vec = [(10, 10), (15, 15), (25, 25), (40, 25)]\nresults_mat = zeros(4, 5)\n\nfor (i, mn_tup) in enumerate(mn_vec)\n  m = mn_tup[1]\n  n = mn_tup[2]\n    for chart in 1:4\n        cl_sop = ic_sop[i, chart]\n        cl_sacf = ic_sacf_cont[i]      \n        sop_dgp = SAR11((0.1, 0.1, 0.1), m, n, Normal(0, 1), nothing, 100)        \n        res_sop = arl_sop(lam, cl_sop, sop_dgp, reps; chart_choice=chart, d=1)\n        res_sacf = arl_sacf(lam, cl_sacf, sop_dgp, reps)\n        results_mat[i, chart] = res_sop[1]\n        results_mat[i, 5] = res_sacf[1]\n    end\n    println(i)\nend\nround.(results_mat, digits = 2)\n\n1\n2\n3\n4\n\n\n4×5 Matrix{Float64}:\n 69.29  89.09  52.21  204.83  9.53\n 36.66  46.09  26.01  149.26  4.97\n 15.9   19.49  11.54   66.45  2.78\n 11.59  13.06   8.24   46.38  2.22",
+    "crumbs": [
+      "SOPs",
+      "Replication of Adaemmer et al. (2024)"
+    ]
+  },
+  {
+    "objectID": "tutorials/replication_tm.html#table-a.2",
+    "href": "tutorials/replication_tm.html#table-a.2",
+    "title": "Replication of Adaemmer et al. (2024)",
+    "section": "",
+    "text": "sop_dgp = SINAR11((0.1, 0.1, 0.1), 10, 10, Poisson(5), nothing, 100)\narl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)\n\n(77.931, 2.0364413402630412)",
+    "crumbs": [
+      "SOPs",
+      "Replication of Adaemmer et al. (2024)"
+    ]
+  },
+  {
+    "objectID": "tutorials/replication_tm.html#table-a.3",
+    "href": "tutorials/replication_tm.html#table-a.3",
+    "title": "Replication of Adaemmer et al. (2024)",
+    "section": "",
+    "text": "sop_dgp = SAR11((0.1, 0.1, 0.1), 10, 10, Normal(0, 1), BinomialC(0.1, 10), 100)\narl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)\n\n(150.843, 4.478988914106921)",
+    "crumbs": [
+      "SOPs",
+      "Replication of Adaemmer et al. (2024)"
+    ]
+  },
+  {
+    "objectID": "tutorials/replication_tm.html#table-a.4",
+    "href": "tutorials/replication_tm.html#table-a.4",
+    "title": "Replication of Adaemmer et al. (2024)",
+    "section": "",
+    "text": "sop_dgp = SINAR11((0.1, 0.1, 0.1), 10, 10, Poisson(5), PoiBin(0.1, 25), 100)\narl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)\n\n(163.303, 4.659192125493675)",
+    "crumbs": [
+      "SOPs",
+      "Replication of Adaemmer et al. (2024)"
+    ]
+  },
+  {
+    "objectID": "tutorials/replication_tm.html#table-a.5",
+    "href": "tutorials/replication_tm.html#table-a.5",
+    "title": "Replication of Adaemmer et al. (2024)",
+    "section": "",
+    "text": "sop_dgp = SINAR11((0.1, 0.1, 0.1), 10, 10, ZIP(5, 0.9), nothing, 100)\narl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)\n\n(6.285, 0.07275347461165046)",
+    "crumbs": [
+      "SOPs",
+      "Replication of Adaemmer et al. (2024)"
+    ]
+  },
+  {
+    "objectID": "tutorials/replication_tm.html#table-a.6",
+    "href": "tutorials/replication_tm.html#table-a.6",
+    "title": "Replication of Adaemmer et al. (2024)",
+    "section": "",
+    "text": "sop_dgp = SQMA11((0.8, 0.8, 0.8), (2, 2, 2), 10, 10, Normal(0, 1), nothing, 1)\narl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)\n\n(13.624, 0.2409163021978062)",
+    "crumbs": [
+      "SOPs",
+      "Replication of Adaemmer et al. (2024)"
+    ]
+  },
+  {
+    "objectID": "tutorials/replication_tm.html#table-a.7",
+    "href": "tutorials/replication_tm.html#table-a.7",
+    "title": "Replication of Adaemmer et al. (2024)",
+    "section": "",
+    "text": "sop_dgp = SQINMA11((0.8, 0.8, 0.8), (2, 2, 2), 10, 10, Poisson(5), nothing, 1)\narl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)\n\n(5.054, 0.051514442030732875)",
+    "crumbs": [
+      "SOPs",
+      "Replication of Adaemmer et al. (2024)"
+    ]
+  },
+  {
+    "objectID": "tutorials/replication_tm.html#table-a.8",
+    "href": "tutorials/replication_tm.html#table-a.8",
+    "title": "Replication of Adaemmer et al. (2024)",
+    "section": "",
+    "text": "sop_dgp = SAR1((0.1, 0.1, 0.1, 0.1), 10, 10, Normal(0, 1), nothing, 20)\narl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)\n\n(8.712, 0.12337048381309154)",
+    "crumbs": [
+      "SOPs",
+      "Replication of Adaemmer et al. (2024)"
+    ]
+  },
+  {
+    "objectID": "tutorials/replication_tm.html#table-a.9",
+    "href": "tutorials/replication_tm.html#table-a.9",
+    "title": "Replication of Adaemmer et al. (2024)",
+    "section": "",
+    "text": "sop_dgp = SAR1((0.1, 0.1, 0.1, 0.1), 10, 10, Normal(0, 1), BinomialCvec(0.1, [-5; 5]), 20)\narl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)\n\n(19.455, 0.38086353465779843)",
+    "crumbs": [
+      "SOPs",
+      "Replication of Adaemmer et al. (2024)"
+    ]
+  },
+  {
+    "objectID": "tutorials/replication_tm.html#table-a.10",
+    "href": "tutorials/replication_tm.html#table-a.10",
+    "title": "Replication of Adaemmer et al. (2024)",
+    "section": "",
+    "text": "sop_dgp = BSQMA11((0.8, 0.8, 0.8, 0.8), (2, 2, 2, 2), 10, 10, Normal(0, 1), nothing, 1)\narl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)\n\n(42.957, 1.1454777476102582)",
+    "crumbs": [
+      "SOPs",
+      "Replication of Adaemmer et al. (2024)"
+    ]
+  },
+  {
     "objectID": "tutorials/tutorial-01.html",
     "href": "tutorials/tutorial-01.html",
     "title": "First tutorial",
@@ -259,7 +391,7 @@
     "href": "page_files/op_dependence.html",
     "title": "Dependency test",
     "section": "",
-    "text": "Dependency test\nOrdinalPatterns.jl allows to compute the dependency statistic based on @schnurr2017.\n\nusing RCall\nusing OrdinalPatterns\nusing BenchmarkTools\n\ntsx = rand(100)\ntsy = rand(100)\n\n# R\n@rput tsx tsy \nR\"\"\"\nlibrary(ordinalpattern)\nresult_dep = patterndependence(tsx, tsy)\nresult_dep$patterncoef |&gt; print()\n\nmicrobenchmark::microbenchmark(\n  timing = patterndependence(tsx, tsy, tiesmethod=\"first\"), times = 100\n  )\n\"\"\"\n\n[1] 0\n\n\nRObject{VecSxp}\nUnit: microseconds\n   expr     min       lq     mean   median      uq      max neval\n timing 207.659 213.6455 249.8971 220.0025 232.115 1204.879   100\n\n\n\ndependence_op(tsx, tsy; op_length=3, d=1)\n@btime dependence_op(tsx, tsy; op_length=3, d=1)\n\n  7.753 μs (44 allocations: 6.41 KiB)\n\n\n(0.0, [3, 2, 3, 2, 6, 4, 1, 2, 6, 4  …  3, 1, 5, 6, 3, 2, 3, 5, 4, 5], [5, 6, 3, 2, 6, 4, 1, 1, 2, 6  …  4, 1, 5, 4, 2, 4, 1, 5, 4, 5])\n\n\n\nchangepoint_op(tsx, tsy, op_length=3)\n\n(0.7554888412733636, 82, 0.6179345143371354, (-1.3580986393225503, 1.3580986393225503))",
+    "text": "Dependency test\nOrdinalPatterns.jl allows to compute the dependency statistic based on @schnurr2017.\n\nusing RCall\nusing OrdinalPatterns\nusing BenchmarkTools\n\ntsx = rand(100)\ntsy = rand(100)\n\n# R\n@rput tsx tsy \nR\"\"\"\nlibrary(ordinalpattern)\nresult_dep = patterndependence(tsx, tsy)\nresult_dep$patterncoef |&gt; print()\n\nmicrobenchmark::microbenchmark(\n  timing = patterndependence(tsx, tsy, tiesmethod=\"first\"), times = 100\n  )\n\"\"\"\n\n[1] 0.2015543\n\n\nRObject{VecSxp}\nUnit: microseconds\n   expr     min       lq     mean   median      uq      max neval\n timing 204.735 211.8785 250.5979 217.6595 231.515 1441.619   100\n\n\n\ndependence_op(tsx, tsy; op_length=3, d=1)\n@btime dependence_op(tsx, tsy; op_length=3, d=1)\n\n  7.710 μs (44 allocations: 6.41 KiB)\n\n\n(0.20155427425419903, [4, 2, 6, 3, 1, 5, 4, 1, 5, 4  …  6, 3, 2, 3, 2, 6, 6, 3, 2, 6], [4, 2, 6, 3, 5, 6, 3, 1, 5, 3  …  2, 6, 6, 3, 1, 5, 6, 3, 1, 2])\n\n\n\nchangepoint_op(tsx, tsy, op_length=3)\n\n(0.7111954033747999, 37, 0.6925264326212452, (-1.3580986393225503, 1.3580986393225503))",
     "crumbs": [
       "OPs",
       "Dependency test"
@@ -288,7 +420,7 @@
     "href": "page_files/op_changepoint.html",
     "title": "Changepoint test",
     "section": "",
-    "text": "Changepoint test\nOrdinalPatterns.jl allows to compute the chanegpoint statistic based on @schnurr2017.\n\nusing RCall\nusing OrdinalPatterns\nusing BenchmarkTools\n\ntsx = rand(100)\ntsy = rand(100)\n\n# R\n@rput tsx tsy \nR\"\"\"\nlibrary(ordinalpattern)\nresult_dep = patterndependence(tsx, tsy)\nresult_dep$patterncoef |&gt; print()\n\nmicrobenchmark::microbenchmark(\n  timing = patterndependence(tsx, tsy, tiesmethod=\"first\"), times = 100\n  )\n\"\"\"\n\n[1] 0\n\n\nRObject{VecSxp}\nUnit: microseconds\n   expr     min      lq     mean   median      uq      max neval\n timing 213.069 219.672 251.6103 224.2055 237.255 1144.827   100\n\n\n\nchangepoint_op(tsx, tsy, op_length=3)\n\n(1.1308476034663875, 18, 0.15490383119035545, (-1.3580986393225503, 1.3580986393225503))",
+    "text": "Changepoint test\nOrdinalPatterns.jl allows to compute the chanegpoint statistic based on @schnurr2017.\n\nusing RCall\nusing OrdinalPatterns\nusing BenchmarkTools\n\ntsx = rand(100)\ntsy = rand(100)\n\n# R\n@rput tsx tsy \nR\"\"\"\nlibrary(ordinalpattern)\nresult_dep = patterndependence(tsx, tsy)\nresult_dep$patterncoef |&gt; print()\n\nmicrobenchmark::microbenchmark(\n  timing = patterndependence(tsx, tsy, tiesmethod=\"first\"), times = 100\n  )\n\"\"\"\n\n[1] 0.04342385\n\n\nRObject{VecSxp}\nUnit: microseconds\n   expr    min      lq     mean  median      uq      max neval\n timing 202.28 211.382 249.5375 216.803 234.486 1262.763   100\n\n\n\nchangepoint_op(tsx, tsy, op_length=3)\n\n(1.078381684222567, 21, 0.19522548683379648, (-1.3580986393225503, 1.3580986393225503))",
     "crumbs": [
       "OPs",
       "Changepoint test"
@@ -316,7 +448,7 @@
     "href": "index.html",
     "title": "OrdinalPatterns.jl",
     "section": "",
-    "text": "OrdinalPatterns.jl is a Julia package that provides functions to conduct (sequential) tests for time series data, using ordinal patterns. The package builds on the seminal work of Bandt and Pompe (2002). The package is highly optimized and fast. The package is designed to be easy to use and provides a simple interface to compute ordinal patterns from time series data.\n\n\nThe package is currently not registered and has to be installed manually from GitHub.\n\n\n\nThe documentation for the package can be found here."
+    "text": "OrdinalPatterns.jl is a Julia package that provides functions to conduct (sequential) tests for time series data, using ordinal patterns. The package builds on the seminal work of Bandt and Pompe (2002). The package is highly optimized and fast. The package is designed to be easy to use and provides a simple interface to compute ordinal patterns from time series data.\n\n\nThe package is currently not registered and has to be installed manually from GitHub."
   },
   {
     "objectID": "index.html#installation",
@@ -324,13 +456,6 @@
     "title": "OrdinalPatterns.jl",
     "section": "",
     "text": "The package is currently not registered and has to be installed manually from GitHub."
-  },
-  {
-    "objectID": "index.html#documentation",
-    "href": "index.html#documentation",
-    "title": "OrdinalPatterns.jl",
-    "section": "",
-    "text": "The documentation for the package can be found here."
   },
   {
     "objectID": "reference/IC.html",
