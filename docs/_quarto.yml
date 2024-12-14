@@ -74,7 +74,7 @@ website:
         - page_files/sop.qmd
         - page_files/sop_tutorial.qmd
         - page_files/sop_replication.qmd   
-        - tutorials/replication_tm.qmd
+        - replications/replication_tm.qmd
     - title: "OPs"
       style: "docked"
       background: light

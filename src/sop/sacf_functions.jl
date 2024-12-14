@@ -302,7 +302,7 @@ end
 
 
 """
-    cl_sacf(m, n, lam, L0, reps, clinit, jmin, jmax, verbose, dist_error)
+    cl_sacf(m, n, lam, L0, reps, cl_init, jmin, jmax, verbose, dist_error)
 
 Compute the control limit for the exponentially weighted moving average (EWMA) control chart using the spatial autocorrelation function (SACF) for a lag length of 1. The function returns the control limit for a given average run length (ARL) `L0` and a given number of repetitions `reps`. The input arguments are:
  
@@ -311,7 +311,7 @@ Compute the control limit for the exponentially weighted moving average (EWMA) c
 - `lam`: The smoothing parameter for the EWMA control chart.
 - `L0`: The average run length (ARL) to use for the control limit.
 - `reps`: The number of repetitions to compute the ARL.
-- `clinit`: The initial control limit to use for the EWMA control chart. If set to 0, the function will search for the control limit that gives an ARL greater than `L0`.
+- `cl_init`: The initial control limit to use for the EWMA control chart. If set to 0, the function will search for the control limit that gives an ARL greater than `L0`.
 - `jmin`: The minimum number of values to change after the decimal point in the control limit.
 - `jmax`: The maximum number of values to change after the decimal point in the control limit.
 - `verbose`: A boolean to indicate whether to print the control limit and ARL for each iteration.
@@ -325,31 +325,28 @@ n = 10
 lam = 0.1
 L0 = 370
 reps = 1000
-clinit = 0.05
+cl_init = 0.05
 jmin = 4
 jmax = 7
 verbose = true
 dist_error = Normal(0, 1)
 
 # Compute control limit
-cl = cl_sacf(m, n, lam, L0, reps, clinit, jmin, jmax, verbose, dist_error)
+cl = cl_sacf(m, n, lam, L0, reps, cl_init, jmin, jmax, verbose, dist_error)
 ```
 """
-function cl_sacf(m::Int, n::Int, lam, L0, reps::Int, clinit::Float64, jmin, jmax, verbose, dist_error)
-
-  arl_sacf(lam, cl, sp_dgp, reps=10_000)
+function cl_sacf(lam, L0, sp_dgp::ICSP, cl_init, reps=10_000; jmin=4, jmax=6, verbose=false)
 
   # extract m and n from spatial_dgp
   m = sp_dgp.m_rows
   n = sp_dgp.n_cols
   dist = sp_dgp.dist
-  dist_ao = sp_dgp.dist_ao
 
   L1 = zeros(2)
   ii = Int       # set inital value depending on λbda
-  if clinit == 0
+  if cl_init == 0
     for i in 1:50
-      L1 = arl_sacf(m, n, lam, i / 10, reps, dist_error)
+      L1 = arl_sacf(lam, i / 10, sp_dgp, reps) #arl_sacf(m, n, lam, i / 10, reps, dist)
       if verbose
         println("cl = ", i / 10, "\t", "ARL = ", L1[1])
       end
@@ -358,26 +355,26 @@ function cl_sacf(m::Int, n::Int, lam, L0, reps::Int, clinit::Float64, jmin, jmax
         break
       end
     end
-    clinit = ii / 50
+    cl_init = ii / 50
   end
 
   for j in jmin:jmax
     for dh in 1:80
-      clinit = clinit + (-1)^j * dh / 10^j
-      L1 = arl_sacf(m, n, lam, clinit, reps, dist_error)
+      cl_init = cl_init + (-1)^j * dh / 10^j
+      L1 = arl_sacf(lam, cl_init, sp_dgp, reps) # arl_sacf(m, n, lam, cl_init, reps, dist)
       if verbose
-        println("cl = ", clinit, "\t", "ARL = ", L1[1])
+        println("cl = ", cl_init, "\t", "ARL = ", L1[1])
       end
       if (j % 2 == 1 && L1[1] < L0) || (j % 2 == 0 && L1[1] > L0)
         break
       end
     end
-    clinit = clinit
+    cl_init = cl_init
   end
   if L1[1] < L0
-    cl = clinit + 1 / 10^jmax
+    cl = cl_init + 1 / 10^jmax
   end
-  return clinit
+  return cl_init
 end
 
 

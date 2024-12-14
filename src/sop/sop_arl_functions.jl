@@ -134,7 +134,7 @@ Multiple Dispatch for 'stat_sop()':
 
 # 1. Method to compute test statistic for one picture
 """
-  stat_sop(data::Matrix{Float64}, chart_choice)
+  stat_sop(data::Union{SubArray, Matrix{T}}; chart_choice) where {T<:Real}
 
 Computes the test statistic for a single picture and chosen test statistic. `chart_coice` is an integer value for the chart choice. The options are 1-4.
 
@@ -145,7 +145,7 @@ data = rand(20, 20);
 stat_sop(data, 2)
 ```
 """
-function stat_sop(data::Union{SubArray, Matrix{T}}, chart_choice) where {T<:Real}
+function stat_sop(data::Union{SubArray, Matrix{T}}; chart_choice) where {T<:Real}
 
   # Compute 4 dimensional cube to lookup sops
   lookup_array_sop = compute_lookup_array()
@@ -155,7 +155,7 @@ function stat_sop(data::Union{SubArray, Matrix{T}}, chart_choice) where {T<:Real
 
   # Compute m and n based on data
   m = size(data, 1) - 1
-  n = size(data, 2) - 1
+  n = size(data, 2) - 1 
 
   # Compute frequencies of sops
   freq_sop = sop_frequencies(m, n, lookup_array_sop, n_sops, data, sop)
@@ -175,7 +175,7 @@ end
 
 # 2. Method to compute test statistic for multiple pictures
 """
-   stat_sop(data::Array{Float64,3}, add_noise::Bool, lam::Float64, chart_choice::Int)
+   stat_sop(data::Array{Float64, 3}, add_noise::Bool, lam::Float64, chart_choice::Int)
 
 Computes the test statistic for a 3D array of data, a given lambda value, and a given chart choice. The input parameters are:
 
@@ -193,7 +193,7 @@ chart_choice = 2;
 stat_sop(data, false, lam, chart_choice)
 ```
 """
-function stat_sop(data::Array{Float64,3}, add_noise, lam, chart_choice)
+function stat_sop(lam, data::Array{T, 3}; chart_choice, add_noise) where {T<:Real}       
 
   # Compute 4 dimensional cube to lookup sops
   lookup_array_sop = compute_lookup_array()
@@ -204,6 +204,11 @@ function stat_sop(data::Array{Float64,3}, add_noise, lam, chart_choice)
   stats_all = zeros(size(data, 3))
   freq_sop = zeros(Int, n_sops)
   win = zeros(Int, 4)
+
+  # Pre-allocate indexes to compute sum of frequencies
+  s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
+  s_2 = [2, 5, 7, 9, 16, 18, 20, 23]
+  s_3 = [4, 6, 10, 12, 13, 15, 19, 21]
 
   # Compute m and n based on data
   m = size(data, 1) - 1
@@ -221,9 +226,18 @@ function stat_sop(data::Array{Float64,3}, add_noise, lam, chart_choice)
     sop_frequencies!(m, n, lookup_array_sop, data_tmp, sop, win, freq_sop)
 
     # Compute sum of frequencies for each group
-    @views p_hat[1] = sum(freq_sop[[1, 3, 8, 11, 14, 17, 22, 24]])
-    @views p_hat[2] = sum(freq_sop[[2, 5, 7, 9, 16, 18, 20, 23]])
-    @views p_hat[3] = sum(freq_sop[[4, 6, 10, 12, 13, 15, 19, 21]])
+    #@views p_hat[1] = sum(freq_sop[[1, 3, 8, 11, 14, 17, 22, 24]])
+    for i in s_1
+      p_hat[1] += freq_sop[i] 
+    end
+    #@views p_hat[2] = sum(freq_sop[[2, 5, 7, 9, 16, 18, 20, 23]])
+    for i in s_2
+      p_hat[2] += freq_sop[i] 
+    end
+    #@views p_hat[3] = sum(freq_sop[[4, 6, 10, 12, 13, 15, 19, 21]])
+    for i in s_3
+      p_hat[3] += freq_sop[i] 
+    end
     p_hat ./= m * n
 
     # Compute test statistic
@@ -244,18 +258,159 @@ function stat_sop(data::Array{Float64,3}, add_noise, lam, chart_choice)
 
 end
 
-# #--- Function to create empty matrix which will be filled (either via Monte Carlo or Bootstrap)
-# empty_data = function (m, n, dist)
+#========================================================================
 
-#   if dist isa Distribution
-#     data = zeros(m + 1, n + 1)
-#   else
-#     data = zeros(size(dist[:, :, 1]))
-#   end
+Multiple Dispatch for 'arl_sop()':
+  1. In-control distributions 
+  2. Bootstraping using p_mat 
+  3. Out-of-control DGPs
 
-#   return data
+========================================================================#
 
-# end
+"""
+    arl_sop(lam, cl, sop_dgp::ICSP, reps=10_000; chart_choice, d=1)
+
+Function to compute the average run length (ARL) for a given control-limit and in-control distribution. The input parameters are:
+
+- `lam::Float64`: A scalar value for lambda for the EWMA chart.
+- `cl::Float64`: A scalar value for the control limit.
+- `sop_dgp::ICSP`: A struct for the in-control spatial DGP.
+- `reps::Int`: An integer value for the number of repetitions.  
+- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
+- `d::Int` An integer value for the embedding dimension. The default value is 1.
+"""
+function arl_sop(lam, cl, sop_dgp::ICSP, reps=10_000; chart_choice, d=1)     
+
+  # Extract values
+  m = sop_dgp.m_rows
+  n = sop_dgp.n_cols
+  dist = sop_dgp.dist
+
+  # Compute lookup array and number of sops
+  lookup_array_sop = compute_lookup_array()
+
+  # Check whether to use threading or multi processing --> only one process threading, else distributed
+  if nprocs() == 1
+
+    # Make chunks for separate tasks (based on number of threads)        
+    chunks = Iterators.partition(1:reps, div(reps, Threads.nthreads())) |> collect
+
+    # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
+    par_results = map(chunks) do i
+      Threads.@spawn rl_sop(m, n, lookup_array_sop, lam, cl, i, chart_choice, dist)
+
+    end
+
+  elseif nprocs() > 1
+
+    # Make chunks for separate tasks (based on number of workers)
+    chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
+
+    par_results = pmap(chunks) do i
+      rl_sop(m, n, lookup_array_sop, lam, cl, i, chart_choice, dist)
+    end
+
+  end
+
+  # Collect results from tasks
+  rls = fetch.(par_results)
+  rlvec = Iterators.flatten(rls) |> collect
+  return (mean(rlvec), std(rlvec) / sqrt(reps))
+end
+
+
+"""
+    arl_sop(lam, cl, reps, chart_choice, data::Array{Float64, 3})
+
+Function to compute the average run length (ARL) using a bootstraping approach. The input parameters are:
+
+- `lam::Float64`: A scalar value for lambda for the EWMA chart.
+- `cl::Float64`: A scalar value for the control limit.
+- `reps::Int`: An integer value for the number of repetitions.
+- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
+- `p_mat::Array{Float64, 3}`: A 3D array with the data. The data has to be in the form of a 3D array.
+"""
+function arl_sop(lam, cl, data::Array{Float64,3}, reps=10_000; chart_choice, d=1)
+  
+   # arl_sop(lam, cl, reps, chart_choice, data::Array{Float64,3})
+           
+  # Compute p_mat to sample from for bootstraping
+  p_mat = compute_p_mat(data)
+
+  # Check whether to use threading or multi processing --> only one process threading, else distributed
+  if nprocs() == 1
+
+    # Make chunks for separate tasks (based on number of threads)        
+    chunks = Iterators.partition(1:reps, div(reps, Threads.nthreads())) |> collect
+
+    # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
+    par_results = map(chunks) do i
+      Threads.@spawn rl_sop(lam, cl, i, chart_choice, p_mat)
+    end
+
+  elseif nprocs() > 1
+
+    # Make chunks for separate tasks (based on number of workers)
+    chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
+
+    par_results = pmap(chunks) do i
+      rl_sop(lam, cl, i, chart_choice, p_mat)
+    end
+
+  end
+
+  # Collect results from tasks
+  rls = fetch.(par_results)
+  rlvec = Iterators.flatten(rls) |> collect
+  return (mean(rlvec), std(rlvec) / sqrt(reps))
+end
+
+
+"""
+    arl_sop(lam, cl, spatial_dgp, reps = 10_000; chart_choice, d = 1)
+
+Function to compute the average run length (ARL) for a given out-of-control DGP. The input parameters are:
+  
+- `lam::Float64`: A scalar value for lambda for the EWMA chart.
+- `cl::Float64`: A scalar value for the control limit.
+- `spatial_dgp::AbstractSpatialDGP`: A struct for type for the spatial DGP. This can be either `SAR11`, `SINAR11`, `SQMA11`, `BSQMA11` or `SAR1`. Look at their documentation for more information.
+- `reps::Int`: An integer value for the number of repetitions.
+- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
+- `d::Int` An integer value for the embedding dimension. The default value is 1.
+"""
+function arl_sop(lam, cl, spatial_dgp, reps = 10_000; chart_choice, d = 1)
+
+  # Compute m and n
+  m_rows = spatial_dgp.m_rows
+  n_cols = spatial_dgp.n_cols
+  dist_error = spatial_dgp.dist
+  dist_ao = spatial_dgp.dist_ao
+
+  # Compute lookup array to finde SOPs
+  lookup_array_sop = compute_lookup_array()
+
+  # Check whether to use threading or multi processing --> only one process threading, else distributed
+  if nprocs() == 1
+    # Make chunks for separate tasks        
+    chunks = Iterators.partition(1:reps, div(reps, Threads.nthreads())) #|> collect
+    # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
+    par_results = map(chunks) do i  
+      Threads.@spawn rl_sop(m_rows, n_cols, lookup_array_sop, lam, cl, i, chart_choice, spatial_dgp, dist_error, dist_ao)
+    end
+
+  elseif nprocs() > 1 # Multi Processing
+    chunks = Iterators.partition(1:reps, div(reps, nworkers())) #|> collect
+    par_results = pmap(chunks) do i  
+      rl_sop(m_rows, n_cols, lookup_array_sop, lam, cl, i, chart_choice, spatial_dgp, dist_error, dist_ao)
+    end
+
+  end
+  # Collect results from tasks
+  # getindex.(par_results, 1) for threading, par_results for multiprocessing 
+  rls = fetch.(par_results)
+  rlvec = Iterators.flatten(rls) |> collect
+  return (mean(rlvec), std(rlvec) / sqrt(reps))
+end
 
 #========================================================================
 
@@ -517,160 +672,6 @@ end
 
 #========================================================================
 
-Multiple Dispatch for 'arl_sop()':
-  1. In-control distributions 
-  2. Bootstraping using p_mat 
-  3. Out-of-control DGPs
-
-========================================================================#
-
-"""
-    arl_sop(lam, cl, sop_dgp::ICSP, reps=10_000; chart_choice, d=1)
-
-Function to compute the average run length (ARL) for a given control-limit and in-control distribution. The input parameters are:
-
-- `lam::Float64`: A scalar value for lambda for the EWMA chart.
-- `cl::Float64`: A scalar value for the control limit.
-- `sop_dgp::ICSP`: A struct for the in-control spatial DGP.
-- `reps::Int`: An integer value for the number of repetitions.  
-- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
-- `d::Int` An integer value for the embedding dimension. The default value is 1.
-"""
-function arl_sop(lam, cl, sop_dgp::ICSP, reps=10_000; chart_choice, d=1)     
-
-  # Extract values
-  m = sop_dgp.m_rows
-  n = sop_dgp.n_cols
-  dist = sop_dgp.dist
-
-  # Compute lookup array and number of sops
-  lookup_array_sop = compute_lookup_array()
-
-  # Check whether to use threading or multi processing --> only one process threading, else distributed
-  if nprocs() == 1
-
-    # Make chunks for separate tasks (based on number of threads)        
-    chunks = Iterators.partition(1:reps, div(reps, Threads.nthreads())) |> collect
-
-    # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
-    par_results = map(chunks) do i
-      Threads.@spawn rl_sop(m, n, lookup_array_sop, lam, cl, i, chart_choice, dist)
-
-    end
-
-  elseif nprocs() > 1
-
-    # Make chunks for separate tasks (based on number of workers)
-    chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
-
-    par_results = pmap(chunks) do i
-      rl_sop(m, n, lookup_array_sop, lam, cl, i, chart_choice, dist)
-    end
-
-  end
-
-  # Collect results from tasks
-  rls = fetch.(par_results)
-  rlvec = Iterators.flatten(rls) |> collect
-  return (mean(rlvec), std(rlvec) / sqrt(reps))
-end
-
-
-"""
-    arl_sop(lam, cl, reps, chart_choice, data::Array{Float64, 3})
-
-Function to compute the average run length (ARL) using a bootstraping approach. The input parameters are:
-
-- `lam::Float64`: A scalar value for lambda for the EWMA chart.
-- `cl::Float64`: A scalar value for the control limit.
-- `reps::Int`: An integer value for the number of repetitions.
-- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
-- `p_mat::Array{Float64, 3}`: A 3D array with the data. The data has to be in the form of a 3D array.
-"""
-function arl_sop(lam, cl, reps, chart_choice, data::Array{Float64,3})
-
-  # Compute p_mat to sample from for bootstraping
-  p_mat = compute_p_mat(data)
-
-  # Check whether to use threading or multi processing --> only one process threading, else distributed
-  if nprocs() == 1
-
-    # Make chunks for separate tasks (based on number of threads)        
-    chunks = Iterators.partition(1:reps, div(reps, Threads.nthreads())) |> collect
-
-    # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
-    par_results = map(chunks) do i
-      Threads.@spawn rl_sop(lam, cl, i, chart_choice, p_mat)
-    end
-
-  elseif nprocs() > 1
-
-    # Make chunks for separate tasks (based on number of workers)
-    chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
-
-    par_results = pmap(chunks) do i
-      rl_sop(lam, cl, i, chart_choice, p_mat)
-    end
-
-  end
-
-  # Collect results from tasks
-  rls = fetch.(par_results)
-  rlvec = Iterators.flatten(rls) |> collect
-  return (mean(rlvec), std(rlvec) / sqrt(reps))
-end
-
-
-"""
-    arl_sop(lam, cl, spatial_dgp, reps = 10_000; chart_choice, d = 1)
-
-Function to compute the average run length (ARL) for a given out-of-control DGP. The input parameters are:
-  
-- `lam::Float64`: A scalar value for lambda for the EWMA chart.
-- `cl::Float64`: A scalar value for the control limit.
-- `spatial_dgp::AbstractSpatialDGP`: A struct for type for the spatial DGP. This can be either `SAR11`, `SINAR11`, `SQMA11`, `BSQMA11` or `SAR1`. Look at their documentation for more information.
-- `reps::Int`: An integer value for the number of repetitions.
-- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
-- `d::Int` An integer value for the embedding dimension. The default value is 1.
-"""
-#function arl_sop(lam, cl, reps, chart_choice, spatial_dgp, dist_error::UnivariateDistribution, dist_ao::Union{Nothing, UnivariateDistribution})
-function arl_sop(lam, cl, spatial_dgp, reps = 10_000; chart_choice, d = 1)
-
-  # Compute m and n
-  m_rows = spatial_dgp.m_rows
-  n_cols = spatial_dgp.n_cols
-  dist_error = spatial_dgp.dist
-  dist_ao = spatial_dgp.dist_ao
-
-  # Compute lookup array to finde SOPs
-  lookup_array_sop = compute_lookup_array()
-
-  # Check whether to use threading or multi processing --> only one process threading, else distributed
-  if nprocs() == 1
-    # Make chunks for separate tasks        
-    chunks = Iterators.partition(1:reps, div(reps, Threads.nthreads())) #|> collect
-    # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
-    par_results = map(chunks) do i  
-      Threads.@spawn rl_sop(m_rows, n_cols, lookup_array_sop, lam, cl, i, chart_choice, spatial_dgp, dist_error, dist_ao)
-    end
-
-  elseif nprocs() > 1 # Multi Processing
-    chunks = Iterators.partition(1:reps, div(reps, nworkers())) #|> collect
-    par_results = pmap(chunks) do i  
-      rl_sop(m_rows, n_cols, lookup_array_sop, lam, cl, i, chart_choice, spatial_dgp, dist_error, dist_ao)
-    end
-
-  end
-  # Collect results from tasks
-  # getindex.(par_results, 1) for threading, par_results for multiprocessing 
-  rls = fetch.(par_results)
-  rlvec = Iterators.flatten(rls) |> collect
-  return (mean(rlvec), std(rlvec) / sqrt(reps))
-end
-
-
-#========================================================================
-
 Multiple Dispatch for 'cl_sop()':
   1. Theoretical distribution
   2. Bootstraping
@@ -767,6 +768,11 @@ function compute_p_mat(data::Array{Float64,3})
   freq_sop = zeros(Int, n_sops)
   win = zeros(Int, 4)
 
+  # pre-allocate indexes to compute sum of frequencies
+  s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
+  s_2 = [2, 5, 7, 9, 16, 18, 20, 23]
+  s_3 = [4, 6, 10, 12, 13, 15, 19, 21]
+
   # compute p_hat matrix
   for i in axes(data, 3)
 
@@ -775,9 +781,18 @@ function compute_p_mat(data::Array{Float64,3})
     sop_frequencies!(m, n, lookup_array_sop, data_tmp, sop, win, freq_sop)
 
     # Compute sum of frequencies for each group
-    @views p_hat[1] = sum(freq_sop[[1, 3, 8, 11, 14, 17, 22, 24]])
-    @views p_hat[2] = sum(freq_sop[[2, 5, 7, 9, 16, 18, 20, 23]])
-    @views p_hat[3] = sum(freq_sop[[4, 6, 10, 12, 13, 15, 19, 21]])
+    # @views p_hat[1] = sum(freq_sop[[1, 3, 8, 11, 14, 17, 22, 24]])
+    for i in s_1
+      p_hat[1] += freq_sop[i] 
+    end
+    # @views p_hat[2] = sum(freq_sop[[2, 5, 7, 9, 16, 18, 20, 23]])
+    for i in s_2
+      p_hat[2] += freq_sop[i] 
+    end
+    # @views p_hat[3] = sum(freq_sop[[4, 6, 10, 12, 13, 15, 19, 21]])
+    for i in s_3
+      p_hat[3] += freq_sop[i] 
+    end
     p_hat ./= m * n
 
     p_mat[i, :] = p_hat
@@ -785,13 +800,14 @@ function compute_p_mat(data::Array{Float64,3})
     # Reset win and freq_sop
     fill!(win, 0)
     fill!(freq_sop, 0)
+    fill!(p_hat, 0)
   end
 
   return p_mat
 end
 
 #--- Function to critical run length for SOP based on bootstraping
-function cl_sop(lam, L0, reps, cl_init, jmin, jmax, verbose, chart_choice, data::Array{T,3}) where {T<:Real}
+function  cl_sop(lam, L0, data::Array{T,3}, cl_init, reps=10_000; chart_choice, jmin=4, jmax=6, verbose=false, d=1) where {T<:Real}      
 
   # Compute p_mat based on data
   p_mat = compute_p_mat(data)
@@ -800,7 +816,7 @@ function cl_sop(lam, L0, reps, cl_init, jmin, jmax, verbose, chart_choice, data:
   ii = Int
   if cl_init == 0
     for i in 1:50
-      L1 = arl_sop(lam, i / 50, reps, chart_choice, p_mat)
+      L1 = arl_sop(lam, i / 50, data, reps; chart_choice, d=d) # arl_sop(lam, i / 50, reps, chart_choice, p_mat)
       if verbose
         println("cl = ", i / 50, "\t", "ARL = ", L1[1])
       end
@@ -816,7 +832,7 @@ function cl_sop(lam, L0, reps, cl_init, jmin, jmax, verbose, chart_choice, data:
     for dh in 1:40
       #println("j: $j, dh: $dh")
       cl_init = cl_init + (-1)^j * dh / 10^j
-      L1 = arl_sop(lam, cl_init, reps, chart_choice, p_mat)
+      L1 = arl_sop(lam, cl_init, data, reps; chart_choice, d=d) # arl_sop(lam, cl_init, reps, chart_choice, p_mat)
       if verbose
         println("cl = ", cl_init, "\t", "ARL = ", L1[1])
       end
