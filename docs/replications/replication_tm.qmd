@@ -118,14 +118,16 @@ for (i in 1:6) {
 """
 @rget resid_ic_mat resid_oc_mat
 
-stats_ic = stat_sop(0.1, resid_mat; chart_choice=3, add_noise=false, d1=1, d2=1)
+stats_ic = stat_sop(1, resid_ic_mat; chart_choice=3, add_noise=false, d1=1, d2=1)
 
 pmat = compute_p_mat(resid_ic_mat)
 p_ewma = vec(mean(pmat, dims=1))
-stat_sop(0.1, resid_ic_mat; chart_choice=3, add_noise=false) |> x -> quantile(x, 0.01)
-abs(chart_stat_sop(p_ewma, 3) - -0.14830747412978673)
+stat_sop(1, resid_ic_mat; chart_choice=3, add_noise=false) |> x -> quantile(x, 0.01)
+abs(chart_stat_sop(p_ewma, 3) - -0.15668813175662488)
 
-cl_val = cl_sop(0.1, 370, pmat, 0.0038, 1_000; chart_choice=3, verbose=true, d1=1, d2=1)
+cl_val = cl_sop(1, 100, pmat, 0.012, 1_000; chart_choice=3, verbose=true, d1=1, d2=1)
+
+cl = 0.013
 
 # Makie line plot of stats
 mean_stat = chart_stat_sop(p_ewma, 3)
@@ -138,8 +140,17 @@ hlines!(ax, [mean_stat - cl_val, mean_stat + cl_val], color=:red)
 hlines!(ax, [mean_stat], linestyle=:dash, color=:green) 
 fig
 
-
-
+stats_oc = stat_sop(0.1, resid_oc_mat; chart_choice=3, add_noise=false, d1=1, d2=1)
+resids_all = cat(resid_ic_mat, resid_oc_mat, dims = 3)
+stats_all = stat_sop(0.1, resids_all[:, :, :]; chart_choice=3, add_noise=false, d1=1, d2=1)
+# Plot oc stats
+fig = Figure()
+ax = Axis(fig[1, 1])
+lines!(Axis(fig[1, 1]), stats_all)
+# Add horizontal lines
+hlines!(ax, [mean_stat - cl_val, mean_stat + cl_val], color=:red) 
+hlines!(ax, [mean_stat], linestyle=:dash, color=:green) 
+fig
 ```
 
 ## Compute test statictis based on series of pictures

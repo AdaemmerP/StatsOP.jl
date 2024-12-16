@@ -6,6 +6,8 @@ using Dates
 using CSV
 using CategoricalArrays
 using Plots
+using Makie
+using CairoMakie
 
 # Load the data
 cd(@__DIR__)
