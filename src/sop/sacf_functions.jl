@@ -267,8 +267,8 @@ arl = arl_sacf(lam, cl, reps, spatial_dgp, dist_error, dist_ao)
 function arl_sacf(lam, cl, sp_dgp, reps=10_000)
 
   # extract m and n from spatial_dgp
-  m = sp_dgp.m_rows
-  n = sp_dgp.n_cols
+  m = sp_dgp.M_rows - 1
+  n = sp_dgp.N_cols - 1
   dist = sp_dgp.dist
   dist_ao = sp_dgp.dist_ao
 

@@ -1,0 +1,269 @@
+---
+engine: julia
+julia:
+  exeflags: 
+   - --project=../.
+   - --threads=10
+eval: true  
+---
+
+# Replication of Adaemmer et al. (2024)
+
+```{julia}
+#| output: false
+
+# Load packages
+using OrdinalPatterns
+using LinearAlgebra
+BLAS.set_num_threads(1); # Set BLAS threads to 1 when using multithreading
+
+# Parameters
+reps = 1_000;
+lam = 0.1
+cl = 0.03049
+
+# In-control limits SOPs
+ic_sop = [
+    0.03049 0.05426 0.03174 0.05209;
+    0.02036 0.03626 0.02122 0.03476;
+    0.01223 0.0218 0.01276 0.02087;
+    0.00967 0.01724 0.01009 0.01650
+]
+
+ic_sacf_cont = [0.05313, 0.03701, 0.02310, 0.01847]
+ic_sacf_count = [0.05305, 0.03698, 0.02309, 0.01847]
+
+```
+
+## Table 1
+
+```{julia}
+# Build struct
+sop_dgp = ICSP(
+    11,
+    11,
+    Normal(0, 1)
+)
+
+# Limits SOPs
+L0 = 370
+cl_init = 0.01
+cl_sop(lam, L0, sop_dgp, cl_init, reps; chart_choice=1, jmin=4, jmax=6, verbose=true, d1=5, d2=5)
+
+
+# Verify ARL
+lam = 0.1
+cl = 0.03049
+arl_sop(lam, 0.0489, sop_dgp, reps; chart_choice=1, d1=5, d2=5)
+
+# Limits SACFs
+cl_sacf(lam, L0, sop_dgp, cl_init, reps; jmin=4, jmax=6, verbose=false)
+```
+
+## Botstraping
+
+```{julia}
+data = rand(250, 250, 94)
+arl_sop(lam, cl, data, 1000; chart_choice=1, d1=3, d2=3)
+stat_sop(0.1, data; chart_choice=3, add_noise=false) |> x -> quantile(x, 0.99)
+cl_sop(0.1, L0, data, 0.0005, 1_000; chart_choice=3, verbose=true, d1=1, d2=1)
+
+
+pmat = compute_p_mat(images)
+p_ewma = vec(mean(pmat, dims=1))
+abs(chart_stat_sop(p_ewma, 3) - -0.14843259957606353)
+stat_sop(0.1, images; chart_choice=3, add_noise=false) |> x -> quantile(x, 0.01)
+
+arl_sop(0.1, 0.003, pmat, 10; chart_choice=3)
+
+arl_sop
+cl_sop(0.1, L0, data, 0.003, 1_000; chart_choice=3, verbose=true, d1=1, d2=1)
+
+cl_sop(0.1, L0, pmat, 0.003, 10_000; chart_choice=3, jmin=4, jmax=6, verbose=true, d1=1, d2=1)
+```
+
+## Image example with APley
+
+```{julia}
+
+using RCall
+R"""
+library(textile)
+library(spc4sts)
+images = textile::icImgs
+model = readRDS("/home/adaemmerp/Downloads/model.rds")
+
+# In-control
+resid_ic_mat = array(NA, c(235, 220, 94))
+for (i in 1:94) {
+
+  dat <- dataPrep(textile::icImgs[, , i], model$nb)
+  r0j <- dat[, 1] - predict(model$fit, dat)
+  res <- matrix(r0j, nrow(textile::icImgs[, , i]) - model$nb[1],
+               ncol(textile::icImgs[, , i]) - sum(model$nb[2:3]), byrow=TRUE)
+  resid_ic_mat[, , i] = res
+}
+
+# Out-of control
+resid_oc_mat = array(NA, c(235, 220, 6))
+for (i in 1:6) {
+  
+  dat <- dataPrep(textile::ocImgs[, , i], model$nb)
+  r0j <- dat[, 1] - predict(model$fit, dat)
+  res <- matrix(r0j, nrow(textile::ocImgs[, , i]) - model$nb[1],
+                ncol(textile::ocImgs[, , i]) - sum(model$nb[2:3]), byrow=TRUE)
+  resid_oc_mat[, , i] = res
+}
+
+"""
+@rget resid_ic_mat resid_oc_mat
+
+stats_ic = stat_sop(0.1, resid_mat; chart_choice=3, add_noise=false, d1=1, d2=1)
+
+pmat = compute_p_mat(resid_ic_mat)
+p_ewma = vec(mean(pmat, dims=1))
+stat_sop(0.1, resid_ic_mat; chart_choice=3, add_noise=false) |> x -> quantile(x, 0.01)
+abs(chart_stat_sop(p_ewma, 3) - -0.14830747412978673)
+
+cl_val = cl_sop(0.1, 370, pmat, 0.0038, 1_000; chart_choice=3, verbose=true, d1=1, d2=1)
+
+# Makie line plot of stats
+mean_stat = chart_stat_sop(p_ewma, 3)
+using Makie
+fig = Figure()
+ax = Axis(fig[1, 1])
+lines!(Axis(fig[1, 1]), stats)
+# Add horizontal lines
+hlines!(ax, [mean_stat - cl_val, mean_stat + cl_val], color=:red) 
+hlines!(ax, [mean_stat], linestyle=:dash, color=:green) 
+fig
+
+
+
+```
+
+## Compute test statictis based on series of pictures
+
+```{julia}
+data = rand(50, 50)
+
+stat_sop(data; chart_choice=1)
+data = rand(100, 100, 200)
+stat_sop(0.1, data; chart_choice=1, add_noise=false)
+```
+
+## Table A.1
+
+```{julia}
+MN_vec = [(11, 11), (16, 16), (26, 26), (41, 26)];
+```
+
+```{julia}
+results_mat = zeros(4 * 4, 5)
+dgp_vals = [
+    (0.1, 0.1, 0.1);
+    (0.2, 0.2, 0.2);
+    (0.2, 0.2, 0.5);
+    (0.4, 0.3, 0.1)
+]
+
+i = 1
+for (j, mn_tup) in enumerate(MN_vec)
+    M = mn_tup[1]
+    N = mn_tup[2]
+    for alphas in dgp_vals
+        for chart in 1:4
+            cl_sop = ic_sop[j, chart]
+            cl_sacf = ic_sacf_cont[j]
+            sop_dgp = SAR11(alphas, M, N, Normal(0, 1), nothing, 100)
+            res_sop = arl_sop(lam, cl_sop, sop_dgp, reps; chart_choice=chart, d1=1, d2=1)
+            res_sacf = arl_sacf(lam, cl_sacf, sop_dgp, reps)
+            results_mat[i, chart] = res_sop[1]
+            results_mat[i, 5] = res_sacf[1]
+        end
+        i = i + 1
+        println(i)
+    end
+end
+round.(results_mat, digits=2)
+```
+
+## Table A.2 
+
+```{julia}
+
+
+for (i, mn_tup) in enumerate(mn_vec)
+    m = mn_tup[1]
+    n = mn_tup[2]
+    for chart in 1:4
+        cl_sop = ic_sop[i, chart]
+        cl_sacf = ic_sacf_cont[i]
+        sop_dgp = SINAR11((0.1, 0.1, 0.1), m, n, Poisson(5), nothing, 100)
+        res_sop = arl_sop(lam, cl_sop, sop_dgp, reps; chart_choice=chart, d1=1, d2=1)
+        res_sacf = arl_sacf(lam, cl_sacf, sop_dgp, reps)
+        results_mat[i, chart] = res_sop[1]
+        results_mat[i, 5] = res_sacf[1]
+    end
+    #println(i)
+end
+
+sop_dgp = SINAR11((0.1, 0.1, 0.1), 10, 10, Poisson(5), nothing, 100)
+
+```
+
+## Table A.3
+```{julia}
+sop_dgp = SAR11((0.1, 0.1, 0.1), 10, 10, Normal(0, 1), BinomialC(0.1, 10), 100)
+arl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)
+```
+
+## Table A.4
+
+```{julia}
+sop_dgp = SINAR11((0.1, 0.1, 0.1), 10, 10, Poisson(5), PoiBin(0.1, 25), 100)
+arl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)
+```
+
+## Table A.5
+
+
+```{julia}
+sop_dgp = SINAR11((0.1, 0.1, 0.1), 10, 10, ZIP(5, 0.9), nothing, 100)
+arl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)
+```
+
+## Table A.6
+
+```{julia}
+sop_dgp = SQMA11((0.8, 0.8, 0.8), (2, 2, 2), 10, 10, Normal(0, 1), nothing, 1)
+arl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)
+```
+
+## Table A.7
+
+```{julia}
+sop_dgp = SQINMA11((0.8, 0.8, 0.8), (2, 2, 2), 10, 10, Poisson(5), nothing, 1)
+arl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)
+```
+
+## Table A.8
+
+```{julia}
+sop_dgp = SAR1((0.1, 0.1, 0.1, 0.1), 10, 10, Normal(0, 1), nothing, 20)
+arl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)
+```
+
+## Table A.9
+
+```{julia}
+sop_dgp = SAR1((0.1, 0.1, 0.1, 0.1), 10, 10, Normal(0, 1), BinomialCvec(0.1, [-5; 5]), 20)
+arl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)
+```
+
+## Table A.10
+
+```{julia}
+sop_dgp = BSQMA11((0.8, 0.8, 0.8, 0.8), (2, 2, 2, 2), 10, 10, Normal(0, 1), nothing, 1)
+arl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)
+```

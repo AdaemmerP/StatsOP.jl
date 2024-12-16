@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200" viewBox="0 0 200 200">
+<defs>
+<radialGradient id="radial-pattern-0" gradientUnits="userSpaceOnUse" cx="0" cy="4" fx="9.740183" fy="16.693653" r="50" gradientTransform="matrix(3.4, 0, 0, 3.4, 100, 100)">
+<stop offset="0" stop-color="rgb(22%, 59.6%, 14.9%)" stop-opacity="1"/>
+<stop offset="1" stop-color="rgb(0%, 0%, 0%)" stop-opacity="1"/>
+</radialGradient>
+<radialGradient id="radial-pattern-1" gradientUnits="userSpaceOnUse" cx="0" cy="4" fx="-15.863118" fy="6.088419" r="50" gradientTransform="matrix(3.4, 0, 0, 3.4, 100, 100)">
+<stop offset="0" stop-color="rgb(79.6%, 23.5%, 20%)" stop-opacity="1"/>
+<stop offset="1" stop-color="rgb(0%, 0%, 0%)" stop-opacity="1"/>
+</radialGradient>
+<radialGradient id="radial-pattern-2" gradientUnits="userSpaceOnUse" cx="0" cy="4" fx="6.122935" fy="-10.782073" r="50" gradientTransform="matrix(3.4, 0, 0, 3.4, 100, 100)">
+<stop offset="0" stop-color="rgb(58.4%, 34.5%, 69.8%)" stop-opacity="1"/>
+<stop offset="1" stop-color="rgb(0%, 0%, 0%)" stop-opacity="1"/>
+</radialGradient>
+</defs>
+<path fill-rule="nonzero" fill="url(#radial-pattern-0)" d="M 203.121094 159.664062 L 95.558594 215.898438 L 63.199219 153.992188 L 170.761719 97.757812 Z M 191.417969 156.007812 L 167.074219 109.445312 L 74.886719 157.648438 L 99.230469 204.210938 Z M 191.417969 156.007812 "/>
+<path fill-rule="nonzero" fill="url(#radial-pattern-1)" d="M 8.539062 179.875 L 13.617188 58.609375 L 83.414062 61.53125 L 78.335938 182.796875 Z M 17.570312 171.5625 L 70.054688 173.765625 L 74.414062 69.828125 L 21.929688 67.625 Z M 17.570312 171.5625 "/>
+<path fill-rule="nonzero" fill="url(#radial-pattern-2)" d="M 88.339844 1.261719 L 190.824219 66.292969 L 153.386719 125.277344 L 50.902344 60.246094 Z M 91.011719 13.214844 L 62.871094 57.574219 L 150.699219 113.324219 L 178.839844 68.964844 Z M 91.011719 13.214844 "/>
+</svg>

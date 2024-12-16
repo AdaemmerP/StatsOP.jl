@@ -1,0 +1,18 @@
+---
+engine: julia
+julia:
+  exeflags: 
+   - --project=../.
+   - --threads=10
+eval: true  
+---
+
+```{julia}
+using DataFrames
+using DataFramesMeta
+using OrdinalPatterns
+using Dates
+using CSV
+using CategoricalArrays
+using Plots
+```

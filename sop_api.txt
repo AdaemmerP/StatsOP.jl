@@ -1,0 +1,41 @@
+# IC
+ICSOP -> Struct for in-control process, which also contains the 
+number of rows and cols of the SOP matrix. 
+
+arl_sop(
+  lam, 
+  cl, 
+  reps, 
+  chart_choice, 
+  dist::ICSOP
+  )
+
+# Bootstrap 
+arl_sop(
+  lam, 
+  cl, 
+  reps=10_000; 
+  chart_choice, 
+  data::Array{Float64,3}
+  )
+
+# OOC
+arl_sop(
+lam, 
+cl, 
+spatial_dgp,
+reps=10_000; 
+chart_choice,
+d = 1
+)
+
+arl_op(lam, cl, op_dgp, reps=10_000; chart_choice, d=1, ced=false, ad=100)
+
+arl_sop(
+lam, 
+cl, 
+sop_dgp,
+reps=10_000; 
+chart_choice,
+d = 1
+)

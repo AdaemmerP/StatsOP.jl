@@ -69,10 +69,10 @@ end
 
 Compute the frequencies of the spatial ordinal patterns. `n_sops` has to equal 24, as there are 4! = 24 possible patterns when using a 2x2 grid. 
 """
-function sop_frequencies(m::Int, n::Int, lookup_array_sop, n_sops, data, sop)
+function sop_frequencies(m::Int, n::Int, d1::Int, d2::Int, lookup_array_sop, data, sop)
 
   # Creat matrices to fill     
-  freq_sops = zeros(Int, n_sops)
+  freq_sops = zeros(Int, 24)
   win = zeros(Int, 4)
 
   # Loop through data to fill sop vector
@@ -80,9 +80,9 @@ function sop_frequencies(m::Int, n::Int, lookup_array_sop, n_sops, data, sop)
     for i in 1:m
 
       sop[1] = data[i, j]
-      sop[2] = data[i, j+1]
-      sop[3] = data[i+1, j]
-      sop[4] = data[i+1, j+1]
+      sop[2] = data[i, j+d2]
+      sop[3] = data[i+d1, j]
+      sop[4] = data[i+d1, j+d2]
 
       # Order sop vector in-place in win
       order_vec!(sop, win)
@@ -97,28 +97,28 @@ function sop_frequencies(m::Int, n::Int, lookup_array_sop, n_sops, data, sop)
 
 end
 
-#--- Effieicient Function to compute frequencies of sops
-function sop_frequencies!(m, n, lookup_array_sop, data, sop, win, freq_sop)
+#--- Function to compute frequencies of sops
+function sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop_vec, win, sop_freq)
 
   # Loop through data to fill sop vector
   for j in 1:n
     for i in 1:m
 
-      sop[1] = data[i, j]
-      sop[2] = data[i, j+1]
-      sop[3] = data[i+1, j]
-      sop[4] = data[i+1, j+1]
+      sop_vec[1] = data[i, j]
+      sop_vec[2] = data[i, j+d2]
+      sop_vec[3] = data[i+d1, j]
+      sop_vec[4] = data[i+d1, j+d2]
 
-      # Order sop vector in-place in win
-      order_vec!(sop, win)
+      # Order 'sop_vec' in-place and svae results in 'win'
+      order_vec!(sop_vec, win)
       # Get index for relevant pattern
       ind2 = lookup_sop(lookup_array_sop, win)
       # Add 1 to relevant pattern
-      freq_sop[ind2] += 1
+      sop_freq[ind2] += 1
     end
   end
 
-  return freq_sop
+  return sop_freq
 
 end
 
@@ -145,7 +145,7 @@ data = rand(20, 20);
 stat_sop(data, 2)
 ```
 """
-function stat_sop(data::Union{SubArray, Matrix{T}}; chart_choice) where {T<:Real}
+function stat_sop(data::Union{SubArray,Matrix{T}}; chart_choice, d1 =1, d2=2) where {T<:Real}
 
   # Compute 4 dimensional cube to lookup sops
   lookup_array_sop = compute_lookup_array()
@@ -154,11 +154,11 @@ function stat_sop(data::Union{SubArray, Matrix{T}}; chart_choice) where {T<:Real
   n_sops = 24 # factorial(4)
 
   # Compute m and n based on data
-  m = size(data, 1) - 1
-  n = size(data, 2) - 1 
+  m = size(data, 1) - d1
+  n = size(data, 2) - d2
 
   # Compute frequencies of sops
-  freq_sop = sop_frequencies(m, n, lookup_array_sop, n_sops, data, sop)
+  freq_sop = sop_frequencies(m, n, d1, d2, lookup_array_sop, data, sop)
 
   # Compute sum of frequencies for each group
   # The patterns are based on Kim and Weiss (2024), page 3. These are based on the transformed values and not on the ranks
@@ -193,16 +193,15 @@ chart_choice = 2;
 stat_sop(data, false, lam, chart_choice)
 ```
 """
-function stat_sop(lam, data::Array{T, 3}; chart_choice, add_noise) where {T<:Real}       
+function stat_sop(lam, data::Array{T,3}; chart_choice, add_noise, d1=1, d2=1) where {T<:Real}
 
   # Compute 4 dimensional cube to lookup sops
   lookup_array_sop = compute_lookup_array()
   p_hat = zeros(3)
   sop = zeros(4)
-  n_sops = 24 # factorial(4)
   p_ewma = repeat([1.0 / 3.0], 3)
   stats_all = zeros(size(data, 3))
-  freq_sop = zeros(Int, n_sops)
+  sop_freq = zeros(Int, 24) # factorial(4)
   win = zeros(Int, 4)
 
   # Pre-allocate indexes to compute sum of frequencies
@@ -222,21 +221,22 @@ function stat_sop(lam, data::Array{T, 3}; chart_choice, add_noise) where {T<:Rea
       data_tmp = data[:, :, i]
     end
 
-    # Compute frequencies of sops
-    sop_frequencies!(m, n, lookup_array_sop, data_tmp, sop, win, freq_sop)
+    # Compute frequencies of sops    
+    sop_frequencies!(m, n, d1, d2, lookup_array_sop, data_tmp, sop, win, sop_freq)
+    # sop_frequencies!(m, n,       lookup_array_sop, data_tmp, sop, win, freq_sop)
 
     # Compute sum of frequencies for each group
-    #@views p_hat[1] = sum(freq_sop[[1, 3, 8, 11, 14, 17, 22, 24]])
+    #@views p_hat[1] = sum(sop_freq[[1, 3, 8, 11, 14, 17, 22, 24]])
     for i in s_1
-      p_hat[1] += freq_sop[i] 
+      p_hat[1] += sop_freq[i]
     end
-    #@views p_hat[2] = sum(freq_sop[[2, 5, 7, 9, 16, 18, 20, 23]])
+    #@views p_hat[2] = sum(sop_freq[[2, 5, 7, 9, 16, 18, 20, 23]])
     for i in s_2
-      p_hat[2] += freq_sop[i] 
+      p_hat[2] += sop_freq[i]
     end
-    #@views p_hat[3] = sum(freq_sop[[4, 6, 10, 12, 13, 15, 19, 21]])
+    #@views p_hat[3] = sum(sop_freq[[4, 6, 10, 12, 13, 15, 19, 21]])
     for i in s_3
-      p_hat[3] += freq_sop[i] 
+      p_hat[3] += sop_freq[i]
     end
     p_hat ./= m * n
 
@@ -248,9 +248,10 @@ function stat_sop(lam, data::Array{T, 3}; chart_choice, add_noise) where {T<:Rea
     # Save temporary test statistic
     stats_all[i] = stat_tmp
 
-    # Reset win and freq_sop
+    # Reset win and sop_freq
     fill!(win, 0)
-    fill!(freq_sop, 0)
+    fill!(sop_freq, 0)
+    fill!(p_hat, 0)
 
   end
 
@@ -279,11 +280,11 @@ Function to compute the average run length (ARL) for a given control-limit and i
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 - `d::Int` An integer value for the embedding dimension. The default value is 1.
 """
-function arl_sop(lam, cl, sop_dgp::ICSP, reps=10_000; chart_choice, d=1)     
+function arl_sop(lam, cl, sop_dgp::ICSP, reps=10_000; chart_choice, d1=1, d2=1)
 
   # Extract values
-  m = sop_dgp.m_rows
-  n = sop_dgp.n_cols
+  m = sop_dgp.M_rows - d1
+  n = sop_dgp.N_cols - d2
   dist = sop_dgp.dist
 
   # Compute lookup array and number of sops
@@ -297,8 +298,8 @@ function arl_sop(lam, cl, sop_dgp::ICSP, reps=10_000; chart_choice, d=1)
 
     # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
     par_results = map(chunks) do i
-      Threads.@spawn rl_sop(m, n, lookup_array_sop, lam, cl, i, chart_choice, dist)
-
+      Threads.@spawn rl_sop(lam, cl, lookup_array_sop, i, dist, chart_choice, m, n, d1, d2)
+      #rl_sop(m, n, lookup_array_sop, lam, cl, i, chart_choice, dist)
     end
 
   elseif nprocs() > 1
@@ -307,7 +308,8 @@ function arl_sop(lam, cl, sop_dgp::ICSP, reps=10_000; chart_choice, d=1)
     chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
 
     par_results = pmap(chunks) do i
-      rl_sop(m, n, lookup_array_sop, lam, cl, i, chart_choice, dist)
+      rl_sop(lam, cl, lookup_array_sop, i, dist, chart_choice, m, n, d1, d2)
+      #rl_sop(m, n, lookup_array_sop, lam, cl, i, chart_choice, dist)
     end
 
   end
@@ -330,12 +332,10 @@ Function to compute the average run length (ARL) using a bootstraping approach. 
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 - `p_mat::Array{Float64, 3}`: A 3D array with the data. The data has to be in the form of a 3D array.
 """
-function arl_sop(lam, cl, data::Array{Float64,3}, reps=10_000; chart_choice, d=1)
-  
-   # arl_sop(lam, cl, reps, chart_choice, data::Array{Float64,3})
-           
+function arl_sop(lam, cl, p_mat::Matrix{Float64}, reps=10_000; chart_choice)
+
   # Compute p_mat to sample from for bootstraping
-  p_mat = compute_p_mat(data)
+  # p_mat = compute_p_mat(data; d1=d1, d2=d2)
 
   # Check whether to use threading or multi processing --> only one process threading, else distributed
   if nprocs() == 1
@@ -354,7 +354,7 @@ function arl_sop(lam, cl, data::Array{Float64,3}, reps=10_000; chart_choice, d=1
     chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
 
     par_results = pmap(chunks) do i
-      rl_sop(lam, cl, i, chart_choice, p_mat)
+        rl_sop(lam, cl, i, chart_choice, p_mat)
     end
 
   end
@@ -378,11 +378,11 @@ Function to compute the average run length (ARL) for a given out-of-control DGP.
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 - `d::Int` An integer value for the embedding dimension. The default value is 1.
 """
-function arl_sop(lam, cl, spatial_dgp, reps = 10_000; chart_choice, d = 1)
+function arl_sop(lam, cl, spatial_dgp, reps=10_000; chart_choice, d1=1, d2=1)
 
   # Compute m and n
-  m_rows = spatial_dgp.m_rows
-  n_cols = spatial_dgp.n_cols
+  m_rows = spatial_dgp.M_rows - d1
+  n_cols = spatial_dgp.N_cols - d2
   dist_error = spatial_dgp.dist
   dist_ao = spatial_dgp.dist_ao
 
@@ -394,14 +394,18 @@ function arl_sop(lam, cl, spatial_dgp, reps = 10_000; chart_choice, d = 1)
     # Make chunks for separate tasks        
     chunks = Iterators.partition(1:reps, div(reps, Threads.nthreads())) #|> collect
     # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
-    par_results = map(chunks) do i  
-      Threads.@spawn rl_sop(m_rows, n_cols, lookup_array_sop, lam, cl, i, chart_choice, spatial_dgp, dist_error, dist_ao)
+    par_results = map(chunks) do i
+      
+      Threads.@spawn rl_sop(lam, cl, lookup_array_sop, i, spatial_dgp, dist_error, dist_ao, chart_choice, m_rows, n_cols, d1, d2)
+      
     end
 
   elseif nprocs() > 1 # Multi Processing
     chunks = Iterators.partition(1:reps, div(reps, nworkers())) #|> collect
-    par_results = pmap(chunks) do i  
-      rl_sop(m_rows, n_cols, lookup_array_sop, lam, cl, i, chart_choice, spatial_dgp, dist_error, dist_ao)
+    par_results = pmap(chunks) do i
+
+      rl_sop(lam, cl, lookup_array_sop, i, spatial_dgp, dist_error, dist_ao, chart_choice, m_rows, n_cols, d1, d2)
+
     end
 
   end
@@ -435,17 +439,18 @@ A function to compute the run length for a given control limit and in-control di
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 - `dist::Distribution`: A distribution for the in-control data. Here you can use any univariate distribution from the `Distributions.jl` package.
 """
-function rl_sop(m, n, lookup_array_sop, lam, cl, reps_range, chart_choice, dist)
+function rl_sop(lam, cl, lookup_array_sop, reps_range, dist, chart_choice, m, n, d1, d2)
+
+  #rl_sop(m, n, lookup_array_sop, lam, cl, reps_range, chart_choice, dist)
 
   # Pre-allocate
-  n_sops = 24 # factorial(4)
-  freq_sop = zeros(Int, n_sops)
+  freq_sop = zeros(Int, 24) # factorial(4)
   win = zeros(Int, 4)
-  data_tmp = zeros(m+1, n+1) #empty_data(m, n, dist)
+  data_tmp = zeros(m + d1, n + d2)
   p_ewma = zeros(3)
   p_hat = zeros(3)
   rls = zeros(Int, length(reps_range))
-  sop = zeros(4)
+  sop_vec = zeros(4)
 
   # Pre-allocate indexes to compute sum of frequencies
   s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
@@ -474,20 +479,21 @@ function rl_sop(m, n, lookup_array_sop, lam, cl, reps_range, chart_choice, dist)
       end
 
       # Compute frequencies of SOPs
-      sop_frequencies!(m, n, lookup_array_sop, data_tmp, sop, win, freq_sop)
+      sop_frequencies!(m, n, d1, d2, lookup_array_sop, data_tmp, sop_vec, win, freq_sop)
+      #sop_frequencies!(m, n, lookup_array_sop, data_tmp, sop, win, freq_sop)
 
       #@views p_hat[1] = sum(freq_sop[[1, 3, 8, 11, 14, 17, 22, 24]])
-       for i in s_1
-         p_hat[1] += freq_sop[i] 
-       end
+      for i in s_1
+        p_hat[1] += freq_sop[i]
+      end
       #@views p_hat[2] = sum(freq_sop[[2, 5, 7, 9, 16, 18, 20, 23]])
-       for i in s_2
-         p_hat[2] += freq_sop[i] 
-       end
+      for i in s_2
+        p_hat[2] += freq_sop[i]
+      end
       #@views p_hat[3] = sum(freq_sop[[4, 6, 10, 12, 13, 15, 19, 21]])
-       for i in s_3
-         p_hat[3] += freq_sop[i] 
-       end
+      for i in s_3
+        p_hat[3] += freq_sop[i]
+      end
       p_hat ./= m * n # Divide each element of p_hat by m*n
 
       @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
@@ -571,13 +577,15 @@ Computes the run length for a given out-of-control DGP. The input parameters are
 - `dist_error::Distribution`: A distribution for the error term. Here you can use any univariate distribution from the `Distributions.jl` package.
 - `dist_ao::Distribution`: A distribution for the out-of-control data. Here you can use any univariate distribution from the `Distributions.jl` package.
 """
-function rl_sop(m::Int, n::Int, lookup_array_sop, lam, cl, p_reps::UnitRange, chart_choice, spatial_dgp, dist_error::UnivariateDistribution, dist_ao::Union{Nothing, UnivariateDistribution})
+function rl_sop(lam, cl, lookup_array_sop, p_reps, spatial_dgp, dist_error::UnivariateDistribution, dist_ao::Union{Nothing,UnivariateDistribution}, chart_choice, m, n, d1, d2)
+  
+  #rl_sop(m::Int, n::Int, lookup_array_sop, lam, cl, p_reps::UnitRange, chart_choice, spatial_dgp, dist_error::UnivariateDistribution, dist_ao::Union{Nothing,UnivariateDistribution})
 
   # pre-allocate
   n_sops = 24 # factorial(4)
   freq_sop = zeros(Int, n_sops)
   win = zeros(Int, 4)
-  data = zeros(m + 1, n + 1)
+  data = zeros(m + d1, n + d2)
   p_ewma = zeros(3)
   p_hat = zeros(3)
   rls = zeros(Int, length(p_reps))
@@ -592,7 +600,7 @@ function rl_sop(m::Int, n::Int, lookup_array_sop, lam, cl, p_reps::UnitRange, ch
   if spatial_dgp isa SAR1
     mat = build_sar1_matrix(spatial_dgp) # will be done only once
     mat_ao = zeros((m + 1 + 2 * spatial_dgp.margin), (n + 1 + 2 * spatial_dgp.margin))
-    vec_ar = zeros((m + 1 + 2 * spatial_dgp.margin) * (n + 1 + 2 * spatial_dgp.margin)) 
+    vec_ar = zeros((m + 1 + 2 * spatial_dgp.margin) * (n + 1 + 2 * spatial_dgp.margin))
     vec_ar2 = similar(vec_ar)
   elseif spatial_dgp isa BSQMA11
     mat = zeros(m + spatial_dgp.prerun + 1, n + spatial_dgp.prerun + 1)
@@ -639,19 +647,19 @@ function rl_sop(m::Int, n::Int, lookup_array_sop, lam, cl, p_reps::UnitRange, ch
       end
 
       # Compute sum of frequencies for each pattern group
-      sop_frequencies!(m, n, lookup_array_sop, data, sop, win, freq_sop)
+      sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, freq_sop)
 
       #@views p_hat[1] = sum(freq_sop[[1, 3, 8, 11, 14, 17, 22, 24]])
       for i in s_1
-        p_hat[1] += freq_sop[i] 
+        p_hat[1] += freq_sop[i]
       end
       #@views p_hat[2] = sum(freq_sop[[2, 5, 7, 9, 16, 18, 20, 23]])
       for i in s_2
-        p_hat[2] += freq_sop[i] 
+        p_hat[2] += freq_sop[i]
       end
       #@views p_hat[3] = sum(freq_sop[[4, 6, 10, 12, 13, 15, 19, 21]])
       for i in s_3
-        p_hat[3] += freq_sop[i] 
+        p_hat[3] += freq_sop[i]
       end
       p_hat ./= m * n # Divide each element of p_hat by m*n
 
@@ -711,13 +719,13 @@ d = 1
 cl_sop(lam, L0, sop_dgp, cl_init, reps; chart_choice, jmin, jmax, verbose, d)
 ```
 """
-function cl_sop(lam, L0, sop_dgp::ICSP, cl_init, reps=10_000; chart_choice, jmin=4, jmax=6, verbose=false, d=1)
+function cl_sop(lam, L0, sop_dgp::ICSP, cl_init, reps=10_000; chart_choice, jmin=4, jmax=6, verbose=false, d1=1, d2=1)
 
   L1 = zeros(2)
   ii = Int
   if cl_init == 0
     for i in 1:50
-      L1 = arl_sop(lam,  i / 50, sop_dgp, reps; chart_choice, d=d)
+      L1 = arl_sop(lam, i / 50, sop_dgp, reps; chart_choice, d1=1, d2=1)
       if verbose
         println("cl = ", i / 50, "\t", "ARL = ", L1[1])
       end
@@ -733,7 +741,7 @@ function cl_sop(lam, L0, sop_dgp::ICSP, cl_init, reps=10_000; chart_choice, jmin
     for dh in 1:40
       #println("j: $j, dh: $dh")
       cl_init = cl_init + (-1)^j * dh / 10^j
-      L1 = arl_sop(lam, cl_init, sop_dgp, reps; chart_choice, d=d) 
+      L1 = arl_sop(lam, cl_init, sop_dgp, reps; chart_choice, d1=d1, d2=d2)
       if verbose
         println("cl = ", cl_init, "\t", "ARL = ", L1[1])
       end
@@ -755,17 +763,16 @@ end
 
 Compute the matrix of p-hat values for a given 3D array of data. These values are used for bootstrapping. 
 """
-function compute_p_mat(data::Array{Float64,3})
+function compute_p_mat(data::Array{Float64,3}; d1=1, d2=1)
 
   # pre-allocate
-  m = size(data, 1) - 1
-  n = size(data, 2) - 1
+  m = size(data, 1) - d1
+  n = size(data, 2) - d2
   lookup_array_sop = compute_lookup_array()
-  n_sops = 24 # factorial(4)
   p_mat = zeros(size(data, 3), 3)
   p_hat = zeros(1, 3)
   sop = zeros(4)
-  freq_sop = zeros(Int, n_sops)
+  freq_sop = zeros(Int, 24)
   win = zeros(Int, 4)
 
   # pre-allocate indexes to compute sum of frequencies
@@ -778,20 +785,20 @@ function compute_p_mat(data::Array{Float64,3})
 
     # Compute frequencies of sops
     @views data_tmp = data[:, :, i]
-    sop_frequencies!(m, n, lookup_array_sop, data_tmp, sop, win, freq_sop)
+    sop_frequencies!(m, n, d1, d2, lookup_array_sop, data_tmp, sop, win, freq_sop)
 
     # Compute sum of frequencies for each group
     # @views p_hat[1] = sum(freq_sop[[1, 3, 8, 11, 14, 17, 22, 24]])
     for i in s_1
-      p_hat[1] += freq_sop[i] 
+      p_hat[1] += freq_sop[i]
     end
     # @views p_hat[2] = sum(freq_sop[[2, 5, 7, 9, 16, 18, 20, 23]])
     for i in s_2
-      p_hat[2] += freq_sop[i] 
+      p_hat[2] += freq_sop[i]
     end
     # @views p_hat[3] = sum(freq_sop[[4, 6, 10, 12, 13, 15, 19, 21]])
     for i in s_3
-      p_hat[3] += freq_sop[i] 
+      p_hat[3] += freq_sop[i]
     end
     p_hat ./= m * n
 
@@ -807,16 +814,20 @@ function compute_p_mat(data::Array{Float64,3})
 end
 
 #--- Function to critical run length for SOP based on bootstraping
-function  cl_sop(lam, L0, data::Array{T,3}, cl_init, reps=10_000; chart_choice, jmin=4, jmax=6, verbose=false, d=1) where {T<:Real}      
+function cl_sop(lam, L0, p_mat, cl_init, reps=10_000; chart_choice, 
+                jmin=4, jmax=6, verbose=false, d1=1, d2=1) 
 
   # Compute p_mat based on data
-  p_mat = compute_p_mat(data)
-
+  # p_mat = compute_p_mat(data)
+  
   L1 = zeros(2)
   ii = Int
   if cl_init == 0
     for i in 1:50
-      L1 = arl_sop(lam, i / 50, data, reps; chart_choice, d=d) # arl_sop(lam, i / 50, reps, chart_choice, p_mat)
+      L1 = arl_sop(lam, i / 50, p_mat, reps; chart_choice)
+      # arl_sop(lam, i / 50, data, reps; chart_choice, d1=d1, d2=d2)       
+      # arl_sop(lam, i / 50, reps, chart_choice, p_mat)          
+
       if verbose
         println("cl = ", i / 50, "\t", "ARL = ", L1[1])
       end
@@ -832,7 +843,8 @@ function  cl_sop(lam, L0, data::Array{T,3}, cl_init, reps=10_000; chart_choice, 
     for dh in 1:40
       #println("j: $j, dh: $dh")
       cl_init = cl_init + (-1)^j * dh / 10^j
-      L1 = arl_sop(lam, cl_init, data, reps; chart_choice, d=d) # arl_sop(lam, cl_init, reps, chart_choice, p_mat)
+      L1 =  arl_sop(lam, cl_init, p_mat, reps; chart_choice) 
+      #arl_sop(lam, cl_init, data, reps; chart_choice, d1=d1, d2=d2) # arl_sop(lam, cl_init, reps, chart_choice, p_mat)
       if verbose
         println("cl = ", cl_init, "\t", "ARL = ", L1[1])
       end
