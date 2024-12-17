@@ -221,20 +221,25 @@ function stat_sop(lam, data::Array{T,3}; chart_choice, add_noise, d1=1, d2=1) wh
     sop_frequencies!(m, n, d1, d2, lookup_array_sop, data_tmp, sop, win, sop_freq)
 
     # Compute sum of frequencies for each group
-    #@views p_hat[1] = sum(sop_freq[[1, 3, 8, 11, 14, 17, 22, 24]])
-    for i in s_1
-      p_hat[1] += sop_freq[i]
+    if chart_choice in (1, 4) # Only need to compute for chart 1 and 4
+      for i in s_1
+        p_hat[1] += sop_freq[i]
+      end
     end
 
-    #@views p_hat[2] = sum(sop_freq[[2, 5, 7, 9, 16, 18, 20, 23]])
-    for i in s_2
-      p_hat[2] += sop_freq[i]
+    if chart_choice in (2, 4) # Only need to compute for chart 2 and 4 
+      for i in s_2
+        p_hat[2] += sop_freq[i]
+      end
     end
 
-    #@views p_hat[3] = sum(sop_freq[[4, 6, 10, 12, 13, 15, 19, 21]])
-    for i in s_3
-      p_hat[3] += sop_freq[i]
+    if chart_choice in (2, 3) # Only need to compute for chart 2 and 3
+      for i in s_3
+        p_hat[3] += sop_freq[i]
+      end
     end
+
+    # Compute relative frequencies
     p_hat ./= m * n
 
     # Compute test statistic
@@ -296,7 +301,6 @@ function arl_sop(lam, cl, sop_dgp::ICSP, reps=10_000; chart_choice, d1=1, d2=1)
     # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
     par_results = map(chunks) do i
       Threads.@spawn rl_sop(lam, cl, lookup_array_sop, i, dist, chart_choice, m, n, d1, d2)
-      #rl_sop(m, n, lookup_array_sop, lam, cl, i, chart_choice, dist)
     end
 
   elseif nprocs() > 1
@@ -306,7 +310,6 @@ function arl_sop(lam, cl, sop_dgp::ICSP, reps=10_000; chart_choice, d1=1, d2=1)
 
     par_results = pmap(chunks) do i
       rl_sop(lam, cl, lookup_array_sop, i, dist, chart_choice, m, n, d1, d2)
-      #rl_sop(m, n, lookup_array_sop, lam, cl, i, chart_choice, dist)
     end
 
   end
@@ -474,19 +477,27 @@ function rl_sop(lam, cl, lookup_array_sop, reps_range, dist, chart_choice, m, n,
       # Compute frequencies of SOPs
       sop_frequencies!(m, n, d1, d2, lookup_array_sop, data_tmp, sop_vec, win, freq_sop)
 
-      #@views p_hat[1] = sum(freq_sop[[1, 3, 8, 11, 14, 17, 22, 24]])
-      for i in s_1
-        p_hat[1] += freq_sop[i]
+      # Compute sum of frequencies for each group
+      if chart_choice in (1, 4) # Only need to compute for chart 1 and 4
+        for i in s_1
+          p_hat[1] += sop_freq[i]
+        end
       end
-      #@views p_hat[2] = sum(freq_sop[[2, 5, 7, 9, 16, 18, 20, 23]])
-      for i in s_2
-        p_hat[2] += freq_sop[i]
+
+      if chart_choice in (2, 4) # Only need to compute for chart 2 and 4 
+        for i in s_2
+          p_hat[2] += sop_freq[i]
+        end
       end
-      #@views p_hat[3] = sum(freq_sop[[4, 6, 10, 12, 13, 15, 19, 21]])
-      for i in s_3
-        p_hat[3] += freq_sop[i]
+
+      if chart_choice in (2, 3) # Only need to compute for chart 2 and 3
+        for i in s_3
+          p_hat[3] += sop_freq[i]
+        end
       end
-      p_hat ./= m * n # Divide each element of p_hat by m*n
+
+      # Compute relative frequencies
+      p_hat ./= m * n
 
       @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
 
@@ -783,22 +794,27 @@ function compute_p_mat(data::Array{Float64,3}; d1=1, d2=1)
     @views data_tmp = data[:, :, i]
     sop_frequencies!(m, n, d1, d2, lookup_array_sop, data_tmp, sop, win, freq_sop)
 
-    # Compute sum of frequencies for each group
-    # @views p_hat[1] = sum(freq_sop[[1, 3, 8, 11, 14, 17, 22, 24]])
-    for i in s_1
-      p_hat[1] += freq_sop[i]
-    end
-
-    # @views p_hat[2] = sum(freq_sop[[2, 5, 7, 9, 16, 18, 20, 23]])
-    for i in s_2
-      p_hat[2] += freq_sop[i]
-    end
-
-    # @views p_hat[3] = sum(freq_sop[[4, 6, 10, 12, 13, 15, 19, 21]])
-    for i in s_3
-      p_hat[3] += freq_sop[i]
-    end
-    p_hat ./= m * n
+      # Compute sum of frequencies for each group
+      if chart_choice in (1, 4) # Only need to compute for chart 1 and 4
+        for i in s_1
+          p_hat[1] += sop_freq[i]
+        end
+      end
+  
+      if chart_choice in (2, 4) # Only need to compute for chart 2 and 4 
+        for i in s_2
+          p_hat[2] += sop_freq[i]
+        end
+      end
+  
+      if chart_choice in (2, 3) # Only need to compute for chart 2 and 3
+        for i in s_3
+          p_hat[3] += sop_freq[i]
+        end
+      end
+  
+      # Compute relative frequencies
+      p_hat ./= m * n
 
     p_mat[i, :] = p_hat
 
