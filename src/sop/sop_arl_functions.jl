@@ -62,9 +62,9 @@ end
 
 
 """
-    sop_frequencies(m::Int, n::Int, lookup_array_sop, n_sops, data, sop)
+    sop_frequencies(m::Int, n::Int, lookup_array_sop, data, sop)
 
-Compute the frequencies of the spatial ordinal patterns. `n_sops` has to equal 24, as there are 4! = 24 possible patterns when using a 2x2 grid. 
+Compute the frequencies of the spatial ordinal patterns. 
 """
 function sop_frequencies(m::Int, n::Int, d1::Int, d2::Int, lookup_array_sop, data, sop)
 
@@ -148,7 +148,6 @@ function stat_sop(data::Union{SubArray,Matrix{T}}; chart_choice, d1=1, d2=2) whe
   lookup_array_sop = compute_lookup_array()
   p_hat = zeros(3)
   sop = zeros(4)
-  n_sops = 24 # factorial(4)
 
   # Compute m and n based on data
   m = size(data, 1) - d1
@@ -437,7 +436,7 @@ A function to compute the run length for a given control limit and in-control di
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 - `dist::Distribution`: A distribution for the in-control data. Here you can use any univariate distribution from the `Distributions.jl` package.
 """
-function rl_sop(lam, cl, lookup_array_sop, reps_range, dist, chart_choice, m, n, d1, d2)
+function rl_sop(lam, cl, lookup_array_sop, reps_range, dist, chart_choice, m, n, d1::Int, d2::Int)
 
   # Pre-allocate
   freq_sop = zeros(Int, 24) # factorial(4)
@@ -580,11 +579,10 @@ Computes the run length for a given out-of-control DGP. The input parameters are
 - `dist_error::Distribution`: A distribution for the error term. Here you can use any univariate distribution from the `Distributions.jl` package.
 - `dist_ao::Distribution`: A distribution for the out-of-control data. Here you can use any univariate distribution from the `Distributions.jl` package.
 """
-function rl_sop(lam, cl, lookup_array_sop, p_reps, spatial_dgp, dist_error::UnivariateDistribution, dist_ao::Union{Nothing,UnivariateDistribution}, chart_choice, m, n, d1, d2)
+function rl_sop(lam, cl, lookup_array_sop, p_reps, spatial_dgp, dist_error::UnivariateDistribution, dist_ao::Union{Nothing,UnivariateDistribution}, chart_choice, m, n, d1::Int, d2::Int)
 
   # pre-allocate
-  n_sops = 24 # factorial(4)
-  freq_sop = zeros(Int, n_sops)
+  freq_sop = zeros(Int, 24) # factorial(4)
   win = zeros(Int, 4)
   data = zeros(m + d1, n + d2)
   p_ewma = zeros(3)
@@ -655,21 +653,27 @@ function rl_sop(lam, cl, lookup_array_sop, p_reps, spatial_dgp, dist_error::Univ
       # Compute sum of frequencies for each pattern group
       sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, freq_sop)
 
-      #@views p_hat[1] = sum(freq_sop[[1, 3, 8, 11, 14, 17, 22, 24]])
-      for i in s_1
-        p_hat[1] += freq_sop[i]
+      # Compute sum of frequencies for each group
+      if chart_choice in (1, 4) # Only need to compute for chart 1 and 4
+        for i in s_1
+          p_hat[1] += sop_freq[i]
+        end
       end
 
-      #@views p_hat[2] = sum(freq_sop[[2, 5, 7, 9, 16, 18, 20, 23]])
-      for i in s_2
-        p_hat[2] += freq_sop[i]
+      if chart_choice in (2, 4) # Only need to compute for chart 2 and 4 
+        for i in s_2
+          p_hat[2] += sop_freq[i]
+        end
       end
 
-      #@views p_hat[3] = sum(freq_sop[[4, 6, 10, 12, 13, 15, 19, 21]])
-      for i in s_3
-        p_hat[3] += freq_sop[i]
+      if chart_choice in (2, 3) # Only need to compute for chart 2 and 3
+        for i in s_3
+          p_hat[3] += sop_freq[i]
+        end
       end
-      p_hat ./= m * n # Divide each element of p_hat by m*n
+
+      # Compute relative frequencies
+      p_hat ./= m * n
 
       @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
 
@@ -794,27 +798,27 @@ function compute_p_mat(data::Array{Float64,3}; d1=1, d2=1)
     @views data_tmp = data[:, :, i]
     sop_frequencies!(m, n, d1, d2, lookup_array_sop, data_tmp, sop, win, freq_sop)
 
-      # Compute sum of frequencies for each group
-      if chart_choice in (1, 4) # Only need to compute for chart 1 and 4
-        for i in s_1
-          p_hat[1] += sop_freq[i]
-        end
+    # Compute sum of frequencies for each group
+    if chart_choice in (1, 4) # Only need to compute for chart 1 and 4
+      for i in s_1
+        p_hat[1] += sop_freq[i]
       end
-  
-      if chart_choice in (2, 4) # Only need to compute for chart 2 and 4 
-        for i in s_2
-          p_hat[2] += sop_freq[i]
-        end
+    end
+
+    if chart_choice in (2, 4) # Only need to compute for chart 2 and 4 
+      for i in s_2
+        p_hat[2] += sop_freq[i]
       end
-  
-      if chart_choice in (2, 3) # Only need to compute for chart 2 and 3
-        for i in s_3
-          p_hat[3] += sop_freq[i]
-        end
+    end
+
+    if chart_choice in (2, 3) # Only need to compute for chart 2 and 3
+      for i in s_3
+        p_hat[3] += sop_freq[i]
       end
-  
-      # Compute relative frequencies
-      p_hat ./= m * n
+    end
+
+    # Compute relative frequencies
+    p_hat ./= m * n
 
     p_mat[i, :] = p_hat
 
@@ -873,8 +877,7 @@ function init_vals_sop(m, n, lam, chart_choice, dist, runs, p_quantile)
 
   # Pre-allocate
   lookup_array_sop = compute_lookup_array()
-  n_sops = 24 # factorial(4)
-  freq_sop = zeros(n_sops)
+  freq_sop = zeros(24)
   win = zeros(Int, 4)
   data = zeros(m + 1, n + 1)
   p_ewma = zeros(3)
