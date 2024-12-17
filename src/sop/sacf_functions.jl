@@ -1,33 +1,76 @@
+
+# ---------------------------------------------------------------------------#
+# --------------------------- SACF for lags 1, 1 --------------------------- #
+# ---------------------------------------------------------------------------#
+
+# """
+#     sacf_11(data, cdata, cx_t_cx_t1, cdata_sq)
+
+# Compute the spatial autocorrelation function (SACF) for a given matrix `data`. The function returns the SACF for the first lag (ρ(1, 1)). The input arguments are:
+
+# - `data`: A matrix of size M x N.
+# - `cdata`: A matrix of size M x N to store the demeaned data.
+# - `cx_t_cx_t1`: A matrix of size M x N to store the element-wise multiplication of the current and lagged data.
+
+# """
+# function sacf_11(data, cdata, cx_t_cx_t1, cdata_sq)
+
+#   # sizes and demeaned data
+#   M = size(data, 1)
+#   N = size(data, 2)
+#   x_bar = mean(data)
+#   cdata .= data .- x_bar
+
+#   # slices and multiplications
+#   @views cx_t = cdata[2:M, 2:N]
+#   @views cx_t1 = cdata[1:(M-1), 1:(N-1)]
+#   cx_t_cx_t1 .= cx_t .* cx_t1
+#   cdata_sq .= cdata .^ 2
+
+#   # return ρ(1, 1)
+#   if allequal(data)
+#     return 0.0
+#   else
+#     return sum(cx_t_cx_t1) / (sum(cdata_sq))
+#   end
+# end
+
+
 """
-    sacf_11(data, cdata, cx_t_cx_t1, cdata_sq)
+    sacf(data, cdata, covs, d1::Int=5, d2::Int=5)
 
-Compute the spatial autocorrelation function (SACF) for a given matrix `data`. The function returns the SACF for the first lag (ρ(1, 1)). The input arguments are:
-
-- `data`: A matrix of size M x N.
-- `cdata`: A matrix of size M x N to store the demeaned data.
-- `cx_t_cx_t1`: A matrix of size M x N to store the element-wise multiplication of the current and lagged data.
-
+- `data`: The picture matrix.
+- `cdata`: A matrix store the demeaned data. Has to  be the same size as `data`.
+- `covs`: A matrix to store the covariance products. Has to be of size `(d1 + 1) x (d2 + 1)`.
+- `d1::Int`: The number of row delays to consider for the SACF. The default is one.
+- `d2::Int`: The number of column delays to consider for the SACF. The default is one.    
 """
-function sacf_11(data, cdata, cx_t_cx_t1, cdata_sq)
+# Spatial ACF 
+function sacf(data, cdata, covs, d1::Int=1, d2::Int=1)
 
-  # sizes and demeaned data
-  M = size(data, 1)
-  N = size(data, 2)
-  x_bar = mean(data)
-  cdata .= data .- x_bar
+  cdata .= data .- mean(data)
+  M = size(cdata, 1)
+  N = size(cdata, 2)
 
-  # slices and multiplications
-  @views cx_t = cdata[2:M, 2:N]
-  @views cx_t1 = cdata[1:(M-1), 1:(N-1)]
-  cx_t_cx_t1 .= cx_t .* cx_t1
-  cdata_sq .= cdata .^ 2
-
-  # return ρ(1, 1)
-  if allequal(data)
-    return 0
-  else
-    return sum(cx_t_cx_t1) / (sum(cdata_sq))
+  # Loop to compute all covariance products
+  for k in 0:d2 # loop over columns
+    for l in 0:d1 # loop over rows     
+      for j in 1:(N-l) # loop over columns
+        for i in 1:(M-k) # loop over rows
+          covs[l+1, k+1] += cdata[i+k, j+l] * cdata[i, j]
+        end
+      end
+    end
   end
+
+  # Normalize by the number of elements
+  covs .= covs ./ (M * N)
+
+  # Compute the SACF value
+  sacf_val = covs[1+d1, 1+d2] / covs[1, 1]
+
+  # Return the SACF value
+  #return sacf_val
 end
 
 
@@ -57,15 +100,17 @@ dist_error = Normal(0, 1)
 rls = rl_sacf(m, n, lam, cl, p_reps, dist_error)
 ```
 """
-function rl_sacf(m::Int, n::Int, lam, cl, p_reps::UnitRange, dist_error::UnivariateDistribution)
+function rl_sacf(m::Int, n::Int, d1::Int, d2::Int,
+  lam, cl, p_reps::UnitRange, dist_error::UnivariateDistribution)
 
   # pre-allocate
-  data = zeros(m + 1, n + 1)
+  data = zeros(m + d1, n + d2)
+  cdata = similar(data)
+  covs = zeros(d1 + 1, d2 + 1) # '+1' to include the zero lag
   rls = zeros(Int, length(p_reps))
 
-  cdata = zeros(m + 1, n + 1)
-  cdata_sq = similar(cdata)
-  cx_t_cx_t1 = zeros(m, n)
+  #cdata_sq = similar(cdata)
+  #cx_t_cx_t1 = zeros(m, n)
 
   for r in 1:length(p_reps)
 
@@ -78,8 +123,9 @@ function rl_sacf(m::Int, n::Int, lam, cl, p_reps::UnitRange, dist_error::Univari
       # fill matrix with iid N(0,1) values
       rand!(dist_error, data)
 
-      # compute ρ(1,1)-EWMA
-      p_hat = (1 - lam) * p_hat + lam * sacf_11(data, cdata, cx_t_cx_t1, cdata_sq)
+      # compute ρ(d1,d2)-EWMA
+      p_hat = (1 - lam) * p_hat + lam * sacf(data, cdata, covs, d1, d2)
+      # p_hat = (1 - lam) * p_hat + lam * sacf_11(data, cdata, cx_t_cx_t1, cdata_sq)
 
     end
 
@@ -121,28 +167,30 @@ dist_ao = nothing
 rls = rl_sacf(m, n, lam, cl, p_reps, spatial_dgp, dist_error, dist_ao)
 ```
 """
-function rl_sacf(m::Int, n::Int, lam, cl, p_reps::UnitRange, spatial_dgp, dist_error::UnivariateDistribution, dist_ao::Union{UnivariateDistribution,Nothing})
+function rl_sacf(m::Int, n::Int, d1::Int, d2::Int, lam, cl,
+  p_reps::UnitRange, spatial_dgp::SpatialDGP, dist_error::UnivariateDistribution, dist_ao::Union{UnivariateDistribution,Nothing})
 
   # pre-allocate
-  data = zeros(m + 1, n + 1)
+  data = zeros(m + d1, n + d2)
+  cdata = similar(data)
+  covs = zeros(d1 + 1, d2 + 1) # '+1' to include the zero lag
   rls = zeros(Int, length(p_reps))
-  cdata = zeros(m + 1, n + 1)
-  cdata_sq = similar(cdata)
-  cx_t_cx_t1 = zeros(m, n)
-  rls = zeros(Int, length(p_reps))
+
+  # cdata_sq = similar(cdata)
+  # cx_t_cx_t1 = zeros(m, n)
 
   # pre-allocate mat, mat_ao and mat_ma
   if spatial_dgp isa SAR1
     mat = build_sar1_matrix(spatial_dgp) # will be done only once
-    mat_ao = zeros((m + 1 + 2 * spatial_dgp.margin), (n + 1 + 2 * spatial_dgp.margin))
-    vec_ar = zeros((m + 1 + 2 * spatial_dgp.margin) * (n + 1 + 2 * spatial_dgp.margin)) # this is a vector but naming is for 
+    mat_ao = zeros((m + d1 + 2 * spatial_dgp.margin), (n + d2 + 2 * spatial_dgp.margin))
+    vec_ar = zeros((m + d1 + 2 * spatial_dgp.margin) * (n + d2 + 2 * spatial_dgp.margin)) # this is a vector but naming is for 
     vec_ar2 = similar(vec_ar)
   elseif spatial_dgp isa BSQMA11
-    mat = zeros(m + spatial_dgp.prerun + 1, n + spatial_dgp.prerun + 1)
-    mat_ma = zeros(m + spatial_dgp.prerun + 1 + 1, n + spatial_dgp.prerun + 1 + 1) # add one more row and column for "forward looking" BSQMA11
+    mat = zeros(m + spatial_dgp.prerun + d1, n + spatial_dgp.prerun + d2)
+    mat_ma = zeros(m + spatial_dgp.prerun + d1 + 1, n + spatial_dgp.prerun + d2 + 1) # add one more row and column for "forward looking" BSQMA11
     mat_ao = similar(mat)
   else
-    mat = zeros(m + spatial_dgp.prerun + 1, n + spatial_dgp.prerun + 1)
+    mat = zeros(m + spatial_dgp.prerun + d1, n + spatial_dgp.prerun + d2)
     mat_ma = similar(mat)
     mat_ao = similar(mat)
   end
@@ -150,7 +198,7 @@ function rl_sacf(m::Int, n::Int, lam, cl, p_reps::UnitRange, spatial_dgp, dist_e
   for r in 1:length(p_reps)
 
     # Re-initialize matrix 
-    if spatial_dgp isa SAR1
+    if spatial_dgp isa SAR1 # Add SQMA11, SQINMA11, BSQMA11 which also do not need re-initialization
       # do nothing, 'mat' will not be overwritten for SAR1
     else
       fill!(mat, 0)
@@ -170,8 +218,9 @@ function rl_sacf(m::Int, n::Int, lam, cl, p_reps::UnitRange, spatial_dgp, dist_e
         data .= fill_mat_dgp_sop!(spatial_dgp, dist_error, dist_ao, mat, mat_ao, mat_ma)
       end
 
-      p_hat = (1 - lam) * p_hat + lam * sacf_11(data, cdata, cx_t_cx_t1, cdata_sq)
-
+      # Compute ρ(d1,d2)-EWMA
+      p_hat = (1 - lam) * p_hat + lam * sacf(data, cdata, covs, d1, d2) 
+      #p_hat = (1 - lam) * p_hat + lam * sacf_11(data, cdata, cx_t_cx_t1, cdata_sq)
 
     end
 
@@ -203,13 +252,13 @@ sp_dgp = ICSP(10, 10, Normal(0, 1))
 arls = arl_sacf(lam, cl, sp_dgp, reps)
 ```
 """
-function arl_sacf(lam, cl, sp_dgp::ICSP, reps=10_000)
-  
+function arl_sacf(lam, cl, sp_dgp::ICSP, reps=10_000; d1::Int=1, d2::Int=1)
+
   # Extract        
-  m = sp_dgp.m_rows
-  n = sp_dgp.n_cols
-  dist = sp_dgp.dist        
-         
+  m = sp_dgp.M_rows - d1
+  n = sp_dgp.N_cols - d2
+  dist = sp_dgp.dist
+
   # Check whether to use threading or multi processing
   if nprocs() == 1 # Threading
 
@@ -218,7 +267,7 @@ function arl_sacf(lam, cl, sp_dgp::ICSP, reps=10_000)
 
     # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
     par_results = map(chunks) do i
-      Threads.@spawn rl_sacf(m, n, lam, cl, i, dist)
+      Threads.@spawn rl_sacf(m, n, d1, d2, lam, cl, i, dist)
     end
 
   elseif nprocs() > 1 # Multi Processing
@@ -227,7 +276,7 @@ function arl_sacf(lam, cl, sp_dgp::ICSP, reps=10_000)
     chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
 
     par_results = pmap(chunks) do i
-      rl_sacf(m, n, lam, cl, i, dist)
+      rl_sacf(m, n, d1, d2, lam, cl, i, dist)
     end
 
   end
@@ -264,12 +313,12 @@ dist_ao = nothing
 arl = arl_sacf(lam, cl, reps, spatial_dgp, dist_error, dist_ao)
 ```
 """
-function arl_sacf(lam, cl, sp_dgp, reps=10_000)
+function arl_sacf(lam, cl, sp_dgp::SpatialDGP, reps=10_000; d1::Int=1, d2::Int=1)
 
   # extract m and n from spatial_dgp
-  m = sp_dgp.M_rows - 1
-  n = sp_dgp.N_cols - 1
-  dist = sp_dgp.dist
+  m = sp_dgp.M_rows - d1
+  n = sp_dgp.N_cols - d2
+  dist_error = sp_dgp.dist
   dist_ao = sp_dgp.dist_ao
 
   # Check whether to use threading or multi processing
@@ -280,7 +329,7 @@ function arl_sacf(lam, cl, sp_dgp, reps=10_000)
 
     # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
     par_results = map(chunks) do i
-      Threads.@spawn rl_sacf(m, n, lam, cl, i, sp_dgp, dist, dist_ao)
+      Threads.@spawn rl_sacf(m, n, d1, d2, lam, cl, i, sp_dgp, dist_error, dist_ao)
     end
 
   elseif nprocs() > 1 # Multi Processing
@@ -289,7 +338,7 @@ function arl_sacf(lam, cl, sp_dgp, reps=10_000)
     chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
 
     par_results = pmap(chunks) do i
-      rl_sacf(m, n, lam, cl, i, sp_dgp, dist, dist_ao)
+      rl_sacf(m, n, d1, d2, lam, cl, i, sp_dgp, dist_error, dist_ao)
     end
 
   end
@@ -335,18 +384,18 @@ dist_error = Normal(0, 1)
 cl = cl_sacf(m, n, lam, L0, reps, cl_init, jmin, jmax, verbose, dist_error)
 ```
 """
-function cl_sacf(lam, L0, sp_dgp::ICSP, cl_init, reps=10_000; jmin=4, jmax=6, verbose=false)
+function cl_sacf(lam, L0, sp_dgp::ICSP, cl_init, reps=10_000; d1::Int = 1, d2::Int=2, jmin=4, jmax=6, verbose=false)
 
   # extract m and n from spatial_dgp
-  m = sp_dgp.m_rows
-  n = sp_dgp.n_cols
+  m = sp_dgp.M_rows - d1
+  n = sp_dgp.N_cols - d2
   dist = sp_dgp.dist
 
   L1 = zeros(2)
   ii = Int       # set inital value depending on λbda
   if cl_init == 0
     for i in 1:50
-      L1 = arl_sacf(lam, i / 10, sp_dgp, reps) #arl_sacf(m, n, lam, i / 10, reps, dist)
+      L1 =  arl_sacf(lam, i / 10, sp_dgp, reps; d1=d1, d2=d2) 
       if verbose
         println("cl = ", i / 10, "\t", "ARL = ", L1[1])
       end
@@ -361,7 +410,7 @@ function cl_sacf(lam, L0, sp_dgp::ICSP, cl_init, reps=10_000; jmin=4, jmax=6, ve
   for j in jmin:jmax
     for dh in 1:80
       cl_init = cl_init + (-1)^j * dh / 10^j
-      L1 = arl_sacf(lam, cl_init, sp_dgp, reps) # arl_sacf(m, n, lam, cl_init, reps, dist)
+      L1 = arl_sacf(lam, cl_init, sp_dgp, reps; d1=d1, d2=d2)
       if verbose
         println("cl = ", cl_init, "\t", "ARL = ", L1[1])
       end

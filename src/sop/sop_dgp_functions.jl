@@ -116,8 +116,8 @@ function fill_mat_dgp_sop!(dgp::SAR1, dist_error::UnivariateDistribution, dist_a
 
   # draw MA-errors  
   margin = dgp.margin
-  m = dgp.m_rows
-  n = dgp.n_cols
+  m = dgp.M_rows 
+  n = dgp.N_cols
 
   M = m + 1 + 2 * margin
   N = n + 1 + 2 * margin

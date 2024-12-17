@@ -112,7 +112,7 @@ end
 
 # Compute the statistic 1000 times
 Random.seed!(123)
-results_all = map(x -> stat_sop(.1, empty; chart_choice=3, add_noise=true)', 1:1000)
+results_all = map(x -> stat_sop(1, empty; chart_choice=3, add_noise=true)', 1:1000)
 
 # Convert to matrix
 mapooc_stat_sops = vcat(results_all...)
@@ -129,15 +129,15 @@ dates_23 = map(x -> Date(date -> week(date) == x, 2023, 01, 01), 1:52)
 dates_24 = map(x -> Date(date -> week(date) == x, 2024, 01, 01), 1:52)
 dates = vcat(dates_23, dates_24)
 
-# Compute the mean for each week and plot
-mean_vec = mean(vcat(results_all...), dims = 1)[:] 
-plot(sort(dates), mean_vec, label = "Mean")
-# Add line for ooc_vec
-plot!(sort(dates), ooc_vec, label = "Mean", color = :black)
-# xticks!(0:10:1000)
-# add horizontal line for criitcial limits
-hline!([0.01], line = :dash, label = "0.05", color = :red)
-hline!([-0.01], line = :dash, label = "0.05", color = :red)
+# # Compute the mean for each week and plot
+# mean_vec = mean(vcat(results_all...), dims = 1)[:] 
+# plot(sort(dates), mean_vec, label = "Mean")
+# # Add line for ooc_vec
+# plot!(sort(dates), ooc_vec, label = "Mean", color = :black)
+# # xticks!(0:10:1000)
+# # add horizontal line for criitcial limits
+# hline!([0.01], line = :dash, label = "0.05", color = :red)
+# hline!([-0.01], line = :dash, label = "0.05", color = :red)
 
 
 
@@ -153,7 +153,7 @@ CairoMakie.set_theme!(fontsize_theme)
   #  end
   CairoMakie.lines!(ax, sort(dates), ooc_vec, color=:black, label="Typical run")
   CairoMakie.lines!(ax, sort(dates), mean_vec, color=:blue, label="Mean of runs")
-  CairoMakie.hlines!([-0.01, 0.01], color=:"red", label="Control limits")
+  CairoMakie.hlines!([-0.04, 0.04], color=:"red", label="Control limits")
   CairoMakie.axislegend(ax, merge = true, unique = true, position = (0, 0)) # (0, 0)
   fig
   #save("ukraine/figures/SOP_Ukraine_east_ooc.pdf", fig)

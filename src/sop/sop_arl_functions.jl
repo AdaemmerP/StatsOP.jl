@@ -372,7 +372,7 @@ Function to compute the average run length (ARL) for a given out-of-control DGP.
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 - `d::Int` An integer value for the embedding dimension. The default value is 1.
 """
-function arl_sop(lam, cl, spatial_dgp::SpatialDGP, reps=10_000; chart_choice, d1=1, d2=1)
+function arl_sop(lam, cl, spatial_dgp::SpatialDGP, reps=10_000; chart_choice, d1::Int=1, d2::Int=1)
 
   # Compute m and n
   m_rows = spatial_dgp.M_rows - d1
