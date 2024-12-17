@@ -656,19 +656,19 @@ function rl_sop(lam, cl, lookup_array_sop, p_reps, spatial_dgp, dist_error::Univ
       # Compute sum of frequencies for each group
       if chart_choice in (1, 4) # Only need to compute for chart 1 and 4
         for i in s_1
-          p_hat[1] += sop_freq[i]
+          p_hat[1] += freq_sop[i]
         end
       end
 
       if chart_choice in (2, 4) # Only need to compute for chart 2 and 4 
         for i in s_2
-          p_hat[2] += sop_freq[i]
+          p_hat[2] += freq_sop[i]
         end
       end
 
       if chart_choice in (2, 3) # Only need to compute for chart 2 and 3
         for i in s_3
-          p_hat[3] += sop_freq[i]
+          p_hat[3] += freq_sop[i]
         end
       end
 
