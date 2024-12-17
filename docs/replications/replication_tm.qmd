@@ -136,20 +136,20 @@ fig = Figure()
 ax = Axis(fig[1, 1])
 lines!(Axis(fig[1, 1]), stats)
 # Add horizontal lines
-hlines!(ax, [mean_stat - cl_val, mean_stat + cl_val], color=:red) 
-hlines!(ax, [mean_stat], linestyle=:dash, color=:green) 
+hlines!(ax, [mean_stat - cl_val, mean_stat + cl_val], color=:red)
+hlines!(ax, [mean_stat], linestyle=:dash, color=:green)
 fig
 
 stats_oc = stat_sop(0.1, resid_oc_mat; chart_choice=3, add_noise=false, d1=1, d2=1)
-resids_all = cat(resid_ic_mat, resid_oc_mat, dims = 3)
+resids_all = cat(resid_ic_mat, resid_oc_mat, dims=3)
 stats_all = stat_sop(0.1, resids_all[:, :, :]; chart_choice=3, add_noise=false, d1=1, d2=1)
 # Plot oc stats
 fig = Figure()
 ax = Axis(fig[1, 1])
 lines!(Axis(fig[1, 1]), stats_all)
 # Add horizontal lines
-hlines!(ax, [mean_stat - cl_val, mean_stat + cl_val], color=:red) 
-hlines!(ax, [mean_stat], linestyle=:dash, color=:green) 
+hlines!(ax, [mean_stat - cl_val, mean_stat + cl_val], color=:red)
+hlines!(ax, [mean_stat], linestyle=:dash, color=:green)
 fig
 ```
 
@@ -180,9 +180,9 @@ dgp_vals = [
 
 i = 1
 for alphas in dgp_vals
-for (j, mn_tup) in enumerate(MN_vec)
-    M = mn_tup[1]
-    N = mn_tup[2]    
+    for (j, mn_tup) in enumerate(MN_vec)
+        M = mn_tup[1]
+        N = mn_tup[2]
         for chart in 1:4
             cl_sop = ic_sop[j, chart]
             cl_sacf = ic_sacf_cont[j]
