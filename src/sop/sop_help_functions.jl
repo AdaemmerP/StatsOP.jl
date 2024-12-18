@@ -150,6 +150,60 @@ end
 
 
 # Function to get sensible starting values for the control limit
+function init_vals_sop(lam, dist, runs; chart_choice, p_quantile)
+
+  # Pre-allocate
+  lookup_array_sop = compute_lookup_array()
+  freq_sop = zeros(24)
+  win = zeros(Int, 4)
+  data = zeros(m + 1, n + 1)
+  p_ewma = zeros(3)
+  p_hat = zeros(3)
+  vals = zeros(runs)
+  sop = zeros(4)
+
+  fill!(p_ewma, 1.0 / 3.0)
+  stat = chart_stat_sop(p_ewma, chart_choice)
+
+  for i in 1:runs
+
+    # Fill data with i.i.d data 
+    rand!(dist, data)
+
+    # Add noise when using random count data
+    if dist isa DiscreteUnivariateDistribution
+      for j in 1:size(data, 2)
+        for i in 1:size(data, 1)
+          data[i, j] = data[i, j] + rand()
+        end
+      end
+    end
+
+    # dist as in SACF functions!
+    sop_frequencies!(m, n, lookup_array_sop, data, sop, win, freq_sop)
+
+    @views p_hat[1] = sum(freq_sop[[1, 3, 8, 11, 14, 17, 22, 24]])
+    @views p_hat[2] = sum(freq_sop[[2, 5, 7, 9, 16, 18, 20, 23]])
+    @views p_hat[3] = sum(freq_sop[[4, 6, 10, 12, 13, 15, 19, 21]])
+    p_hat ./= m * n # Divide each element of p_hat by m*n
+
+    @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
+
+    stat = chart_stat_sop(p_ewma, chart_choice)
+    vals[i] = abs(stat)
+
+    fill!(win, 0)
+    fill!(freq_sop, 0)
+  end
+
+  quantile_val = quantile(vals, p_quantile)
+  return_vec = (vals, quantile_val)
+
+  return return_vec
+end
+
+
+# Function to get sensible starting values for the control limit
 function init_vals_sop(m, n, lam, chart_choice, dist, runs, p_quantile)
 
   # Pre-allocate

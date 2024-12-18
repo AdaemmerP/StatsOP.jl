@@ -131,10 +131,11 @@ end
 
 function cl_sop(lam, L0, sp_dgp, cl_init, d1_vec::Vector{Int}, d2_vec::Vector{Int}, reps=10_000; chart_choice=3, jmin=4, jmax=6, verbose=false)
 
+  L1 = 0.0
   for j in jmin:jmax
     for dh in 1:40
       cl_init = cl_init + (-1)^j * dh / 10^j
-      L1 = arl_sop(lam, cl_init, sp_dgp, reps; chart_choice, d1_vec=d1_vec, d2_vec=d2_vec)[1]
+      L1 = arl_sop(lam, cl_init, sp_dgp, d1_vec, d2_vec, reps; chart_choice=chart_choice)[1]
       if verbose
         println("cl = ", cl_init, "\t", "ARL = ", L1)
       end

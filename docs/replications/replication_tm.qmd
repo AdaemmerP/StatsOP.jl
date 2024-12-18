@@ -227,19 +227,19 @@ sop_dgp = SINAR11((0.1, 0.1, 0.1), 10, 10, Poisson(5), nothing, 100)
 
 
 ```{julia}
-data = rand(25, 25, 100)
+data = randn(28, 28, 370);
+lam = 0.1
+L0 = 370
+d1_vec = [1, 2, 3]
+d2_vec = [1, 2, 3]
+spatial_dgp = ICSP(28, 28, Normal(0, 1))
 
-stat_sop_bp(0.1, data; chart_choice=3, add_noise=false, d1_vec=[1], d2_vec=[1])
+cl_init = stat_sop(lam, data, d1_vec, d2_vec; chart_choice=3, add_noise=false) |> x -> last(x)
+cl_sop(lam, L0, spatial_dgp, cl_init, d1_vec, d2_vec, 100; chart_choice=3, jmin=4, jmax=6, verbose=true)
 
-stat_sop(0.1, data; chart_choice=3, add_noise=false, d1=1, d2=1)
+arl_sop(lam, 0.1020, spatial_dgp, d1_vec, d2_vec, 100; chart_choice=3)
 
-stat_sop(0.1, data, [1, 1], [1, 1]; chart_choice=3, add_noise=false)
+spatial_dgp = SAR11((0.1, 0.1, 0.1), 28, 28, Normal(0, 1), nothing, 100)
 
-stat_sop(data, d1_vec::Vector{Int}, d2_vec::Vector{Int}; chart_choice)
- 
-stat_sop(0.1, data, 1, 1; chart_choice=3, add_noise=false) |> x->quantile(x, 0.99)
-
-sp_dgp = ICSP(25, 25, Normal(0, 1))
-
-cl_sop(0.1, 370, sp_dgp, 0.08, 100, [1, 1], [1, 1]; chart_choice=3, jmin=4, jmax=6, verbose=false)
+arl_sop(lam, 0.1020, spatial_dgp, d1_vec, d2_vec, 1_000; chart_choice=3)
 ```
