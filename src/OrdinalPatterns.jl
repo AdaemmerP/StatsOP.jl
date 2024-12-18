@@ -100,6 +100,6 @@ include("sop/sop_dgp_functions.jl")
 include("sop/sop_distributions.jl")
 include("sop/sop_test_functions.jl")
 include("sop/sacf_functions.jl")
-include("sop_help_functions.jl")
+include("sop/sop_help_functions.jl")
 
 end

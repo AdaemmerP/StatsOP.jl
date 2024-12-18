@@ -1,6 +1,6 @@
 
 
-using Pkg;
+#using Pkg;
 using DataFrames
 using DataFramesMeta
 using OrdinalPatterns
@@ -8,6 +8,7 @@ using Dates
 using CSV
 using CategoricalArrays
 using Plots
+using Random
 
 # Load the data
 cd(@__DIR__)
@@ -104,7 +105,7 @@ end
 
 # Compute the statistic 1000 times
 Random.seed!(123)
-results_all = map(x -> stat_sop(1, empty; chart_choice=3, add_noise=true, d1=1, d2=1)', 1:1000)
+results_all = map(x -> stat_sop(.1, empty; chart_choice=3, add_noise=true, d1=1, d2=1)', 1:1000)
 # Convert to matrix
 mapooc_stat_sops = vcat(results_all...)
 
@@ -120,5 +121,5 @@ mean_vec = mean(vcat(results_all...), dims = 1)[:] |> plot
 # Add line for ooc_vec
 plot!(ooc_vec, label = "Mean", color = :black)
 # add horizontal line for criitcial limits
-hline!([0.04], line = :dash, label = "0.05", color = :red)
-hline!([-0.04], line = :dash, label = "0.05", color = :red)
+hline!([0.01], line = :dash, label = "0.05", color = :red)
+hline!([-0.01], line = :dash, label = "0.05", color = :red)
