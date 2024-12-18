@@ -219,27 +219,8 @@ function stat_sop(lam, data::Array{T,3}; chart_choice, add_noise::Bool, d1=1, d2
     # Compute frequencies of sops    
     sop_frequencies!(m, n, d1, d2, lookup_array_sop, data_tmp, sop, win, sop_freq)
 
-    # Compute sum of frequencies for each group
-    if chart_choice in (1, 4) # Only need to compute for chart 1 and 4
-      for i in s_1
-        p_hat[1] += sop_freq[i]
-      end
-    end
-
-    if chart_choice in (2, 4) # Only need to compute for chart 2 and 4 
-      for i in s_2
-        p_hat[2] += sop_freq[i]
-      end
-    end
-
-    if chart_choice in (2, 3) # Only need to compute for chart 2 and 3
-      for i in s_3
-        p_hat[3] += sop_freq[i]
-      end
-    end
-
-    # Compute relative frequencies
-    p_hat ./= m * n
+    # Fill 'p_hat' with sop-frequencies and compute relative frequencies
+    fill_p_hat!(p_hat, chart_choice, sop_freq, s_1, s_2, s_3)
 
     # Compute test statistic
     @. p_ewma = (1 - lam) .* p_ewma .+ lam * p_hat
