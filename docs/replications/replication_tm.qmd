@@ -48,13 +48,13 @@ sop_dgp = ICSP(
 # Limits SOPs
 L0 = 370
 cl_init = 0.01
-cl_sop(lam, L0, sop_dgp, cl_init, reps; chart_choice=1, jmin=4, jmax=6, verbose=true, d1=5, d2=5)
+cl_sop(0.1, L0, sop_dgp, cl_init, 1000; chart_choice=1, jmin=4, jmax=6, verbose=true, d1=1, d2=1)
 
 
 # Verify ARL
 lam = 0.1
 cl = 0.03049
-arl_sop(lam, 0.0489, sop_dgp, reps; chart_choice=1, d1=5, d2=5)
+arl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d1=1, d2=1)
 
 # Limits SACFs
 cl_sacf(lam, L0, sop_dgp, cl_init, reps; jmin=4, jmax=6, verbose=true, d1=2, d2=2)

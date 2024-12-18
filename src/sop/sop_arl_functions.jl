@@ -435,7 +435,7 @@ A function to compute the run length for a given control limit and in-control di
 function rl_sop(lam, cl, lookup_array_sop, reps_range, dist, chart_choice, m, n, d1::Int, d2::Int)
 
   # Pre-allocate
-  freq_sop = zeros(Int, 24) # factorial(4)
+  sop_freq = zeros(Int, 24) # factorial(4)
   win = zeros(Int, 4)
   data_tmp = zeros(m + d1, n + d2)
   p_ewma = zeros(3)
@@ -470,37 +470,20 @@ function rl_sop(lam, cl, lookup_array_sop, reps_range, dist, chart_choice, m, n,
       end
 
       # Compute frequencies of SOPs
-      sop_frequencies!(m, n, d1, d2, lookup_array_sop, data_tmp, sop_vec, win, freq_sop)
+      sop_frequencies!(m, n, d1, d2, lookup_array_sop, data_tmp, sop_vec, win, sop_freq)
 
-      # Compute sum of frequencies for each group
-      if chart_choice in (1, 4) # Only need to compute for chart 1 and 4
-        for i in s_1
-          p_hat[1] += freq_sop[i]
-        end
-      end
+      # Fill 'p_hat' with sop-frequencies and compute relative frequencies
+      fill_p_hat!(p_hat, chart_choice, sop_freq, m, n,  s_1, s_2, s_3)
 
-      if chart_choice in (2, 4) # Only need to compute for chart 2 and 4 
-        for i in s_2
-          p_hat[2] += freq_sop[i]
-        end
-      end
-
-      if chart_choice in (2, 3) # Only need to compute for chart 2 and 3
-        for i in s_3
-          p_hat[3] += freq_sop[i]
-        end
-      end
-
-      # Compute relative frequencies
-      p_hat ./= m * n
-
+      # Apply EWMA to p-vectors
       @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
 
+      # Compute test statistic
       stat = chart_stat_sop(p_ewma, chart_choice)
 
       # Reset win and freq_sop
       fill!(win, 0)
-      fill!(freq_sop, 0)
+      fill!(sop_freq, 0)
       fill!(p_hat, 0)
     end
 
@@ -548,8 +531,10 @@ function rl_sop(lam, cl, reps_range, chart_choice, p_mat::Matrix{Float64})
       @views p_hat[2] = p_mat[index, 2]
       @views p_hat[3] = p_mat[index, 3]
 
+      # Apply EWMA to p-vectors
       @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
 
+      # Compute test statistic
       stat = chart_stat_sop(p_ewma, chart_choice)
     end
 
@@ -578,7 +563,7 @@ Computes the run length for a given out-of-control DGP. The input parameters are
 function rl_sop(lam, cl, lookup_array_sop, p_reps, spatial_dgp, dist_error::UnivariateDistribution, dist_ao::Union{Nothing,UnivariateDistribution}, chart_choice, m, n, d1::Int, d2::Int)
 
   # pre-allocate
-  freq_sop = zeros(Int, 24) # factorial(4)
+  sop_freq = zeros(Int, 24) # factorial(4)
   win = zeros(Int, 4)
   data = zeros(m + d1, n + d2)
   p_ewma = zeros(3)
@@ -647,37 +632,20 @@ function rl_sop(lam, cl, lookup_array_sop, p_reps, spatial_dgp, dist_error::Univ
       end
 
       # Compute sum of frequencies for each pattern group
-      sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, freq_sop)
+      sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
-      # Compute sum of frequencies for each group
-      if chart_choice in (1, 4) # Only need to compute for chart 1 and 4
-        for i in s_1
-          p_hat[1] += freq_sop[i]
-        end
-      end
+      # Fill 'p_hat' with sop-frequencies and compute relative frequencies
+      fill_p_hat!(p_hat, chart_choice, sop_freq, m, n,  s_1, s_2, s_3)
 
-      if chart_choice in (2, 4) # Only need to compute for chart 2 and 4 
-        for i in s_2
-          p_hat[2] += freq_sop[i]
-        end
-      end
-
-      if chart_choice in (2, 3) # Only need to compute for chart 2 and 3
-        for i in s_3
-          p_hat[3] += freq_sop[i]
-        end
-      end
-
-      # Compute relative frequencies
-      p_hat ./= m * n
-
+      # Apply EWMA to p-vectors
       @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
 
+      # Compute test statistic
       stat = chart_stat_sop(p_ewma, chart_choice)
 
-      # Reset win and freq_sop
+      # Reset win, sop_freq and p_hat
       fill!(win, 0)
-      fill!(freq_sop, 0)
+      fill!(sop_freq, 0)
       fill!(p_hat, 0)
     end
 
@@ -728,6 +696,8 @@ cl_sop(lam, L0, sop_dgp, cl_init, reps; chart_choice, jmin, jmax, verbose, d)
 ```
 """
 function cl_sop(lam, L0, sop_dgp::ICSP, cl_init, reps=10_000; chart_choice=3, jmin=4, jmax=6, verbose=false, d1=1, d2=1)
+
+  L1 = 0.0
   for j in jmin:jmax
     for dh in 1:40
       cl_init = cl_init + (-1)^j * dh / 10^j
@@ -741,6 +711,7 @@ function cl_sop(lam, L0, sop_dgp::ICSP, cl_init, reps=10_000; chart_choice=3, jm
     end
     cl_init = cl_init
   end
+
   if L1 < L0
     cl_init = cl_init + 1 / 10^jmax
   end
