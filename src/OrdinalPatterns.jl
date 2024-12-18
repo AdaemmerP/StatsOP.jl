@@ -101,5 +101,6 @@ include("sop/sop_distributions.jl")
 include("sop/sop_test_functions.jl")
 include("sop/sacf_functions.jl")
 include("sop/sop_help_functions.jl")
+include("sop/sop_cl_functions.jl")
 
 end
