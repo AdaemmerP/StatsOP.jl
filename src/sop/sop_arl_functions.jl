@@ -270,7 +270,7 @@ Multiple Dispatch for 'arl_sop()':
 ========================================================================#
 
 """
-    arl_sop(lam, cl, sop_dgp::ICSP, reps=10_000; chart_choice, d=1)
+    arl_sop(lam, cl, sop_dgp::ICSP, reps=10_000; chart_choice=3, d=1)
 
 Function to compute the average run length (ARL) for a given control-limit and in-control distribution. The input parameters are:
 
@@ -278,10 +278,10 @@ Function to compute the average run length (ARL) for a given control-limit and i
 - `cl::Float64`: A scalar value for the control limit.
 - `sop_dgp::ICSP`: A struct for the in-control spatial DGP.
 - `reps::Int`: An integer value for the number of repetitions.  
-- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
+- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4. The default value is 3.
 - `d::Int` An integer value for the embedding dimension. The default value is 1.
 """
-function arl_sop(lam, cl, sop_dgp::ICSP, reps=10_000; chart_choice, d1=1, d2=1)
+function arl_sop(lam, cl, sop_dgp::ICSP, reps=10_000; chart_choice=3, d1=1, d2=1)
 
   # Extract values
   m = sop_dgp.M_rows - d1
@@ -321,17 +321,17 @@ end
 
 
 """
-    arl_sop(lam, cl, reps, chart_choice, data::Array{Float64, 3})
+    arl_sop(lam, cl, reps, chart_choice=3, data::Array{Float64, 3})
 
 Function to compute the average run length (ARL) using a bootstrap approach. The input parameters are:
 
 - `lam::Float64`: A scalar value for lambda for the EWMA chart.
 - `cl::Float64`: A scalar value for the control limit.
 - `reps::Int`: An integer value for the number of repetitions.
-- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
+- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4. The default value is 3.
 - `p_mat::Array{Float64, 3}`: A 3D array with the data. The data has to be in the form of a 3D array.
 """
-function arl_sop(lam, cl, p_mat::Matrix{Float64}, reps=10_000; chart_choice)
+function arl_sop(lam, cl, p_mat::Matrix{Float64}, reps=10_000; chart_choice=3)
 
   # Check whether to use threading or multi processing --> only one process threading, else distributed
   if nprocs() == 1
@@ -363,7 +363,7 @@ end
 
 
 """
-    arl_sop(lam, cl, spatial_dgp, reps = 10_000; chart_choice, d = 1)
+    arl_sop(lam, cl, spatial_dgp, reps = 10_000; chart_choice=3, d = 1)
 
 Function to compute the average run length (ARL) for a given out-of-control DGP. The input parameters are:
   
@@ -371,10 +371,10 @@ Function to compute the average run length (ARL) for a given out-of-control DGP.
 - `cl::Float64`: A scalar value for the control limit.
 - `spatial_dgp::AbstractSpatialDGP`: A struct for type for the spatial DGP. This can be either `SAR11`, `SINAR11`, `SQMA11`, `BSQMA11` or `SAR1`. Look at their documentation for more information.
 - `reps::Int`: An integer value for the number of repetitions.
-- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
+- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4. The default value is 3.
 - `d::Int` An integer value for the embedding dimension. The default value is 1.
 """
-function arl_sop(lam, cl, spatial_dgp::SpatialDGP, reps=10_000; chart_choice, d1::Int=1, d2::Int=1)
+function arl_sop(lam, cl, spatial_dgp::SpatialDGP, reps=10_000; chart_choice=3, d1::Int=1, d2::Int=1)
 
   # Compute m and n
   m_rows = spatial_dgp.M_rows - d1
@@ -699,7 +699,7 @@ Multiple Dispatch for 'cl_sop()':
 ========================================================================#
 
 """
-    cl_sop(lam, L0, sop_dgp::ICSP, cl_init, reps=10_000; chart_choice, jmin=4, jmax=6, verbose=false, d=1)
+    cl_sop(lam, L0, sop_dgp::ICSP, cl_init, reps=10_000; chart_choice=3, jmin=4, jmax=6, verbose=false, d=1)
 
 Compute the control limit for a given in-control distribution. The input parameters are:
   
@@ -708,7 +708,7 @@ Compute the control limit for a given in-control distribution. The input paramet
 - `sop_dgp::ICSP`: A struct for the in-control spatial DGP.
 - `cl_init::Float64`: A scalar value for the initial control limit. This is used to find the control limit.
 - `reps::Int`: An integer value for the number of repetitions.
-- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
+- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4. The default value is 3.
 - `jmin::Int`: An integer value for the minimum value for the control limit.
 - `jmax::Int`: An integer value for the maximum value for the control limit.
 - `verbose::Bool`: A boolean value whether to print the control limit and the average run length.
@@ -731,7 +731,7 @@ d = 1
 cl_sop(lam, L0, sop_dgp, cl_init, reps; chart_choice, jmin, jmax, verbose, d)
 ```
 """
-function cl_sop(lam, L0, sop_dgp::ICSP, cl_init, reps=10_000; chart_choice, jmin=4, jmax=6, verbose=false, d1=1, d2=1)
+function cl_sop(lam, L0, sop_dgp::ICSP, cl_init, reps=10_000; chart_choice=3, jmin=4, jmax=6, verbose=false, d1=1, d2=1)
 
   L1 = zeros(2)
   ii = Int
@@ -832,7 +832,7 @@ function compute_p_mat(data::Array{Float64,3}; d1=1, d2=1)
 end
 
 #--- Function to critical run length for SOP based on bootstraping
-function cl_sop(lam, L0, p_mat, cl_init, reps=10_000; chart_choice,
+function cl_sop(lam, L0, p_mat, cl_init, reps=10_000; chart_choice=3,
   jmin=4, jmax=6, verbose=false, d1=1, d2=1)
 
   L1 = zeros(2)
