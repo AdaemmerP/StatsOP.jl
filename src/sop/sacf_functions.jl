@@ -391,37 +391,21 @@ function cl_sacf(lam, L0, sp_dgp::ICSP, cl_init, reps=10_000; d1::Int = 1, d2::I
   n = sp_dgp.N_cols - d2
   dist = sp_dgp.dist
 
-  L1 = zeros(2)
-  ii = Int       # set inital value depending on λbda
-  if cl_init == 0
-    for i in 1:50
-      L1 =  arl_sacf(lam, i / 10, sp_dgp, reps; d1=d1, d2=d2) 
-      if verbose
-        println("cl = ", i / 10, "\t", "ARL = ", L1[1])
-      end
-      if L1[1] > L0
-        ii = i
-        break
-      end
-    end
-    cl_init = ii / 50
-  end
-
   for j in jmin:jmax
     for dh in 1:80
       cl_init = cl_init + (-1)^j * dh / 10^j
-      L1 = arl_sacf(lam, cl_init, sp_dgp, reps; d1=d1, d2=d2)
+      L1 = arl_sacf(lam, cl_init, sp_dgp, reps; d1=d1, d2=d2)[1]
       if verbose
-        println("cl = ", cl_init, "\t", "ARL = ", L1[1])
+        println("cl = ", cl_init, "\t", "ARL = ", L1)
       end
-      if (j % 2 == 1 && L1[1] < L0) || (j % 2 == 0 && L1[1] > L0)
+      if (j % 2 == 1 && L1 < L0) || (j % 2 == 0 && L1 > L0)
         break
       end
     end
     cl_init = cl_init
   end
-  if L1[1] < L0
-    cl = cl_init + 1 / 10^jmax
+  if L1 < L0
+    cl_init = cl_init + 1 / 10^jmax
   end
   return cl_init
 end

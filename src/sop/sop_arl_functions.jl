@@ -732,38 +732,21 @@ cl_sop(lam, L0, sop_dgp, cl_init, reps; chart_choice, jmin, jmax, verbose, d)
 ```
 """
 function cl_sop(lam, L0, sop_dgp::ICSP, cl_init, reps=10_000; chart_choice=3, jmin=4, jmax=6, verbose=false, d1=1, d2=1)
-
-  L1 = zeros(2)
-  ii = Int
-  if cl_init == 0
-    for i in 1:50
-      L1 = arl_sop(lam, i / 50, sop_dgp, reps; chart_choice, d1=1, d2=1)
-      if verbose
-        println("cl = ", i / 50, "\t", "ARL = ", L1[1])
-      end
-      if L1[1] > L0
-        ii = i
-        break
-      end
-    end
-    cl_init = ii / 50
-  end
-
   for j in jmin:jmax
     for dh in 1:40
       cl_init = cl_init + (-1)^j * dh / 10^j
-      L1 = arl_sop(lam, cl_init, sop_dgp, reps; chart_choice, d1=d1, d2=d2)
+      L1 = arl_sop(lam, cl_init, sop_dgp, reps; chart_choice, d1=d1, d2=d2)[1]
       if verbose
-        println("cl = ", cl_init, "\t", "ARL = ", L1[1])
+        println("cl = ", cl_init, "\t", "ARL = ", L1)
       end
-      if (j % 2 == 1 && L1[1] < L0) || (j % 2 == 0 && L1[1] > L0)
+      if (j % 2 == 1 && L1 < L0) || (j % 2 == 0 && L1 > L0)
         break
       end
     end
     cl_init = cl_init
   end
-  if L1[1] < L0
-    cl = cl_init + 1 / 10^jmax
+  if L1 < L0
+    cl_init = cl_init + 1 / 10^jmax
   end
   return cl_init
 end
@@ -835,37 +818,21 @@ end
 function cl_sop(lam, L0, p_mat, cl_init, reps=10_000; chart_choice=3,
   jmin=4, jmax=6, verbose=false, d1=1, d2=1)
 
-  L1 = zeros(2)
-  ii = Int
-  if cl_init == 0
-    for i in 1:50
-      L1 = arl_sop(lam, i / 50, p_mat, reps; chart_choice=chart_choice)
-      if verbose
-        println("cl = ", i / 50, "\t", "ARL = ", L1[1])
-      end
-      if L1[1] > L0
-        ii = i
-        break
-      end
-    end
-    cl_init = ii / 50
-  end
-
   for j in jmin:jmax
     for dh in 1:40
       cl_init = cl_init + (-1)^j * dh / 10^j
-      L1 = arl_sop(lam, cl_init, p_mat, reps; chart_choice=chart_choice)
+      L1 = arl_sop(lam, cl_init, p_mat, reps; chart_choice=chart_choice)[1]
       if verbose
-        println("cl = ", cl_init, "\t", "ARL = ", L1[1])
+        println("cl = ", cl_init, "\t", "ARL = ", L1)
       end
-      if (j % 2 == 1 && L1[1] < L0) || (j % 2 == 0 && L1[1] > L0)
+      if (j % 2 == 1 && L1 < L0) || (j % 2 == 0 && L1 > L0)
         break
       end
     end
     cl_init = cl_init
   end
-  if L1[1] < L0
-    cl = cl_init + 1 / 10^jmax
+  if L1 < L0
+    cl_init = cl_init + 1 / 10^jmax
   end
   return cl_init
 end
