@@ -10,7 +10,7 @@ A struct to define an independent and identically distributed (IID) process for 
 - `N_cols::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1.
 - `dist::UnivariateDistribution`: A distribution from the Distributions.jl package.
 """
-struct ICSP <: SpatialDGP
+struct ICSP 
   M_rows::Int
   N_cols::Int
   dist::UnivariateDistribution

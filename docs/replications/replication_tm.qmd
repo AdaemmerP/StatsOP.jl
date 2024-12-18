@@ -223,58 +223,23 @@ sop_dgp = SINAR11((0.1, 0.1, 0.1), 10, 10, Poisson(5), nothing, 100)
 
 ```
 
-## Table A.3
-```{julia}
-sop_dgp = SAR11((0.1, 0.1, 0.1), 10, 10, Normal(0, 1), BinomialC(0.1, 10), 100)
-arl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)
-```
-
-## Table A.4
-
-```{julia}
-sop_dgp = SINAR11((0.1, 0.1, 0.1), 10, 10, Poisson(5), PoiBin(0.1, 25), 100)
-arl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)
-```
-
-## Table A.5
+## Try BP-Statistic
 
 
 ```{julia}
-sop_dgp = SINAR11((0.1, 0.1, 0.1), 10, 10, ZIP(5, 0.9), nothing, 100)
-arl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)
-```
+data = rand(25, 25, 100)
 
-## Table A.6
+stat_sop_bp(0.1, data; chart_choice=3, add_noise=false, d1_vec=[1], d2_vec=[1])
 
-```{julia}
-sop_dgp = SQMA11((0.8, 0.8, 0.8), (2, 2, 2), 10, 10, Normal(0, 1), nothing, 1)
-arl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)
-```
+stat_sop(0.1, data; chart_choice=3, add_noise=false, d1=1, d2=1)
 
-## Table A.7
+stat_sop(0.1, data, [1, 1], [1, 1]; chart_choice=3, add_noise=false)
 
-```{julia}
-sop_dgp = SQINMA11((0.8, 0.8, 0.8), (2, 2, 2), 10, 10, Poisson(5), nothing, 1)
-arl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)
-```
+stat_sop(data, d1_vec::Vector{Int}, d2_vec::Vector{Int}; chart_choice)
+ 
+stat_sop(0.1, data, 1, 1; chart_choice=3, add_noise=false) |> x->quantile(x, 0.99)
 
-## Table A.8
+sp_dgp = ICSP(25, 25, Normal(0, 1))
 
-```{julia}
-sop_dgp = SAR1((0.1, 0.1, 0.1, 0.1), 10, 10, Normal(0, 1), nothing, 20)
-arl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)
-```
-
-## Table A.9
-
-```{julia}
-sop_dgp = SAR1((0.1, 0.1, 0.1, 0.1), 10, 10, Normal(0, 1), BinomialCvec(0.1, [-5; 5]), 20)
-arl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)
-```
-
-## Table A.10
-
-```{julia}
-sop_dgp = BSQMA11((0.8, 0.8, 0.8, 0.8), (2, 2, 2, 2), 10, 10, Normal(0, 1), nothing, 1)
-arl_sop(lam, cl, sop_dgp, reps; chart_choice=1, d=1)
+cl_sop(0.1, 370, sp_dgp, 0.08, 100, [1, 1], [1, 1]; chart_choice=3, jmin=4, jmax=6, verbose=false)
 ```
