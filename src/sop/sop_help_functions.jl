@@ -95,19 +95,19 @@ end
 # end
 
 #--- Function to compute frequencies of sops
-function sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop_vec, win, sop_freq)
+function sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
   # Loop through data to fill sop vector
   for j in 1:n
     for i in 1:m
 
-      sop_vec[1] = data[i, j]
-      sop_vec[2] = data[i, j+d2]
-      sop_vec[3] = data[i+d1, j]
-      sop_vec[4] = data[i+d1, j+d2]
+      sop[1] = data[i, j]
+      sop[2] = data[i, j+d2]
+      sop[3] = data[i+d1, j]
+      sop[4] = data[i+d1, j+d2]
 
       # Order 'sop_vec' in-place and save results in 'win'
-      order_vec!(sop_vec, win)
+      order_vec!(sop, win)
       # Get index for relevant pattern
       ind2 = lookup_sop(lookup_array_sop, win)
       # Add 1 to relevant pattern

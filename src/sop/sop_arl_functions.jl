@@ -103,16 +103,18 @@ function stat_sop(lam, data::Array{T,3}, d1::Int=1, d2::Int=1; chart_choice=3, a
   s_3 = [4, 6, 10, 12, 13, 15, 19, 21]
 
   # Compute m and n based on data
-  m = size(data, 1) - 1
-  n = size(data, 2) - 1
+  data_tmp = similar(data[:, :, 1])
+  rand_tmp = similar(data_tmp)
+  m = size(data, 1) - d1
+  n = size(data, 2) - d2
 
   for i = axes(data, 3)
 
     # //TODO pre allocate data_tmp
     if add_noise
-      data_tmp = data[:, :, i] + rand(m + 1, n + 1)
+      data_tmp .= view(data,:, :, i) .+ rand!(rand_tmp) # data[:, :, i] + rand!(rand_tmp)
     else
-      data_tmp = data[:, :, i]
+      data_tmp .= view(data, :, :, i)
     end
 
     # Compute frequencies of sops    
@@ -133,7 +135,6 @@ function stat_sop(lam, data::Array{T,3}, d1::Int=1, d2::Int=1; chart_choice=3, a
     fill!(win, 0)
     fill!(sop_freq, 0)
     fill!(p_hat, 0)
-
   end
 
   return stats_all
@@ -141,11 +142,7 @@ function stat_sop(lam, data::Array{T,3}, d1::Int=1, d2::Int=1; chart_choice=3, a
 end
 
 
-
-function stat_sop(data::Union{SubArray,Matrix{T}}, d1_vec::Vector{Int}, d2_vec::Vector{Int}; chart_choice) where {T<:Real}
-
-  # Print message
-  println("This computes the BP-statistic for SOP chart ", chart_choice)
+function stat_sop(data::Union{SubArray,Matrix{T}}, d1_vec::Vector{Int}, d2_vec::Vector{Int}; chart_choice=3, add_noise::Bool=false) where {T<:Real}
 
   # Compute 4 dimensional cube to lookup sops
   lookup_array_sop = compute_lookup_array()
@@ -156,7 +153,14 @@ function stat_sop(data::Union{SubArray,Matrix{T}}, d1_vec::Vector{Int}, d2_vec::
   bp_stat = 0.0
 
   # Compute all combinations of d1 and d2
+  M_rows = size(data, 1)
+  N_cols = size(data, 2)
   d1_d2_combinations = Iterators.product(d1_vec, d2_vec)
+
+  # Add noise?
+  if add_noise
+    data .= data + rand(size(data, 1), size(data, 2))
+  end
 
   # Pre-allocate indexes to compute sum of frequencies
   s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
@@ -165,8 +169,8 @@ function stat_sop(data::Union{SubArray,Matrix{T}}, d1_vec::Vector{Int}, d2_vec::
 
   for (d1, d2) in d1_d2_combinations
     
-    m = spatial_dgp.M_rows - d1
-    n = spatial_dgp.N_cols - d2
+    m = M_rows - d1    
+    n = N_cols - d2
 
     # Compute sum of frequencies for each pattern group
     sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
@@ -177,16 +181,12 @@ function stat_sop(data::Union{SubArray,Matrix{T}}, d1_vec::Vector{Int}, d2_vec::
     # Compute test statistic
     stat_tmp = chart_stat_sop(p_hat, chart_choice)
     bp_stat += stat_tmp^2
-
   end
-
-  return stat
+  return bp_stat
 end
 
 
 function stat_sop(lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int}; chart_choice=3, add_noise=false) where {T<:Real}
-
-  println("This computes the BP-statistic for SOP chart ", chart_choice)
 
   # Compute 4 dimensional cube to lookup sops
   lookup_array_sop = compute_lookup_array()
@@ -195,7 +195,7 @@ function stat_sop(lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int
   p_ewma = repeat([1.0 / 3.0], 3)
 
   # Pre-allocate for BP-computations
-  d1_d2_combinations = Iterators.product(d1_vec, d2_vec) |> unique
+  d1_d2_combinations = Iterators.product(d1_vec, d2_vec) 
   bp_stat = 0.0
   bp_stats_all = zeros(size(data, 3))
 
@@ -213,8 +213,9 @@ function stat_sop(lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int
 
   for i = axes(data, 3)
 
+    # Add noise?
     if add_noise
-      data_tmp .= data[:, :, i] + rand!(rand_tmp)
+      data_tmp .= view(data,:, :, i) .+ rand!(rand_tmp)
     else
       data_tmp .= view(data, :, :, i)
     end
@@ -236,7 +237,7 @@ function stat_sop(lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int
       # Apply EWMA to p-vectors
       @. p_ewma = (1 - lam) .* p_ewma .+ lam * p_hat
 
-      # Apply EWMA to p-vectors
+      # Compute test statistic
       stat_tmp = chart_stat_sop(p_ewma, chart_choice)
 
       # Save temporary test statistic
@@ -278,7 +279,7 @@ Function to compute the average run length (ARL) for a given control-limit and i
 """
 function arl_sop(lam, cl, sop_dgp::ICSP, d1::Int, d2::Int, reps=10_000; chart_choice=3)
 
-  # Extract values
+  # Extract values  
   m = sop_dgp.M_rows - d1
   n = sop_dgp.N_cols - d2
   dist = sop_dgp.dist

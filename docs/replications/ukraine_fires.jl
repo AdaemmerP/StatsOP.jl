@@ -105,7 +105,7 @@ end
 
 # Compute the statistic 1000 times
 Random.seed!(123)
-results_all = map(x -> stat_sop(.1, empty; chart_choice=3, add_noise=true, d1=1, d2=1)', 1:1000)
+results_all = map(x -> stat_sop(.1, empty, 2, 2; chart_choice=3, add_noise=true)', 1:1000)
 # Convert to matrix
 mapooc_stat_sops = vcat(results_all...)
 

@@ -225,13 +225,29 @@ sop_dgp = SINAR11((0.1, 0.1, 0.1), 10, 10, Poisson(5), nothing, 100)
 
 ## Try BP-Statistic
 
+```{julia}
+data_all = randn(50, 50, 1000)
+data = data_all[:, :, 1]
+d1 = 1
+d2 = 1
+d1_vec = [1, 2]
+d2_vec = [1, 2]
+
+stat_sop(data, d1, d2)
+stat_sop(0.1, data_all, d1, d2; add_noise = true)
+@btime stat_sop(0.1, $data_all, $d1, $d2; add_noise = true)
+
+stat_sop(data, d1_vec, d2_vec; add_noise = true)
+stat_sop(0.1, data_all, d1_vec, d2_vec; add_noise = true)
+@btime stat_sop(0.1, $data_all, $d1_vec, $d2_vec; add_noise = true)
+```
 
 ```{julia}
-data = randn(28, 28, 370);
+data = randn(43, 28, 370);
 lam = 0.1
 L0 = 370
-d1_vec = [1, 2, 3]
-d2_vec = [1, 2, 3]
+d1_vec = [1, 2]
+d2_vec = [1, 2]
 spatial_dgp = ICSP(28, 28, Normal(0, 1))
 
 cl_init = stat_sop(lam, data, d1_vec, d2_vec; chart_choice=3, add_noise=false) |> x -> last(x)
