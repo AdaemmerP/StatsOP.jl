@@ -106,8 +106,9 @@ function sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_fr
       sop[3] = data[i+d1, j]
       sop[4] = data[i+d1, j+d2]
 
-      # Order 'sop_vec' in-place and save results in 'win'
-      order_vec!(sop, win)
+      # Order 'sop' in-place and save results in 'win'
+      sortperm!(win, sop)
+      # order_vec!(sop, win)      
       # Get index for relevant pattern
       ind2 = lookup_sop(lookup_array_sop, win)
       # Add 1 to relevant pattern

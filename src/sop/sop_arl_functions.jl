@@ -228,11 +228,13 @@ function stat_sop(lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int
       fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
 
       # Apply EWMA to p-vectors
-      @. p_ewma = (1 - lam) .* p_ewma .+ lam * p_hat
-      # p_ewma_all[:, :, i] .= (1 - lam) .* view(p_ewma,:, :, i) .+ 0.1 .* p_hat
+      p_ewma_all[:, :, i] .= (1 - lam) .* view(p_ewma,:, :, i) .+ lam .* p_hat
+      #@. p_ewma = (1 - lam) .* p_ewma .+ lam * p_hat
 
-      # Compute test statistic      
-      stat = chart_stat_sop(p_ewma, chart_choice)
+
+      # Compute test statistic            
+      stat = chart_stat_sop(view(p_ewma, :, :, i), chart_choice)
+      # stat = chart_stat_sop(p_ewma, chart_choice)
 
       # Save temporary test statistic
       bp_stat += stat^2
