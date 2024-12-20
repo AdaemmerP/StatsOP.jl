@@ -608,8 +608,6 @@ function rl_sacf(lam, cl, d1_vec::Vector{Int}, d2_vec::Vector{Int}, p_reps::Unit
         # compute ρ(d1,d2)-EWMA
         @views rho_hat_all[i] = (1 - lam) * rho_hat_all[i] + lam * sacf(data, cdata, covs, d1, d2)
         bp_stat += 2 * rho_hat_all[i]^2
-        #rho_hat = (1 - lam) * rho_hat + lam * sacf(data, cdata, covs, d1, d2)
-        #bp_stat += 2 * rho_hat^2
 
       end
 
