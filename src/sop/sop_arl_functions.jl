@@ -229,7 +229,7 @@ function stat_sop(lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int
 
       # Apply EWMA to p-vectors
       @. p_ewma = (1 - lam) .* p_ewma .+ lam * p_hat
-      # p_ewma_all[:, :, i] .= 0.9 .* view(p_ewma,:, :, i) .+ 0.1 .* p_hat
+      # p_ewma_all[:, :, i] .= (1 - lam) .* view(p_ewma,:, :, i) .+ 0.1 .* p_hat
 
       # Compute test statistic      
       stat = chart_stat_sop(p_ewma, chart_choice)
