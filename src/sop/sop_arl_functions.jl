@@ -913,7 +913,6 @@ function rl_sop(lam, cl, lookup_array_sop, p_reps, spatial_dgp::SpatialDGP, dist
 
         # Compute test statistic for one d1-d2 combination
         @views stat = chart_stat_sop(p_ewma_all[:, :, i], chart_choice)
-        #stat = chart_stat_sop(p_ewma, chart_choice)
 
         # Compute BP-statistic
         bp_stat += stat^2
