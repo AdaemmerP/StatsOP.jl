@@ -23,7 +23,7 @@ end
 """
 Compute a 4D array to lookup the index of the sops. The original SOPs are based on ranks. Here we use sortperm which computes the order of the elements in the vector.
 """
-function compute_lookup_array()
+function compute_lookup_array_sop()
 
   p_sops = zeros(Int, 24, 4)
   sort_tmp = zeros(Int, 4)
@@ -56,7 +56,7 @@ end
 # Lookup function --> chooses the index of the sop
 function lookup_sop(lookup_array_sop, win)
 
-  return @views lookup_array_sop[win[1], win[2], win[3], win[4]]
+  return lookup_array_sop[win[1], win[2], win[3], win[4]]
 
 end
 
@@ -153,7 +153,7 @@ end
 function init_vals_sop(lam, dist, runs; chart_choice, p_quantile)
 
   # Pre-allocate
-  lookup_array_sop = compute_lookup_array()
+  lookup_array_sop = compute_lookup_array_sop()
   freq_sop = zeros(24)
   win = zeros(Int, 4)
   data = zeros(m + 1, n + 1)
@@ -207,7 +207,7 @@ end
 function init_vals_sop(m, n, lam, chart_choice, dist, runs, p_quantile)
 
   # Pre-allocate
-  lookup_array_sop = compute_lookup_array()
+  lookup_array_sop = compute_lookup_array_sop()
   freq_sop = zeros(24)
   win = zeros(Int, 4)
   data = zeros(m + 1, n + 1)

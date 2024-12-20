@@ -242,20 +242,30 @@ stat_sop(0.1, data_all, d1_vec, d2_vec; add_noise = true)
 @btime stat_sop(0.1, $data_all, $d1_vec, $d2_vec; add_noise = true)
 ```
 
+
 ```{julia}
-data = randn(43, 28, 370);
+data = randn(41, 26, 370);
+spatial_dgp = ICSP(41, 26, Normal(0, 1))
 lam = 0.1
 L0 = 370
 d1_vec = [1, 2]
 d2_vec = [1, 2]
-spatial_dgp = ICSP(28, 28, Normal(0, 1))
+
+lookup_array_sop = compute_lookup_array_sop()
 
 cl_init = stat_sop(lam, data, d1_vec, d2_vec; chart_choice=3, add_noise=false) |> x -> last(x)
-cl_sop(lam, L0, spatial_dgp, cl_init, d1_vec, d2_vec, 100; chart_choice=3, jmin=4, jmax=6, verbose=true)
 
-arl_sop(lam, 0.1020, spatial_dgp, d1_vec, d2_vec, 100; chart_choice=3)
+@btime rl_sop(lam, cl_init, lookup_array_sop, spatial_dgp, 1:1_000, Normal(0, 1), 3, d1_vec, d2_vec)
 
-spatial_dgp = SAR11((0.1, 0.1, 0.1), 28, 28, Normal(0, 1), nothing, 100)
 
-arl_sop(lam, 0.1020, spatial_dgp, d1_vec, d2_vec, 1_000; chart_choice=3)
+cl_sop(lam, L0, spatial_dgp, cl_init, d1_vec, d2_vec, 1_000; chart_choice=3, jmin=4, jmax=6, verbose=true)
+
+arl_sop(lam, 0.0269, spatial_dgp, d1_vec, d2_vec, 100; chart_choice=3)
+
+spatial_dgp = SAR11((0.1, 0.1, 0.1), 41, 26, Normal(0, 1), nothing, 100)
+
+arl_sop(lam, 0.0269, spatial_dgp, d1_vec, d2_vec, 1_000; chart_choice=3)
+
+spatial_dgp = SAR1((0.1, 0.1, 0.1, 0.1), 11, 11, Normal(0, 1), nothing, 20)
+arl_sop(0.1, 0.03174, spatial_dgp, 1, 1, 1_000; chart_choice=3)
 ```

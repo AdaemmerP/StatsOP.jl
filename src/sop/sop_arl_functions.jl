@@ -23,7 +23,7 @@ stat_sop(data, 2)
 function stat_sop(data::Union{SubArray,Matrix{T}}, d1::Int, d2::Int; chart_choice=3, add_noise::Bool=false) where {T<:Real}
 
   # Compute 4 dimensional cube to lookup sops
-  lookup_array_sop = compute_lookup_array()
+  lookup_array_sop = compute_lookup_array_sop()
   p_hat = zeros(3)
   sop = zeros(4)
   win = zeros(Int, 4)
@@ -48,15 +48,6 @@ function stat_sop(data::Union{SubArray,Matrix{T}}, d1::Int, d2::Int; chart_choic
 
   # Fill 'p_hat' with sop-frequencies and compute relative frequencies
   fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
-
-  # # Compute frequencies of sops
-  # # sop_freq = sop_frequencies(m, n, d1, d2, lookup_array_sop, data, sop)
-
-  # # Compute sum of frequencies for each group
-  # @views p_hat[1] = sum(sop_freq[[1, 3, 8, 11, 14, 17, 22, 24]])
-  # @views p_hat[2] = sum(sop_freq[[2, 5, 7, 9, 16, 18, 20, 23]])
-  # @views p_hat[3] = sum(sop_freq[[4, 6, 10, 12, 13, 15, 19, 21]])
-  # p_hat ./= m * n
 
   # Compute test statistic
   stat = chart_stat_sop(p_hat, chart_choice)
@@ -87,7 +78,7 @@ stat_sop(data, false, lam, chart_choice)
 function stat_sop(lam, data::Array{T,3}, d1::Int=1, d2::Int=1; chart_choice=3, add_noise::Bool=false) where {T<:Real}
 
   # Compute lookup cube
-  lookup_array_sop = compute_lookup_array()
+  lookup_array_sop = compute_lookup_array_sop()
 
   # Pre-allocate
   p_hat = zeros(3)
@@ -110,9 +101,9 @@ function stat_sop(lam, data::Array{T,3}, d1::Int=1, d2::Int=1; chart_choice=3, a
 
   for i = axes(data, 3)
 
-    # //TODO pre allocate data_tmp
+    # add noise?
     if add_noise
-      data_tmp .= view(data,:, :, i) .+ rand!(rand_tmp) # data[:, :, i] + rand!(rand_tmp)
+      data_tmp .= view(data,:, :, i) .+ rand!(rand_tmp) 
     else
       data_tmp .= view(data, :, :, i)
     end
@@ -141,11 +132,11 @@ function stat_sop(lam, data::Array{T,3}, d1::Int=1, d2::Int=1; chart_choice=3, a
 
 end
 
-
+# Compute test statistics for one picture and when deleays are vectors
 function stat_sop(data::Union{SubArray,Matrix{T}}, d1_vec::Vector{Int}, d2_vec::Vector{Int}; chart_choice=3, add_noise::Bool=false) where {T<:Real}
 
   # Compute 4 dimensional cube to lookup sops
-  lookup_array_sop = compute_lookup_array()
+  lookup_array_sop = compute_lookup_array_sop()
   p_hat = zeros(3)
   sop = zeros(4)
   sop_freq = zeros(Int, 24) # factorial(4)
@@ -185,11 +176,11 @@ function stat_sop(data::Union{SubArray,Matrix{T}}, d1_vec::Vector{Int}, d2_vec::
   return bp_stat
 end
 
-
+# Compute test statistics for multiple pictures and when delays are vectors
 function stat_sop(lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int}; chart_choice=3, add_noise=false) where {T<:Real}
 
   # Compute 4 dimensional cube to lookup sops
-  lookup_array_sop = compute_lookup_array()
+  lookup_array_sop = compute_lookup_array_sop()
   p_hat = zeros(3)
   sop = zeros(4)
   p_ewma = repeat([1.0 / 3.0], 3)
@@ -237,7 +228,7 @@ function stat_sop(lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int
       # Apply EWMA to p-vectors
       @. p_ewma = (1 - lam) .* p_ewma .+ lam * p_hat
 
-      # Compute test statistic
+      # Compute test statistic      
       stat_tmp = chart_stat_sop(p_ewma, chart_choice)
 
       # Save temporary test statistic
@@ -285,7 +276,7 @@ function arl_sop(lam, cl, sop_dgp::ICSP, d1::Int, d2::Int, reps=10_000; chart_ch
   dist = sop_dgp.dist
 
   # Compute lookup array and number of sops
-  lookup_array_sop = compute_lookup_array()
+  lookup_array_sop = compute_lookup_array_sop()
 
   # Check whether to use threading or multi processing --> only one process threading, else distributed
   if nprocs() == 1
@@ -379,7 +370,7 @@ function arl_sop(lam, cl, spatial_dgp::SpatialDGP, d1::Int, d2::Int, reps=10_000
   dist_ao = spatial_dgp.dist_ao
 
   # Compute lookup array to finde SOPs
-  lookup_array_sop = compute_lookup_array()
+  lookup_array_sop = compute_lookup_array_sop()
 
   # Check whether to use threading or multi processing --> only one process threading, else distributed
   if nprocs() == 1
@@ -425,7 +416,7 @@ A function to compute the run length for a given control limit and in-control di
 
 - `m::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
 - `n::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1. 
-- `lookup_array_sop::Array{Int, 4}`: A 4D array with the lookup array for the sops. This can be automatically computed using lookup_array_sop = `compute_lookup_array()`. This will be used to find the index of the sops.  
+- `lookup_array_sop::Array{Int, 4}`: A 4D array with the lookup array for the sops. This can be automatically computed using lookup_array_sop = `compute_lookup_array_sop()`. This will be used to find the index of the sops.  
 - `lam::Float64`: A scalar value for lambda for the EWMA chart.
 - `cl::Float64`: A scalar value for the control limit.
 - `reps_range::UnitRange{Int}`: A range of integers for the number of repetitions. This has to be a range to be compatible with `arl_sop()` which uses threading and multi-processing.
@@ -551,7 +542,7 @@ Computes the run length for a given out-of-control DGP. The input parameters are
   
 - `m::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
 - `n::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1.
-- `lookup_array_sop::Array{Int, 4}`: A 4D array with the lookup array for the sops. This can be automatically computed using `lookup_array_sop = compute_lookup_array()`. This will be used to find the index of the sops.
+- `lookup_array_sop::Array{Int, 4}`: A 4D array with the lookup array for the sops. This can be automatically computed using `lookup_array_sop = compute_lookup_array_sop()`. This will be used to find the index of the sops.
 - `lam`: A scalar value for lambda for the EWMA chart. This has to be between 0 and 1.
 - `cl::Float64`: A scalar value for the control limit.
 - `p_reps::UInt`: An unsigned integer value for the number of repetitions. This has to be an unsigned integer to be compatible with `arl_sop()` which uses threading and multi-processing.
@@ -587,7 +578,7 @@ function rl_sop(lam, cl, lookup_array_sop, p_reps, spatial_dgp::SpatialDGP, dist
   if spatial_dgp isa SAR1
     mat = build_sar1_matrix(spatial_dgp) # will be done only once
     mat_ao = zeros((M + 2 * spatial_dgp.margin), (N + 2 * spatial_dgp.margin))
-    vec_ar = zeros((M + 2 * spatial_dgp.margin) * (N + 2 * spatial_dgp.margin))
+    vec_ar = zeros((M + 2 * spatial_dgp.margin) * (N + 2 * spatial_dgp.margin))    
     vec_ar2 = similar(vec_ar)
   elseif spatial_dgp isa BSQMA11
     mat = zeros(M + spatial_dgp.prerun, N + spatial_dgp.prerun)
@@ -656,16 +647,16 @@ function rl_sop(lam, cl, lookup_array_sop, p_reps, spatial_dgp::SpatialDGP, dist
   return rls
 end
 
-########################################################################################################################
+
 ############################### Add BP-Statistics ######################################################################
 ########################################################################################################################
 function arl_sop(lam, cl, spatial_dgp::ICSP, d1_vec::Vector{Int}, d2_vec::Vector{Int}, reps=10_000; chart_choice=3)
 
-  # Compute m and n
+  # Compute m and n  
   dist_error = spatial_dgp.dist
 
   # Compute lookup array to finde SOPs
-  lookup_array_sop = compute_lookup_array()
+  lookup_array_sop = compute_lookup_array_sop()
 
   # Check whether to use threading or multi processing --> only one process threading, else distributed
   if nprocs() == 1
@@ -699,12 +690,12 @@ end
 # rl for in-control processes
 function rl_sop(lam, cl, lookup_array_sop, spatial_dgp::ICSP, reps_range, dist, chart_choice, d1_vec::Vector{Int}, d2_vec::Vector{Int})
 
-  # Pre-allocate
+  # Pre-allocate    
   sop = zeros(4)
   sop_freq = zeros(Int, 24) # factorial(4)
   win = zeros(Int, 4)
-  p_ewma = zeros(3)
   p_hat = zeros(3)
+  p_ewma = zeros(3)
   rls = zeros(Int, length(reps_range))
 
   M = spatial_dgp.M_rows
@@ -722,8 +713,8 @@ function rl_sop(lam, cl, lookup_array_sop, spatial_dgp::ICSP, reps_range, dist, 
   for r in 1:length(reps_range)
     fill!(p_ewma, 1.0 / 3.0)
     stat = chart_stat_sop(p_ewma, chart_choice)
-    bp_stat = 0.0
 
+    bp_stat = 0.0
     rl = 0
 
     while bp_stat < cl
@@ -785,7 +776,7 @@ function arl_sop(lam, cl, spatial_dgp::SpatialDGP, d1_vec::Vector{Int}, d2_vec::
   dist_ao = spatial_dgp.dist_ao
 
   # Compute lookup array to finde SOPs
-  lookup_array_sop = compute_lookup_array()
+  lookup_array_sop = compute_lookup_array_sop()
 
   # Check whether to use threading or multi processing --> only one process threading, else distributed
   if nprocs() == 1
@@ -822,8 +813,6 @@ function rl_sop(lam, cl, lookup_array_sop, p_reps, spatial_dgp::SpatialDGP, dist
   # find maximum values of d1 and d2 for construction of matrices
   M = spatial_dgp.M_rows
   N = spatial_dgp.N_cols
-  #d1_max = maximum(d1_vec)
-  #d2_max = maximum(d2_vec)
 
   # Compute all possible combinations of d1 and d2
   d1_d2_combinations = Iterators.product(d1_vec, d2_vec)

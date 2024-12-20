@@ -44,7 +44,7 @@ function cl_sop(lam, L0, sop_dgp::ICSP, cl_init, d1::Int, d2::Int, reps=10_000; 
   for j in jmin:jmax
     for dh in 1:40
       cl_init = cl_init + (-1)^j * dh / 10^j
-      L1 = arl_sop(lam, cl_init, sop_dgp, reps; chart_choice, d1=d1, d2=d2)[1]
+      L1 = arl_sop(lam, cl_init, sop_dgp, d1, d2, reps; chart_choice)[1]
       if verbose
         println("cl = ", cl_init, "\t", "ARL = ", L1)
       end
