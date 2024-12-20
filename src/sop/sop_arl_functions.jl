@@ -148,15 +148,15 @@ function stat_sop(data::Union{SubArray,Matrix{T}}, d1_vec::Vector{Int}, d2_vec::
   N_cols = size(data, 2)
   d1_d2_combinations = Iterators.product(d1_vec, d2_vec)
 
-  # Add noise?
-  if add_noise
-    data .= data + rand(size(data, 1), size(data, 2))
-  end
-
   # Pre-allocate indexes to compute sum of frequencies
   s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
   s_2 = [2, 5, 7, 9, 16, 18, 20, 23]
   s_3 = [4, 6, 10, 12, 13, 15, 19, 21]
+
+  # Add noise?
+  if add_noise
+    data .= data + rand(size(data, 1), size(data, 2))
+  end
 
   for (d1, d2) in d1_d2_combinations
     
@@ -170,8 +170,8 @@ function stat_sop(data::Union{SubArray,Matrix{T}}, d1_vec::Vector{Int}, d2_vec::
     fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
 
     # Compute test statistic
-    stat_tmp = chart_stat_sop(p_hat, chart_choice)
-    bp_stat += stat_tmp^2
+    stat = chart_stat_sop(p_hat, chart_choice)    
+    bp_stat += stat^2
   end
   return bp_stat
 end
@@ -187,6 +187,8 @@ function stat_sop(lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int
 
   # Pre-allocate for BP-computations
   d1_d2_combinations = Iterators.product(d1_vec, d2_vec) 
+  p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
+  p_ewma_all .= 1.0 / 3.0
   bp_stat = 0.0
   bp_stats_all = zeros(size(data, 3))
 
@@ -227,12 +229,13 @@ function stat_sop(lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int
 
       # Apply EWMA to p-vectors
       @. p_ewma = (1 - lam) .* p_ewma .+ lam * p_hat
+      # p_ewma_all[:, :, i] .= 0.9 .* view(p_ewma,:, :, i) .+ 0.1 .* p_hat
 
       # Compute test statistic      
-      stat_tmp = chart_stat_sop(p_ewma, chart_choice)
+      stat = chart_stat_sop(p_ewma, chart_choice)
 
       # Save temporary test statistic
-      bp_stat += stat_tmp^2
+      bp_stat += stat^2
 
       # Reset win, sop_freq and p_hat
       fill!(win, 0)
@@ -901,7 +904,7 @@ function rl_sop(lam, cl, lookup_array_sop, p_reps, spatial_dgp::SpatialDGP, dist
         # Fill 'p_hat' with sop-frequencies and compute relative frequencies
         fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
 
-        # Apply EWMA to p-vectors
+        # //TODO: p_ewma for each delay combination; Apply EWMA to p-vectors
         @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
 
         # Compute test statistic for one d1-d2 combination
