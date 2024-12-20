@@ -216,7 +216,7 @@ function stat_sop(lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int
     # -------------------------------------------------------------------------------#
     # ----------------     Loop for BP-Statistik                     ----------------#
     # -------------------------------------------------------------------------------#
-    for (d1, d2) in d1_d2_combinations
+    for (i, (d1, d2)) in enumerate(d1_d2_combinations)
 
       m = M_rows - d1
       n = N_cols - d2
@@ -228,13 +228,10 @@ function stat_sop(lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int
       fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
 
       # Apply EWMA to p-vectors
-      p_ewma_all[:, :, i] .= (1 - lam) .* view(p_ewma,:, :, i) .+ lam .* p_hat
-      #@. p_ewma = (1 - lam) .* p_ewma .+ lam * p_hat
-
+      @views p_ewma_all[:, :, i] .= (1 - lam) .* p_ewma_all[:, :, i] .+ lam .* p_hat
 
       # Compute test statistic            
-      stat = chart_stat_sop(view(p_ewma, :, :, i), chart_choice)
-      # stat = chart_stat_sop(p_ewma, chart_choice)
+      @views stat = chart_stat_sop(p_ewma_all[:, :, i], chart_choice)
 
       # Save temporary test statistic
       bp_stat += stat^2
@@ -700,7 +697,7 @@ function rl_sop(lam, cl, lookup_array_sop, spatial_dgp::ICSP, reps_range, dist, 
   sop_freq = zeros(Int, 24) # factorial(4)
   win = zeros(Int, 4)
   p_hat = zeros(3)
-  p_ewma = zeros(3)
+  #p_ewma = zeros(3)
   rls = zeros(Int, length(reps_range))
 
   M = spatial_dgp.M_rows
@@ -709,6 +706,8 @@ function rl_sop(lam, cl, lookup_array_sop, spatial_dgp::ICSP, reps_range, dist, 
 
   # Compute all possible combinations of d1 and d2
   d1_d2_combinations = Iterators.product(d1_vec, d2_vec)
+  p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
+  p_ewma_all .= 1.0 / 3.0
 
   # Pre-allocate indexes to compute sum of frequencies
   s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
@@ -716,8 +715,8 @@ function rl_sop(lam, cl, lookup_array_sop, spatial_dgp::ICSP, reps_range, dist, 
   s_3 = [4, 6, 10, 12, 13, 15, 19, 21]
 
   for r in 1:length(reps_range)
-    fill!(p_ewma, 1.0 / 3.0)
-    stat = chart_stat_sop(p_ewma, chart_choice)
+    # fill!(p_ewma, 1.0 / 3.0)
+    # stat = chart_stat_sop(p_ewma, chart_choice)
 
     bp_stat = 0.0
     rl = 0
@@ -740,7 +739,7 @@ function rl_sop(lam, cl, lookup_array_sop, spatial_dgp::ICSP, reps_range, dist, 
       # -------------------------------------------------------------------------------#
       # ----------------     Loop for BP-Statistik                     ----------------#
       # -------------------------------------------------------------------------------#
-      for (d1, d2) in d1_d2_combinations
+      for (i, (d1, d2)) in enumerate(d1_d2_combinations)
 
         m = spatial_dgp.M_rows - d1
         n = spatial_dgp.N_cols - d2
@@ -752,10 +751,10 @@ function rl_sop(lam, cl, lookup_array_sop, spatial_dgp::ICSP, reps_range, dist, 
         fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
 
         # Apply EWMA to p-vectors
-        @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
-
+        @views p_ewma_all[:, :, i] .= (1 - lam) .* p_ewma_all[:, :, i] .+ lam .* p_hat
+   
         # Compute test statistic for one d1-d2 combination
-        stat = chart_stat_sop(p_ewma, chart_choice)
+        @views stat = chart_stat_sop(p_ewma_all[:, :, i], chart_choice)
 
         # Compute BP-statistic
         bp_stat += stat^2
@@ -826,10 +825,12 @@ function rl_sop(lam, cl, lookup_array_sop, p_reps, spatial_dgp::SpatialDGP, dist
   sop_freq = zeros(Int, 24)
   win = zeros(Int, 4)
   data = zeros(M, N)
-  p_ewma = zeros(3)
   p_hat = zeros(3)
   rls = zeros(Int, length(p_reps))
   sop = zeros(4)
+  #p_ewma = zeros(3)
+  p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
+  p_ewma_all .= 1.0 / 3.0
 
   # pre-allocate indexes to compute sum of frequencies
   s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
@@ -859,8 +860,9 @@ function rl_sop(lam, cl, lookup_array_sop, p_reps, spatial_dgp::SpatialDGP, dist
 
   for r in axes(p_reps, 1)
 
-    fill!(p_ewma, 1.0 / 3.0)
-    stat = chart_stat_sop(p_ewma, chart_choice)
+    #fill!(p_ewma, 1.0 / 3.0)
+    #stat = chart_stat_sop(p_ewma, chart_choice)
+    
     bp_stat = 0.0
 
     # Re-initialize matrix 
@@ -895,7 +897,7 @@ function rl_sop(lam, cl, lookup_array_sop, p_reps, spatial_dgp::SpatialDGP, dist
       # -------------------------------------------------------------------------------#
       # ----------------     Loop for BP-Statistik                     ----------------#
       # -------------------------------------------------------------------------------#
-      for (d1, d2) in d1_d2_combinations
+      for (i, (d1, d2)) in enumerate(d1_d2_combinations)
 
         m = spatial_dgp.M_rows - d1
         n = spatial_dgp.N_cols - d2
@@ -906,11 +908,12 @@ function rl_sop(lam, cl, lookup_array_sop, p_reps, spatial_dgp::SpatialDGP, dist
         # Fill 'p_hat' with sop-frequencies and compute relative frequencies
         fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
 
-        # //TODO: p_ewma for each delay combination; Apply EWMA to p-vectors
-        @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
+        # Apply EWMA
+        @views p_ewma_all[:, :, i] .= (1 - lam) .* p_ewma_all[:, :, i] .+ lam .* p_hat
 
         # Compute test statistic for one d1-d2 combination
-        stat = chart_stat_sop(p_ewma, chart_choice)
+        @views stat = chart_stat_sop(p_ewma_all[:, :, i], chart_choice)
+        #stat = chart_stat_sop(p_ewma, chart_choice)
 
         # Compute BP-statistic
         bp_stat += stat^2
