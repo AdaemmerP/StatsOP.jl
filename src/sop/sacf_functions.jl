@@ -140,16 +140,16 @@ function stat_sacf(lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{In
   cdata = similar(data[:, :, 1])
   covs = zeros(maximum(d1_vec) + 1, maximum(d1_vec) + 1) # '+1' to include the zero lag
   bp_stats = zeros(size(data, 3))
-  rho_hat = 0.0
+  rho_hat_all = zeros(length(d1_d2_combinations))
   bp_stat = 0.0
 
   # compute sequential BP-statistic
   for i in axes(data, 3)
-    for (d1, d2) in d1_d2_combinations
-      rho_hat = (1 - lam) * rho_hat + lam * sacf(view(data, :, :, i), cdata, covs, d1, d2)
-      bp_stat += 2 * rho_hat^2
-      bp_stats[i] = bp_stat
+    for (i, (d1, d2)) in enumerate(d1_d2_combinations)
+      rho_hat_all[i] = (1 - lam) * rho_hat_all[i] + lam * sacf(view(data, :, :, i), cdata, covs, d1, d2)
+      bp_stat += 2 * rho_hat_all[i]^2      
     end
+    bp_stats[i] = bp_stat
   end
 
   return bp_stats
@@ -253,9 +253,6 @@ function rl_sacf(m::Int, n::Int, d1::Int, d2::Int, lam, cl,
   cdata = similar(data)
   covs = zeros(d1 + 1, d2 + 1) # '+1' to include the zero lag
   rls = zeros(Int, length(p_reps))
-
-  # cdata_sq = similar(cdata)
-  # cx_t_cx_t1 = zeros(m, n)
 
   # pre-allocate mat, mat_ao and mat_ma
   if spatial_dgp isa SAR1
@@ -475,10 +472,11 @@ function rl_sacf(lam, cl, sp_dgp::ICSP, d1_vec::Vector{Int}, d2_vec::Vector{Int}
 
   # Compute all d1-d2 combinations
   d1_d2_combinations = Iterators.product(d1_vec, d2_vec)
-
+  rho_hat_all = zeros(length(d1_d2_combinations))
+  
   for r in axes(p_reps, 1)
 
-    rho_hat = 0.0
+    # rho_hat = 0.0
     bp_stat = 0.0
 
     rl = 0
@@ -490,10 +488,10 @@ function rl_sacf(lam, cl, sp_dgp::ICSP, d1_vec::Vector{Int}, d2_vec::Vector{Int}
       rand!(dist_error, data)
 
       # compute BP-statistic using all d1-d2 combinations
-      for (d1, d2) in d1_d2_combinations
+      for (i, (d1, d2)) in enumerate(d1_d2_combinations)
         # compute ρ(d1,d2)-EWMA
-        rho_hat = (1 - lam) * rho_hat + lam * sacf(data, cdata, covs, d1, d2)
-        bp_stat += 2 * rho_hat^2
+        @views rho_hat_all[i] = (1 - lam) * rho_hat_all[i] + lam * sacf(data, cdata, covs, d1, d2)
+        bp_stat += 2 * rho_hat_all[i]^2
       end
 
     end
@@ -551,7 +549,10 @@ function rl_sacf(lam, cl, d1_vec::Vector{Int}, d2_vec::Vector{Int}, p_reps::Unit
   cdata = similar(data)
   covs = zeros(maximum(d1_vec) + 1, maximum(d2_vec) + 1) # '+1' to include the zero lag
   rls = zeros(Int, length(p_reps))
+
+  # Compute all d1-d2 combinations
   d1_d2_combinations = Iterators.product(d1_vec, d2_vec)
+  rho_hat_all = zeros(length(d1_d2_combinations))
 
   # pre-allocate mat, mat_ao and mat_ma
   # mat:    matrix for the final values of the spatial DGP
@@ -585,7 +586,7 @@ function rl_sacf(lam, cl, d1_vec::Vector{Int}, d2_vec::Vector{Int}, p_reps::Unit
       init_mat!(spatial_dgp, dist_error, spatial_dgp.dgp_params, mat)
     end
 
-    rho_hat = 0.0
+    # rho_hat = 0.0
     bp_stat = 0.0
 
     rl = 0
@@ -602,11 +603,13 @@ function rl_sacf(lam, cl, d1_vec::Vector{Int}, d2_vec::Vector{Int}, p_reps::Unit
       end
 
       # Compute BP-statistic using all d1-d2 combinations
-      for (d1, d2) in d1_d2_combinations
+      for (i, (d1, d2)) in enumerate(d1_d2_combinations)
 
         # compute ρ(d1,d2)-EWMA
-        rho_hat = (1 - lam) * rho_hat + lam * sacf(data, cdata, covs, d1, d2)
-        bp_stat += 2 * rho_hat^2
+        @views rho_hat_all[i] = (1 - lam) * rho_hat_all[i] + lam * sacf(data, cdata, covs, d1, d2)
+        bp_stat += 2 * rho_hat_all[i]^2
+        #rho_hat = (1 - lam) * rho_hat + lam * sacf(data, cdata, covs, d1, d2)
+        #bp_stat += 2 * rho_hat^2
 
       end
 
