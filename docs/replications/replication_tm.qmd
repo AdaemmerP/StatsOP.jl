@@ -282,9 +282,36 @@ cl_sacf(0.1, 370, ICSP(11, 11, Normal(0, 1)), 0.04 , 2, 1, 1000; jmin=4, jmax=6,
 
 
 ```{julia}
-stat_sacf(0.1, rand(40, 40, 370), [1, 2], [1, 2]) |> last
+stat_sacf(0.1, rand(41, 26, 370), [1, 2], [1, 2]) |> last
 
-cl_sacf(lam, L0, ICSP(40, 40, Normal(0, 1)), 0.088, [1, 2], [1, 2], 1_000; jmin=4, jmax=6, verbose=true)
+cl_sacf(lam, L0, ICSP(41, 26, Normal(0, 1)), 0.088, [1, 2], [1, 2], 1_000; jmin=4, jmax=6, verbose=true)
 
-rl_sacf(0.1, 0.088, ICSP(40, 40, Normal(0, 1)), [1, 2], [1, 2], 1:100, Normal(0, 1))
+@btime rl_sacf(0.1, 0.088, ICSP(40, 40, Normal(0, 1)), [1, 2], [1, 2], 1:100, Normal(0, 1))
+
+
+spatial_sar11 = SAR11((0.1, 0.1, 0.1), 41, 26, Normal(0, 1), nothing, 100)
+arl_sacf(0.1, 0.132193, spatial_sar11, [1, 2],  [1, 2], 100)
+
+ arl_sacf(lam, cl, spatial_dgp::SpatialDGP, d1_vec::Vector{Int}, d2_vec::Vector{Int}, reps=10_000)
+```
+
+
+```{julia}
+SAR22(
+    (0.0, 0.0, 0.0, 0.4, 0.3, 0.0, 0.0, 0.1), 
+    41, 26, 
+    Normal(0, 1), 
+    nothing, 
+    100
+    )
+ 
+ SQMA22(
+    (0.0, 0.0, 0.0, 0.8, 0.8, 0.0, 0.0, 0.8), 
+    (0.0, 0.0, 0.0, 2,     2, 0.0, 0.0, 2),
+    41, 26, 
+    Normal(0, 1), 
+    nothing, 
+    100
+    )
+
 ```

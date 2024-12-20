@@ -52,8 +52,10 @@ export init_mat!,
 # SOP Types to export (from 'sop_dgp_structs.jl')
 export ICSP,
        SAR11,
+       SAR22,
        SINAR11,
        SQMA11,
+       SQMA22,
        SQINMA11,
        SAR1,
        BSQMA11 

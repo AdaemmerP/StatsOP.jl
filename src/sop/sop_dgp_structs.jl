@@ -54,6 +54,32 @@ struct SAR11 <: SpatialDGP
     "
 end
 
+""" 
+    SAR22(dgp_params, M_rows, N_cols, dist, dist_ao, prerun)
+
+A struct to define a first-order spatial autoregressive (SAR(1, 1)) process:
+
+`` \\qquad \\qquad Y_{t_1, t_2} = 
+              \\alpha_1 \\cdot Y_{t_1-1, t_2} 
+            + \\alpha_2 \\cdot Y_{t_1,   t_2-1} 
+            + \\alpha_3 \\cdot Y_{t_1-1, t_2-1} 
+            + \\alpha_4 \\cdot Y_{t_1-2, t_2} 
+            + \\alpha_5 \\cdot Y_{t_1,   t_2-2} 
+            + \\alpha_6 \\cdot Y_{t_1-2, t_2-1} 
+            + \\alpha_7 \\cdot Y_{t_1-1, t_2-2} 
+            + \\alpha_8 \\cdot Y_{t_1-2, t_2-2} 
+            + \\varepsilon_{t_1, t_2}. ``
+
+"""
+struct SAR22 <: SpatialDGP
+  dgp_params::Tuple{Float64, Float64, Float64, Float64, Float64, Float64, Float64, Float64}
+  M_rows::Int
+  N_cols::Int
+  dist::UnivariateDistribution
+  dist_ao::Union{Nothing, UnivariateDistribution}
+  prerun::Int  
+end
+
 
 """ 
     SINAR11(dgp_params, M_rows, N_cols, dist, dist_ao, prerun)
@@ -122,6 +148,35 @@ struct SQMA11 <: SpatialDGP
   prerun::Int
 end
 
+
+""" 
+    SQMA22(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao, prerun)
+
+A struct to define a Spatial quadratic moving-average (SQMA(1, 1)):
+
+  ``
+  \\quad \\quad Y_{t_1, t_2} = 
+  \\beta_1 \\cdot \\varepsilon_{t_1-1, t_2}^a 
++ \\beta_2 \\cdot \\varepsilon_{t_1, t_2-1}^b 
++ \\beta_3 \\cdot \\varepsilon_{t_1-1, t_2-1}^c 
++ \\beta_4 \\cdot \\varepsilon_{t_1-2, t_2}^d 
++ \\beta_5 \\cdot \\varepsilon_{t_1, t_2-2}^e 
++ \\beta_6 \\cdot \\varepsilon_{t_1-2, t_2-1}^f 
++ \\beta_7 \\cdot \\varepsilon_{t_1-1, t_2-2}^g 
++ \\beta_8 \\cdot \\varepsilon_{t_1-2, t_2-2}^h 
++ \\varepsilon_{t_1, t_2}.
+``
+
+"""
+struct SQMA22 <: SpatialDGP
+  dgp_params::Tuple{Float64, Float64, Float64, Float64, Float64, Float64, Float64, Float64}
+  eps_params::Tuple{Int, Int, Int, Int, Int, Int, Int, Int}
+  M_rows::Int
+  N_cols::Int
+  dist::UnivariateDistribution
+  dist_ao::Union{Nothing, UnivariateDistribution}
+  prerun::Int
+end
 
 """ 
     SQINMA11(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao, prerun)

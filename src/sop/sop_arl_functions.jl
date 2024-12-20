@@ -846,7 +846,7 @@ function rl_sop(lam, cl, lookup_array_sop, p_reps, spatial_dgp::SpatialDGP, dist
     mat = zeros(M + spatial_dgp.prerun, N + spatial_dgp.prerun)
     mat_ma = zeros(M + spatial_dgp.prerun + 1, N + spatial_dgp.prerun + 1) # add one extra row and column for "forward looking" BSQMA11
     mat_ao = similar(mat)
-  else
+  else # SAR11, SAR22, SINAR11, SQMA11
     mat = zeros(M + spatial_dgp.prerun, N + spatial_dgp.prerun)
     mat_ma = similar(mat)
     mat_ao = similar(mat)
