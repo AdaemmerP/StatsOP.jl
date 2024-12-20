@@ -46,17 +46,17 @@
 - `d2::Int`: The number of column delays to consider for the SACF. The default is one.    
 """
 # Spatial ACF 
-function sacf(data, cdata, covs, d1::Int=1, d2::Int=1)
+function sacf(data, cdata, covs, d1::Int, d2::Int)
 
   cdata .= data .- mean(data)
   M = size(cdata, 1)
   N = size(cdata, 2)
 
-  # Loop to compute all covariance products
-  for k in 0:d2 # loop over columns
-    for l in 0:d1 # loop over rows     
-      for j in 1:(N-l) # loop over columns
-        for i in 1:(M-k) # loop over rows
+  # Loop to compute all sums of relevant products
+  for k in 0:d2
+    for l in 0:d1
+      for j in 1:(N-l)
+        for i in 1:(M-k)
           covs[l+1, k+1] += cdata[i+k, j+l] * cdata[i, j]
         end
       end
@@ -70,9 +70,91 @@ function sacf(data, cdata, covs, d1::Int=1, d2::Int=1)
   sacf_val = covs[1+d1, 1+d2] / covs[1, 1]
 
   # Return the SACF value
-  #return sacf_val
+  return sacf_val
 end
 
+# Compute SACF for one picture and for integer delays
+function stat_sacf(data::Union{SubArray,Matrix{T}}, d1::Int, d2::Int) where {T<:Real}
+
+  # pre-allocate
+  cdata = similar(data)
+  covs = zeros(d1 + 1, d2 + 1) # '+1' to include the zero lag
+
+  return sacf(data, cdata, covs, d1, d2)
+
+end
+
+# Compute B-Statistik for one picture
+function stat_sacf(data::Union{SubArray,Matrix{T}}, d1_vec::Vector{Int}, d2_vec::Vector{Int}) where {T<:Real}
+
+  # Compute all d1-d2 combinations
+  d1_d2_combinations = Iterators.product(d1_vec, d2_vec)
+
+  # pre-allocate
+  cdata = similar(data)
+  covs = zeros(maximum(d1_vec) + 1, maximum(d1_vec) + 1) # '+1' to include the zero lag
+  bp_stat = 0.0
+
+  for (d1, d2) in d1_d2_combinations
+    bp_stat += sacf(data, cdata, covs, d1, d2)^2
+  end
+
+  return bp_stat
+
+end
+
+# Compute SACF for multiple pictures
+function stat_sacf(lam, data::Array{T,3}, d1::Int, d2::Int) where {T<:Real}
+
+  # pre-allocate
+  data_tmp = similar(data[:, :, 1])
+  cdata = similar(data_tmp)
+  covs = zeros(d1 + 1, d2 + 1) # '+1' to include the zero lag
+
+  rho_hat = 0.0
+  sacf_vals = zeros(size(data, 3))
+
+  # loop over pictures
+  for i in axes(data, 3)
+    data_tmp .= view(data, :, :, i)
+    rho_hat = (1 - lam) * rho_hat + lam * sacf(data_tmp, cdata, covs, d1, d2)
+    sacf_vals[i] = rho_hat
+  end
+
+  return sacf_vals
+
+end
+
+# Compute B-Statistik for multiple pictures
+function stat_sacf(lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int}) where {T<:Real}
+
+  # ennsure tha 0 is not included in the d1_vec and d2_vec
+  if 0 in d1_vec || 0 in d2_vec
+    throw(ArgumentError("0 should not be included in d1_vec or d2_vec"))
+  end
+
+  # Compute all d1-d2 combinations
+  d1_d2_combinations = Iterators.product(d1_vec, d2_vec)
+
+  # pre-allocate
+  cdata = similar(data[:, :, 1])
+  covs = zeros(maximum(d1_vec) + 1, maximum(d1_vec) + 1) # '+1' to include the zero lag
+  bp_stats = zeros(size(data, 3))
+  rho_hat = 0.0
+  bp_stat = 0.0
+
+  # compute sequential BP-statistic
+  for i in axes(data, 3)
+    for (d1, d2) in d1_d2_combinations
+      rho_hat = (1 - lam) * rho_hat + lam * sacf(view(data, :, :, i), cdata, covs, d1, d2)
+      bp_stat += 2 * rho_hat^2
+      bp_stats[i] = bp_stat
+    end
+  end
+
+  return bp_stats
+
+end
 
 """
     rl_sacf(m::Int, n::Int, lam, cl, p_reps, dist_error)
@@ -109,23 +191,19 @@ function rl_sacf(m::Int, n::Int, d1::Int, d2::Int,
   covs = zeros(d1 + 1, d2 + 1) # '+1' to include the zero lag
   rls = zeros(Int, length(p_reps))
 
-  #cdata_sq = similar(cdata)
-  #cx_t_cx_t1 = zeros(m, n)
+  for r in axes(p_reps, 1)
 
-  for r in 1:length(p_reps)
-
-    p_hat = 0
+    rho_hat = 0
     rl = 0
 
-    while abs(p_hat) < cl
+    while abs(rho_hat) < cl
       rl += 1
 
       # fill matrix with iid N(0,1) values
       rand!(dist_error, data)
 
       # compute ρ(d1,d2)-EWMA
-      p_hat = (1 - lam) * p_hat + lam * sacf(data, cdata, covs, d1, d2)
-      # p_hat = (1 - lam) * p_hat + lam * sacf_11(data, cdata, cx_t_cx_t1, cdata_sq)
+      rho_hat = (1 - lam) * rho_hat + lam * sacf(data, cdata, covs, d1, d2)
 
     end
 
@@ -195,20 +273,20 @@ function rl_sacf(m::Int, n::Int, d1::Int, d2::Int, lam, cl,
     mat_ao = similar(mat)
   end
 
-  for r in 1:length(p_reps)
+  for r in axes(p_reps, 1)
 
     # Re-initialize matrix 
     if spatial_dgp isa SAR1 # Add SQMA11, SQINMA11, BSQMA11 which also do not need re-initialization
-      # do nothing, 'mat' will not be overwritten for SAR1
+    # do nothing, 'mat' will not be overwritten for SAR1
     else
       fill!(mat, 0)
       init_mat!(spatial_dgp, dist_error, spatial_dgp.dgp_params, mat)
     end
 
-    p_hat = 0
+    rho_hat = 0
     rl = 0
 
-    while abs(p_hat) < cl
+    while abs(rho_hat) < cl
       rl += 1
 
       # Fill matrix with dgp 
@@ -219,9 +297,8 @@ function rl_sacf(m::Int, n::Int, d1::Int, d2::Int, lam, cl,
       end
 
       # Compute ρ(d1,d2)-EWMA
-      p_hat = (1 - lam) * p_hat + lam * sacf(data, cdata, covs, d1, d2) 
-      #p_hat = (1 - lam) * p_hat + lam * sacf_11(data, cdata, cx_t_cx_t1, cdata_sq)
-
+      rho_hat = (1 - lam) * rho_hat + lam * sacf(data, cdata, covs, d1, d2)
+ 
     end
 
     rls[r] = rl
@@ -252,7 +329,7 @@ sp_dgp = ICSP(10, 10, Normal(0, 1))
 arls = arl_sacf(lam, cl, sp_dgp, reps)
 ```
 """
-function arl_sacf(lam, cl, sp_dgp::ICSP, reps=10_000; d1::Int=1, d2::Int=1)
+function arl_sacf(lam, cl, sp_dgp::ICSP, d1::Int, d2::Int, reps=10_000)
 
   # Extract        
   m = sp_dgp.M_rows - d1
@@ -313,7 +390,7 @@ dist_ao = nothing
 arl = arl_sacf(lam, cl, reps, spatial_dgp, dist_error, dist_ao)
 ```
 """
-function arl_sacf(lam, cl, sp_dgp::SpatialDGP, reps=10_000; d1::Int=1, d2::Int=1)
+function arl_sacf(lam, cl, sp_dgp::SpatialDGP, d1::Int, d2::Int, reps=10_000)
 
   # extract m and n from spatial_dgp
   m = sp_dgp.M_rows - d1
@@ -349,68 +426,193 @@ function arl_sacf(lam, cl, sp_dgp::SpatialDGP, reps=10_000; d1::Int=1, d2::Int=1
   return (mean(rlvec), std(rlvec) / sqrt(reps))
 end
 
+########################################################################
+########################## SACF BP-statistics ##########################
+########################################################################
+function arl_sacf(lam, cl, sp_dgp::ICSP, d1_vec::Vector{Int}, d2_vec::Vector{Int}, reps=10_000)
 
-"""
-    cl_sacf(m, n, lam, L0, reps, cl_init, jmin, jmax, verbose, dist_error)
-
-Compute the control limit for the exponentially weighted moving average (EWMA) control chart using the spatial autocorrelation function (SACF) for a lag length of 1. The function returns the control limit for a given average run length (ARL) `L0` and a given number of repetitions `reps`. The input arguments are:
- 
-- `m::Int`: The number of rows in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).
-- `n::Int`: The number of columns in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).
-- `lam`: The smoothing parameter for the EWMA control chart.
-- `L0`: The average run length (ARL) to use for the control limit.
-- `reps`: The number of repetitions to compute the ARL.
-- `cl_init`: The initial control limit to use for the EWMA control chart. If set to 0, the function will search for the control limit that gives an ARL greater than `L0`.
-- `jmin`: The minimum number of values to change after the decimal point in the control limit.
-- `jmax`: The maximum number of values to change after the decimal point in the control limit.
-- `verbose`: A boolean to indicate whether to print the control limit and ARL for each iteration.
-- `dist_error`: The distribution to use for the error term in the SACF function. This can be any univariate distribution from the `Distributions.jl` package or a custom distribution with a defined method for `rand()` and `rand!()`.
-
-```julia
-#--- Example
-# Set parameters
-m = 10
-n = 10
-lam = 0.1
-L0 = 370
-reps = 1000
-cl_init = 0.05
-jmin = 4
-jmax = 7
-verbose = true
-dist_error = Normal(0, 1)
-
-# Compute control limit
-cl = cl_sacf(m, n, lam, L0, reps, cl_init, jmin, jmax, verbose, dist_error)
-```
-"""
-function cl_sacf(lam, L0, sp_dgp::ICSP, cl_init, reps=10_000; d1::Int = 1, d2::Int=2, jmin=4, jmax=6, verbose=false)
-
-  # extract m and n from spatial_dgp
-  m = sp_dgp.M_rows - d1
-  n = sp_dgp.N_cols - d2
+  # Extract distribution        
   dist = sp_dgp.dist
 
-  for j in jmin:jmax
-    for dh in 1:80
-      cl_init = cl_init + (-1)^j * dh / 10^j
-      L1 = arl_sacf(lam, cl_init, sp_dgp, reps; d1=d1, d2=d2)[1]
-      if verbose
-        println("cl = ", cl_init, "\t", "ARL = ", L1)
-      end
-      if (j % 2 == 1 && L1 < L0) || (j % 2 == 0 && L1 > L0)
-        break
-      end
+  # Check whether to use threading or multi processing
+  if nprocs() == 1 # Threading
+
+    # Make chunks for separate tasks (based on number of threads)        
+    chunks = Iterators.partition(1:reps, div(reps, Threads.nthreads())) 
+
+    # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
+    par_results = map(chunks) do i
+      Threads.@spawn rl_sacf(lam, cl, sp_dgp, d1_vec, d2_vec, i, dist)
     end
-    cl_init = cl_init
+
+  elseif nprocs() > 1 # Multi Processing
+
+    # Make chunks for separate tasks (based on number of workers)    
+    chunks = Iterators.partition(1:reps, div(reps, nworkers())) 
+
+    par_results = pmap(chunks) do i
+      rl_sacf(lam, cl, sp_dgp, d1_vec, d2_vec, i, dist)
+    end
+
   end
-  if L1 < L0
-    cl_init = cl_init + 1 / 10^jmax
-  end
-  return cl_init
+
+  # Collect results from tasks
+  rls = fetch.(par_results)
+  rlvec = Iterators.flatten(rls) |> collect
+  return (mean(rlvec), std(rlvec) / sqrt(reps))
 end
 
+# Run-length function for in-control 
+function rl_sacf(lam, cl, sp_dgp::ICSP, d1_vec::Vector{Int}, d2_vec::Vector{Int}, p_reps::UnitRange, dist_error::UnivariateDistribution)
 
+  # pre-allocate
+  M = sp_dgp.M_rows
+  N = sp_dgp.N_cols
+  data = zeros(M, N)
+  cdata = similar(data)
+  covs = zeros(maximum(d1_vec) + 1, maximum(d2_vec) + 1) # '+1' to include the zero lag
+  rls = zeros(Int, length(p_reps))
 
+  # Compute all d1-d2 combinations
+  d1_d2_combinations = Iterators.product(d1_vec, d2_vec)
 
+  for r in axes(p_reps, 1)
 
+    rho_hat = 0.0
+    bp_stat = 0.0
+
+    rl = 0
+
+    while bp_stat < cl
+      rl += 1
+
+      # fill data matrix 
+      rand!(dist_error, data)
+
+      # compute BP-statistic using all d1-d2 combinations
+      for (d1, d2) in d1_d2_combinations
+        # compute ρ(d1,d2)-EWMA
+        rho_hat = (1 - lam) * rho_hat + lam * sacf(data, cdata, covs, d1, d2)
+        bp_stat += 2 * rho_hat^2
+      end
+
+    end
+
+    rls[r] = rl
+
+  end
+
+  return rls
+
+end
+
+# Run-length function for out-of-control for BP-statistic
+function arl_sacf(lam, cl, spatial_dgp::SpatialDGP, d1_vec::Vector{Int}, d2_vec::Vector{Int}, reps=10_000)
+
+  # Extract distribution        
+  dist_error = spatial_dgp.dist
+  dist_ao = spatial_dgp.dist_ao
+
+  # Check whether to use threading or multi processing
+  if nprocs() == 1 # Threading
+
+    # Make chunks for separate tasks (based on number of threads)        
+    chunks = Iterators.partition(1:reps, div(reps, Threads.nthreads())) 
+
+    # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
+    par_results = map(chunks) do i
+      Threads.@spawn rl_sacf(lam, cl, d1_vec, d2_vec, i, spatial_dgp, dist_error, dist_ao)   
+    end
+
+  elseif nprocs() > 1 # Multi Processing
+
+    # Make chunks for separate tasks (based on number of workers)    
+    chunks = Iterators.partition(1:reps, div(reps, nworkers())) 
+
+    par_results = pmap(chunks) do i
+      rl_sacf(lam, cl, d1_vec, d2_vec, i, spatial_dgp, dist_error, dist_ao)
+    end
+
+  end
+
+  # Collect results from tasks
+  rls = fetch.(par_results)
+  rlvec = Iterators.flatten(rls) |> collect
+  return (mean(rlvec), std(rlvec) / sqrt(reps))
+end
+
+# Run-length function for out-of-control for BP-statistic
+function rl_sacf(lam, cl, d1_vec::Vector{Int}, d2_vec::Vector{Int}, p_reps::UnitRange, spatial_dgp::SpatialDGP, dist_error::UnivariateDistribution, dist_ao::Union{UnivariateDistribution,Nothing})
+
+  # pre-allocate
+  M = spatial_dgp.M_rows
+  N = spatial_dgp.N_cols
+  data = zeros(M, N)
+  cdata = similar(data)
+  covs = zeros(maximum(d1_vec) + 1, maximum(d2_vec) + 1) # '+1' to include the zero lag
+  rls = zeros(Int, length(p_reps))
+  d1_d2_combinations = Iterators.product(d1_vec, d2_vec)
+
+  # pre-allocate mat, mat_ao and mat_ma
+  # mat:    matrix for the final values of the spatial DGP
+  # mat_ao: matrix for additive outlier 
+  # mat_ma: matrix for moving averages
+  # vec_ar: vector for SAR(1) model
+  # vec_ar2: vector for in-place multiplication for SAR(1) model
+  if spatial_dgp isa SAR1
+    mat = build_sar1_matrix(spatial_dgp) # will be done only once
+    mat_ao = zeros((M + 2 * spatial_dgp.margin), (N + 2 * spatial_dgp.margin))
+    vec_ar = zeros((M + 2 * spatial_dgp.margin) * (N + 2 * spatial_dgp.margin))
+    vec_ar2 = similar(vec_ar)
+  elseif spatial_dgp isa BSQMA11
+    mat = zeros(M + spatial_dgp.prerun, N + spatial_dgp.prerun)
+    mat_ma = zeros(M + spatial_dgp.prerun + 1, N + spatial_dgp.prerun + 1) # add one extra row and column for "forward looking" BSQMA11
+    mat_ao = similar(mat)
+  else
+    mat = zeros(M + spatial_dgp.prerun, N + spatial_dgp.prerun)
+    mat_ma = similar(mat)
+    mat_ao = similar(mat)
+  end
+
+  # Loop over repetitions
+  for r in axes(p_reps, 1)
+
+    # Re-initialize matrix 
+    if spatial_dgp isa SAR1 # Add SQMA11, SQINMA11, BSQMA11 which also do not need re-initialization
+    # do nothing, 'mat' will not be overwritten for SAR1
+    else
+      fill!(mat, 0)
+      init_mat!(spatial_dgp, dist_error, spatial_dgp.dgp_params, mat)
+    end
+
+    rho_hat = 0.0
+    bp_stat = 0.0
+
+    rl = 0
+
+    while bp_stat < cl # BP-statistic can only be positive
+
+      rl += 1
+
+      # Fill matrix with dgp 
+      if spatial_dgp isa SAR1
+        data .= fill_mat_dgp_sop!(spatial_dgp, dist_error, dist_ao, mat, mat_ao, vec_ar, vec_ar2)
+      else
+        data .= fill_mat_dgp_sop!(spatial_dgp, dist_error, dist_ao, mat, mat_ao, mat_ma)
+      end
+
+      # Compute BP-statistic using all d1-d2 combinations
+      for (d1, d2) in d1_d2_combinations
+
+        # compute ρ(d1,d2)-EWMA
+        rho_hat = (1 - lam) * rho_hat + lam * sacf(data, cdata, covs, d1, d2)
+        bp_stat += 2 * rho_hat^2
+
+      end
+
+    end
+
+    rls[r] = rl
+  end
+  return rls
+end

@@ -37,6 +37,7 @@ export rl_sop,
 # SACF functions to export
 export rl_sacf,
        arl_sacf,
+       stat_sacf,
        sacf_11,
        crit_sacf,
        cl_sacf,
@@ -99,8 +100,11 @@ include("sop/sop_arl_functions.jl")
 include("sop/sop_dgp_functions.jl")
 include("sop/sop_distributions.jl")
 include("sop/sop_test_functions.jl")
-include("sop/sacf_functions.jl")
 include("sop/sop_help_functions.jl")
 include("sop/sop_cl_functions.jl")
+
+# Include files for SACFs
+include("sop/sacf_functions.jl")
+include("sop/sacf_cl_functions.jl")
 
 end

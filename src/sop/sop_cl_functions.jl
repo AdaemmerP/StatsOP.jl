@@ -41,6 +41,7 @@ cl_sop(lam, L0, sop_dgp, cl_init, reps; chart_choice, jmin, jmax, verbose, d)
 function cl_sop(lam, L0, sop_dgp::ICSP, cl_init, d1::Int, d2::Int, reps=10_000; chart_choice=3, jmin=4, jmax=6, verbose=false)
 
   L1 = 0.0
+  
   for j in jmin:jmax
     for dh in 1:40
       cl_init = cl_init + (-1)^j * dh / 10^j
@@ -58,6 +59,7 @@ function cl_sop(lam, L0, sop_dgp::ICSP, cl_init, d1::Int, d2::Int, reps=10_000; 
   if L1 < L0
     cl_init = cl_init + 1 / 10^jmax
   end
+
   return cl_init
 end
 

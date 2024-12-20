@@ -852,7 +852,7 @@ function rl_sop(lam, cl, lookup_array_sop, p_reps, spatial_dgp::SpatialDGP, dist
     mat_ao = similar(mat)
   end
 
-  for r in 1:length(p_reps)
+  for r in axes(p_reps, 1)
 
     fill!(p_ewma, 1.0 / 3.0)
     stat = chart_stat_sop(p_ewma, chart_choice)
