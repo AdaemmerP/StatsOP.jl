@@ -354,10 +354,10 @@ sp_dgp = ICSP(10, 10, Normal(0, 1))
 arls = arl_sacf(lam, cl, sp_dgp, reps)
 ```
 """
-function arl_sacf(lam, cl, sp_dgp::ICSP, d1::Int, d2::Int, reps=10_000)
+function arl_sacf(lam, cl, spatial_dgp::ICSP, d1::Int, d2::Int, reps=10_000)
 
   # Extract        
-  dist_error = sp_dgp.dist
+  dist_error = spatial_dgp.dist
 
   # Check whether to use threading or multi processing
   if nprocs() == 1 # Threading

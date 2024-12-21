@@ -230,7 +230,7 @@ A struct to define a first-order simultaneous autoregressive (SAR(1)) model:
 - `margin::Int`: The margin for the spatial matrix used for initialization.
 
 ```julia
-sar1 = SAR1((0.5, 0.3, 0.2, 0.1), 10, 10, Normal(0, 1), nothing, 100) 
+sar1 = SAR1((0.5, 0.3, 0.2, 0.1), 10, 10, Normal(0, 1), nothing, 20) 
 ```
 """
 struct SAR1  <: SpatialDGP

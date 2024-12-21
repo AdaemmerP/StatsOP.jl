@@ -21,8 +21,13 @@ function init_mat!(dgp::SAR22, dist_error, dgp_params, mat)
   α₁ = dgp_params[1]
   α₂ = dgp_params[2]
   α₃ = dgp_params[3]
+  α₄ = dgp_params[4]
+  α₅ = dgp_params[5]
+  α₆ = dgp_params[6]
+  α₇ = dgp_params[7]
+  α₈ = dgp_params[8]
 
-  μₓ = μ / (1 - α₁ - α₂ - α₃)
+  μₓ = μ / (1 - α₁ - α₂ - α₃ - α₄ - α₅ - α₆ - α₇ - α₈) 
   mat[1, :] .= μₓ
   mat[:, 1] .= μₓ
 
@@ -50,6 +55,11 @@ end
 
 # Initialize for SQINMA(1, 1) -> do nothing
 function init_mat!(dgp::SQINMA11, dist_error, dgp_params, mat)
+  # Initialization not necessary
+end
+
+# Initialize for SQMA(2, 2) -> do nothing
+function init_mat!(dgp::SQMA22, dist_error, dgp_params, mat)
   # Initialization not necessary
 end
 
@@ -383,8 +393,8 @@ function fill_mat_dgp_sop!(dgp::SQMA22, dist_error::ContinuousUnivariateDistribu
   rand!(dist_error, mat_ma)
 
   # Fill
-  for t2 in 2:size(mat, 2)
-    for t1 in 2:size(mat, 1)
+  for t2 in 3:size(mat, 2)
+    for t1 in 3:size(mat, 1)
       mat[t1, t2] = β₁ * mat_ma[t1-1, t2]^a + 
                     β₂ * mat_ma[t1,   t2-1]^b + 
                     β₃ * mat_ma[t1-1, t2-1]^c + 

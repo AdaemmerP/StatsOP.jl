@@ -43,7 +43,7 @@ function cl_sop(lam, L0, sop_dgp::ICSP, cl_init, d1::Int, d2::Int, reps=10_000; 
   L1 = 0.0
   
   for j in jmin:jmax
-    for dh in 1:40
+    for dh in 1:80
       cl_init = cl_init + (-1)^j * dh / 10^j
       L1 = arl_sop(lam, cl_init, sop_dgp, d1, d2, reps; chart_choice)[1]
       if verbose
@@ -112,7 +112,7 @@ function cl_sop(lam, L0, p_mat::Matrix{Float64}, cl_init, reps=10_000; chart_cho
 
   L1 = 0.0
   for j in jmin:jmax
-    for dh in 1:40
+    for dh in 1:80
       cl_init = cl_init + (-1)^j * dh / 10^j
       L1 = arl_sop(lam, cl_init, p_mat, reps; chart_choice=chart_choice)[1]
       if verbose
@@ -135,7 +135,7 @@ function cl_sop(lam, L0, sp_dgp, cl_init, d1_vec::Vector{Int}, d2_vec::Vector{In
 
   L1 = 0.0
   for j in jmin:jmax
-    for dh in 1:40
+    for dh in 1:80
       cl_init = cl_init + (-1)^j * dh / 10^j
       L1 = arl_sop(lam, cl_init, sp_dgp, d1_vec, d2_vec, reps; chart_choice=chart_choice)[1]
       if verbose
