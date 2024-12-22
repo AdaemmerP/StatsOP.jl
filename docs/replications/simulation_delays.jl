@@ -4,8 +4,10 @@ using Distributed
 using JLD2
 
 # Add number of cores
-# addprocs(6)
-BLAS.set_num_threads(1)
+addprocs(10)
+@everywhere using OrdinalPatterns
+@everywhere using LinearAlgebra
+@everywhere BLAS.set_num_threads(1)
 
 # Change to current directory
 cd(@__DIR__)
@@ -369,39 +371,41 @@ jldsave("sd_sop_sar1_outl.jld2"; sd_sop_sar1_outl_mat)
 
 # Testings
 # @btime arl_sop(lam, cl_sop_mat[1, 1], sar1, 1, 1, 100; chart_choice=3)
+sar1 = SAR1((0.1, 0.1, 0.1, 0.1), 11, 11, Normal(0, 1), nothing, 20)
+@btime arl_sop(0.1, cl_sop_mat[1, 1], sar1, 1, 1, 100; chart_choice=3)
 
 # mat = 
 
-# function test(dgp::SAR1, dist_error, dist_ao::Nothing, mat, mat_ao::Matrix{Float64}, vec_ar::Vector{Float64}, vec_ar2::Vector{Float64})
+function test(dgp::SAR1, dist_error, dist_ao::Nothing, mat, mat_ao::Matrix{Float64}, vec_ar::Vector{Float64}, vec_ar2::Vector{Float64})
 
-#     # draw MA-errors  
-#     margin = dgp.margin
-#     M_rows = dgp.M_rows
-#     N_cols = dgp.N_cols
-#     M = M_rows + 2 * margin
-#     N = N_cols + 2 * margin
-#     #m = dgp.m_rows
-#     #n = dgp.n_cols
-#     #M = m + 1 + 2 * margin
-#     #N = n + 1 + 2 * margin
+    # draw MA-errors  
+    margin = dgp.margin
+    M_rows = dgp.M_rows
+    N_cols = dgp.N_cols
+    M = M_rows + 2 * margin
+    N = N_cols + 2 * margin
+    #m = dgp.m_rows
+    #n = dgp.n_cols
+    #M = m + 1 + 2 * margin
+    #N = n + 1 + 2 * margin
   
-#     rand!(dist_error, vec_ar)
-#     mul!(vec_ar2, mat, vec_ar)
-#     mat2 = reshape(vec_ar2, M, N)
+    rand!(dist_error, vec_ar)
+    mul!(vec_ar2, mat, vec_ar)
+    mat2 = reshape(vec_ar2, M, N)
   
-#     @views mat2[(margin+1):(margin+M_rows), (margin+1):(margin+N_cols)]
+    @views mat2[(margin+1):(margin+M_rows), (margin+1):(margin+N_cols)]
   
-#   end
+  end
 
-#   M = N = 10
-#   mat = build_sar1_matrix(sar1)
-#   mat_ao = zeros((M + 2 * 20), (N + 2 * 20))
-#   vec_ar = zeros((M + 2 *20) * (N + 2 * 20))
-#   vec_ar2 = similar(vec_ar)
+  M = N = 10
+  mat = build_sar1_matrix(sar1)
+  mat_ao = zeros((M + 2 * 20), (N + 2 * 20))
+  vec_ar = zeros((M + 2 *20) * (N + 2 * 20))
+  vec_ar2 = similar(vec_ar)
 
 
-#   @btime test($sar1, Normal(0, 1), nothing, $mat, $mat_ao, $vec_ar, $vec_ar2)
-#   @code_warntype test(sar1, Normal(0, 1), nothing, mat, mat_ao, vec_ar, vec_ar2)
+  @btime test($sar1, Normal(0, 1), nothing, $mat, $mat_ao, $vec_ar, $vec_ar2)
+  @code_warntype test(sar1, Normal(0, 1), nothing, mat, mat_ao, vec_ar, vec_ar2)
 
 #   @code_warntype build_sar1_matrix(sar1)
 
