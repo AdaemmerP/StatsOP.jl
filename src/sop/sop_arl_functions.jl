@@ -578,7 +578,7 @@ function rl_sop(lam, cl, lookup_array_sop, p_reps, spatial_dgp::SpatialDGP, dist
   # vec_ar: vector for SAR(1) model
   # vec_ar2: vector for in-place multiplication for SAR(1) model
   if spatial_dgp isa SAR1
-    mat = build_sar1_matrix(spatial_dgp) # will be done only once
+    mat::Matrix{Float64} = build_sar1_matrix(spatial_dgp) # will be done only once
     mat_ao = zeros((M + 2 * spatial_dgp.margin), (N + 2 * spatial_dgp.margin))
     vec_ar = zeros((M + 2 * spatial_dgp.margin) * (N + 2 * spatial_dgp.margin))    
     vec_ar2 = similar(vec_ar)

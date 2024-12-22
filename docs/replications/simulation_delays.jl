@@ -4,10 +4,11 @@ using Distributed
 using JLD2
 
 # Add number of cores
-addprocs(10)
-@everywhere using OrdinalPatterns
-@everywhere using LinearAlgebra
-@everywhere BLAS.set_num_threads(1)
+# addprocs(10)
+# @everywhere using OrdinalPatterns
+# @everywhere using LinearAlgebra
+# @everywhere BLAS.set_num_threads(1)
+BLAS.set_num_threads(1)
 
 # Change to current directory
 cd(@__DIR__)
@@ -374,6 +375,8 @@ jldsave("sd_sop_sar1_outl.jld2"; sd_sop_sar1_outl_mat)
 sar1 = SAR1((0.1, 0.1, 0.1, 0.1), 11, 11, Normal(0, 1), nothing, 20)
 @btime arl_sop(0.1, cl_sop_mat[1, 1], sar1, 1, 1, 100; chart_choice=3)
 
+@code_warntype arl_sop(0.1, cl_sop_mat[1, 1], sar1, 1, 1, 100; chart_choice=3)
+
 # mat = 
 
 function test(dgp::SAR1, dist_error, dist_ao::Nothing, mat, mat_ao::Matrix{Float64}, vec_ar::Vector{Float64}, vec_ar2::Vector{Float64})
@@ -412,3 +415,58 @@ function test(dgp::SAR1, dist_error, dist_ao::Nothing, mat, mat_ao::Matrix{Float
 
 #   rand!( Normal(0, 1), vec_ar)
 #   mul!(vec_ar2, mat, vec_ar)
+mat = test(sar1)
+vec_ar = zeros((sar1.M_rows + 2 * 20) * (sar1.N_cols + 2 * 20))    
+vec_ar2 = similar(vec_ar)
+
+@btime mul!(vec_ar2, mat, vec_ar)
+
+
+# Compute once matrix for SAR(1) process
+function test(dgp::SAR1)
+
+    margin = dgp.margin
+    M = dgp.M_rows + 2 * margin
+    N = dgp.N_cols + 2 * margin
+    #m  = dgp.m_rows 
+    #n  = dgp.n_cols 
+    #M = m + 1 + 2 * margin
+    #N = n + 1 + 2 * margin
+  
+    α₁ = dgp.dgp_params[1]
+    α₂ = dgp.dgp_params[2]
+    α₃ = dgp.dgp_params[3]
+    α₄ = dgp.dgp_params[4]
+  
+    B = zeros(M * N, M * N)
+  
+    for i in 1:M
+      for j in 1:N
+  
+        index = M * (j - 1) + i
+  
+        if i > 1
+          B[index, M*(j-1)+i-1] = α₁
+        end
+  
+        if j > 1
+          B[index, M*(j-2)+i] = α₂
+        end
+  
+        if j < N
+          B[index, M*j+i] = α₃
+        end
+  
+        if i < M
+          B[index, M*(j-1)+i+1] = α₄
+        end
+      end
+    end
+  
+    I_mat = I(M * N)
+    B .= (B .- I_mat)
+    B .= inv(B)
+  
+    return B
+  
+  end

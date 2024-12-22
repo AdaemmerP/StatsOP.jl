@@ -133,6 +133,7 @@ function fill_mat_dgp_sop!(dgp::SAR1, dist_error, dist_ao::Nothing, mat, mat_ao:
 
   rand!(dist_error, vec_ar)
   mul!(vec_ar2, mat, vec_ar)
+
   mat2[:] = vec_ar2 #reshape(vec_ar2, M, N)
 
   return @views mat2[(margin+1):(margin+M_rows), (margin+1):(margin+N_cols)]
