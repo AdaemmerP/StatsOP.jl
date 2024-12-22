@@ -46,7 +46,11 @@ for (i, MN) in enumerate(MN_vec)
         end
         println("M = $M, N = $N, d1 = $d1, d2 = $d2")
         #println("Initial limit: $crit_init")
-        cl = cl_sacf(lam, L0, sp_dgp, crit_init, d1, d2, reps; jmin=jmin, jmax=jmax, verbose=true)
+        if d1 isa Vector{Int64} 
+            cl = cl_sacf(lam, L0, sp_dgp, crit_init, d1, d2, reps; jmin=1, jmax=jmax, verbose=true) 
+        else 
+            cl = cl_sacf(lam, L0, sp_dgp, crit_init, d1, d2, reps; jmin=jmin, jmax=jmax, verbose=true) 
+        end
         cl_sacf_mat[i, j] = cl
 
     end
