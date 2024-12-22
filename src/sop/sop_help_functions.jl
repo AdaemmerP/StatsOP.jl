@@ -44,6 +44,50 @@ function compute_lookup_array_sop()
 
 end
 
+
+"""
+    compute_p_mat(data::Array{Float64,3})
+
+Compute the matrix of p-hat values for a given 3D array of data. These values are used for bootstrapping. 
+"""
+function compute_p_mat(data::Array{Float64,3}; d1=1, d2=1)
+
+  # pre-allocate
+  m = size(data, 1) - d1
+  n = size(data, 2) - d2
+  lookup_array_sop = compute_lookup_array()
+  p_mat = zeros(size(data, 3), 3)
+  p_hat = zeros(1, 3)
+  sop = zeros(4)
+  freq_sop = zeros(Int, 24)
+  win = zeros(Int, 4)
+
+  # pre-allocate indexes to compute sum of frequencies
+  s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
+  s_2 = [2, 5, 7, 9, 16, 18, 20, 23]
+  s_3 = [4, 6, 10, 12, 13, 15, 19, 21]
+
+  # compute p_hat matrix
+  for i in axes(data, 3)
+
+    # Compute frequencies of sops
+    @views data_tmp = data[:, :, i]
+    sop_frequencies!(m, n, d1, d2, lookup_array_sop, data_tmp, sop, win, freq_sop)
+
+    # Compute sum of frequencies for each group
+    fill_p_hat!(p_hat, chart_choice, sop_freq, m, n,  s_1, s_2, s_3)
+
+    p_mat[i, :] = p_hat
+
+    # Reset win and freq_sop
+    fill!(win, 0)
+    fill!(freq_sop, 0)
+    fill!(p_hat, 0)
+  end
+
+  return p_mat
+end
+
 # In-place function to sort vector with sops
 function order_vec!(x, ix)
 
