@@ -1,3 +1,25 @@
+"""
+    chart_stat_sop(p_ewma, chart_choice)
+
+Compute the the test statistic for spatial ordinal patterns. The first input is a vector with three values, based on SOP counts. The second input is the chart.     
+
+"""
+function chart_stat_sop(p_ewma, chart_choice)
+  if chart_choice == 1
+    chart_val = p_ewma[1] - 1.0 / 3.0
+  elseif chart_choice == 2
+    chart_val = p_ewma[2] - p_ewma[3]
+  elseif chart_choice == 3
+    chart_val = p_ewma[3] - 1.0 / 3.0
+  elseif chart_choice == 4
+    chart_val = p_ewma[1] - p_ewma[2]
+  else
+    println("Wrong number for test statistic.")
+  end
+
+  return chart_val
+end
+
 #===============================================
 
 Multiple Dispatch for 'stat_sop()':
