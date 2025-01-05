@@ -126,7 +126,6 @@ function compute_p_mat(data::Array{Float64,3}, d1_vec::Vector{Int}, d2_vec::Vect
 
       # Compute sum of frequencies for each group
       fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
-      @show p_hat
 
       p_mat[i, :, j] = p_hat
 
