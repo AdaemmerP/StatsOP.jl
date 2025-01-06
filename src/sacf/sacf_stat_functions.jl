@@ -173,7 +173,9 @@ Compute the EWMA-BP-spatial autocorrelation function (EWMA-BP-SACF) for multiple
 - `d1_vec::Vector{Int}`: The vector of first (row) delays for the spatial process.
 - `d2_vec::Vector{Int}`: The vector of second (column) delays for the spatial process.
 """
-function stat_sacf(lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int}) where {T<:Real}
+function stat_sacf(
+  lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int}
+) where {T<:Real}
 
   # ennsure tha 0 is not included in the d1_vec and d2_vec
   if 0 in d1_vec || 0 in d2_vec
@@ -191,7 +193,7 @@ function stat_sacf(lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{In
 
   # compute sequential BP-statistic
   for i in axes(data, 3)
-    
+
     X_centered .= view(data, :, :, i) .- mean(view(data, :, :, i))
 
     for (j, (d1, d2)) in enumerate(d1_d2_combinations)
