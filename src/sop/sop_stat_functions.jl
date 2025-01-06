@@ -211,20 +211,19 @@ function stat_sop(
   end
 
   return bp_stat
-  
+
 end
 
-# Compute test statistics for multiple pictures and when delays are vectors
+# Compute "SOP-EWMA-BP-Statstic" absed on sequential images
 function stat_sop(
   lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int};
-  chart_choice=3, add_noise=false
+  chart_choice=3, add_noise=false, 
 ) where {T<:Real}
 
   # Compute 4 dimensional cube to lookup sops
   lookup_array_sop = compute_lookup_array_sop()
   p_hat = zeros(3)
   sop = zeros(4)
-  p_ewma = repeat([1.0 / 3.0], 3)
 
   # Pre-allocate for BP-computations
   d1_d2_combinations = Iterators.product(d1_vec, d2_vec)
