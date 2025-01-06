@@ -191,12 +191,16 @@ function stat_sacf(lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{In
 
   # compute sequential BP-statistic
   for i in axes(data, 3)
+    
     X_centered .= view(data, :, :, i) .- mean(view(data, :, :, i))
-    for (i, (d1, d2)) in enumerate(d1_d2_combinations)
-      rho_hat_all[i] = (1 - lam) * rho_hat_all[i] + lam * sacf(X_centered, d1, d2)
-      bp_stat += 2 * rho_hat_all[i]^2
+
+    for (j, (d1, d2)) in enumerate(d1_d2_combinations)
+      rho_hat_all[j] = (1 - lam) * rho_hat_all[j] + lam * sacf(X_centered, d1, d2)
+      bp_stat += 2 * rho_hat_all[j]^2
     end
+
     bp_stats[i] = bp_stat
+
   end
 
   return bp_stats
