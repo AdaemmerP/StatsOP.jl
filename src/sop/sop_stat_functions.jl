@@ -280,8 +280,9 @@ function stat_sop(
       fill!(sop_freq, 0)
       fill!(p_hat, 0)
     end
-    # -------------------------------------------------------------------------#
+    
     bp_stats_all[i] = bp_stat
+    
   end
 
   return bp_stats_all

@@ -136,41 +136,7 @@ function lookup_sop(lookup_array_sop, win)
 
 end
 
-
-# """
-#     sop_frequencies(m::Int, n::Int, lookup_array_sop, data, sop)
-
-# Compute the frequencies of the spatial ordinal patterns. 
-# """
-# function sop_frequencies(m::Int, n::Int, d1::Int, d2::Int, lookup_array_sop, data, sop)
-
-#   # Creat matrices to fill     
-#   sop_freqs = zeros(Int, 24)
-#   win = zeros(Int, 4)
-
-#   # Loop through data to fill sop vector
-#   for j in 1:n
-#     for i in 1:m
-
-#       sop[1] = data[i, j]
-#       sop[2] = data[i, j+d2]
-#       sop[3] = data[i+d1, j]
-#       sop[4] = data[i+d1, j+d2]
-
-#       # Order 'sop_vec' in-place and save results in 'win'
-#       order_vec!(sop, win)
-#       # Get index for relevant pattern
-#       ind2 = lookup_sop(lookup_array_sop, win)
-#       # Add 1 to relevant pattern
-#       sop_freqs[ind2] += 1
-#     end
-#   end
-
-#   return sop_freqs
-
-# end
-
-#--- Function to compute frequencies of sops
+#--- Compute absolute frequencies of sops
 function sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
   # Loop through data to fill sop vector
@@ -184,9 +150,10 @@ function sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_fr
 
       # Order 'sop' in-place and save results in 'win'
       sortperm!(win, sop)
-      # order_vec!(sop, win)      
+
       # Get index for relevant pattern
       ind2 = lookup_sop(lookup_array_sop, win)
+
       # Add 1 to relevant pattern
       sop_freq[ind2] += 1
     end
@@ -197,24 +164,25 @@ function sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_fr
 end
 
 
-
-# Function to fill p_hat with the sum of frequencies and then compute relative frequencies
+# Fill p_hat with the sum of frequencies and compute relative frequencies
 function fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
 
-  # Compute sum of frequencies for each group
-  if chart_choice in (1, 4) # Only need to compute for chart 1 and 4
+  # Only needed to compute charts 1 and 4
+  if chart_choice in (1, 4)
     for i in s_1
       p_hat[1] += sop_freq[i]
     end
   end
 
-  if chart_choice in (2, 4) # Only need to compute for chart 2 and 4 
+   # Only needed to compute charts 2 and 4 
+  if chart_choice in (2, 4)
     for i in s_2
       p_hat[2] += sop_freq[i]
     end
   end
 
-  if chart_choice in (2, 3) # Only need to compute for chart 2 and 3
+  # Only needed to compute charts 2 and 3
+  if chart_choice in (2, 3) 
     for i in s_3
       p_hat[3] += sop_freq[i]
     end
@@ -333,4 +301,38 @@ function init_vals_sop(m, n, lam, chart_choice, dist, runs, p_quantile)
   return return_vec
 end
 
+
+
+# """
+#     sop_frequencies(m::Int, n::Int, lookup_array_sop, data, sop)
+
+# Compute the frequencies of the spatial ordinal patterns. 
+# """
+# function sop_frequencies(m::Int, n::Int, d1::Int, d2::Int, lookup_array_sop, data, sop)
+
+#   # Creat matrices to fill     
+#   sop_freqs = zeros(Int, 24)
+#   win = zeros(Int, 4)
+
+#   # Loop through data to fill sop vector
+#   for j in 1:n
+#     for i in 1:m
+
+#       sop[1] = data[i, j]
+#       sop[2] = data[i, j+d2]
+#       sop[3] = data[i+d1, j]
+#       sop[4] = data[i+d1, j+d2]
+
+#       # Order 'sop_vec' in-place and save results in 'win'
+#       order_vec!(sop, win)
+#       # Get index for relevant pattern
+#       ind2 = lookup_sop(lookup_array_sop, win)
+#       # Add 1 to relevant pattern
+#       sop_freqs[ind2] += 1
+#     end
+#   end
+
+#   return sop_freqs
+
+# end
 
