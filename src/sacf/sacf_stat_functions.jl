@@ -125,7 +125,7 @@ function stat_sacf(
   bp_stat = 0.0
 
   for (d1, d2) in d1_d2_combinations
-    bp_stat += 2 * sacf(X_centered, d1, d2)^2
+    bp_stat += sacf(X_centered, d1, d2)^2
   end
 
   return bp_stat
