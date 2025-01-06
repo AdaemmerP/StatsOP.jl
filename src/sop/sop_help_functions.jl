@@ -129,13 +129,6 @@ function order_vec!(x, ix)
 
 end
 
-# Lookup function --> chooses the index of the sop
-function lookup_sop(lookup_array_sop, win)
-
-  return lookup_array_sop[win[1], win[2], win[3], win[4]]
-
-end
-
 #--- Compute absolute frequencies of sops
 function sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
@@ -152,7 +145,7 @@ function sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_fr
       sortperm!(win, sop)
 
       # Get index for relevant pattern
-      ind2 = lookup_sop(lookup_array_sop, win)
+      ind2 = lookup_array_sop[win[1], win[2], win[3], win[4]] #lookup_sop(lookup_array_sop, win)
 
       # Add 1 to relevant pattern
       sop_freq[ind2] += 1
@@ -333,6 +326,14 @@ end
 #   end
 
 #   return sop_freqs
+
+# end
+
+
+# # Lookup function --> chooses the index of the sop
+# function lookup_sop(lookup_array_sop, win)
+
+#   return lookup_array_sop[win[1], win[2], win[3], win[4]]
 
 # end
 
