@@ -1,45 +1,29 @@
 #========================================================================
-
 Multiple Dispatch for 'cl_sop()':
-  1. Theoretical distribution
-  2. Bootstraping
-
+  1. In-control limits for one d₁-d₂ combination
+  2. In-control limits for multiple d₁-d₂ combinations (BP-statistic)
+  3. In-control limits using bootstraping for one d₁-d₂ combination
+  4. In-control limits using bootstraping for BP-statistic
 ========================================================================#
 """
     cl_sop(
-      lam, L0, sop_dgp::ICSP, cl_init, reps=10_000; 
-      chart_choice=3, jmin=4, jmax=6, verbose=false, d=1
-    )
+  lam, L0, sop_dgp::ICSP, cl_init, d1::Int, d2::Int, reps=10_000;
+  chart_choice=3, jmin=4, jmax=6, verbose=false
+)
 
 Compute the control limit for a given in-control distribution. The input parameters are:
   
-- `lam::Float64`: A scalar value for lambda for the EWMA chart.
-- `L0::Float64`: A scalar value for the desired average run length.
-- `sop_dgp::ICSP`: A struct for the in-control spatial DGP.
-- `cl_init::Float64`: A scalar value for the initial control limit. This is used to find the control limit.
-- `reps::Int`: An integer value for the number of repetitions.
-- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4. The default value is 3.
-- `jmin::Int`: An integer value for the minimum value for the control limit.
-- `jmax::Int`: An integer value for the maximum value for the control limit.
-- `verbose::Bool`: A boolean value whether to print the control limit and the average run length.
-- `d::Int` An integer value for the embedding dimension. The default value is 1.
-
-
-```julia-repl
-#-- Example
-# Parameters
-lam = 0.1
-L0 = 370
-sop_dgp = ICSP(20, 20, Normal(0, 1))
-cl_init = 0.5
-reps = 10_000
-chart_choice = 2
-jmin = 4
-jmax = 6
-verbose = true
-d = 1
-cl_sop(lam, L0, sop_dgp, cl_init, reps; chart_choice, jmin, jmax, verbose, d)
-```
+- `lam::Float64`:  A scalar value for lambda for the EWMA chart.
+- `L0::Float64`: The desired average run length. 
+- `sop_dgp::ICSP`: A struct for the in-control spatial process.
+- `cl_init::Float64`: The initial value for the control limit.
+- `d1::Int`: The first (row) delay for the spatial process.
+- `d2::Int`: The second (column) delay for the spatial process.
+- `reps::Int`: The number of replications to compute the ARL.
+- `chart_choice::Int`: The chart choice for the SOP chart.
+- `jmin`: The minimum number of values to change after the decimal point in the control limit.
+- `jmax`: The maximum number of values to change after the decimal point in the control limit.
+- `verbose::Bool`: A boolean to indicate whether to print the control limit and ARL for each iteration.
 """
 function cl_sop(
   lam, L0, sop_dgp::ICSP, cl_init, d1::Int, d2::Int, reps=10_000;
@@ -69,61 +53,30 @@ function cl_sop(
   return cl_init
 end
 
-#--- Method to compute critical limits based on bootstraping for one d₁-d₂ combination
-function cl_sop(lam, L0, p_mat::Array{Float64,2}, cl_init, reps=10_000;
-  chart_choice=3, jmin=4, jmax=6, verbose=false)
 
-  L1 = 0.0
-  for j in jmin:jmax
-    for dh in 1:80
-      cl_init = cl_init + (-1)^j * dh / 10^j
-      L1 = arl_sop(
-        lam, cl_init, p_mat, reps; chart_choice=chart_choice
-      )[1]
-      if verbose
-        println("cl = ", cl_init, "\t", "ARL = ", L1)
-      end
-      if (j % 2 == 1 && L1 < L0) || (j % 2 == 0 && L1 > L0)
-        break
-      end
-    end
-    cl_init = cl_init
-  end
-  if L1 < L0
-    cl_init = cl_init + 1 / 10^jmax
-  end
-  return cl_init
-end
-
-#--- Method to compute critical limits based on bootstraping for BP-statistic
-function cl_sop(lam, L0, p_array::Array{Float64,3}, cl_init, reps=10_000;
-  chart_choice=3, jmin=4, jmax=6, verbose=false)
-
-  L1 = 0.0
-  for j in jmin:jmax
-    for dh in 1:80
-      cl_init = cl_init + (-1)^j * dh / 10^j
-      L1 = arl_sop(
-        lam, cl_init, p_array, reps; chart_choice=chart_choice
-      )[1]
-      if verbose
-        println("cl = ", cl_init, "\t", "ARL = ", L1)
-      end
-      if (j % 2 == 1 && L1 < L0) || (j % 2 == 0 && L1 > L0)
-        break
-      end
-    end
-    cl_init = cl_init
-  end
-  if L1 < L0
-    cl_init = cl_init + 1 / 10^jmax
-  end
-  return cl_init
-end
-
-
-function cl_sop(
+"""
+    cl_sop(
   lam, L0, sp_dgp, cl_init, d1_vec::Vector{Int}, d2_vec::Vector{Int}, reps=10_000;
+  chart_choice=3, jmin=4, jmax=6, verbose=false
+)
+
+Compute the control limit for the EWMA-chart for the BP-statistic.
+The function returns the control limit for a given average run. The input parameters are:
+
+- `lam::Float64`:  A scalar value for lambda for the EWMA chart.
+- `L0::Float64`: The desired average run length.
+- `sp_dgp`: The in-control spatial process (ICSP) to use for the control limit.
+- `cl_init::Float64`: The initial value for the control limit.
+- `d1_vec::Vector{Int}`: The vector of first (row) delays for the spatial process.
+- `d2_vec::Vector{Int}`: The vector of second (column) delays for the spatial process.
+- `reps::Int`: The number of replications to compute the ARL.
+- `chart_choice::Int`: The chart choice for the SOP chart.
+- `jmin`: The minimum number of values to change after the decimal point in the control limit.
+- `jmax`: The maximum number of values to change after the decimal point in the control limit.
+- `verbose::Bool`: A boolean to indicate whether to print the control limit and ARL for each iteration.
+"""
+function cl_sop(
+  lam, L0, sp_dgp::ICSP, cl_init, d1_vec::Vector{Int}, d2_vec::Vector{Int}, reps=10_000;
   chart_choice=3, jmin=4, jmax=6, verbose=false
 )
 
@@ -152,4 +105,100 @@ function cl_sop(
 
 end
 
+#--- Method to compute critical limits based on bootstraping for one d₁-d₂ combination
+"""
+    cl_sop(
+  lam, L0, p_mat::Array{Float64,2}, cl_init, reps=10_000;
+  chart_choice=3, jmin=4, jmax=6, verbose=false
+)
 
+Compute the (bootstrap) SOP control limit for the EWMA-chart for one delay (d₁-d₂) combination.
+The function returns the control limit for a given average run.
+
+The input parameters are:
+
+- `lam::Float64`:  A scalar value for lambda for the EWMA chart.
+- `L0::Float64`: The desired average run length.
+- `p_mat::Array{Float64,2}`: The matrix with relative frequencies of the SOPs. These
+can be computed using the `compute_p_array()` function.
+- `cl_init::Float64`: The initial value for the control limit.
+- `reps::Int`: The number of replications to compute the ARL.
+- `chart_choice::Int`: The chart choice for the SOP chart.
+- `jmin`: The minimum number of values to change after the decimal point in the control limit.
+- `jmax`: The maximum number of values to change after the decimal point in the control limit.
+- `verbose::Bool`: A boolean to indicate whether to print the control limit and ARL for each iteration.  
+"""
+function cl_sop(
+  lam, L0, p_mat::Array{Float64,2}, cl_init, reps=10_000;
+  chart_choice=3, jmin=4, jmax=6, verbose=false
+)
+
+  L1 = 0.0
+  for j in jmin:jmax
+    for dh in 1:80
+      cl_init = cl_init + (-1)^j * dh / 10^j
+      L1 = arl_sop(
+        lam, cl_init, p_mat, reps; chart_choice=chart_choice
+      )[1]
+      if verbose
+        println("cl = ", cl_init, "\t", "ARL = ", L1)
+      end
+      if (j % 2 == 1 && L1 < L0) || (j % 2 == 0 && L1 > L0)
+        break
+      end
+    end
+    cl_init = cl_init
+  end
+  if L1 < L0
+    cl_init = cl_init + 1 / 10^jmax
+  end
+  return cl_init
+end
+
+#--- Method to compute critical limits based on bootstraping for BP-statistic
+"""
+    cl_sop(
+  lam, L0, p_array::Array{Float64,3}, cl_init, reps=10_000;
+  chart_choice=3, jmin=4, jmax=6, verbose=false
+)
+
+Compute the (bootstrap) SOP control limit for the EWMA-chart for the BP-statistic.
+The function returns the control limit for a given average run. The input parameters are:
+
+- `lam::Float64`:  A scalar value for lambda for the EWMA chart.
+- `L0::Float64`: The desired average run length.
+- `p_array::Array{Float64,3}`: The array with relative frequencies of the SOPs. These
+can be computed using the `compute_p_array()` function.
+- `cl_init::Float64`: The initial value for the control limit.
+- `reps::Int`: The number of replications to compute the ARL.
+- `chart_choice::Int`: The chart choice for the SOP chart.
+- `jmin`: The minimum number of values to change after the decimal point in the control limit.
+- `jmax`: The maximum number of values to change after the decimal point in the control limit.
+- `verbose::Bool`: A boolean to indicate whether to print the control limit and ARL for each iteration.
+"""
+function cl_sop(
+  lam, L0, p_array::Array{Float64,3}, cl_init, reps=10_000;
+  chart_choice=3, jmin=4, jmax=6, verbose=false
+)
+
+  L1 = 0.0
+  for j in jmin:jmax
+    for dh in 1:80
+      cl_init = cl_init + (-1)^j * dh / 10^j
+      L1 = arl_sop(
+        lam, cl_init, p_array, reps; chart_choice=chart_choice
+      )[1]
+      if verbose
+        println("cl = ", cl_init, "\t", "ARL = ", L1)
+      end
+      if (j % 2 == 1 && L1 < L0) || (j % 2 == 0 && L1 > L0)
+        break
+      end
+    end
+    cl_init = cl_init
+  end
+  if L1 < L0
+    cl_init = cl_init + 1 / 10^jmax
+  end
+  return cl_init
+end
