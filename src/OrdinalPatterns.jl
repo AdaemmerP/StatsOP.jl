@@ -106,7 +106,8 @@ include("sop/sop_help_functions.jl")
 include("sop/sop_cl_functions.jl")
 
 # Include files for SACFs
-include("sop/sacf_functions.jl")
-include("sop/sacf_cl_functions.jl")
+include("sacf/sacf_arl_functions.jl")
+include("sacf/sacf_cl_functions.jl")
+include("sacf/sacf_stat_functions.jl")
 
 end
