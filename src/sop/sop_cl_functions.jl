@@ -6,7 +6,10 @@ Multiple Dispatch for 'cl_sop()':
 
 ========================================================================#
 """
-    cl_sop(lam, L0, sop_dgp::ICSP, cl_init, reps=10_000; chart_choice=3, jmin=4, jmax=6, verbose=false, d=1)
+    cl_sop(
+      lam, L0, sop_dgp::ICSP, cl_init, reps=10_000; 
+      chart_choice=3, jmin=4, jmax=6, verbose=false, d=1
+    )
 
 Compute the control limit for a given in-control distribution. The input parameters are:
   
@@ -38,10 +41,13 @@ d = 1
 cl_sop(lam, L0, sop_dgp, cl_init, reps; chart_choice, jmin, jmax, verbose, d)
 ```
 """
-function cl_sop(lam, L0, sop_dgp::ICSP, cl_init, d1::Int, d2::Int, reps=10_000; chart_choice=3, jmin=4, jmax=6, verbose=false)
+function cl_sop(
+  lam, L0, sop_dgp::ICSP, cl_init, d1::Int, d2::Int, reps=10_000;
+  chart_choice=3, jmin=4, jmax=6, verbose=false
+)
 
   L1 = 0.0
-  
+
   for j in jmin:jmax
     for dh in 1:80
       cl_init = cl_init + (-1)^j * dh / 10^j
@@ -63,14 +69,43 @@ function cl_sop(lam, L0, sop_dgp::ICSP, cl_init, d1::Int, d2::Int, reps=10_000; 
   return cl_init
 end
 
-#--- Function to critical run length for SOP based on bootstraping
-function cl_sop(lam, L0, p_mat::Matrix{Float64}, cl_init, reps=10_000; chart_choice=3, jmin=4, jmax=6, verbose=false)
+#--- Method to compute critical limits based on bootstraping for one d₁-d₂ combination
+function cl_sop(lam, L0, p_mat::Array{Float64,2}, cl_init, reps=10_000;
+  chart_choice=3, jmin=4, jmax=6, verbose=false)
 
   L1 = 0.0
   for j in jmin:jmax
     for dh in 1:80
       cl_init = cl_init + (-1)^j * dh / 10^j
-      L1 = arl_sop(lam, cl_init, p_mat, reps; chart_choice=chart_choice)[1]
+      L1 = arl_sop(
+        lam, cl_init, p_mat, reps; chart_choice=chart_choice
+      )[1]
+      if verbose
+        println("cl = ", cl_init, "\t", "ARL = ", L1)
+      end
+      if (j % 2 == 1 && L1 < L0) || (j % 2 == 0 && L1 > L0)
+        break
+      end
+    end
+    cl_init = cl_init
+  end
+  if L1 < L0
+    cl_init = cl_init + 1 / 10^jmax
+  end
+  return cl_init
+end
+
+#--- Method to compute critical limits based on bootstraping for BP-statistic
+function cl_sop(lam, L0, p_array::Array{Float64,3}, cl_init, reps=10_000;
+  chart_choice=3, jmin=4, jmax=6, verbose=false)
+
+  L1 = 0.0
+  for j in jmin:jmax
+    for dh in 1:80
+      cl_init = cl_init + (-1)^j * dh / 10^j
+      L1 = arl_sop(
+        lam, cl_init, p_array, reps; chart_choice=chart_choice
+      )[1]
       if verbose
         println("cl = ", cl_init, "\t", "ARL = ", L1)
       end
@@ -87,13 +122,19 @@ function cl_sop(lam, L0, p_mat::Matrix{Float64}, cl_init, reps=10_000; chart_cho
 end
 
 
-function cl_sop(lam, L0, sp_dgp, cl_init, d1_vec::Vector{Int}, d2_vec::Vector{Int}, reps=10_000; chart_choice=3, jmin=4, jmax=6, verbose=false)
+function cl_sop(
+  lam, L0, sp_dgp, cl_init, d1_vec::Vector{Int}, d2_vec::Vector{Int}, reps=10_000;
+  chart_choice=3, jmin=4, jmax=6, verbose=false
+)
 
   L1 = 0.0
   for j in jmin:jmax
     for dh in 1:80
       cl_init = cl_init + (-1)^j * dh / 10^j
-      L1 = arl_sop(lam, cl_init, sp_dgp, d1_vec, d2_vec, reps; chart_choice=chart_choice)[1]
+      L1 = arl_sop(
+        lam, cl_init, sp_dgp, d1_vec, d2_vec, reps;
+        chart_choice=chart_choice
+      )[1]
       if verbose
         println("cl = ", cl_init, "\t", "ARL = ", L1)
       end
@@ -108,7 +149,7 @@ function cl_sop(lam, L0, sp_dgp, cl_init, d1_vec::Vector{Int}, d2_vec::Vector{In
     cl_init = cl_init + 1 / 10^jmax
   end
   return cl_init
-  
+
 end
 
 
