@@ -469,9 +469,9 @@ end
 
 # Method to fill matrix for BSQMA(1, 1) without additive outliers
 function fill_mat_dgp_sop!(
-  dgp::BSQMA11, dist_error::ContinuousUnivariateDistribution, dist_ao::Nothing, 
+  dgp::BSQMA11, dist_error::ContinuousUnivariateDistribution, dist_ao::Nothing,
   mat, mat_ao::Matrix{Float64}, mat_ma::Matrix{Float64}
-  )
+)
 
   # extract parameters
   prerun = dgp.prerun

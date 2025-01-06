@@ -1,13 +1,16 @@
 # Abstract type for all DGPS
 abstract type SpatialDGP end
 
+# ---------------------------------------------#
+#   In-control spatial process (ICSP)          #
+# ---------------------------------------------#
 """
     ICSP(M_rows, N_cols, dist)
 
 A struct to define an independent and identically distributed (IID) process for in-control
   
-- `M_rows::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
-- `N_cols::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1.
+- `M_rows::Int`: The number of rows for the image.
+- `N_cols::Int`: The number of columns for image.
 - `dist::UnivariateDistribution`: A distribution from the Distributions.jl package.
 """
 struct ICSP 
@@ -17,12 +20,17 @@ struct ICSP
 end
 
 
+# ---------------------------------------------#
+#         Out-of-control spatial processes     #
+# ---------------------------------------------#
 """ 
     SAR11(dgp_params, M_rows, N_cols, dist, dist_ao, prerun)
 
 A struct to define a first-order spatial autoregressive (SAR(1, 1)) process:
 
 `` \\qquad \\qquad Y_{t_1, t_2}=\\alpha_1 \\cdot Y_{t_1-1, t_2}+\\alpha_2 \\cdot Y_{t_1, t_2-1}+\\alpha_3 \\cdot Y_{t_1-1, t_2-1}+\\varepsilon_{t_1, t_2} ``  
+
+    Yₜ₁,ₜ₂ = α₁ ⋅ Yₜ₁₋₁,ₜ₂ + α₂ ⋅ Yₜ₁,ₜ₂₋₁ + α₃ ⋅ Yₜ₁₋₁,ₜ₂₋₁ + εₜ₁,ₜ₂
 
 - `dgp_params::Tuple(α₁::Float64, α₂::Float64, α₃::Float64)` The requirements to guarantee stationarity for the process are |α₁| < 1, |α₂| < 1, |α₁ + α₂| < 1 - α₃, and |α₁ - α₂| < 1 + α₃.
 - `m::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
