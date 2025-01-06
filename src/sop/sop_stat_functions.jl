@@ -1,7 +1,8 @@
 """
     chart_stat_sop(p_ewma, chart_choice)
 
-Compute the the test statistic for spatial ordinal patterns. The first input is a vector with three values, based on SOP counts. The second input is the chart.     
+Compute the the test statistic for spatial ordinal patterns. The first input is 
+a vector with three values, based on SOP counts. The second input is the chart.     
 
 """
 function chart_stat_sop(p_ewma, chart_choice)
@@ -31,9 +32,13 @@ Multiple Dispatch for 'stat_sop()':
 
 # 1. Method to compute test statistic for one picture
 """
-  stat_sop(data::Union{SubArray, Matrix{T}}; chart_choice) where {T<:Real}
+  function stat_sop(
+    data::Union{SubArray,Array{T,2}}, d1::Int, d2::Int;
+    chart_choice=3, add_noise::Bool=false
+) where {T<:Real}
 
-Computes the test statistic for a single picture and chosen test statistic. `chart_coice` is an integer value for the chart choice. The options are 1-4.
+Computes the test statistic for a single picture and chosen test statistic. 
+`chart_coice` is an integer value for the chart choice. The options are 1-4.
 
 # Examples
 ```julia-repl
@@ -42,7 +47,10 @@ data = rand(20, 20);
 stat_sop(data, 2)
 ```
 """
-function stat_sop(data::Union{SubArray,Matrix{T}}, d1::Int, d2::Int; chart_choice=3, add_noise::Bool=false) where {T<:Real}
+function stat_sop(
+  data::Union{SubArray,Array{T,2}}, d1::Int=1, d2::Int=1;
+  chart_choice=3, add_noise::Bool=false
+) where {T<:Real}
 
   # Compute 4 dimensional cube to lookup sops
   lookup_array_sop = compute_lookup_array_sop()
@@ -81,10 +89,12 @@ end
 """
    stat_sop(data::Array{Float64, 3}, add_noise::Bool, lam::Float64, chart_choice::Int)
 
-Computes the test statistic for a 3D array of data, a given lambda value, and a given chart choice. The input parameters are:
+Computes the test statistic for a 3D array of data, a given lambda value, and a given chart choice. 
+The input parameters are:
 
 - `data::Array{Float64,3}`: A 3D array of data.
-- `add_noise::Bool`: A boolean value whether to add noise to the data. This is necessary when the matrices consist of count data.
+- `add_noise::Bool`: A boolean value whether to add noise to the data. This is 
+necessary when the matrices consist of count data.
 - `lam::Float64`: A scalar value for lambda.
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 
@@ -97,7 +107,9 @@ chart_choice = 2;
 stat_sop(data, false, lam, chart_choice)
 ```
 """
-function stat_sop(lam, data::Array{T,3}, d1::Int=1, d2::Int=1; chart_choice=3, add_noise::Bool=false) where {T<:Real}
+function stat_sop(
+  lam, data::Array{T,3}, d1::Int=1, d2::Int=1; chart_choice=3, add_noise::Bool=false
+) where {T<:Real}
 
   # Compute lookup cube
   lookup_array_sop = compute_lookup_array_sop()
@@ -125,7 +137,7 @@ function stat_sop(lam, data::Array{T,3}, d1::Int=1, d2::Int=1; chart_choice=3, a
 
     # add noise?
     if add_noise
-      data_tmp .= view(data,:, :, i) .+ rand!(rand_tmp) 
+      data_tmp .= view(data, :, :, i) .+ rand!(rand_tmp)
     else
       data_tmp .= view(data, :, :, i)
     end
@@ -137,7 +149,7 @@ function stat_sop(lam, data::Array{T,3}, d1::Int=1, d2::Int=1; chart_choice=3, a
     fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
 
     # Compute test statistic
-    @. p_ewma = (1 - lam) .* p_ewma .+ lam * p_hat
+    @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
 
     stat_tmp = chart_stat_sop(p_ewma, chart_choice)
 
@@ -155,7 +167,10 @@ function stat_sop(lam, data::Array{T,3}, d1::Int=1, d2::Int=1; chart_choice=3, a
 end
 
 # Compute test statistics for one picture and when deleays are vectors
-function stat_sop(data::Union{SubArray,Matrix{T}}, d1_vec::Vector{Int}, d2_vec::Vector{Int}; chart_choice=3, add_noise::Bool=false) where {T<:Real}
+function stat_sop(
+  data::Union{SubArray,Matrix{T}}, d1_vec::Vector{Int}, d2_vec::Vector{Int};
+  chart_choice=3, add_noise::Bool=false
+) where {T<:Real}
 
   # Compute 4 dimensional cube to lookup sops
   lookup_array_sop = compute_lookup_array_sop()
@@ -181,8 +196,8 @@ function stat_sop(data::Union{SubArray,Matrix{T}}, d1_vec::Vector{Int}, d2_vec::
   end
 
   for (d1, d2) in d1_d2_combinations
-    
-    m = M_rows - d1    
+
+    m = M_rows - d1
     n = N_cols - d2
 
     # Compute sum of frequencies for each pattern group
@@ -192,14 +207,17 @@ function stat_sop(data::Union{SubArray,Matrix{T}}, d1_vec::Vector{Int}, d2_vec::
     fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
 
     # Compute test statistic
-    stat = chart_stat_sop(p_hat, chart_choice)    
+    stat = chart_stat_sop(p_hat, chart_choice)
     bp_stat += stat^2
   end
   return bp_stat
 end
 
 # Compute test statistics for multiple pictures and when delays are vectors
-function stat_sop(lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int}; chart_choice=3, add_noise=false) where {T<:Real}
+function stat_sop(
+  lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int};
+  chart_choice=3, add_noise=false
+) where {T<:Real}
 
   # Compute 4 dimensional cube to lookup sops
   lookup_array_sop = compute_lookup_array_sop()
@@ -208,7 +226,7 @@ function stat_sop(lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int
   p_ewma = repeat([1.0 / 3.0], 3)
 
   # Pre-allocate for BP-computations
-  d1_d2_combinations = Iterators.product(d1_vec, d2_vec) 
+  d1_d2_combinations = Iterators.product(d1_vec, d2_vec)
   p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
   p_ewma_all .= 1.0 / 3.0
   bp_stat = 0.0
@@ -230,7 +248,7 @@ function stat_sop(lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int
 
     # Add noise?
     if add_noise
-      data_tmp .= view(data,:, :, i) .+ rand!(rand_tmp)
+      data_tmp .= view(data, :, :, i) .+ rand!(rand_tmp)
     else
       data_tmp .= view(data, :, :, i)
     end
@@ -264,7 +282,7 @@ function stat_sop(lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int
       fill!(p_hat, 0)
     end
     # -------------------------------------------------------------------------#
-    bp_stats_all[i] = bp_stat    
+    bp_stats_all[i] = bp_stat
   end
 
   return bp_stats_all
@@ -274,13 +292,17 @@ end
 """
   crit_val_sop(m, n, alpha, chart_choice, approximate::Bool)
 
-Computes the critical value for the SOP test. Also allows the approximation of the critical value. The input parameters are:
+Computes the critical value for the SOP test. Also allows the approximation of 
+  the critical value. The input parameters are:
 
-- `m::Int64`: The number of rows in the sop-matrix. Note that the data matrix has dimensions `M = m + 1`.
-- `n::Int64`: The number of columns in the sop-matrix. Note that the data matrix has dimensions `N = n + 1`.
+- `m::Int64`: The number of rows in the sop-matrix. Note that the data matrix has 
+dimensions `M = m + d₁`, where `d₁` denotes the row delay.
+- `n::Int64`: The number of columns in the sop-matrix. Note that the data matrix 
+has dimensions `N = n + d₂`, where `d₂` denotes the column delay.
 - `alpha::Float64`: The significance level.
 - `chart_choice::Int64`: The choice of chart. 
-- `approximate::Bool`: If `true`, the approximate critical value is computed. If `false`, the exact critical value is computed.
+- `approximate::Bool`: If `true`, the approximate critical value is computed. 
+If `false`, the exact critical value is computed.
 
 # Examples
 ```julia-repl
@@ -288,63 +310,57 @@ Computes the critical value for the SOP test. Also allows the approximation of t
 crit_val_sop(10, 10, 0.05, 1, true)
 ```
 """
-function crit_val_sop(m, n, alpha, chart_choice, approximate::Bool)
+function crit_val_sop(m, n, alpha; chart_choice, approximate::Bool=false)
 
-    if approximate
-      if chart_choice == 1
-        quantile(Normal(0, 1), 1 - alpha / 2) * sqrt(2 / 9 + 1 / 45)
-      elseif chart_choice == 2
-        quantile(Normal(0, 1), 1 - alpha / 2) * sqrt(2 / 3 + 1 / 9)
-      elseif chart_choice == 3
-        quantile(Normal(0, 1), 1 - alpha / 2) * sqrt(2 / 9 + 2 / 45)
-      elseif chart_choice == 4
-        quantile(Normal(0, 1), 1 - alpha / 2) * sqrt(2 / 3 + 2 / 45)
-      end
-  
-    else
-  
-      if chart_choice == 1
-        quantile(Normal(0, 1), 1 - alpha / 2) * sqrt(2 / 9 + 1 / 45 * (1 - 1 / (2 * m) - 1 / (2 * n)))
-      elseif chart_choice == 2
-        quantile(Normal(0, 1), 1 - alpha / 2) * sqrt(2 / 3 + 1 / 9 * (1 - 1 / (2 * m) - 1 / (2 * n)))
-      elseif chart_choice == 3
-        quantile(Normal(0, 1), 1 - alpha / 2) * sqrt(2 / 9 + 2 / 45 * (1 - 1 / (2 * m) - 1 / (2 * n)))
-      elseif chart_choice == 4
-        quantile(Normal(0, 1), 1 - alpha / 2) * sqrt(2 / 3 + 2 / 45 * (1 - 1 / (2 * m) - 1 / (2 * n)))
-      end
+  if approximate
+    if chart_choice == 1
+      quantile(
+        Normal(0, 1),
+        1 - alpha / 2) * sqrt(2 / 9 + 1 / 45
+      )
+    elseif chart_choice == 2
+      quantile(
+        Normal(0, 1),
+        1 - alpha / 2) * sqrt(2 / 3 + 1 / 9
+      )
+    elseif chart_choice == 3
+      quantile(
+        Normal(0, 1),
+        1 - alpha / 2) * sqrt(2 / 9 + 2 / 45
+      )
+    elseif chart_choice == 4
+      quantile(
+        Normal(0, 1),
+        1 - alpha / 2) * sqrt(2 / 3 + 2 / 45
+      )
+    end
+
+  else
+
+    if chart_choice == 1
+      quantile(
+        Normal(0, 1),
+        1 - alpha / 2) * sqrt(2 / 9 + 1 / 45 * (1 - 1 / (2 * m) - 1 / (2 * n))
+      )
+    elseif chart_choice == 2
+      quantile(
+        Normal(0, 1),
+        1 - alpha / 2) * sqrt(2 / 3 + 1 / 9 * (1 - 1 / (2 * m) - 1 / (2 * n))
+      )
+    elseif chart_choice == 3
+      quantile(
+        Normal(0, 1),
+        1 - alpha / 2) * sqrt(2 / 9 + 2 / 45 * (1 - 1 / (2 * m) - 1 / (2 * n))
+      )
+    elseif chart_choice == 4
+      quantile(
+        Normal(0, 1),
+        1 - alpha / 2) * sqrt(2 / 3 + 2 / 45 * (1 - 1 / (2 * m) - 1 / (2 * n))
+      )
     end
   end
-  
-"""
-  crit_val_sop(m, n, alpha, chart_choice, approximate::Bool)
+end
 
-Computes the exact critical value for the SOP test. The input parameters are:
-
-- `m::Int64`: The number of rows in the sop-matrix. Note that the data matrix has dimensions `M = m + 1`.
-- `n::Int64`: The number of columns in the sop-matrix. Note that the data matrix has dimensions `N = n + 1`.
-- `alpha::Float64`: The significance level.
-- `chart_choice::Int64`: The choice of chart. The options are:
-
-# Examples
-```julia-repl
-# compute approximate critical value for chart 1 
-crit_val_sop(10, 10, 0.05, 1, true)
-```
-"""
-  function crit_val_sop(m, n, alpha, chart_choice)
-  
-      if chart_choice == 1
-        quantile(Normal(0, 1), 1 - alpha / 2) * sqrt(2 / 9 + 1 / 45 * (1 - 1 / (2 * m) - 1 / (2 * n)))
-      elseif chart_choice == 2
-        quantile(Normal(0, 1), 1 - alpha / 2) * sqrt(2 / 3 + 1 / 9 * (1 - 1 / (2 * m) - 1 / (2 * n)))
-      elseif chart_choice == 3
-        quantile(Normal(0, 1), 1 - alpha / 2) * sqrt(2 / 9 + 2 / 45 * (1 - 1 / (2 * m) - 1 / (2 * n)))
-      elseif chart_choice == 4
-        quantile(Normal(0, 1), 1 - alpha / 2) * sqrt(2 / 3 + 2 / 45 * (1 - 1 / (2 * m) - 1 / (2 * n)))
-      end
-  
-  end
-  
 """
   crit_val_sacf(M, N, alpha)
 
@@ -361,5 +377,37 @@ crit_val_sacf(11, 11, 0.05)
 ```
 """
 function crit_val_sacf(M, N, alpha)
-    quantile(Normal(0, 1), 1 - alpha / 2) / sqrt(M * N)
+  quantile(Normal(0, 1), 1 - alpha / 2) / sqrt(M * N)
 end
+
+
+
+# """
+#   crit_val_sop(m, n, alpha, chart_choice, approximate::Bool)
+
+# Computes the exact critical value for the SOP test. The input parameters are:
+
+# - `m::Int64`: The number of rows in the sop-matrix. Note that the data matrix has dimensions `M = m + 1`.
+# - `n::Int64`: The number of columns in the sop-matrix. Note that the data matrix has dimensions `N = n + 1`.
+# - `alpha::Float64`: The significance level.
+# - `chart_choice::Int64`: The choice of chart. The options are:
+
+# # Examples
+# ```julia-repl
+# # compute approximate critical value for chart 1 
+# crit_val_sop(10, 10, 0.05, 1, true)
+# ```
+# """
+# function crit_val_sop(m, n, alpha, chart_choice)
+
+#   if chart_choice == 1
+#     quantile(Normal(0, 1), 1 - alpha / 2) * sqrt(2 / 9 + 1 / 45 * (1 - 1 / (2 * m) - 1 / (2 * n)))
+#   elseif chart_choice == 2
+#     quantile(Normal(0, 1), 1 - alpha / 2) * sqrt(2 / 3 + 1 / 9 * (1 - 1 / (2 * m) - 1 / (2 * n)))
+#   elseif chart_choice == 3
+#     quantile(Normal(0, 1), 1 - alpha / 2) * sqrt(2 / 9 + 2 / 45 * (1 - 1 / (2 * m) - 1 / (2 * n)))
+#   elseif chart_choice == 4
+#     quantile(Normal(0, 1), 1 - alpha / 2) * sqrt(2 / 3 + 2 / 45 * (1 - 1 / (2 * m) - 1 / (2 * n)))
+#   end
+
+# end
