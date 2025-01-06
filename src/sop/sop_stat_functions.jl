@@ -26,7 +26,6 @@ end
 Multiple Dispatch for 'stat_sop()':
   1. data is only one picture -> data::Matrix{T}
   2. data is a three dimensional array -> data::Array{T, 3}
-  3. ?
 
 ================================================#
 
@@ -168,15 +167,15 @@ end
 
 # Compute test statistics for one picture and when deleays are vectors
 function stat_sop(
-  data::Union{SubArray,Matrix{T}}, d1_vec::Vector{Int}, d2_vec::Vector{Int};
+  data::Union{SubArray,Array{T, 2}}, d1_vec::Vector{Int}, d2_vec::Vector{Int};
   chart_choice=3, add_noise::Bool=false
 ) where {T<:Real}
 
-  # Compute 4 dimensional cube to lookup sops
+  # Pre-allocate
   lookup_array_sop = compute_lookup_array_sop()
   p_hat = zeros(3)
   sop = zeros(4)
-  sop_freq = zeros(Int, 24) # factorial(4)
+  sop_freq = zeros(Int, 24) # factorial(4) = 24
   win = zeros(Int, 4)
   bp_stat = 0.0
 
