@@ -125,7 +125,7 @@ function stat_sacf(
   bp_stat = 0.0
 
   for (d1, d2) in d1_d2_combinations
-    bp_stat += sacf(X_centered, d1, d2)^2
+    bp_stat += 2 * sacf(X_centered, d1, d2)^2
   end
 
   return bp_stat
@@ -141,7 +141,7 @@ Compute the spatial autocorrelation function (SACF) for a delay combination (d1,
 - `lam`: The smoothing parameter for the SACF.
 - `data`: The data matrix.
 - `d1::Int`: The first (row) delay for the spatial process.  
-"""    
+"""
 function stat_sacf(lam, data::Array{T,3}, d1::Int, d2::Int) where {T<:Real}
 
   # pre-allocate
