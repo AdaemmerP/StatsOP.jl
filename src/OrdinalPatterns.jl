@@ -30,7 +30,7 @@ export rl_sop,
        stat_sop,
        chart_stat_sop,
        compute_lookup_array_sop,
-       compute_p_mat,
+       compute_p_array,
        init_vals_sop,
        crit_val_sop
 

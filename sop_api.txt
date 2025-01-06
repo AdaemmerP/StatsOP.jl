@@ -1,4 +1,0 @@
-# arl_sop_bp()
-
-arl_sop_bp(lam, cl, spatial_dgp::SpatialDGP, reps=10_000; chart_choice, d1=[1, 2, 3], d2=[1, 2, 3])
-

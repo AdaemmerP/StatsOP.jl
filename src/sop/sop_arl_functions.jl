@@ -67,10 +67,8 @@ Function to compute the average run length (ARL) using a bootstrap approach. The
 - `cl::Float64`: A scalar value for the control limit.
 - `p_mat::Array{Float64, 2}`: A 3D array with the data. The data has to be in the form of a 3D array.
 - `reps::Int`: An integer value for the number of repetitions.
-- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4. The default value is 3.
-
 """
-function arl_sop(lam, cl, p_mat::Array{Float64, 2}, reps=10_000; chart_choice=3)
+function arl_sop(lam, cl, p_mat::Array{Float64, 2}, reps=10_000)
 
   # Check whether to use threading or multi processing --> only one process threading, else distributed
   if nprocs() == 1
@@ -107,12 +105,10 @@ Function to compute the average run length (ARL) using a bootstrap approach. The
 
 - `lam::Float64`: A scalar value for lambda for the EWMA chart.
 - `cl::Float64`: A scalar value for the control limit.
-- `p_array::Array{Float64, 2}`: A 3D array with the data. The data has to be in the form of a 3D array.
+- `p_array::Array{Float64, 3}`: A 3D array with the with the relative frequencies of each d1-d2 (delay) combination.
 - `reps::Int`: An integer value for the number of repetitions.
-- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4. The default value is 3.
-
 """
-function arl_sop(lam, cl, p_array::Array{Float64, 3}, reps=10_000; chart_choice=3)
+function arl_sop(lam, cl, p_array::Array{Float64, 3}, reps=10_000)
 
   # Check whether to use threading or multi processing --> only one process threading, else distributed
   if nprocs() == 1
@@ -279,7 +275,7 @@ end
 
 
 """
-    rl_sop(lam, cl, reps_range, chart_choice, p_mat::Matrix{Float64})
+    rl_sop(lam, cl, reps_range, chart_choice, p_mat::Array{Float64, 2})
 
 A function to compute the run length for a given control limit using bootstraping instead of a theoretical in-control distribution. The input parameters are:
   
@@ -287,19 +283,24 @@ A function to compute the run length for a given control limit using bootstrapin
 - `cl::Float64`: A scalar value for the control limit.
 - `reps_range::UnitRange{Int}`: A range of integers for the number of repetitions. This has to be a range to be compatible with `arl_sop()` which uses threading and multi-processing.  
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
-- `p_mat::Matrix{Float64}`: A matrix with the values of each pattern group obtained by `compute_p_array()`. This matrix will be used for re-sampling
+- `p_mat::Matrix{Float64}`: A matrix with the values of each pattern group obtained by `compute_p_array()`. This matrix will be used for re-sampling.
 """
 function rl_sop(lam, cl, reps_range, chart_choice, p_mat::Array{Float64, 2})
 
-  # Pre-allocate
+  # Pre-allocate  
   p_hat = zeros(3)
   rls = zeros(Int, length(reps_range))
   p_vec_mean = vec(mean(p_mat, dims=1))
-  range_index = axes(p_mat, 1)
   p_ewma = p_vec_mean
+
+  # Set initial value for test statistic
   stat = chart_stat_sop(p_ewma, chart_choice)
   stat0 = stat
 
+  # Compute index to sample from (1 to number of rows ("pictures") in p_mat)
+  range_index = axes(p_mat, 1)
+
+  # Loop over repetitions
   for r in 1:length(reps_range)
     p_ewma .= p_vec_mean
     stat = stat0
@@ -312,9 +313,9 @@ function rl_sop(lam, cl, reps_range, chart_choice, p_mat::Array{Float64, 2})
       index = rand(range_index)
 
       # Compute frequencies of SOPs
-      @views p_hat[1] = p_mat[index, 1]
-      @views p_hat[2] = p_mat[index, 2]
-      @views p_hat[3] = p_mat[index, 3]
+      p_hat[1] = p_mat[index, 1]
+      p_hat[2] = p_mat[index, 2]
+      p_hat[3] = p_mat[index, 3]
 
       # Apply EWMA to p-vectors
       @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
@@ -338,47 +339,50 @@ A function to compute the run length for a given control limit using bootstrapin
 - `cl::Float64`: A scalar value for the control limit.
 - `reps_range::UnitRange{Int}`: A range of integers for the number of repetitions. This has to be a range to be compatible with `arl_sop()` which uses threading and multi-processing.  
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
-- `p_array::Matrix{Float64}`: A matrix with the values of each pattern group obtained by `compute_p_array()`. This matrix will be used for re-sampling
+- `p_array::Matrix{Float64}`: A matrix with the values of each pattern group obtained by `compute_p_array()`. The first dimension (rows) is the picture, the second dimension refers to the patterns group (s₁, s₂, or s₃) and the third dimension denotes each d₁-d₂ combination. This matrix will be used for re-sampling. 
 """
 function rl_sop(lam, cl, reps_range, chart_choice, p_array::Array{Float64, 3})
 
   # Pre-allocate
   p_hat = zeros(3)
   rls = zeros(Int, length(reps_range))
-  p_vec_mean = mean(p_array, dims=1)
-  range_index = axes(p_array, 3)
-  p_ewma = p_vec_mean
-
-
-  bp_stat = 0.0
+  p_array_mean = mean(p_array, dims=1)
+  range_index = axes(p_array, 1)
+  p_ewma = p_array_mean # will be dimension 1 x 3 x 'axes(p_array, 3)'
+  bp_stat0 = 0.0
 
   # compute bp-statistic with averages of p_array
   for i in 1:size(p_array, 3)
-    @views bp_stat0 += chart_stat_sop(p_vec_mean[:, :, i], chart_choice)^2
+    @views bp_stat0 += chart_stat_sop(p_ewma[:, :, i], chart_choice)^2
   end
 
-
+  # Loop over repetitions
   for r in 1:length(reps_range)
-    p_ewma .= p_vec_mean
+    p_ewma .= p_array_mean
     bp_stat = bp_stat0
     rl = 0
 
-    while (bp_stat0 - bp_stat) < cl
+    while (bp_stat - bp_stat0) < cl
       rl += 1
 
       # sample from p_vec
       index = rand(range_index)
 
-      # Compute frequencies of SOPs
-      @views p_hat[1] = p_mat[index, 1]
-      @views p_hat[2] = p_mat[index, 2]
-      @views p_hat[3] = p_mat[index, 3]
+      for i in 1:size(p_array, 3)
 
-      # Apply EWMA to p-vectors
-      @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
+        p_hat[1] = p_array[index, 1, i]
+        p_hat[2] = p_array[index, 2, i]
+        p_hat[3] = p_array[index, 3, i]
 
-      # Compute test statistic
-      stat = chart_stat_sop(p_ewma, chart_choice)
+        # Apply EWMA
+        @views p_ewma[1, 1:3, i] .= (1 - lam) .* p_ewma[1, 1:3, i] .+ lam .* p_hat
+
+        # Compute test statistic
+        @views stat = chart_stat_sop(p_ewma[1, :, i], chart_choice)
+        bp_stat += stat^2
+
+      end
+
     end
 
     rls[r] = rl
