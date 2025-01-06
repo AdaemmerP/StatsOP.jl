@@ -9,7 +9,7 @@
 
 #   # Loop to compute all sums of relevant products
 #   for k in (0, d2) # 0:d2 -> we only need 0-0 and one particular combination
-#     for l in (0, d1) # 0:d1 -> we only need 0-0 and one particular combination
+#     for l in (0, d1) 0:d1 -> we only need 0-0 and one particular combination
 #       # for (k, l) in zip((0, d2), (0, d1)) 
 #       for j in 1:(N-l)
 #         for i in 1:(M-k)
@@ -117,7 +117,7 @@ function stat_sacf(
   data::Union{SubArray,Array{T, 2}}, d1_vec::Vector{Int}, d2_vec::Vector{Int}
 ) where {T<:Real}
 
-  # ennsure tha 0 is not included in the d1_vec and d2_vec
+  # ensure that 0 is not included in the d1_vec and d2_vec
   if 0 in d1_vec || 0 in d2_vec
     throw(ArgumentError("0 should not be included in d1_vec or d2_vec"))
   end
@@ -182,7 +182,7 @@ function stat_sacf(
   lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int}
 ) where {T<:Real}
 
-  # ennsure tha 0 is not included in the d1_vec and d2_vec
+  # ensure that 0 is not included in the d1_vec and d2_vec
   if 0 in d1_vec || 0 in d2_vec
     throw(ArgumentError("0 should not be included in d1_vec or d2_vec"))
   end
