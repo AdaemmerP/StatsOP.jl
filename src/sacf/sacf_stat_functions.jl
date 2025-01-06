@@ -192,8 +192,8 @@ function stat_sacf(
 
   # pre-allocate
   X_centered = zeros(size(data[:, :, 1]))
-  bp_stats = zeros(size(data, 3))
   rho_hat_all = zeros(length(d1_d2_combinations))
+  bp_stats = zeros(size(data, 3))
   bp_stat = 0.0
 
   # compute sequential BP-statistic

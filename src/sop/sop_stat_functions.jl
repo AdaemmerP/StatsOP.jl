@@ -165,7 +165,7 @@ function stat_sop(
 
 end
 
-# Compute test statistics for one picture and when deleays are vectors
+# Compute test SOP-BP-statistic for one picture
 function stat_sop(
   data::Union{SubArray,Array{T, 2}}, d1_vec::Vector{Int}, d2_vec::Vector{Int};
   chart_choice=3, add_noise::Bool=false
@@ -179,7 +179,7 @@ function stat_sop(
   win = zeros(Int, 4)
   bp_stat = 0.0
 
-  # Compute all combinations of d1 and d2
+  # Get image size and get all d1-d2-combinations  
   M_rows = size(data, 1)
   N_cols = size(data, 2)
   d1_d2_combinations = Iterators.product(d1_vec, d2_vec)
@@ -191,7 +191,7 @@ function stat_sop(
 
   # Add noise?
   if add_noise
-    data .= data + rand(size(data, 1), size(data, 2))
+    data .= data .+ rand(size(data, 1), size(data, 2))
   end
 
   for (d1, d2) in d1_d2_combinations
@@ -209,7 +209,9 @@ function stat_sop(
     stat = chart_stat_sop(p_hat, chart_choice)
     bp_stat += stat^2
   end
+
   return bp_stat
+  
 end
 
 # Compute test statistics for multiple pictures and when delays are vectors
@@ -282,7 +284,7 @@ function stat_sop(
     end
     
     bp_stats_all[i] = bp_stat
-    
+
   end
 
   return bp_stats_all
