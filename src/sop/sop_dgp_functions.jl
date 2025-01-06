@@ -74,10 +74,6 @@ function build_sar1_matrix(dgp::SAR1)
   margin = dgp.margin
   M = dgp.M_rows + 2 * margin
   N = dgp.N_cols + 2 * margin
-  #m  = dgp.m_rows 
-  #n  = dgp.n_cols 
-  #M = m + 1 + 2 * margin
-  #N = n + 1 + 2 * margin
 
   α₁ = dgp.dgp_params[1]
   α₂ = dgp.dgp_params[2]
@@ -118,14 +114,18 @@ function build_sar1_matrix(dgp::SAR1)
 end
 
 # Method to fill data matrix for SAR(1) without additive outliers
-function fill_mat_dgp_sop!(dgp::SAR1, dist_error, dist_ao::Nothing, mat, mat_ao::Matrix{Float64}, vec_ar::Vector{Float64}, vec_ar2::Vector{Float64}, mat2::Matrix{Float64})
+function fill_mat_dgp_sop!(
+  dgp::SAR1, dist_error, dist_ao::Nothing, mat, mat_ao::Matrix{Float64},
+  vec_ar::Vector{Float64}, vec_ar2::Vector{Float64}, mat2::Matrix{Float64}
+)
 
   # draw MA-errors  
   margin = dgp.margin
   M_rows = dgp.M_rows
   N_cols = dgp.N_cols
-  M = M_rows + 2 * margin
-  N = N_cols + 2 * margin
+
+  # M = M_rows + 2 * margin
+  # N = N_cols + 2 * margin
   #m = dgp.m_rows
   #n = dgp.n_cols
   #M = m + 1 + 2 * margin
@@ -134,29 +134,33 @@ function fill_mat_dgp_sop!(dgp::SAR1, dist_error, dist_ao::Nothing, mat, mat_ao:
   rand!(dist_error, vec_ar)
   mul!(vec_ar2, mat, vec_ar)
 
-  mat2[:] = vec_ar2 #reshape(vec_ar2, M, N)
+  mat2[:] = vec_ar2 # reshape(vec_ar2, M, N)
 
   return @views mat2[(margin+1):(margin+M_rows), (margin+1):(margin+N_cols)]
 
 end
 
 # Method to fill matrix for SAR(1) with additive outliers
-function fill_mat_dgp_sop!(dgp::SAR1, dist_error::UnivariateDistribution, dist_ao::UnivariateDistribution, mat, mat_ao::Matrix{Float64}, vec_ar::Vector{Float64}, vec_ar2::Vector{Float64})
+function fill_mat_dgp_sop!(
+  dgp::SAR1, dist_error::UnivariateDistribution, dist_ao::UnivariateDistribution,
+  mat, mat_ao::Matrix{Float64}, vec_ar::Vector{Float64}, vec_ar2::Vector{Float64}
+)
 
   # draw MA-errors  
   margin = dgp.margin
   M_rows = dgp.M_rows
   N_cols = dgp.N_cols
-  M = M_rows + 2 * margin
-  N = N_cols + 2 * margin
-  #m = dgp.M_rows 
-  #n = dgp.N_cols
-  #M = m + 1 + 2 * margin
-  #N = n + 1 + 2 * margin
+
+  # M = M_rows + 2 * margin
+  # N = N_cols + 2 * margin
+  # m = dgp.M_rows 
+  # n = dgp.N_cols
+  # M = m + 1 + 2 * margin
+  # N = n + 1 + 2 * margin
 
   rand!(dist_error, vec_ar)
   mul!(vec_ar2, mat, vec_ar)
-  mat2 = reshape(vec_ar2, M, N)
+  mat2[:] = vec_ar2 # reshape(vec_ar2, M, N)
 
   # add AO
   rand!(dist_ao, mat_ao)
@@ -167,7 +171,10 @@ function fill_mat_dgp_sop!(dgp::SAR1, dist_error::UnivariateDistribution, dist_a
 end
 
 # Method to fill matrix for SAR(1,1) without additive outliers
-function fill_mat_dgp_sop!(dgp::SAR11, dist_error::ContinuousUnivariateDistribution, dist_ao::Nothing, mat, mat_ao::Matrix{Float64}, mat_ma::Matrix{Float64})
+function fill_mat_dgp_sop!(
+  dgp::SAR11, dist_error::ContinuousUnivariateDistribution, dist_ao::Nothing,
+  mat, mat_ao::Matrix{Float64}, mat_ma::Matrix{Float64}
+)
 
   # Extract parameters
   prerun = dgp.prerun
@@ -187,7 +194,10 @@ function fill_mat_dgp_sop!(dgp::SAR11, dist_error::ContinuousUnivariateDistribut
 end
 
 # Method to fill matrix for SAR(1,1) with additive outliers
-function fill_mat_dgp_sop!(dgp::SAR11, dist_error::ContinuousUnivariateDistribution, dist_ao::UnivariateDistribution, mat, mat_ao::Matrix{Float64}, mat_ma::Matrix{Float64})
+function fill_mat_dgp_sop!(
+  dgp::SAR11, dist_error::ContinuousUnivariateDistribution, dist_ao::UnivariateDistribution,
+  mat, mat_ao::Matrix{Float64}, mat_ma::Matrix{Float64}
+)
 
   # Extract parameters
   prerun = dgp.prerun
@@ -211,7 +221,10 @@ function fill_mat_dgp_sop!(dgp::SAR11, dist_error::ContinuousUnivariateDistribut
 end
 
 # Method to fill matrix for SAR(2,2) without additive outliers
-function fill_mat_dgp_sop!(dgp::SAR22, dist_error::ContinuousUnivariateDistribution, dist_ao::Nothing, mat, mat_ao::Matrix{Float64}, mat_ma::Matrix{Float64})
+function fill_mat_dgp_sop!(
+  dgp::SAR22, dist_error::ContinuousUnivariateDistribution, dist_ao::Nothing,
+  mat, mat_ao::Matrix{Float64}, mat_ma::Matrix{Float64}
+)
 
   # Extract parameters
   prerun = dgp.prerun
@@ -224,16 +237,7 @@ function fill_mat_dgp_sop!(dgp::SAR22, dist_error::ContinuousUnivariateDistribut
   α₇ = dgp.dgp_params[7]
   α₈ = dgp.dgp_params[8]
 
-  #α₁ = dgp.dgp_params[1]
-  #α₂ = dgp.dgp_params[2]
-  #α₃ = dgp.dgp_params[3]
   # Fill
-  # for t2 in 3:size(mat, 2)
-  #   for t1 in 3:size(mat, 1)
-  #     mat[t1, t2] = α₁ * mat[t1-2, t2] + α₂ * mat[t1, t2-2] + α₃ * mat[t1-2, t2-2] + rand(dist_error)
-  #   end
-  # end
-
   for t2 in 3:size(mat, 2)
     for t1 in 3:size(mat, 1)
       mat[t1, t2] = α₁ * mat[t1-1, t2] +
@@ -253,7 +257,10 @@ function fill_mat_dgp_sop!(dgp::SAR22, dist_error::ContinuousUnivariateDistribut
 end
 
 # Method to fill matrix for SAR(2,2) with additive outliers
-function fill_mat_dgp_sop!(dgp::SAR22, dist_error::ContinuousUnivariateDistribution, dist_ao::UnivariateDistribution, mat, mat_ao::Matrix{Float64}, mat_ma::Matrix{Float64})
+function fill_mat_dgp_sop!(
+  dgp::SAR22, dist_error::ContinuousUnivariateDistribution, dist_ao::UnivariateDistribution,
+  mat, mat_ao::Matrix{Float64}, mat_ma::Matrix{Float64}
+)
 
   # Extract parameters
   prerun = dgp.prerun
@@ -266,16 +273,7 @@ function fill_mat_dgp_sop!(dgp::SAR22, dist_error::ContinuousUnivariateDistribut
   α₇ = dgp.dgp_params[7]
   α₈ = dgp.dgp_params[8]
 
-  #α₁ = dgp.dgp_params[1]
-  #α₂ = dgp.dgp_params[2]
-  #α₃ = dgp.dgp_params[3]
   # Fill
-  # for t2 in 3:size(mat, 2)
-  #   for t1 in 3:size(mat, 1)
-  #     mat[t1, t2] = α₁ * mat[t1-2, t2] + α₂ * mat[t1, t2-2] + α₃ * mat[t1-2, t2-2] + rand(dist_error)
-  #   end
-  # end
-
   for t2 in 3:size(mat, 2)
     for t1 in 3:size(mat, 1)
       mat[t1, t2] = α₁ * mat[t1-1, t2] +
@@ -299,7 +297,10 @@ function fill_mat_dgp_sop!(dgp::SAR22, dist_error::ContinuousUnivariateDistribut
 end
 
 # Method to fill matrix for SINAR(1,1) without additive outliers
-function fill_mat_dgp_sop!(dgp::SINAR11, dist_error::DiscreteUnivariateDistribution, dist_ao::Nothing, mat, mat_ao::Matrix{Float64}, mat_ma::Matrix{Float64})
+function fill_mat_dgp_sop!(
+  dgp::SINAR11, dist_error::DiscreteUnivariateDistribution, dist_ao::Nothing, mat,
+  mat_ao::Matrix{Float64}, mat_ma::Matrix{Float64}
+)
 
   # Extract parameters
   prerun = dgp.prerun
@@ -322,7 +323,10 @@ function fill_mat_dgp_sop!(dgp::SINAR11, dist_error::DiscreteUnivariateDistribut
 end
 
 # Method to fill matrix for SINAR(1,1) with additive outliers
-function fill_mat_dgp_sop!(dgp::SINAR11, dist_error::DiscreteUnivariateDistribution, dist_ao::DiscreteUnivariateDistribution, mat, mat_ao::Matrix{Float64}, mat_ma::Matrix{Float64})
+function fill_mat_dgp_sop!(
+  dgp::SINAR11, dist_error::DiscreteUnivariateDistribution, dist_ao::DiscreteUnivariateDistribution,
+  mat, mat_ao::Matrix{Float64}, mat_ma::Matrix{Float64}
+)
 
   # Extract parameters
   prerun = dgp.prerun
@@ -349,7 +353,10 @@ function fill_mat_dgp_sop!(dgp::SINAR11, dist_error::DiscreteUnivariateDistribut
 end
 
 # Method to fill matrix for SQMA(1, 1) without additive outliers
-function fill_mat_dgp_sop!(dgp::SQMA11, dist_error::ContinuousUnivariateDistribution, dist_ao::Nothing, mat, mat_ao::Matrix{Float64}, mat_ma::Matrix{Float64})
+function fill_mat_dgp_sop!(
+  dgp::SQMA11, dist_error::ContinuousUnivariateDistribution, dist_ao::Nothing,
+  mat, mat_ao::Matrix{Float64}, mat_ma::Matrix{Float64}
+)
 
   # Extract parameters  
   prerun = dgp.prerun
@@ -367,7 +374,10 @@ function fill_mat_dgp_sop!(dgp::SQMA11, dist_error::ContinuousUnivariateDistribu
   # Fill
   for t2 in 2:size(mat, 2)
     for t1 in 2:size(mat, 1)
-      mat[t1, t2] = β₁ * mat_ma[t1-1, t2]^a + β₂ * mat_ma[t1, t2-1]^b + β₃ * mat_ma[t1-1, t2-1]^c + mat_ma[t1, t2]
+      mat[t1, t2] = β₁ * mat_ma[t1-1, t2]^a +
+                    β₂ * mat_ma[t1, t2-1]^b +
+                    β₃ * mat_ma[t1-1, t2-1]^c +
+                    mat_ma[t1, t2]
     end
   end
 
@@ -376,7 +386,10 @@ function fill_mat_dgp_sop!(dgp::SQMA11, dist_error::ContinuousUnivariateDistribu
 end
 
 # Method to fill matrix for SQMA(2, 2) without additive outliers
-function fill_mat_dgp_sop!(dgp::SQMA22, dist_error::ContinuousUnivariateDistribution, dist_ao::Nothing, mat, mat_ao::Matrix{Float64}, mat_ma::Matrix{Float64})
+function fill_mat_dgp_sop!(
+  dgp::SQMA22, dist_error::ContinuousUnivariateDistribution, dist_ao::Nothing,
+  mat, mat_ao::Matrix{Float64}, mat_ma::Matrix{Float64}
+)
 
   # Extract parameters  
   prerun = dgp.prerun
@@ -421,7 +434,10 @@ function fill_mat_dgp_sop!(dgp::SQMA22, dist_error::ContinuousUnivariateDistribu
 end
 
 # Method to fill matrix for SQINMA(1, 1) without additive outliers
-function fill_mat_dgp_sop!(dgp::SQINMA11, dist_error::DiscreteUnivariateDistribution, dist_ao::Nothing, mat, mat_ao::Matrix{Float64}, mat_ma::Matrix{Float64})
+function fill_mat_dgp_sop!(
+  dgp::SQINMA11, dist_error::DiscreteUnivariateDistribution, dist_ao::Nothing,
+  mat, mat_ao::Matrix{Float64}, mat_ma::Matrix{Float64}
+)
 
   # Extract parameters
   prerun = dgp.prerun
@@ -452,7 +468,10 @@ function fill_mat_dgp_sop!(dgp::SQINMA11, dist_error::DiscreteUnivariateDistribu
 end
 
 # Method to fill matrix for BSQMA(1, 1) without additive outliers
-function fill_mat_dgp_sop!(dgp::BSQMA11, dist_error::ContinuousUnivariateDistribution, dist_ao::Nothing, mat, mat_ao::Matrix{Float64}, mat_ma::Matrix{Float64})
+function fill_mat_dgp_sop!(
+  dgp::BSQMA11, dist_error::ContinuousUnivariateDistribution, dist_ao::Nothing, 
+  mat, mat_ao::Matrix{Float64}, mat_ma::Matrix{Float64}
+  )
 
   # extract parameters
   prerun = dgp.prerun
