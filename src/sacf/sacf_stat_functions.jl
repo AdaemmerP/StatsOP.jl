@@ -114,8 +114,13 @@ Compute the BP-spatial autocorrelation function (BP-SACF) for multiple delay com
 - `d2_vec::Vector{Int}`: The vector of second (column) delays for the spatial process.
 """
 function stat_sacf(
-  data::Union{SubArray,Matrix{T}}, d1_vec::Vector{Int}, d2_vec::Vector{Int}
+  data::Union{SubArray,Array{T, 2}}, d1_vec::Vector{Int}, d2_vec::Vector{Int}
 ) where {T<:Real}
+
+  # ennsure tha 0 is not included in the d1_vec and d2_vec
+  if 0 in d1_vec || 0 in d2_vec
+    throw(ArgumentError("0 should not be included in d1_vec or d2_vec"))
+  end
 
   # Compute all d1-d2 combinations
   d1_d2_combinations = Iterators.product(d1_vec, d2_vec)
