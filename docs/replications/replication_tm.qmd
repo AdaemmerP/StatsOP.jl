@@ -327,4 +327,12 @@ SAR22(
 
 ```{julia}
 
+using RCall
+R"""
+library(textile)
+library(spc4sts)
+images = textile::icImgs
+"""
+
+@rget images
 ```

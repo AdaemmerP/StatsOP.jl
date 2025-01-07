@@ -30,7 +30,7 @@ end
 
 Compute the matrix of p-hat values for a given 3D array of data when the delays are integers. These values are used for bootstrapping. 
 """
-function compute_p_array(data::Array{Float64,3}, d1::Int=1, d2::Int=1; chart_choice=3)
+function compute_p_array(data::Array{T,3}, d1::Int=1, d2::Int=1; chart_choice=3) where {T<:Real}
 
   # pre-allocate
   m = size(data, 1) - d1
@@ -74,7 +74,7 @@ end
 
 Compute the matrix of p-hat values for a given 3D array of data when the delays are vectors of integers. These values are used for bootstrapping to compute critcial limits for the BP-statistics. 
 """
-function compute_p_array(data::Array{Float64,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int}; chart_choice=3)
+function compute_p_array(data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int}; chart_choice=3) where {T<:Real}
 
   # pre-allocate
   M_rows = size(data, 1)

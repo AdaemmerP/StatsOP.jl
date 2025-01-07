@@ -90,11 +90,12 @@ export rl_op,
 
 # Include files for OPs
 include("op/op_dgp_structs.jl")
-include("op/op_acf_functions.jl")
 include("op/op_arl_functions.jl")
 include("op/op_dependence.jl")
 include("op/op_help_functions.jl")
 
+# Include files for ACFs 
+include("acf/op_acf_functions.jl")
 
 # Include files for SOPs
 include("sop/sop_dgp_structs.jl")
