@@ -153,6 +153,45 @@ hlines!(ax, [mean_stat], linestyle=:dash, color=:green)
 fig
 ```
 
+
+## Images
+
+```{julia}
+using OrdinalPatterns
+using RCall
+R"""
+library(textile)
+library(spc4sts)
+images_ic = textile::icImgs
+images_oc = textile::ocImgs
+"""
+
+@rget images_ic images_oc;
+
+# Compute sequence of pictures
+x = rand(100, 100, 370)
+stat_sop(0.1, x, [1, 2, 3], [1, 2, 3])
+
+
+# Compute critical limits for BP-statistic
+cl_sop(
+  0.1, 370, ICSP(100, 100, Normal(0, 1)), 0.005,  [1, 2, 3], [1, 2, 3], 100;
+  chart_choice=3, jmin=4, jmax=6, verbose=true
+)
+
+# Get values for BP statistic
+stat_sop(0.1, images_ic, [1, 2, 3], [1, 2, 3])
+
+p_array = compute_p_array(images_ic, [1, 2, 3], [1, 2, 3])
+
+cl_sop(
+  0.1, 100, p_array, 0.1, 100;
+  chart_choice=3, jmin=1, jmax=6, verbose=true
+)
+
+stat_sop(0.1, images_oc, [1, 2, 3], [1, 2, 3])
+```
+
 ## Compute test statictis based on series of pictures
 
 ```{julia}
@@ -320,19 +359,4 @@ SAR22(
     100
     )
 
-```
-
-## Images
-
-
-```{julia}
-
-using RCall
-R"""
-library(textile)
-library(spc4sts)
-images = textile::icImgs
-"""
-
-@rget images
 ```

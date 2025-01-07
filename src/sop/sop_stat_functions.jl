@@ -256,7 +256,7 @@ function stat_sop(
     # -------------------------------------------------------------------------#
     # ----------------     Loop for BP-Statistik                     ----------#
     # -------------------------------------------------------------------------#
-    for (i, (d1, d2)) in enumerate(d1_d2_combinations)
+    for (j, (d1, d2)) in enumerate(d1_d2_combinations)
 
       m = M_rows - d1
       n = N_cols - d2
@@ -268,10 +268,10 @@ function stat_sop(
       fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
 
       # Apply EWMA to p-vectors
-      @views p_ewma_all[:, :, i] .= (1 - lam) .* p_ewma_all[:, :, i] .+ lam .* p_hat
+      @views p_ewma_all[:, :, j] .= (1 - lam) .* p_ewma_all[:, :, j] .+ lam .* p_hat
 
       # Compute test statistic            
-      @views stat = chart_stat_sop(p_ewma_all[:, :, i], chart_choice)
+      @views stat = chart_stat_sop(p_ewma_all[:, :, j], chart_choice)
 
       # Save temporary test statistic
       bp_stat += stat^2

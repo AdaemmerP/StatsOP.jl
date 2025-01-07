@@ -326,7 +326,7 @@ function rl_sop(lam, cl, reps_range::UnitRange, chart_choice, p_array::Array{Flo
   rls = zeros(Int, length(reps_range))
   p_array_mean = mean(p_array, dims=1)
   range_index = axes(p_array, 1)
-  p_ewma = p_array_mean # will be dimension 1 x 3 x 'axes(p_array, 3)'
+  p_ewma = p_array_mean # will be dimension 1 x 3 x 'size(p_array, 3)'
   bp_stat0 = 0.0
 
   # compute bp-statistic with averages of p_array
@@ -340,7 +340,7 @@ function rl_sop(lam, cl, reps_range::UnitRange, chart_choice, p_array::Array{Flo
     bp_stat = bp_stat0
     rl = 0
 
-    while (bp_stat - bp_stat0) < cl
+    while bp_stat < cl # (bp_stat - bp_stat0) < cl
       rl += 1
 
       # sample from p_vec
