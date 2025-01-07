@@ -208,6 +208,11 @@ function stat_sop(
     # Compute test statistic
     stat = chart_stat_sop(p_hat, chart_choice)
     bp_stat += stat^2
+
+    # Reset win, sop_freq and p_hat
+    # fill!(win, 0)
+    fill!(sop_freq, 0)
+    fill!(p_hat, 0)
   end
 
   return bp_stat
