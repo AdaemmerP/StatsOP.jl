@@ -75,7 +75,7 @@ function sacf(X_centered, d1::Int, d2::Int)
 
   # Return the SACF value
   if allequal(X_centered)
-    return 0.0
+    return 1.0
   else
     return cov_d1d2 / cov_00
   end
