@@ -83,7 +83,7 @@ function sacf(X_centered, d1::Int, d2::Int)
     if d2 >= 0
       @views cov_d1d2 = dot(X_centered[(1+abs(d1)):M, 1:(N-d2)], X_centered[1:(M-abs(d1)), (1+d2):N]) / (M * N)
     else
-      @views cov_d1d2 = dot(X_centered[(1+abs(d1)):M, (1+abs(d1)):N], X_centered[1:(M-abs(d1)), 1:(N-abs(d1))]) / (M * N)
+      @views cov_d1d2 = dot(X_centered[(1+abs(d1)):M, (1+abs(d2)):N], X_centered[1:(M-abs(d1)), 1:(N-abs(d2))]) / (M * N)
     end
   end
 
