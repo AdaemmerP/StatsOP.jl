@@ -118,18 +118,21 @@ function stat_sacf_bp(
 ) where {T<:Real}
 
   # Compute all relevant d1-d2 combinations
-  h1_h2_combinations = Iterators.product(-w:w, 0:w)
+  # h1_h2_combinations = Iterators.product(-w:w, -w:w)
+  set_1 = Iterators.product(1:w, 0:w) 
+  set_2 = Iterators.product(-w:0, 1:w)
+  h1_h2_combinations = Iterators.flatten(Iterators.zip(set_1, set_2))
 
   # pre-allocate
   X_centered = data .- mean(data)
   bp_stat = 0.0
 
   for (h1, h2) in h1_h2_combinations
-    bp_stat += sacf(X_centered, h1, h2)^2
+    bp_stat += 2 * sacf(X_centered, h1, h2)^2
   end
 
-  bp_stat -= 1.0
-  bp_stat = 2 * bp_stat
+  # bp_stat -= 1.0
+  # bp_stat = 2 * bp_stat
 
   return bp_stat
 
