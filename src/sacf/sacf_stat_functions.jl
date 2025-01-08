@@ -91,7 +91,7 @@ Compute the spatial autocorrelation for a delay combination (d1, d2) for a singl
 - `d1::Int`: The first (row) delay for the spatial process.
 - `d2::Int`: The second (column) delay for the spatial process.
 """
-function stat_sacf(data::Union{SubArray,Matrix{T}}, d1::Int, d2::Int) where {T<:Real}
+function stat_sacf(data::Union{SubArray,Array{T,2}}, d1::Int, d2::Int) where {T<:Real}
 
   # pre-allocate
   X_centered = data .- mean(data)
@@ -113,25 +113,23 @@ Compute the BP-spatial autocorrelation function (BP-SACF) for multiple delay com
 - `d1_vec::Vector{Int}`: The vector of first (row) delays for the spatial process.
 - `d2_vec::Vector{Int}`: The vector of second (column) delays for the spatial process.
 """
-function stat_sacf(
-  data::Union{SubArray,Array{T, 2}}, d1_vec::Vector{Int}, d2_vec::Vector{Int}
+function stat_sacf_bp(
+  data::Union{SubArray,Array{T,2}}, w::Int
 ) where {T<:Real}
 
-  # ensure that 0 is not included in the d1_vec and d2_vec
-  if 0 in d1_vec || 0 in d2_vec
-    throw(ArgumentError("0 should not be included in d1_vec or d2_vec"))
-  end
-
-  # Compute all d1-d2 combinations
-  d1_d2_combinations = Iterators.product(d1_vec, d2_vec)
+  # Compute all relevant d1-d2 combinations
+  h1_h2_combinations = Iterators.product(-w:w, 0:w)
 
   # pre-allocate
   X_centered = data .- mean(data)
   bp_stat = 0.0
 
-  for (d1, d2) in d1_d2_combinations
-    bp_stat += 2 * sacf(X_centered, d1, d2)^2
+  for (h1, h2) in h1_h2_combinations
+    bp_stat += sacf(X_centered, h1, h2)^2
   end
+
+  bp_stat -= 1.0
+  bp_stat = 2 * bp_stat
 
   return bp_stat
 
