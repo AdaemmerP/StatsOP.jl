@@ -167,8 +167,7 @@ end
 
 # Compute test SOP-BP-statistic for one picture
 function stat_sop_bp(
-  data::Union{SubArray,Array{T, 2}}, w::Int;
-  chart_choice=3, add_noise::Bool=false
+  data::Union{SubArray,Array{T, 2}}, w::Int; chart_choice=3, add_noise::Bool=false
 ) where {T<:Real}
 
   # Pre-allocate
@@ -220,9 +219,9 @@ function stat_sop_bp(
 
 end
 
-# Compute "SOP-EWMA-BP-Statstic" absed on sequential images
+# Compute "SOP-EWMA-BP-Statstic" based on sequential images
 function stat_sop(
-  lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int};
+  lam, data::Array{T,3}, w::Int;
   chart_choice=3, add_noise=false, 
 ) where {T<:Real}
 
@@ -232,7 +231,7 @@ function stat_sop(
   sop = zeros(4)
 
   # Pre-allocate for BP-computations
-  d1_d2_combinations = Iterators.product(d1_vec, d2_vec)
+  d1_d2_combinations = Iterators.product(1:w, 1:w)
   p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
   p_ewma_all .= 1.0 / 3.0
   bp_stat = 0.0
