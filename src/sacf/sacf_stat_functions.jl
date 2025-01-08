@@ -117,7 +117,7 @@ function stat_sacf_bp(
   data::Union{SubArray,Array{T,2}}, w::Int
 ) where {T<:Real}
 
-  # Compute all relevant d1-d2 combinations
+  # Compute all relevant h1-h2 combinations
   # h1_h2_combinations = Iterators.product(-w:w, -w:w)
   set_1 = Iterators.product(1:w, 0:w) 
   set_2 = Iterators.product(-w:0, 1:w)
@@ -128,6 +128,7 @@ function stat_sacf_bp(
   bp_stat = 0.0
 
   for (h1, h2) in h1_h2_combinations
+    @show h1, h2
     bp_stat += 2 * sacf(X_centered, h1, h2)^2
   end
 

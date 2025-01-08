@@ -166,8 +166,8 @@ function stat_sop(
 end
 
 # Compute test SOP-BP-statistic for one picture
-function stat_sop(
-  data::Union{SubArray,Array{T, 2}}, d1_vec::Vector{Int}, d2_vec::Vector{Int};
+function stat_sop_bp(
+  data::Union{SubArray,Array{T, 2}}, w::Int;
   chart_choice=3, add_noise::Bool=false
 ) where {T<:Real}
 
@@ -182,7 +182,8 @@ function stat_sop(
   # Get image size and get all d1-d2-combinations  
   M_rows = size(data, 1)
   N_cols = size(data, 2)
-  d1_d2_combinations = Iterators.product(d1_vec, d2_vec)
+  #d1_d2_combinations = Iterators.product(d1_vec, d2_vec)
+  d1_d2_combinations = Iterators.product(1:w, 1:w)
 
   # Pre-allocate indexes to compute sum of frequencies
   s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
