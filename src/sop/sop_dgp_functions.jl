@@ -28,8 +28,8 @@ function init_mat!(dgp::SAR22, dist_error, dgp_params, mat)
   α₈ = dgp_params[8]
 
   μₓ = μ / (1 - α₁ - α₂ - α₃ - α₄ - α₅ - α₆ - α₇ - α₈)
-  mat[1, :] .= μₓ
-  mat[:, 1] .= μₓ
+  mat[1:2, :] .= μₓ
+  mat[:, 1:2] .= μₓ
 
 end
 
