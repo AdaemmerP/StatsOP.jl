@@ -70,8 +70,22 @@ function sacf(X_centered, d1::Int, d2::Int)
 
   # Lag 0x0
   @views cov_00 = dot(X_centered[1:M, 1:N], X_centered[1:M, 1:N]) / (M * N)
-  # Lag d1xd2
-  @views cov_d1d2 = dot(X_centered[1:(M-d1), 1:(N-d2)], X_centered[(1+d1):M, (1+d2):N]) / (M * N)
+
+  # # Lag d1xd2
+  # @views cov_d1d2 = dot(X_centered[1:(M-d1), 1:(N-d2)], X_centered[(1+d1):M, (1+d2):N]) / (M * N)
+  if d1 >= 0
+    if d2 >= 0
+      @views cov_d1d2 = dot(X_centered[1:(M-d1), 1:(N-d2)], X_centered[(1+d1):M, (1+d2):N]) / (M * N)
+    else
+      @views cov_d1d2 = dot(X_centered[1:(M-d1), (1+d2):N], X_centered[(1+d1):M, 1:(N-d2)]) / (M * N)
+    end
+  else
+    if d2 >= 0
+      @views cov_d1d2 = dot(X_centered[(1+d1):M, 1:(N-d2)], X_centered[1:(M-d1), (1+d2):N]) / (M * N)
+    else
+      @views cov_d1d2 = dot(X_centered[(1+d1):M, (1+d2):N], X_centered[1:(M-d1), 1:(N-d2)]) / (M * N)
+    end
+  end
 
   # Return the SACF value
   if allequal(X_centered)
@@ -119,7 +133,7 @@ function stat_sacf_bp(
 
   # Compute all relevant h1-h2 combinations
   # h1_h2_combinations = Iterators.product(-w:w, -w:w)
-  set_1 = Iterators.product(1:w, 0:w) 
+  set_1 = Iterators.product(1:w, 0:w)
   set_2 = Iterators.product(-w:0, 1:w)
   h1_h2_combinations = Iterators.flatten(Iterators.zip(set_1, set_2))
 

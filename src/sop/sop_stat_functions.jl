@@ -220,7 +220,7 @@ function stat_sop_bp(
 end
 
 # Compute "SOP-EWMA-BP-Statstic" based on sequential images
-function stat_sop(
+function stat_sop_bp(
   lam, data::Array{T,3}, w::Int;
   chart_choice=3, add_noise=false, 
 ) where {T<:Real}

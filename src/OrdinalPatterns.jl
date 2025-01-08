@@ -40,7 +40,7 @@ export rl_sacf,
        arl_sacf,
        stat_sacf,
        stat_sacf_bp,
-       sacf_11,
+       sacf,
        crit_sacf,
        cl_sacf,
        crit_val_sacf    
