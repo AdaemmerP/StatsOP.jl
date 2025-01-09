@@ -103,6 +103,7 @@ include("acf/op_acf_functions.jl")
 # Include files for SOPs
 include("sop/sop_dgp_structs.jl")
 include("sop/sop_arl_functions.jl")
+include("sop/sop_arl_bp_functions.jl")
 include("sop/sop_dgp_functions.jl")
 include("sop/sop_distributions.jl")
 include("sop/sop_stat_functions.jl")
@@ -113,5 +114,6 @@ include("sop/sop_cl_functions.jl")
 include("sacf/sacf_arl_functions.jl")
 include("sacf/sacf_cl_functions.jl")
 include("sacf/sacf_stat_functions.jl")
+include("sacf/sacf_stat_bp_functions.jl")
 
 end
