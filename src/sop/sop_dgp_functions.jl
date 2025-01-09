@@ -14,7 +14,7 @@ function init_mat!(dgp::SAR11, dist_error, dgp_params, mat)
 
 end
 
-# Method to initialize matrix for SAR(1,1) with continuous errors
+# Method to initialize matrix for SAR(2,2) with continuous errors
 function init_mat!(dgp::SAR22, dist_error, dgp_params, mat)
 
   μ = mean(dist_error)
