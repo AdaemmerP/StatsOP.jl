@@ -107,6 +107,7 @@ include("sop/sop_arl_bp_functions.jl")
 include("sop/sop_dgp_functions.jl")
 include("sop/sop_distributions.jl")
 include("sop/sop_stat_functions.jl")
+include("sop/sop_stat_bp_functions.jl")
 include("sop/sop_help_functions.jl")
 include("sop/sop_cl_functions.jl")
 
