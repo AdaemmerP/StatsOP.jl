@@ -139,7 +139,7 @@ the SACF function. This can be one of the following: `SAR1`, `SAR11`, `SAR22`,
 - `reps`: The number of repetitions to compute the ARL.
 """
 function arl_sacf_bp(
-  lam, cl, spatial_dgp::SpatialDGP, d1_vec::Vector{Int}, d2_vec::Vector{Int}, reps=10_000
+  spatial_dgp::SpatialDGP, lam, cl, w::Int, reps=10_000
 )
 
   # Extract distribution        
@@ -154,7 +154,7 @@ function arl_sacf_bp(
 
     # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
     par_results = map(chunks) do i
-      Threads.@spawn rl_sacf(lam, cl, d1_vec, d2_vec, i, spatial_dgp, dist_error, dist_ao)
+      Threads.@spawn rl_sacf_bp(spatial_dgp, lam, cl, w, i, dist_error, dist_ao)
     end
 
   elseif nprocs() > 1 # Multi Processing
@@ -163,7 +163,7 @@ function arl_sacf_bp(
     chunks = Iterators.partition(1:reps, div(reps, nworkers()))
 
     par_results = pmap(chunks) do i
-      rl_sacf(lam, cl, d1_vec, d2_vec, i, spatial_dgp, dist_error, dist_ao)
+      rl_sacf_bp(spatial_dgp, lam, cl, w, i, dist_error, dist_ao)
     end
 
   end
@@ -186,8 +186,7 @@ Compute the out-of-control run length using the spatial autocorrelation function
 - `lam`: The smoothing parameter for the exponentially weighted moving average 
 (EWMA) control chart.
 - `cl`: The control limit for the EWMA control chart.
-- `d1_vec::Vector{Int}`: The first (row) delays for the spatial process.
-- `d2_vec::Vector{Int}`: The second (column) delays for the spatial process.
+- `w::Int`: The window size for the BP-statistic.'
 - `p_reps::UnitRange`: The number of repetitions to compute the run length. This 
 has to be a unit range of integers to allow for parallel processing, since the function 
   is called by `arl_sacf()`.
@@ -202,7 +201,7 @@ the additive outlier term in the spatial process. This can be any univariate ,
 distribution from the `Distributions.jl` package or `Nothing`.
 """
 function rl_sacf_bp(
-  lam, cl, d1_vec::Vector{Int}, d2_vec::Vector{Int}, p_reps::UnitRange, spatial_dgp::SpatialDGP, dist_error::UnivariateDistribution, dist_ao::Union{UnivariateDistribution,Nothing}
+  spatial_dgp::SpatialDGP, lam, cl, w::Int, p_reps::UnitRange, dist_error::UnivariateDistribution, dist_ao::Union{UnivariateDistribution,Nothing}
 )
 
   # pre-allocate
@@ -212,9 +211,11 @@ function rl_sacf_bp(
   X_centered = similar(data)
   rls = zeros(Int, length(p_reps))
 
-  # Compute all d1-d2 combinations
-  d1_d2_combinations = Iterators.product(d1_vec, d2_vec)
-  rho_hat_all = zeros(length(d1_d2_combinations))
+  # Compute all relevant h1-h2 combinations
+  set_1 = Iterators.product(1:w, 0:w)
+  set_2 = Iterators.product(-w:0, 1:w)
+  h1_h2_combinations = Iterators.flatten(Iterators.zip(set_1, set_2))
+  rho_hat_all = zeros(length(h1_h2_combinations))
 
   # pre-allocate mat, mat_ao and mat_ma
   # mat:    matrix for the final values of the spatial DGP
@@ -268,10 +269,10 @@ function rl_sacf_bp(
       X_centered .= data .- mean(data)
 
       # Compute BP-statistic using all d1-d2 combinations
-      for (i, (d1, d2)) in enumerate(d1_d2_combinations)
+      for (i, (h1, h2)) in enumerate(h1_h2_combinations)
 
         # compute ρ(d1,d2)-EWMA
-        @views rho_hat_all[i] = (1 - lam) * rho_hat_all[i] + lam * sacf(X_centered, d1, d2)
+        @views rho_hat_all[i] = (1 - lam) * rho_hat_all[i] + lam * sacf(X_centered, h1, h2)
         bp_stat += 2 * rho_hat_all[i]^2
 
       end
