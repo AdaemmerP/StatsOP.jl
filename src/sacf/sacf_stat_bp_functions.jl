@@ -1,6 +1,6 @@
 # SACF-BP-statistic for one images
 """
-    stat_sacf(
+    stat_sacf_bp(
   data::Union{SubArray,Matrix{T}}, d1_vec::Vector{Int}, d2_vec::Vector{Int}
 ) where {T<:Real}
 
@@ -11,9 +11,7 @@ Compute the BP-spatial autocorrelation function (BP-SACF) for multiple delay com
 - `d1_vec::Vector{Int}`: The vector of first (row) delays for the spatial process.
 - `d2_vec::Vector{Int}`: The vector of second (column) delays for the spatial process.
 """
-function stat_sacf_bp(
-  data::Union{SubArray,Array{T,2}}, w::Int
-) where {T<:Real}
+function stat_sacf_bp(data::Union{SubArray,Array{T,2}}, w::Int) where {T<:Real}
 
   # Compute all relevant h1-h2 combinations
   set_1 = Iterators.product(1:w, 0:w)
@@ -34,7 +32,7 @@ end
 
 # EWMA SACF-BP-statistic for multiple images
 """
-    stat_sacf(lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int}) where {T<:Real}
+    stat_sacf_bp(lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int}) where {T<:Real}
 
 Compute the EWMA-BP-spatial autocorrelation function (EWMA-BP-SACF) for multiple images.
 
@@ -43,17 +41,12 @@ Compute the EWMA-BP-spatial autocorrelation function (EWMA-BP-SACF) for multiple
 - `d1_vec::Vector{Int}`: The vector of first (row) delays for the spatial process.
 - `d2_vec::Vector{Int}`: The vector of second (column) delays for the spatial process.
 """
-function stat_sacf(
-  lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int}
-) where {T<:Real}
+function stat_sacf_bp(data::Array{T,3}, lam,  w::Int) where {T<:Real}
 
-  # ensure that 0 is not included in the d1_vec and d2_vec
-  if 0 in d1_vec || 0 in d2_vec
-    throw(ArgumentError("0 should not be included in d1_vec or d2_vec"))
-  end
-
-  # Compute all d1-d2 combinations
-  d1_d2_combinations = Iterators.product(d1_vec, d2_vec)
+  # Compute all relevant h1-h2 combinations
+  set_1 = Iterators.product(1:w, 0:w)
+  set_2 = Iterators.product(-w:0, 1:w)
+  h1_h2_combinations = Iterators.flatten(Iterators.zip(set_1, set_2))
 
   # pre-allocate
   X_centered = zeros(size(data[:, :, 1]))
@@ -66,8 +59,8 @@ function stat_sacf(
 
     X_centered .= view(data, :, :, i) .- mean(view(data, :, :, i))
 
-    for (j, (d1, d2)) in enumerate(d1_d2_combinations)
-      rho_hat_all[j] = (1 - lam) * rho_hat_all[j] + lam * sacf(X_centered, d1, d2)
+    for (j, (h1, h2)) in enumerate(h1_h2_combinations)
+      rho_hat_all[j] = (1 - lam) * rho_hat_all[j] + lam * sacf(X_centered, h1, h2)
       bp_stat += 2 * rho_hat_all[j]^2
     end
 
