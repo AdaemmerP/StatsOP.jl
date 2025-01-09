@@ -26,6 +26,7 @@ export order_vec!,
 # SOP functions to export
 export rl_sop, 
        arl_sop,
+       arl_sop_bp,
        cl_sop,
        stat_sop,
        stat_sop_bp,
