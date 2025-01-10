@@ -124,13 +124,6 @@ function fill_mat_dgp_sop!(
   M_rows = dgp.M_rows
   N_cols = dgp.N_cols
 
-  # M = M_rows + 2 * margin
-  # N = N_cols + 2 * margin
-  #m = dgp.m_rows
-  #n = dgp.n_cols
-  #M = m + 1 + 2 * margin
-  #N = n + 1 + 2 * margin
-
   rand!(dist_error, vec_ar)
   mul!(vec_ar2, mat, vec_ar)
 
@@ -150,13 +143,6 @@ function fill_mat_dgp_sop!(
   margin = dgp.margin
   M_rows = dgp.M_rows
   N_cols = dgp.N_cols
-
-  # M = M_rows + 2 * margin
-  # N = N_cols + 2 * margin
-  # m = dgp.M_rows 
-  # n = dgp.N_cols
-  # M = m + 1 + 2 * margin
-  # N = n + 1 + 2 * margin
 
   rand!(dist_error, vec_ar)
   mul!(vec_ar2, mat, vec_ar)
@@ -359,7 +345,6 @@ function fill_mat_dgp_sop!(
 )
 
   # Extract parameters  
-  prerun = dgp.prerun
   β₁ = dgp.dgp_params[1]
   β₂ = dgp.dgp_params[2]
   β₃ = dgp.dgp_params[3]
@@ -381,7 +366,7 @@ function fill_mat_dgp_sop!(
     end
   end
 
-  return @views mat[(prerun+1):end, (prerun+1):end]
+  return @views mat[2:end, 2:end]
 
 end
 
@@ -392,7 +377,6 @@ function fill_mat_dgp_sop!(
 )
 
   # Extract parameters  
-  prerun = dgp.prerun
   β₁ = dgp.dgp_params[1]
   β₂ = dgp.dgp_params[2]
   β₃ = dgp.dgp_params[3]
@@ -429,7 +413,7 @@ function fill_mat_dgp_sop!(
     end
   end
 
-  return @views mat[(prerun+1):end, (prerun+1):end]
+  return @views mat[3:end, 3:end]
 
 end
 
@@ -440,7 +424,6 @@ function fill_mat_dgp_sop!(
 )
 
   # Extract parameters
-  prerun = dgp.prerun
   β₁ = dgp.dgp_params[1]
   β₂ = dgp.dgp_params[2]
   β₃ = dgp.dgp_params[3]
@@ -462,7 +445,7 @@ function fill_mat_dgp_sop!(
     end
   end
 
-  return @views mat[(prerun+1):end, (prerun+1):end]
+  return @views mat[2:end, 2:end]
 
 
 end
@@ -474,7 +457,6 @@ function fill_mat_dgp_sop!(
 )
 
   # extract parameters
-  prerun = dgp.prerun
   b1 = dgp.dgp_params[1]
   b2 = dgp.dgp_params[2]
   b3 = dgp.dgp_params[3]
@@ -499,7 +481,7 @@ function fill_mat_dgp_sop!(
     end
   end
 
-  return @views mat[(prerun+1):end, (prerun+1):end]
+  return @views mat[2:end, 2:end]
 
 
 end

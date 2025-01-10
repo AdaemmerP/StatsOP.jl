@@ -297,7 +297,7 @@ function rl_sop_bp(
     mat = zeros(M + spatial_dgp.prerun, N + spatial_dgp.prerun)
     mat_ma = similar(mat)
     mat_ao = similar(mat)
-  elseif spatial_dgp isa SQMA11
+  elseif spatial_dgp isa SQMA11 || spatial_dgp isa SQINMA11
     mat = zeros(M + 1, N + 1)
     mat_ma = similar(mat)
     mat_ao = similar(mat)
