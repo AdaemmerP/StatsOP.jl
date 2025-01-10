@@ -26,7 +26,7 @@ Compute the control limit for a given in-control distribution. The input paramet
 - `verbose::Bool`: A boolean to indicate whether to print the control limit and ARL for each iteration.
 """
 function cl_sop(
-  lam, L0, sop_dgp::ICSP, cl_init, d1::Int, d2::Int, reps=10_000;
+  sop_dgp::ICSP, lam, L0, cl_init, d1::Int, d2::Int, reps=10_000;
   chart_choice=3, jmin=4, jmax=6, verbose=false
 )
 
@@ -76,7 +76,7 @@ The function returns the control limit for a given average run. The input parame
 - `verbose::Bool`: A boolean to indicate whether to print the control limit and ARL for each iteration.
 """
 function cl_sop(
-  lam, L0, sp_dgp::ICSP, cl_init, d1_vec::Vector{Int}, d2_vec::Vector{Int}, reps=10_000;
+  sp_dgp::ICSP, lam, L0, cl_init, d1_vec::Vector{Int}, d2_vec::Vector{Int}, reps=10_000;
   chart_choice=3, jmin=4, jmax=6, verbose=false
 )
 

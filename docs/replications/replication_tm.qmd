@@ -48,8 +48,7 @@ sop_dgp = ICSP(
 # Limits SOPs
 L0 = 370
 cl_init = 0.01
-cl_sop(0.1, L0, sop_dgp, cl_init, 1, 1, 1000; chart_choice=1, jmin=4, jmax=6, verbose=true)
-
+cl_sop(sop_dgp, 0.1, L0, cl_init, 1, 1, 1000; chart_choice=1, jmin=4, jmax=6, verbose=true)
 
 # Verify ARL
 lam = 0.1
@@ -58,149 +57,6 @@ arl_sop(lam, cl, sop_dgp, 1, 1, reps; chart_choice=1)
 
 # Limits SACFs
 cl_sacf(lam, L0, sop_dgp, cl_init, 1, 1, reps; jmin=4, jmax=6, verbose=true)
-```
-
-## Botstraping
-
-```{julia}
-data = rand(250, 250, 94)
-arl_sop(lam, cl, data, 1000; chart_choice=1, d1=3, d2=3)
-stat_sop(0.1, data; chart_choice=3, add_noise=false) |> x -> quantile(x, 0.99)
-cl_sop(0.1, L0, data, 0.0005, 1_000; chart_choice=3, verbose=true, d1=1, d2=1)
-
-
-pmat = compute_p_mat(data)
-p_ewma = vec(mean(pmat, dims=1))
-abs(chart_stat_sop(p_ewma, 3) - -0.14843259957606353)
-stat_sop(0.1, images; chart_choice=3, add_noise=false) |> x -> quantile(x, 0.01)
-
-arl_sop(0.1, 0.003, pmat, 10; chart_choice=3)
-
-arl_sop
-cl_sop(0.1, L0, data, 0.003, 1_000; chart_choice=3, verbose=true, d1=1, d2=1)
-
-cl_sop(0.1, L0, pmat, 0.003, 10_000; chart_choice=3, jmin=4, jmax=6, verbose=true, d1=1, d2=1)
-```
-
-## Image example with APley
-
-```{julia}
-
-using RCall
-R"""
-library(textile)
-library(spc4sts)
-images = textile::icImgs
-model = readRDS("/home/adaemmerp/Downloads/model.rds")
-
-# In-control
-resid_ic_mat = array(NA, c(235, 220, 94))
-for (i in 1:94) {
-
-  dat <- dataPrep(textile::icImgs[, , i], model$nb)
-  r0j <- dat[, 1] - predict(model$fit, dat)
-  res <- matrix(r0j, nrow(textile::icImgs[, , i]) - model$nb[1],
-               ncol(textile::icImgs[, , i]) - sum(model$nb[2:3]), byrow=TRUE)
-  resid_ic_mat[, , i] = res
-}
-
-# Out-of control
-resid_oc_mat = array(NA, c(235, 220, 6))
-for (i in 1:6) {
-  
-  dat <- dataPrep(textile::ocImgs[, , i], model$nb)
-  r0j <- dat[, 1] - predict(model$fit, dat)
-  res <- matrix(r0j, nrow(textile::ocImgs[, , i]) - model$nb[1],
-                ncol(textile::ocImgs[, , i]) - sum(model$nb[2:3]), byrow=TRUE)
-  resid_oc_mat[, , i] = res
-}
-
-"""
-@rget resid_ic_mat resid_oc_mat
-
-stats_ic = stat_sop(1, resid_ic_mat; chart_choice=3, add_noise=false, d1=1, d2=1)
-
-pmat = compute_p_mat(resid_ic_mat)
-p_ewma = vec(mean(pmat, dims=1))
-stat_sop(1, resid_ic_mat; chart_choice=3, add_noise=false) |> x -> quantile(x, 0.01)
-abs(chart_stat_sop(p_ewma, 3) - -0.15668813175662488)
-
-cl_val = cl_sop(1, 100, pmat, 0.012, 1_000; chart_choice=3, verbose=true, d1=1, d2=1)
-
-cl = 0.013
-
-# Makie line plot of stats
-mean_stat = chart_stat_sop(p_ewma, 3)
-using Makie
-fig = Figure()
-ax = Axis(fig[1, 1])
-lines!(Axis(fig[1, 1]), stats)
-# Add horizontal lines
-hlines!(ax, [mean_stat - cl_val, mean_stat + cl_val], color=:red)
-hlines!(ax, [mean_stat], linestyle=:dash, color=:green)
-fig
-
-stats_oc = stat_sop(0.1, resid_oc_mat; chart_choice=3, add_noise=false, d1=1, d2=1)
-resids_all = cat(resid_ic_mat, resid_oc_mat, dims=3)
-stats_all = stat_sop(0.1, resids_all[:, :, :]; chart_choice=3, add_noise=false, d1=1, d2=1)
-# Plot oc stats
-fig = Figure()
-ax = Axis(fig[1, 1])
-lines!(Axis(fig[1, 1]), stats_all)
-# Add horizontal lines
-hlines!(ax, [mean_stat - cl_val, mean_stat + cl_val], color=:red)
-hlines!(ax, [mean_stat], linestyle=:dash, color=:green)
-fig
-```
-
-
-## Images
-
-```{julia}
-using OrdinalPatterns
-using RCall
-R"""
-library(textile)
-library(spc4sts)
-images_ic = textile::icImgs
-images_oc = textile::ocImgs
-"""
-
-@rget images_ic images_oc;
-
-# Compute sequence of pictures
-x = rand(100, 100, 370)
-stat_sop(0.1, x, [1, 2, 3], [1, 2, 3])
-
-
-# Compute critical limits for BP-statistic
-cl_sop(
-  0.1, 370, ICSP(100, 100, Normal(0, 1)), 0.005,  [1, 2, 3], [1, 2, 3], 100;
-  chart_choice=3, jmin=4, jmax=6, verbose=true
-)
-
-# Get values for BP statistic
-stat_sop(images_ic[:, :, 2], [1, 2, 3], [1, 2, 3])
-stat_sop(1, images_ic[:, :, 2:3], [1, 2, 3], [1, 2, 3])
-
-p_array = compute_p_array(images_ic, [1, 2, 3], [1, 2, 3])
-
-cl_sop(
- 1, 80, p_array, 0.1, 100;
-  chart_choice=3, jmin=1, jmax=6, verbose=false
-)
-
-stat_sop(0.1, images_oc, [1, 2, 3], [1, 2, 3])
-```
-
-## Compute test statictis based on series of pictures
-
-```{julia}
-data = rand(50, 50)
-
-stat_sop(data; chart_choice=1)
-data = rand(100, 100, 200)
-stat_sop(0.1, data; chart_choice=1, add_noise=false)
 ```
 
 ## Table A.1
@@ -360,4 +216,148 @@ SAR22(
     100
     )
 
+```
+
+
+## Botstraping
+
+```{julia}
+data = rand(250, 250, 94)
+arl_sop(lam, cl, data, 1000; chart_choice=1, d1=3, d2=3)
+stat_sop(0.1, data; chart_choice=3, add_noise=false) |> x -> quantile(x, 0.99)
+cl_sop(0.1, L0, data, 0.0005, 1_000; chart_choice=3, verbose=true, d1=1, d2=1)
+
+
+pmat = compute_p_mat(data)
+p_ewma = vec(mean(pmat, dims=1))
+abs(chart_stat_sop(p_ewma, 3) - -0.14843259957606353)
+stat_sop(0.1, images; chart_choice=3, add_noise=false) |> x -> quantile(x, 0.01)
+
+arl_sop(0.1, 0.003, pmat, 10; chart_choice=3)
+
+arl_sop
+cl_sop(0.1, L0, data, 0.003, 1_000; chart_choice=3, verbose=true, d1=1, d2=1)
+
+cl_sop(0.1, L0, pmat, 0.003, 10_000; chart_choice=3, jmin=4, jmax=6, verbose=true, d1=1, d2=1)
+```
+
+## Image example with APley
+
+```{julia}
+
+using RCall
+R"""
+library(textile)
+library(spc4sts)
+images = textile::icImgs
+model = readRDS("/home/adaemmerp/Downloads/model.rds")
+
+# In-control
+resid_ic_mat = array(NA, c(235, 220, 94))
+for (i in 1:94) {
+
+  dat <- dataPrep(textile::icImgs[, , i], model$nb)
+  r0j <- dat[, 1] - predict(model$fit, dat)
+  res <- matrix(r0j, nrow(textile::icImgs[, , i]) - model$nb[1],
+               ncol(textile::icImgs[, , i]) - sum(model$nb[2:3]), byrow=TRUE)
+  resid_ic_mat[, , i] = res
+}
+
+# Out-of control
+resid_oc_mat = array(NA, c(235, 220, 6))
+for (i in 1:6) {
+  
+  dat <- dataPrep(textile::ocImgs[, , i], model$nb)
+  r0j <- dat[, 1] - predict(model$fit, dat)
+  res <- matrix(r0j, nrow(textile::ocImgs[, , i]) - model$nb[1],
+                ncol(textile::ocImgs[, , i]) - sum(model$nb[2:3]), byrow=TRUE)
+  resid_oc_mat[, , i] = res
+}
+
+"""
+@rget resid_ic_mat resid_oc_mat
+
+stats_ic = stat_sop(1, resid_ic_mat; chart_choice=3, add_noise=false, d1=1, d2=1)
+
+pmat = compute_p_mat(resid_ic_mat)
+p_ewma = vec(mean(pmat, dims=1))
+stat_sop(1, resid_ic_mat; chart_choice=3, add_noise=false) |> x -> quantile(x, 0.01)
+abs(chart_stat_sop(p_ewma, 3) - -0.15668813175662488)
+
+cl_val = cl_sop(1, 100, pmat, 0.012, 1_000; chart_choice=3, verbose=true, d1=1, d2=1)
+
+cl = 0.013
+
+# Makie line plot of stats
+mean_stat = chart_stat_sop(p_ewma, 3)
+using Makie
+fig = Figure()
+ax = Axis(fig[1, 1])
+lines!(Axis(fig[1, 1]), stats)
+# Add horizontal lines
+hlines!(ax, [mean_stat - cl_val, mean_stat + cl_val], color=:red)
+hlines!(ax, [mean_stat], linestyle=:dash, color=:green)
+fig
+
+stats_oc = stat_sop(0.1, resid_oc_mat; chart_choice=3, add_noise=false, d1=1, d2=1)
+resids_all = cat(resid_ic_mat, resid_oc_mat, dims=3)
+stats_all = stat_sop(0.1, resids_all[:, :, :]; chart_choice=3, add_noise=false, d1=1, d2=1)
+# Plot oc stats
+fig = Figure()
+ax = Axis(fig[1, 1])
+lines!(Axis(fig[1, 1]), stats_all)
+# Add horizontal lines
+hlines!(ax, [mean_stat - cl_val, mean_stat + cl_val], color=:red)
+hlines!(ax, [mean_stat], linestyle=:dash, color=:green)
+fig
+```
+
+
+## Images
+
+```{julia}
+using OrdinalPatterns
+using RCall
+R"""
+library(textile)
+library(spc4sts)
+images_ic = textile::icImgs
+images_oc = textile::ocImgs
+"""
+
+@rget images_ic images_oc;
+
+# Compute sequence of pictures
+x = rand(100, 100, 370)
+stat_sop(0.1, x, [1, 2, 3], [1, 2, 3])
+
+
+# Compute critical limits for BP-statistic
+cl_sop(
+  0.1, 370, ICSP(100, 100, Normal(0, 1)), 0.005,  [1, 2, 3], [1, 2, 3], 100;
+  chart_choice=3, jmin=4, jmax=6, verbose=true
+)
+
+# Get values for BP statistic
+stat_sop(images_ic[:, :, 2], [1, 2, 3], [1, 2, 3])
+stat_sop(1, images_ic[:, :, 2:3], [1, 2, 3], [1, 2, 3])
+
+p_array = compute_p_array(images_ic, [1, 2, 3], [1, 2, 3])
+
+cl_sop(
+ 1, 80, p_array, 0.1, 100;
+  chart_choice=3, jmin=1, jmax=6, verbose=false
+)
+
+stat_sop(0.1, images_oc, [1, 2, 3], [1, 2, 3])
+```
+
+## Compute test statictis based on series of pictures
+
+```{julia}
+data = rand(50, 50)
+
+stat_sop(data; chart_choice=1)
+data = rand(100, 100, 200)
+stat_sop(0.1, data; chart_choice=1, add_noise=false)
 ```

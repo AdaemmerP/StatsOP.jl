@@ -24,7 +24,7 @@ The input parameters are:
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4. 
 The default value is 3.
 """
-function arl_sop(lam, cl, sop_dgp::ICSP, d1::Int, d2::Int, reps=10_000; chart_choice=3)
+function arl_sop(sop_dgp::ICSP, lam, cl, d1::Int, d2::Int, reps=10_000; chart_choice=3)
 
   # Extract values  
   m = sop_dgp.M_rows - d1
@@ -84,7 +84,7 @@ univariate distribution from the `Distributions.jl` package.
 - `d2::Int`: An integer value for the second delay (d₂).
 """
 function rl_sop(
-  lam, cl, lookup_array_sop, reps_range::UInt, dist, chart_choice, m, n, d1::Int, d2::Int
+  lam, cl, lookup_array_sop, reps_range::UnitRange, dist, chart_choice, m, n, d1::Int, d2::Int
 )
 
   # Pre-allocate
@@ -162,7 +162,7 @@ delay (d₁-d₂) combination. This matrix will be used for re-sampling. The mat
 computed by `compute_p_array()`.
 - `reps::Int`: An integer value for the number of repetitions. The default value is 10,000.
 """
-function arl_sop(lam, cl, p_mat::Array{Float64,2}, reps=10_000)
+function arl_sop(p_mat::Array{Float64,2}, lam, cl, reps=10_000)
 
   # Check whether to use threading or multi processing --> only one process threading, else distributed
   if nprocs() == 1
@@ -271,7 +271,7 @@ denotes each d₁-d₂ combination. This matrix will be used for re-sampling.
 - `reps::Int`: An integer value for the number of repetitions.
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 """
-function arl_sop(lam, cl, p_array::Array{Float64,3}, reps=10_000; chart_choice=3)
+function arl_sop(p_array::Array{Float64,3}, lam, cl, reps=10_000; chart_choice=3)
 
   # Check whether to use threading or multi processing --> only one process threading, else distributed
   if nprocs() == 1
@@ -388,7 +388,7 @@ The input parameters are:
 The default value is 3.
 """
 function arl_sop(
-  lam, cl, spatial_dgp::SpatialDGP, d1::Int, d2::Int, reps=10_000; chart_choice=3
+  spatial_dgp::SpatialDGP, lam, cl, d1::Int, d2::Int, reps=10_000; chart_choice=3
 )
 
   # Compute m and n
