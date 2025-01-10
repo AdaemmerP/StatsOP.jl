@@ -81,7 +81,7 @@ The input arguments are:
 - `d2::Int`: The second (column) delay for the spatial process.
 - `reps`: The number of repetitions to compute the ARL.
 """
-function arl_sacf(lam, cl, spatial_dgp::ICSP, d1::Int, d2::Int, reps=10_000)
+function arl_sacf(spatial_dgp::ICSP, lam, cl, d1::Int, d2::Int, reps=10_000)
 
   # Extract        
   dist_error = spatial_dgp.dist
@@ -227,7 +227,7 @@ This can be one of the following: `SAR1`, `SAR11`, `SAR22`, `SINAR11`, `SQMA11`,
 - `d2::Int`: The second (column) delay for the spatial process.
 - `reps`: The number of repetitions to compute the ARL.
 """
-function arl_sacf(lam, cl, sp_dgp::SpatialDGP, d1::Int, d2::Int, reps=10_000)
+function arl_sacf( sp_dgp::SpatialDGP, lam, cl,d1::Int, d2::Int, reps=10_000)
 
   # extract m and n from spatial_dgp
   dist_error = sp_dgp.dist
