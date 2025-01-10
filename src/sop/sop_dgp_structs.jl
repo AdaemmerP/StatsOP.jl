@@ -141,7 +141,6 @@ A struct to define a Spatial quadratic moving-average (SQMA(1, 1)):
 - `N_cols::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1. 
 - `dist::Distribution` A distribution for \\varepsilon_{t_1, t_2}. You can use any univariate distribution from the `Distributions.jl` package.
 - `dist_ao::Nothing`.
-- `prerun::Int` A value to initialize the DGP to achieve stationarity. These number of rows and columns will be discarded after the initialization.
 ```julia
 sqma11 = SQMA11((0.5, 0.3, 0.2), (1, 1, 2), 10, 10, Normal(0,1), nothing, 1)
 ```
@@ -153,7 +152,6 @@ struct SQMA11 <: SpatialDGP
   N_cols::Int
   dist::UnivariateDistribution
   dist_ao::Union{Nothing, UnivariateDistribution}
-  prerun::Int
 end
 
 
@@ -183,7 +181,6 @@ struct SQMA22 <: SpatialDGP
   N_cols::Int
   dist::UnivariateDistribution
   dist_ao::Union{Nothing, UnivariateDistribution}
-  prerun::Int
 end
 
 """ 
@@ -213,12 +210,11 @@ struct SQINMA11 <: SpatialDGP
   N_cols::Int
   dist::UnivariateDistribution
   dist_ao::Nothing
-  prerun::Int
-  SQINMA11(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao, prerun) = 
+  SQINMA11(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao) = 
     0.00 <= dgp_params[1] < 1 && 
     0.00 <= dgp_params[2] < 1 && 
     0.00 <= dgp_params[3] < 1 ?
-    new(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao, prerun) : 
+    new(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao) : 
     error("Note that β₁, β₂, and β₃ ∈ [0, 1] is required for binomial thinning.")
 end
 
@@ -264,7 +260,6 @@ Y_{t_1, t_2}=b_1 \\cdot \\varepsilon_{t_1-1, t_2-1}^a+b_2 \\cdot \\varepsilon_{t
 - `N_cols::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1. 
 - `dist::Distribution`: A distribution for \\varepsilon_{t_1, t_2}. You can use any univariate distribution from the `Distributions.jl` package.
 - `dist_ao::Nothing`: Nothing.
-- `prerun::Int`: A value to initialize the DGP. This value should be set to 1.
 
 ```julia
 bsqma11 = BSQMA11((0.5, 0.3, 0.2, 0.1), (1, 1, 2, 2), 10, 10, Normal(0, 1), nothing, 1)
@@ -277,7 +272,6 @@ struct BSQMA11 <: SpatialDGP
   N_cols::Int
   dist::UnivariateDistribution
   dist_ao::Nothing
-  prerun::Int
 end
 
 

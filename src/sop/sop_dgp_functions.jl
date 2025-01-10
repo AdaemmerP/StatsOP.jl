@@ -370,6 +370,38 @@ function fill_mat_dgp_sop!(
 
 end
 
+# Method to fill matrix for SQINMA(1, 1) without additive outliers
+function fill_mat_dgp_sop!(
+  dgp::SQINMA11, dist_error::DiscreteUnivariateDistribution, dist_ao::Nothing,
+  mat, mat_ao::Matrix{Float64}, mat_ma::Matrix{Float64}
+)
+
+  # Extract parameters
+  β₁ = dgp.dgp_params[1]
+  β₂ = dgp.dgp_params[2]
+  β₃ = dgp.dgp_params[3]
+
+  a = dgp.eps_params[1]
+  b = dgp.eps_params[2]
+  c = dgp.eps_params[3]
+
+  # draw MA-errors
+  rand!(dist_error, mat_ma)
+
+  # Fill
+  for t2 in 2:size(mat, 2)
+    for t1 in 2:size(mat, 1)
+      mat[t1, t2] = rand(Binomial(mat_ma[t1-1, t2]^a, β₁)) +
+                    rand(Binomial(mat_ma[t1, t2-1]^b, β₂)) +
+                    rand(Binomial(mat_ma[t1-1, t2-1]^c, β₃)) +
+                    mat_ma[t1, t2]
+    end
+  end
+
+  return @views mat[2:end, 2:end]
+
+end
+
 # Method to fill matrix for SQMA(2, 2) without additive outliers
 function fill_mat_dgp_sop!(
   dgp::SQMA22, dist_error::ContinuousUnivariateDistribution, dist_ao::Nothing,
@@ -417,38 +449,6 @@ function fill_mat_dgp_sop!(
 
 end
 
-# Method to fill matrix for SQINMA(1, 1) without additive outliers
-function fill_mat_dgp_sop!(
-  dgp::SQINMA11, dist_error::DiscreteUnivariateDistribution, dist_ao::Nothing,
-  mat, mat_ao::Matrix{Float64}, mat_ma::Matrix{Float64}
-)
-
-  # Extract parameters
-  β₁ = dgp.dgp_params[1]
-  β₂ = dgp.dgp_params[2]
-  β₃ = dgp.dgp_params[3]
-
-  a = dgp.eps_params[1]
-  b = dgp.eps_params[2]
-  c = dgp.eps_params[3]
-
-  # draw MA-errors
-  rand!(dist_error, mat_ma)
-
-  # Fill
-  for t2 in 2:size(mat, 2)
-    for t1 in 2:size(mat, 1)
-      mat[t1, t2] = rand(Binomial(mat_ma[t1-1, t2]^a, β₁)) +
-                    rand(Binomial(mat_ma[t1, t2-1]^b, β₂)) +
-                    rand(Binomial(mat_ma[t1-1, t2-1]^c, β₃)) +
-                    mat_ma[t1, t2]
-    end
-  end
-
-  return @views mat[2:end, 2:end]
-
-
-end
 
 # Method to fill matrix for BSQMA(1, 1) without additive outliers
 function fill_mat_dgp_sop!(
