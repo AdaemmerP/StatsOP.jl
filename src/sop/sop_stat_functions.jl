@@ -62,10 +62,11 @@ function stat_sop(
   m = size(data, 1) - d1
   n = size(data, 2) - d2
 
-  # Pre-allocate indexes to compute sum of frequencies
-  s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
-  s_2 = [2, 5, 7, 9, 16, 18, 20, 23]
-  s_3 = [4, 6, 10, 12, 13, 15, 19, 21]
+  # indices for sum of frequencies
+  index_sop = create_index_sop()
+  s_1 = index_sop[1] 
+  s_2 = index_sop[2] 
+  s_3 = index_sop[3]
 
   # Add noise?
   if add_noise
@@ -121,10 +122,11 @@ function stat_sop(
   sop_freq = zeros(Int, 24) # factorial(4)
   win = zeros(Int, 4)
 
-  # Pre-allocate indexes to compute sum of frequencies
-  s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
-  s_2 = [2, 5, 7, 9, 16, 18, 20, 23]
-  s_3 = [4, 6, 10, 12, 13, 15, 19, 21]
+  # indices for sum of frequencies
+  index_sop = create_index_sop()
+  s_1 = index_sop[1] 
+  s_2 = index_sop[2] 
+  s_3 = index_sop[3]
 
   # Compute m and n based on data
   data_tmp = similar(data[:, :, 1])

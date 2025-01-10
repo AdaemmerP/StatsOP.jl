@@ -83,8 +83,8 @@ for alphas in dgp_vals
             cl_sop = ic_sop[j, chart]
             cl_sacf = ic_sacf_cont[j]
             sop_dgp = SAR11(alphas, M, N, Normal(0, 1), nothing, 100)
-            res_sop = arl_sop(lam, cl_sop, sop_dgp, 1, 1, reps; chart_choice=chart)
-            res_sacf = arl_sacf(lam, cl_sacf, sop_dgp, 1, 1, reps)
+            res_sop = arl_sop(sop_dgp, lam, cl_sop, 1, 1, reps; chart_choice=chart)
+            res_sacf = arl_sacf(sop_dgp, lam, cl_sacf, 1, 1, reps)
             results_mat[i, chart] = res_sop[1]
             results_mat[i, 5] = res_sacf[1]
         end

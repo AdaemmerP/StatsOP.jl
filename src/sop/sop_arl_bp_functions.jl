@@ -103,10 +103,11 @@ function rl_sop_bp(
   p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
   p_ewma_all .= 1.0 / 3.0
 
-  # Pre-allocate indexes to compute sum of frequencies
-  s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
-  s_2 = [2, 5, 7, 9, 16, 18, 20, 23]
-  s_3 = [4, 6, 10, 12, 13, 15, 19, 21]
+  # indices for sum of frequencies
+  index_sop = create_index_sop()
+  s_1 = index_sop[1] 
+  s_2 = index_sop[2] 
+  s_3 = index_sop[3]
 
   for r in 1:length(reps_range)
     # fill!(p_ewma, 1.0 / 3.0)
@@ -276,10 +277,11 @@ function rl_sop_bp(
   p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
   p_ewma_all .= 1.0 / 3.0
 
-  # pre-allocate indexes to compute sum of frequencies
-  s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
-  s_2 = [2, 5, 7, 9, 16, 18, 20, 23]
-  s_3 = [4, 6, 10, 12, 13, 15, 19, 21]
+  # indices for sum of frequencies
+  index_sop = create_index_sop()
+  s_1 = index_sop[1] 
+  s_2 = index_sop[2] 
+  s_3 = index_sop[3]
 
   # pre-allocate mat, mat_ao and mat_ma
   # mat:    matrix for the final values of the spatial DGP
@@ -320,7 +322,7 @@ function rl_sop_bp(
     if spatial_dgp isa SAR1
       # do nothing, 'mat' will not be overwritten for SAR1
     else
-      fill!(mat, 0)
+      fill!(mat, 0.0)
       init_mat!(spatial_dgp, dist_error, spatial_dgp.dgp_params, mat)
     end
 

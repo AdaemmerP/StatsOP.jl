@@ -294,6 +294,16 @@ function init_vals_sop(m, n, lam, chart_choice, dist, runs, p_quantile)
   return return_vec
 end
 
+# Function for SOP indices for sortperm values
+function create_index_sop()
+
+  s_1 = (1, 3, 8, 11, 14, 17, 22, 24)
+  s_2 = (2, 5, 7, 9, 16, 18, 20, 23)
+  s_3 = (4, 6, 10, 12, 13, 15, 19, 21)
+
+  return s_1, s_2, s_3 
+
+end
 
 
 # """
