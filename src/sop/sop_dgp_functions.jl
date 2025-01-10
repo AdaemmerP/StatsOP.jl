@@ -483,6 +483,5 @@ function fill_mat_dgp_sop!(
 
   return @views mat[2:end, 2:end]
 
-
 end
 
