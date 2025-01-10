@@ -180,8 +180,8 @@ cl_sop(
 )
 
 # Get values for BP statistic
-stat_sop(images_ic[:, :, 1], [1, 2, 3], [1, 2, 3])
-stat_sop(1, images_ic[:, :, 1:2], [1, 2, 3], [1, 2, 3])
+stat_sop(images_ic[:, :, 2], [1, 2, 3], [1, 2, 3])
+stat_sop(1, images_ic[:, :, 2:3], [1, 2, 3], [1, 2, 3])
 
 p_array = compute_p_array(images_ic, [1, 2, 3], [1, 2, 3])
 

@@ -17,7 +17,7 @@ The input parameters are:
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 """
 function arl_sop_bp(
-  lam, cl, spatial_dgp::ICSP, d1_vec::Vector{Int}, d2_vec::Vector{Int}, reps=10_000;
+  spatial_dgp::ICSP, lam, cl, w::Int, reps=10_000;
   chart_choice=3
 )
 
@@ -36,7 +36,7 @@ function arl_sop_bp(
     par_results = map(chunks) do i
 
       Threads.@spawn rl_sop(
-        lam, cl, lookup_array_sop, spatial_dgp, i, dist_error, chart_choice, d1_vec, d2_vec
+        spatial_dgp, lam, cl, w, lookup_array_sop, reps_range, dist, chart_choice,
       )
 
     end
@@ -47,7 +47,7 @@ function arl_sop_bp(
     par_results = pmap(chunks) do i
 
       rl_sop(
-        lam, cl, lookup_array_sop, spatial_dgp, i, dist_error, chart_choice, d1_vec, d2_vec
+        spatial_dgp, lam, cl, w, lookup_array_sop, reps_range, dist, chart_choice,
       )
 
     end
@@ -83,8 +83,7 @@ univariate distribution from the `Distributions.jl` package.
 - `d2_vec::Vector{Int}`: A vector with integer values for the second delay (d₂).
 """
 function rl_sop_bp(
-  lam, cl, lookup_array_sop, spatial_dgp::ICSP, reps_range::UnitRange, dist, chart_choice,
-  d1_vec::Vector{Int}, d2_vec::Vector{Int}
+  spatial_dgp::ICSP, lam, cl, w::Int, lookup_array_sop, reps_range::UnitRange, dist, chart_choice,
 )
 
   # Pre-allocate    
@@ -100,7 +99,7 @@ function rl_sop_bp(
   data = zeros(M, N)
 
   # Compute all possible combinations of d1 and d2
-  d1_d2_combinations = Iterators.product(d1_vec, d2_vec)
+  d1_d2_combinations = Iterators.product(1:w, 1:w)
   p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
   p_ewma_all .= 1.0 / 3.0
 
@@ -189,7 +188,7 @@ The input parameters are:
 """
 
 function arl_sop_bp(
-  lam, cl, spatial_dgp::SpatialDGP, d1_vec::Vector{Int}, d2_vec::Vector{Int}, reps=10_000; chart_choice=3
+  lam, cl, spatial_dgp::SpatialDGP, w::Int, reps=10_000; chart_choice=3
 )
 
   # Compute m and n
@@ -208,8 +207,7 @@ function arl_sop_bp(
     par_results = map(chunks) do i
 
       Threads.@spawn rl_sop(
-        lam, cl, lookup_array_sop, i, spatial_dgp, dist_error, dist_ao,
-        chart_choice, d1_vec, d2_vec
+        spatial_dgp, lam, cl, w, lookup_array_sop, p_reps, dist_error, dist_ao, chart_choice
       )
 
     end
@@ -220,8 +218,7 @@ function arl_sop_bp(
     par_results = pmap(chunks) do i
 
       rl_sop(
-        lam, cl, lookup_array_sop, i, spatial_dgp, dist_error, dist_ao,
-        chart_choice, d1_vec, d2_vec
+        spatial_dgp, lam, cl, w, lookup_array_sop, p_reps, dist_error, dist_ao, chart_choice
       )
 
     end
@@ -258,8 +255,7 @@ univariate distribution from the `Distributions.jl` package.
 - `d2_vec::Vector{Int}`: A vector with integer values for the second delay (d₂).
 """
 function rl_sop_bp(
-  lam, cl, lookup_array_sop, p_reps::UnitRange, spatial_dgp::SpatialDGP, dist_error::UnivariateDistribution,
-  dist_ao::Union{Nothing,UnivariateDistribution}, chart_choice, d1_vec::Vector{Int}, d2_vec::Vector{Int}
+  spatial_dgp::SpatialDGP, lam, cl, w::Int, lookup_array_sop, p_reps::UnitRange, dist_error::UnivariateDistribution, dist_ao::Union{Nothing,UnivariateDistribution}, chart_choice,
 )
 
   # find maximum values of d1 and d2 for construction of matrices
@@ -267,7 +263,7 @@ function rl_sop_bp(
   N = spatial_dgp.N_cols
 
   # Compute all possible combinations of d1 and d2
-  d1_d2_combinations = Iterators.product(d1_vec, d2_vec)
+  d1_d2_combinations = Iterators.product(1:w, 1:w)
 
   # pre-allocate
   sop_freq = zeros(Int, 24)
@@ -297,20 +293,26 @@ function rl_sop_bp(
     vec_ar = zeros((M + 2 * spatial_dgp.margin) * (N + 2 * spatial_dgp.margin))
     vec_ar2 = similar(vec_ar)
     mat2 = similar(mat_ao)
-  elseif spatial_dgp isa BSQMA11
-    mat = zeros(M + spatial_dgp.prerun, N + spatial_dgp.prerun)
-    mat_ma = zeros(M + spatial_dgp.prerun + 1, N + spatial_dgp.prerun + 1) # add one extra row and column for "forward looking" BSQMA11
-    mat_ao = similar(mat)
-  else # SAR11, SAR22, SINAR11, SQMA11
+  elseif spatial_dgp isa SAR11 || spatial_dgp isa SINAR11 || spatial_dgp isa SAR22
     mat = zeros(M + spatial_dgp.prerun, N + spatial_dgp.prerun)
     mat_ma = similar(mat)
     mat_ao = similar(mat)
+  elseif spatial_dgp isa SQMA11
+    mat = zeros(M + 1, N + 1)
+    mat_ma = similar(mat)
+    mat_ao = similar(mat)
+  elseif spatial_dgp isa SQMA22
+    mat = zeros(M + 2, N + 2)
+    mat_ma = similar(mat)
+    mat_ao = similar(mat)
+  elseif spatial_dgp isa BSQMA11
+    mat = zeros(M + 1, N + 1)
+    mat_ma = zeros(M + 2, N + 2) # add one extra row and column for "forward looking" BSQMA11
+    mat_ao = similar(mat)
+  else
   end
 
   for r in axes(p_reps, 1)
-
-    #fill!(p_ewma, 1.0 / 3.0)
-    #stat = chart_stat_sop(p_ewma, chart_choice)
 
     bp_stat = 0.0
 
