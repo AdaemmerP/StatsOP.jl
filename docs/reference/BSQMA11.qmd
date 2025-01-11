@@ -10,21 +10,26 @@ engine: julia
 
 ```{julia}
 #| eval: false
-BSQMA11(dgp_params, eps_params, m, n, prerun)
+BSQMA11(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao, prerun)
 
 ```
 
-Bilateral spatial quadratic moving-average (BSQMA(1, 1)) model as defined by Weiß and Kim (2024) on page 9. The struct contains the following fields:
+A struct to define a bilateral spatial quadratic moving-average (BSQMA(1, 1)) process:
+ 
+Y*{t*1, t*2}=b*1 \cdot \varepsilon*{t*1-1, t*2-1}^a+b*2 \cdot \varepsilon*{t*1+1, t*2-1}^b+b*3 \cdot \varepsilon*{t*1+1, t*2+1}^c+b*4 \cdot \varepsilon*{t*1-1, t*2+1}^d+\varepsilon*{t*1, t*2},
+ 
+Yₜ₁,ₜ₂ = b₁ ⋅ εₜ₁₋₁,ₜ₂₋₁ᵃ +           b₂ ⋅ εₜ₁₊₁,ₜ₂₋₁ᵇ +           b₃ ⋅ εₜ₁₊₁,ₜ₂₊₁ᶜ +           b₄ ⋅ εₜ₁₋₁,ₜ₂₊₁ᵈ +           εₜ₁,ₜ₂
  
   * `dgp_params::Tuple{Float64, Float64, Float64, Float64}`: A tuple of the parameters of the DGP. The parameters correspond to b₁, b₂, b₃ and b₄, respectively.
   * `eps_params::Tuple{Int, Int, Int, Int}`: A tuple of the parameters of the DGP, indicating which error terms shall be squared. Note that `eps_params` ∈ {1, 2}.
-  * `m::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
-  * `n::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1.
-  * `prerun::Int`: A value to initialize the DGP. This value should be set to 1.
+  * `M_rows::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
+  * `N_cols::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1.
+  * `dist::Distribution`: A distribution for \varepsilon*{t*1, t_2}. You can use any univariate distribution from the `Distributions.jl` package.
+  * `dist_ao::Nothing`: Nothing.
 
 ```{julia}
 #| eval: false
-bsqma11 = BSQMA11((0.5, 0.3, 0.2, 0.1), (1, 1, 2, 2), 11, 11, 1)
+bsqma11 = BSQMA11((0.5, 0.3, 0.2, 0.1), (1, 1, 2, 2), 10, 10, Normal(0, 1), nothing, 1)
 
 ```
 

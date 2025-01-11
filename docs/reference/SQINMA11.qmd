@@ -10,7 +10,7 @@ engine: julia
 
 ```{julia}
 #| eval: false
-SQINMA11(dgp_params, eps_params, m, n, prerun)
+SQINMA11(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao, prerun)
 
 ```
 
@@ -18,15 +18,19 @@ A struct to define a Spatial quadratic integer moving-average SQINMA(1, 1):
  
 $\qquad X_{t_1, t_2}=\beta_1 \circ \epsilon_{t_1-1, t_2}^a+\beta_2 \circ \epsilon_{t_1, t_2-1}^b+\beta_3 \circ \epsilon_{t_1-1, t_2-1}^c+\epsilon_{t_1, t_2}.$
  
+Xₜ₁,ₜ₂ = β₁ ⋅ εₜ₁₋₁,ₜ₂ᵃ +           β₂ ⋅ εₜ₁,ₜ₂₋₁ᵇ +           β₃ ⋅ εₜ₁₋₁,ₜ₂₋₁ᶜ +           εₜ₁,ₜ₂
+ 
   * `dgp_params::Tuple(β₁::Float64, β₂::Float64, β₃::Float64).` Note that β₁, β₂, and β₃ ∈ [0, 1].
   * `eps_params::Tuple(a::Int, b::Int, c::Int).` A tuple of the parameters of the DGP, indicating which error terms shall be squared. Note that `eps_params` ∈ {1, 2}.
-  * `m::Int.` The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
-  * `n::Int.` The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1.
-  * `prerun::Int.` A value to initialize the DGP. This value should be set to 1.
+  * `M_rows::Int.` The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
+  * `N_cols::Int.` The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1.
+  * `dist::Distribution` A distribution for \varepsilon*{t*1, t_2}. You can use any univariate distribution from the `Distributions.jl` package.
+  * `dist_ao::Nothing`.
+  * `prerun::Int` A value to initialize the DGP to achieve stationarity. These number of rows and columns will be discarded after the initialization.
 
 ```{julia}
 #| eval: false
-sqinma11 = SQINMA11((0.5, 0.3, 0.2), (1, 1, 2), 11, 11, 1)
+sqinma11 = SQINMA11((0.5, 0.3, 0.2), (1, 1, 2), 10, 10, Normal(0, 1), nothing, 1)
 
 ```
 

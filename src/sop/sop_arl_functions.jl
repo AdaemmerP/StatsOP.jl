@@ -489,19 +489,27 @@ function rl_sop(
   # mat_ma: matrix for moving averages
   # vec_ar: vector for SAR(1) model
   # vec_ar2: vector for in-place multiplication for SAR(1) model
-  if spatial_dgp isa SAR1
-    mat::Matrix{Float64} = build_sar1_matrix(spatial_dgp) # will be done only once
+  if typeof(spatial_dgp) isa SAR1
+    mat = build_sar1_matrix(spatial_dgp) # will be done only once
     mat_ao = zeros((M + 2 * spatial_dgp.margin), (N + 2 * spatial_dgp.margin))
     vec_ar = zeros((M + 2 * spatial_dgp.margin) * (N + 2 * spatial_dgp.margin))
     vec_ar2 = similar(vec_ar)
-    mat2 = similar(mat_ao)
-  elseif spatial_dgp isa BSQMA11
-    mat = zeros(M + spatial_dgp.prerun, N + spatial_dgp.prerun)
-    mat_ma = zeros(M + spatial_dgp.prerun + 1, N + spatial_dgp.prerun + 1) # add one extra row and column for "forward looking" BSQMA11
-    mat_ao = similar(mat)
-  else
+    mat2 = similar(mat_ao)    
+  elseif typeof(spatial_dgp) ∈ (SAR11, SINAR11, SAR22)
     mat = zeros(M + spatial_dgp.prerun, N + spatial_dgp.prerun)
     mat_ma = similar(mat)
+    mat_ao = similar(mat)
+  elseif typeof(spatial_dgp) ∈ (SQMA11, SQINMA11)
+    mat = zeros(M + 1, N + 1)
+    mat_ma = similar(mat)
+    mat_ao = similar(mat)
+  elseif typeof(spatial_dgp) isa SQMA22
+    mat = zeros(M + 2, N + 2)
+    mat_ma = similar(mat)
+    mat_ao = similar(mat)
+  elseif typeof(spatial_dgp) isa BSQMA11
+    mat = zeros(M + 1, N + 1)
+    mat_ma = zeros(M + 2, N + 2) # add one extra row and column for "forward looking" BSQMA11
     mat_ao = similar(mat)
   end
 
@@ -514,8 +522,8 @@ function rl_sop(
     if spatial_dgp isa SAR1
       # do nothing, 'mat' will not be overwritten for SAR1
     else
-      fill!(mat, 0)
-      init_mat!(spatial_dgp, dist_error, spatial_dgp.dgp_params, mat)
+      #fill!(mat, 0)
+      init_mat!(spatial_dgp, dist_error, mat)
     end
 
     rl = 0

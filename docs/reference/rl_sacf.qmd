@@ -10,35 +10,29 @@ engine: julia
 
 ```{julia}
 #| eval: false
-rl_sacf(m::Int, n::Int, lam, cl, p_reps, dist_error)
+rl_sacf(
 
 ```
 
-Compute the in-control run length (RL) using the spatial autocorrelation function (SACF) for a lag length of 1. The function returns the RL for a given control limit `cl` and a given number of repetitions `p_reps`. The input arguments are:   
+lam, cl, d1::Int, d2::Int, p*reps::UnitRange, spatial*dgp::ICSP, dist_error::UnivariateDistribution )
  
-  * `m::Int`: The number of rows in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).
-  * `n::Int`: The number of columns in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).
+Compute the in-control run length using the spatial autocorrelation function (SACF)  for a delay (d1, d2) combination. The function returns the run length for a given control limit `cl`.
+ 
+The input arguments are:
+ 
   * `lam`: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.
   * `cl`: The control limit for the EWMA control chart.
-  * `p_reps`: The number of repetitions to compute the RL. This has to be a unit range of integers to allow for parallel processing, since the function is called by `arl_sacf()`.
-  * `dist_error`: The distribution to use for the error term in the SACF function.
-
-```{julia-repl}
-#| eval: false
-#--- Example
-# Set parameters
-m = 10
-n = 10
-lam = 0.1
-cl = .001
-p_reps = 1:10
-dist_error = Normal(0, 1)
-
-# Compute run length
-rls = rl_sacf(m, n, lam, cl, p_reps, dist_error)
-
-```
-
+  * `d1::Int`: The first (row) delay for the spatial process.
+  * `d2::Int`: The second (column) delay for the spatial process.
+  * `p_reps::UnitRange`: The number of repetitions to compute the run length. This
+has to be a unit range of integers to allow for parallel processing, since the    function is called by `arl_sacf()`.
+ 
+  * `spatial_dgp::ICSP`: The in-control spatial data generating process (DGP) to
+use for the SACF function.
+ 
+  * `dist_error::UnivariateDistribution`: The distribution to use for the error term in the
+spatial process. This can be any univariate distribution from the `Distributions.jl` package.
+ 
 
 
 :::
@@ -51,39 +45,28 @@ rls = rl_sacf(m, n, lam, cl, p_reps, dist_error)
 
 ```{julia}
 #| eval: false
-rl_sacf(m::Int, n::Int, lam, cl, p_reps::UnitRange, spatial_dgp, dist_error::UnivariateDistribution, dist_ao::Union{UnivariateDistribution, Nothing})
+rl_sacf(
 
 ```
 
-Compute the out-of-control run length (RL) using the spatial autocorrelation function (SACF) for a lag length of 1. The function returns the RL for a given control limit `cl` and a given number of repetitions `p_reps`. The input arguments are:  
+lam, cl, d1::Int, d2::Int, p*reps::UnitRange, spatial*dgp::SpatialDGP,   dist*error::UnivariateDistribution, dist*ao::Union{UnivariateDistribution,Nothing} )
  
-  * `m::Int`: The number of rows in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).
-  * `n::Int`: The number of columns in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).
-  * `lam`: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.
+Compute the out-of-control run length using the spatial autocorrelation function (SACF).  The function returns the run length for a given control limit `cl` and a given number of  repetitions `reps`. 
+ 
+The input arguments are:
+ 
+  * `lam`: The smoothing parameter for the exponentially weighted moving average (EWMA)
+control chart.
+ 
   * `cl`: The control limit for the EWMA control chart.
-  * `p_reps`: The number of repetitions to compute the RL. This has to be a unit range of integers to allow for parallel processing, since the function is called by `arl_sacf()`.
-  * `spatial_dgp`: The spatial data generating process (DGP) to use for the SACF function. This can be one of the following: `SAR1`, `SAR11`, `SINAR11`, `SQMA11`, `SQINMA11`, or `BSQMA11`.
-  * `dist_error`: The distribution to use for the error term in the SACF function. This can be any univariate distribution from the `Distributions.jl` package with a defined mean or a custom distribution.
-  * `dist_ao`: The distribution to use for for additive outliers. This can be any univariate distribution from the `Distributions.jl` package or a custom distribution.
-
-```{julia-repl}
-#| eval: false
-#--- Example
-# Set parameters
-m = 10
-n = 10
-lam = 0.1
-cl = .001
-p_reps = 1:10
-spatial_dgp = SAR11((0.1, 0.1, 0.1), 10, 10, 100)
-dist_error = Normal(0, 1)
-dist_ao = nothing
-
-# Compute run length
-rls = rl_sacf(m, n, lam, cl, p_reps, spatial_dgp, dist_error, dist_ao)
-
-```
-
+  * `d1::Int`: The first (row) delay for the spatial process.
+  * `d2::Int`: The second (column) delay for the spatial process.
+  * `p_reps::UnitRange`: The number of repetitions to compute the run length. This
+has to be a unit range of integers to allow for parallel processing, since the    function is called by `arl_sacf()`.
+ 
+  * `spatial_dgp::SpatialDGP`: The spatial data generating process (DGP) to use for
+the SACF function. This can be one of the following: `SAR1`, `SAR11`, `SAR22`,    `SINAR11`, `SQMA11`, `SQINMA11`, or `BSQMA11`.
+ 
 
 
 :::

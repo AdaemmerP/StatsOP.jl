@@ -35,7 +35,7 @@ function cl_sop(
   for j in jmin:jmax
     for dh in 1:80
       cl_init = cl_init + (-1)^j * dh / 10^j
-      L1 = arl_sop(lam, cl_init, sop_dgp, d1, d2, reps; chart_choice)[1]
+      L1 = arl_sop(sop_dgp, lam, cl_init, d1, d2, reps; chart_choice)[1]
       if verbose
         println("cl = ", cl_init, "\t", "ARL = ", L1)
       end
@@ -85,7 +85,7 @@ function cl_sop(
     for dh in 1:80
       cl_init = cl_init + (-1)^j * dh / 10^j
       L1 = arl_sop(
-        lam, cl_init, sp_dgp, d1_vec, d2_vec, reps;
+        sp_dgp, lam, cl_init, d1_vec, d2_vec, reps;
         chart_choice=chart_choice
       )[1]
       if verbose
@@ -138,7 +138,7 @@ function cl_sop(
     for dh in 1:80
       cl_init = cl_init + (-1)^j * dh / 10^j
       L1 = arl_sop(
-        lam, cl_init, p_mat, reps; chart_choice=chart_choice
+        p_mat, lam, cl_init, reps; chart_choice=chart_choice
       )[1]
       if verbose
         println("cl = ", cl_init, "\t", "ARL = ", L1)
@@ -186,7 +186,7 @@ function cl_sop(
     for dh in 1:80
       cl_init = cl_init + (-1)^j * dh / 10^j
       L1 = arl_sop(
-        lam, cl_init, p_array, reps; chart_choice=chart_choice
+        p_array, lam, cl_init, reps; chart_choice=chart_choice
       )[1]
       if verbose
         println("cl = ", cl_init, "\t", "ARL = ", L1)

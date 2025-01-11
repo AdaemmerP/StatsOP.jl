@@ -10,7 +10,7 @@ engine: julia
 
 ```{julia}
 #| eval: false
-SAR1(dgp_params, eps_params, m, n, prerun)
+SAR1(dgp_params, M_rows, N_cols, dist, dist_ao, margin)
 
 ```
 
@@ -18,14 +18,18 @@ A struct to define a first-order simultaneous autoregressive (SAR(1)) model:
  
 $\qquad Y_{t_1, t_2}=a_1 \cdot Y_{t_1-1, t_2}+a_2 \cdot Y_{t_1, t_2-1}+a_3 \cdot Y_{t_1, t_2+1}+a_4 \cdot Y_{t_1+1, t_2}+\varepsilon_{t_1, t_2}.$
  
+Yₜ₁,ₜ₂ = a₁ ⋅ Yₜ₁₋₁,ₜ₂ +           a₂ ⋅ Yₜ₁,ₜ₂₋₁ +           a₃ ⋅ Yₜ₁,ₜ₂₊₁ +           a₄ ⋅ Yₜ₁₊₁,ₜ₂ +           εₜ₁,ₜ₂
+ 
   * `dgp_params::Tuple{a₁::Float64, a₂::Float64, Float64, Float64}`: A tuple of the parameters of the DGP. The first element is the parameter a₁, the second element is the parameter a₂, and the third element is the parameter a₃. a₄.
-  * `m::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
-  * `n::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1.
+  * `M_rows::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
+  * `N_cols::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1.
+  * `dist::Distribution`: A distribution for \varepsilon*{t*1, t_2}. You can use any univariate distribution from the `Distributions.jl` package.
+  * `dist_ao::Union{Nothing, Distribution}`: Nothing or a distribution for additive outliers. For additive outliers you can use any univariate distribution from the `Distributions.jl` package.
   * `margin::Int`: The margin for the spatial matrix used for initialization.
 
 ```{julia}
 #| eval: false
-sar1 = SAR1((0.5, 0.3, 0.2, 0.1), 11, 11, 1)
+sar1 = SAR1((0.5, 0.3, 0.2, 0.1), 10, 10, Normal(0, 1), nothing, 20) 
 
 ```
 

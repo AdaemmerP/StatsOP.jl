@@ -1,12 +1,12 @@
 
 
 # Method to initialize matrix for SAR(1,1) with continuous errors
-function init_mat!(dgp::SAR11, dist_error, dgp_params, mat)
+function init_mat!(dgp::SAR11, dist_error, mat)
 
   μ = mean(dist_error)
-  α₁ = dgp_params[1]
-  α₂ = dgp_params[2]
-  α₃ = dgp_params[3]
+  α₁ = dgp.dgp_params[1]
+  α₂ = dgp.dgp_params[2]
+  α₃ = dgp.dgp_params[3]
 
   μₓ = μ / (1 - α₁ - α₂ - α₃)
   mat[1, :] .= μₓ
@@ -14,32 +14,13 @@ function init_mat!(dgp::SAR11, dist_error, dgp_params, mat)
 
 end
 
-# Method to initialize matrix for SAR(2,2) with continuous errors
-function init_mat!(dgp::SAR22, dist_error, dgp_params, mat)
-
-  μ = mean(dist_error)
-  α₁ = dgp_params[1]
-  α₂ = dgp_params[2]
-  α₃ = dgp_params[3]
-  α₄ = dgp_params[4]
-  α₅ = dgp_params[5]
-  α₆ = dgp_params[6]
-  α₇ = dgp_params[7]
-  α₈ = dgp_params[8]
-
-  μₓ = μ / (1 - α₁ - α₂ - α₃ - α₄ - α₅ - α₆ - α₇ - α₈)
-  mat[1:2, :] .= μₓ
-  mat[:, 1:2] .= μₓ
-
-end
-
 # Method to initialize matrix for SAR(1,1) with discrete errors
-function init_mat!(dgp::SINAR11, dist_error, dgp_params, mat)
+function init_mat!(dgp::SINAR11, dist_error, mat)
 
   μ = mean(dist_error)
-  α₁ = dgp_params[1]
-  α₂ = dgp_params[2]
-  α₃ = dgp_params[3]
+  α₁ = dgp.dgp_params[1]
+  α₂ = dgp.dgp_params[2]
+  α₃ = dgp.dgp_params[3]
 
   μₓ = μ / (1 - α₁ - α₂ - α₃)
   μₓ = Int(round(μₓ)) # round and convert to integer
@@ -48,25 +29,44 @@ function init_mat!(dgp::SINAR11, dist_error, dgp_params, mat)
 
 end
 
-# Initialize for SQMA(1, 1) process -> do nothing
-function init_mat!(dgp::SQMA11, dist_error, dgp_params, mat)
-  # Initialization not necessary
+# Method to initialize matrix for SAR(2,2) with continuous errors
+function init_mat!(dgp::SAR22, dist_error, mat)
+
+  μ = mean(dist_error)
+  α₁ = dgp.dgp_params[1]
+  α₂ = dgp.dgp_params[2]
+  α₃ = dgp.dgp_params[3]
+  α₄ = dgp.dgp_params[4]
+  α₅ = dgp.dgp_params[5]
+  α₆ = dgp.dgp_params[6]
+  α₇ = dgp.dgp_params[7]
+  α₈ = dgp.dgp_params[8]
+
+  μₓ = μ / (1 - α₁ - α₂ - α₃ - α₄ - α₅ - α₆ - α₇ - α₈)
+  mat[1:2, :] .= μₓ
+  mat[:, 1:2] .= μₓ
+
 end
 
-# Initialize for SQINMA(1, 1) -> do nothing
-function init_mat!(dgp::SQINMA11, dist_error, dgp_params, mat)
-  # Initialization not necessary
-end
+# # Initialize for SQMA(1, 1) process -> do nothing
+# function init_mat!(dgp::SQMA11, dist_error, dgp_params, mat)
+#   # Initialization not necessary
+# end
 
-# Initialize for SQMA(2, 2) -> do nothing
-function init_mat!(dgp::SQMA22, dist_error, dgp_params, mat)
-  # Initialization not necessary
-end
+# # Initialize for SQINMA(1, 1) -> do nothing
+# function init_mat!(dgp::SQINMA11, dist_error, dgp_params, mat)
+#   # Initialization not necessary
+# end
 
-# Initialize for BSQMA(1, 1) -> do nothing
-function init_mat!(dgp::BSQMA11, dist_error, dgp_params, mat)
-  # Initialization not necessary
-end
+# # Initialize for SQMA(2, 2) -> do nothing
+# function init_mat!(dgp::SQMA22, dist_error, dgp_params, mat)
+#   # Initialization not necessary
+# end
+
+# # Initialize for BSQMA(1, 1) -> do nothing
+# function init_mat!(dgp::BSQMA11, dist_error, dgp_params, mat)
+#   # Initialization not necessary
+# end
 
 # Compute once matrix for SAR(1) process
 function build_sar1_matrix(dgp::SAR1)
@@ -171,7 +171,10 @@ function fill_mat_dgp_sop!(
   # Fill
   for t2 in 2:size(mat, 2)
     for t1 in 2:size(mat, 1)
-      mat[t1, t2] = α₁ * mat[t1-1, t2] + α₂ * mat[t1, t2-1] + α₃ * mat[t1-1, t2-1] + rand(dist_error)
+      mat[t1, t2] = α₁ * mat[t1-1, t2] + 
+                    α₂ * mat[t1, t2-1] + 
+                    α₃ * mat[t1-1, t2-1] + 
+                    rand(dist_error)
     end
   end
 
@@ -194,7 +197,10 @@ function fill_mat_dgp_sop!(
   # Fill mat
   for t2 in 2:size(mat, 2)
     for t1 in 2:size(mat, 1)
-      mat[t1, t2] = α₁ * mat[t1-1, t2] + α₂ * mat[t1, t2-1] + α₃ * mat[t1-1, t2-1] + rand(dist_error)
+      mat[t1, t2] = α₁ * mat[t1-1, t2] + 
+                    α₂ * mat[t1, t2-1] + 
+                    α₃ * mat[t1-1, t2-1] + 
+                    rand(dist_error)
     end
   end
 

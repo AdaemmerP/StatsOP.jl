@@ -78,6 +78,16 @@ A struct to define a first-order spatial autoregressive (SAR(1, 1)) process:
             + \\alpha_8 \\cdot Y_{t_1-2, t_2-2} 
             + \\varepsilon_{t_1, t_2}. ``
 
+            Yₜ₁ = α₁ ⋅ Yₜ₁₋₁ + 
+                  α₂ ⋅ Yₜ₁,ₜ₂₋₁ + 
+                  α₃ ⋅ Yₜ₁₋₁,ₜ₂₋₁ + 
+                  α₄ ⋅ Yₜ₁₋₂,ₜ₂ + 
+                  α₅ ⋅ Yₜ₁,ₜ₂₋₂ + 
+                  α₆ ⋅ Yₜ₁₋₂,ₜ₂₋₁ + 
+                  α₇ ⋅ Yₜ₁₋₁,ₜ₂₋₂ + 
+                  α₈ ⋅ Yₜ₁₋₂,ₜ₂₋₂ + 
+                  εₜ₁,ₜ₂  
+
 """
 struct SAR22 <: SpatialDGP
   dgp_params::Tuple{Float64, Float64, Float64, Float64, Float64, Float64, Float64, Float64}
@@ -173,6 +183,16 @@ A struct to define a Spatial quadratic moving-average (SQMA(1, 1)):
 + \\varepsilon_{t_1, t_2}.
 ``
 
+Yₜ₁,ₜ₂ = β₁ ⋅ εₜ₁₋₁,ₜ₂ᵃ + 
+          β₂ ⋅ εₜ₁,ₜ₂₋₁ᵇ + 
+          β₃ ⋅ εₜ₁₋₁,ₜ₂₋₁ᶜ + 
+          β₄ ⋅ εₜ₁₋₂,ₜ₂ᵈ + 
+          β₅ ⋅ εₜ₁,ₜ₂₋₂ᵉ + 
+          β₆ ⋅ εₜ₁₋₂,ₜ₂₋₁ᶠ + 
+          β₇ ⋅ εₜ₁₋₁,ₜ₂₋₂ᵍ + 
+          β₈ ⋅ εₜ₁₋₂,ₜ₂₋₂ʰ + 
+          εₜ₁,ₜ₂
+
 """
 struct SQMA22 <: SpatialDGP
   dgp_params::Tuple{Float64, Float64, Float64, Float64, Float64, Float64, Float64, Float64}
@@ -189,6 +209,11 @@ end
 A struct to define a Spatial quadratic integer moving-average SQINMA(1, 1):    
 
 ``\\qquad X_{t_1, t_2}=\\beta_1 \\circ \\epsilon_{t_1-1, t_2}^a+\\beta_2 \\circ \\epsilon_{t_1, t_2-1}^b+\\beta_3 \\circ \\epsilon_{t_1-1, t_2-1}^c+\\epsilon_{t_1, t_2}.``
+
+Xₜ₁,ₜ₂ = β₁ ⋅ εₜ₁₋₁,ₜ₂ᵃ + 
+         β₂ ⋅ εₜ₁,ₜ₂₋₁ᵇ + 
+         β₃ ⋅ εₜ₁₋₁,ₜ₂₋₁ᶜ + 
+         εₜ₁,ₜ₂
 
 
 - `dgp_params::Tuple(β₁::Float64, β₂::Float64, β₃::Float64).` Note that β₁, β₂, and β₃ ∈ [0, 1].
@@ -225,6 +250,12 @@ A struct to define a first-order simultaneous autoregressive (SAR(1)) model:
 
 ``\\qquad Y_{t_1, t_2}=a_1 \\cdot Y_{t_1-1, t_2}+a_2 \\cdot Y_{t_1, t_2-1}+a_3 \\cdot Y_{t_1, t_2+1}+a_4 \\cdot Y_{t_1+1, t_2}+\\varepsilon_{t_1, t_2}.``
 
+Yₜ₁,ₜ₂ = a₁ ⋅ Yₜ₁₋₁,ₜ₂ + 
+         a₂ ⋅ Yₜ₁,ₜ₂₋₁ + 
+         a₃ ⋅ Yₜ₁,ₜ₂₊₁ + 
+         a₄ ⋅ Yₜ₁₊₁,ₜ₂ + 
+         εₜ₁,ₜ₂
+
 
 - `dgp_params::Tuple{a₁::Float64, a₂::Float64, Float64, Float64}`: A tuple of the parameters of the DGP. The first element is the parameter a₁, the second element is the parameter a₂, and the third element is the parameter a₃. a₄.
 - `M_rows::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
@@ -253,6 +284,12 @@ end
 A struct to define a bilateral spatial quadratic moving-average (BSQMA(1, 1)) process:
 
 Y_{t_1, t_2}=b_1 \\cdot \\varepsilon_{t_1-1, t_2-1}^a+b_2 \\cdot \\varepsilon_{t_1+1, t_2-1}^b+b_3 \\cdot \\varepsilon_{t_1+1, t_2+1}^c+b_4 \\cdot \\varepsilon_{t_1-1, t_2+1}^d+\\varepsilon_{t_1, t_2},
+
+Yₜ₁,ₜ₂ = b₁ ⋅ εₜ₁₋₁,ₜ₂₋₁ᵃ + 
+         b₂ ⋅ εₜ₁₊₁,ₜ₂₋₁ᵇ + 
+         b₃ ⋅ εₜ₁₊₁,ₜ₂₊₁ᶜ + 
+         b₄ ⋅ εₜ₁₋₁,ₜ₂₊₁ᵈ + 
+         εₜ₁,ₜ₂
     
 - `dgp_params::Tuple{Float64, Float64, Float64, Float64}`: A tuple of the parameters of the DGP. The parameters correspond to b₁, b₂, b₃ and b₄, respectively. 
 - `eps_params::Tuple{Int, Int, Int, Int}`: A tuple of the parameters of the DGP, indicating which error terms shall be squared. Note that `eps_params` ∈ {1, 2}.

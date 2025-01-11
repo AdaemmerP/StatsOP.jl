@@ -157,30 +157,39 @@ function rl_sacf(
   # mat_ma: matrix for moving averages
   # vec_ar: vector for SAR(1) model
   # vec_ar2: vector for in-place multiplication for SAR(1) model
-  if spatial_dgp isa SAR1
+  if typeof(spatial_dgp) isa SAR1
     mat = build_sar1_matrix(spatial_dgp) # will be done only once
     mat_ao = zeros((M + 2 * spatial_dgp.margin), (N + 2 * spatial_dgp.margin))
     vec_ar = zeros((M + 2 * spatial_dgp.margin) * (N + 2 * spatial_dgp.margin))
     vec_ar2 = similar(vec_ar)
-    mat2 = similar(mat_ao)
-  elseif spatial_dgp isa BSQMA11
-    mat = zeros(M + spatial_dgp.prerun, N + spatial_dgp.prerun)
-    mat_ma = zeros(M + spatial_dgp.prerun + 1, N + spatial_dgp.prerun + 1) # add one extra row and column for "forward looking" BSQMA11
-    mat_ao = similar(mat)
-  else
+    mat2 = similar(mat_ao)    
+  elseif typeof(spatial_dgp) ∈ (SAR11, SINAR11, SAR22)
     mat = zeros(M + spatial_dgp.prerun, N + spatial_dgp.prerun)
     mat_ma = similar(mat)
+    mat_ao = similar(mat)
+  elseif typeof(spatial_dgp) ∈ (SQMA11, SQINMA11)
+    mat = zeros(M + 1, N + 1)
+    mat_ma = similar(mat)
+    mat_ao = similar(mat)
+  elseif typeof(spatial_dgp) isa SQMA22
+    mat = zeros(M + 2, N + 2)
+    mat_ma = similar(mat)
+    mat_ao = similar(mat)
+  elseif typeof(spatial_dgp) isa BSQMA11
+    mat = zeros(M + 1, N + 1)
+    mat_ma = zeros(M + 2, N + 2) # add one extra row and column for "forward looking" BSQMA11
     mat_ao = similar(mat)
   end
 
   for r in axes(p_reps, 1)
 
     # Re-initialize matrix 
-    if spatial_dgp isa SAR1 # Add SQMA11, SQINMA11, BSQMA11 which also do not need re-initialization
-    # do nothing, 'mat' will not be overwritten for SAR1
+    if spatial_dgp in (SAR1, SQMA11, SQINMA11, SQMA22, BSQMA11)
+      # 'mat' will not be overwritten for SAR1
+      # 'mat' does not need to be initialized for XSQMAXX processes
     else
-      fill!(mat, 0)
-      init_mat!(spatial_dgp, dist_error, spatial_dgp.dgp_params, mat)
+      # fill!(mat, 0.0)
+      init_mat!(spatial_dgp, dist_error, mat)
     end
 
     rho_hat = 0
@@ -227,7 +236,7 @@ This can be one of the following: `SAR1`, `SAR11`, `SAR22`, `SINAR11`, `SQMA11`,
 - `d2::Int`: The second (column) delay for the spatial process.
 - `reps`: The number of repetitions to compute the ARL.
 """
-function arl_sacf( sp_dgp::SpatialDGP, lam, cl,d1::Int, d2::Int, reps=10_000)
+function arl_sacf(sp_dgp::SpatialDGP, lam, cl, d1::Int, d2::Int, reps=10_000)
 
   # extract m and n from spatial_dgp
   dist_error = sp_dgp.dist

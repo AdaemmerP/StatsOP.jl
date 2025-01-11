@@ -10,20 +10,28 @@ engine: julia
 
 ```{julia}
 #| eval: false
-rl_sop(m, n, lookup_array_sop, lam, cl, reps_range, chart_choice, dist)
+rl_sop(lam, cl, lookup_array_sop, reps_range, dist, chart_choice, m, n, d1::Int, d2::Int)
 
 ```
 
-A function to compute the run length for a given control limit and in-control distribution. The input parameters are:
+Compute the run length for a given in-control spatial DGP. 
  
-  * `m::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
-  * `n::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1.
-  * `lookup_array_sop::Array{Int, 4}`: A 4D array with the lookup array for the sops. This can be automatically computed using lookup*array*sop = `compute_lookup_array()`. This will be used to find the index of the sops.
+The input parameters are:
+ 
   * `lam::Float64`: A scalar value for lambda for the EWMA chart.
   * `cl::Float64`: A scalar value for the control limit.
-  * `reps_range::UnitRange{Int}`: A range of integers for the number of repetitions. This has to be a range to be compatible with `arl_sop()` which uses threading and multi-processing.
+  * `lookup_array_sop::Array{Int, 4}`: A 4D array with the lookup array for the sops,
+which will be computed computed using `lookup_array_sop = compute_lookup_array_sop()`. 
+ 
+  * `reps_range::UnitRange{Int}`: A range of integers for the number of repetitions.
+  * `dist::Distribution`: A distribution for the error term. Here you can use any
+univariate distribution from the `Distributions.jl` package.
+ 
   * `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
-  * `dist::Distribution`: A distribution for the in-control data. Here you can use any univariate distribution from the `Distributions.jl` package.
+  * `m::Int`: An integer value for the number of rows for the final "SOP" matrix.
+  * `n::Int`: An integer value for the number of columns for the final "SOP" matrix.
+  * `d1::Int`: An integer value for the first delay (d₁).
+  * `d2::Int`: An integer value for the second delay (d₂).
 
 
 :::
@@ -36,17 +44,23 @@ A function to compute the run length for a given control limit and in-control di
 
 ```{julia}
 #| eval: false
-rl_sop(lam, cl, reps_range, chart_choice, p_mat::Matrix{Float64})
+rl_sop(lam, cl, reps_range, chart_choice, p_mat::Array{Float64,2})
 
 ```
 
-A function to compute the run length for a given control limit using bootstraping instead of a theoretical in-control distribution. The input parameters are:
+Compute the run length for a given control limit using bootstraping instead  of a theoretical in-control distribution.
+ 
+The input parameters are:
  
   * `lam::Float64`: A scalar value for lambda for the EWMA chart.
   * `cl::Float64`: A scalar value for the control limit.
-  * `reps_range::UnitRange{Int}`: A range of integers for the number of repetitions. This has to be a range to be compatible with `arl_sop()` which uses threading and multi-processing.
+  * `reps_range::UnitRange{Int}`: A range of integers for the number of repetitions.
+This has to be a range to be compatible with `arl_sop()` which uses threading and multi-processing.
+ 
   * `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
-  * `p_mat::Matrix{Float64}`: A matrix with the values of each pattern group obtained by `compute_p_mat()`. This matrix will be used for re-sampling
+  * `p_mat::Array{Float64,2}`: A matrix with the values of the relative frequencies
+of each d1-d2 (delay) combination. This matrix will be used for re-sampling.
+ 
 
 
 :::
@@ -59,22 +73,57 @@ A function to compute the run length for a given control limit using bootstrapin
 
 ```{julia}
 #| eval: false
-rl_sop(m, n, lookup_array_sop, lam, cl, p_reps, chart_choice, spatial_dgp, dist_error, dist_ao)
+rl_sop(lam, cl, reps_range, chart_choice, p_array::Array{Float64,3})
 
 ```
 
+Compute the EWMA-BP-SOP run length for a given control limit using bootstraping instead  of a theoretical in-control distribution.
+ 
+The input parameters are:
+ 
+  * `lam::Float64`: A scalar value for lambda for the EWMA chart.
+  * `cl::Float64`: A scalar value for the control limit.
+  * `reps_range::UnitRange{Int}`: A range of integers for the number of repetitions.
+  * `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
+  * `p_array::Array{Float64,3}`: A 3D array with the with the relative frequencies for
+each d1-d2 (delay) combination. The first dimension (rows) is the picture, the second dimension refers to the patterns group (s₁, s₂, or s₃) and the third dimension denotes each d₁-d₂ combination. This array will be used for re-sampling.
+ 
+
+
+:::
+    
+
+ --- 
+ 
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+rl_sop(
+
+```
+
+lam, cl, lookup*array*sop, p*reps, spatial*dgp::SpatialDGP, dist*error::UnivariateDistribution,    dist*ao::Union{Nothing,UnivariateDistribution}, chart_choice, m, n, d1::Int, d2::Int   )
+ 
 Computes the run length for a given out-of-control DGP. The input parameters are:
  
-  * `m::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
-  * `n::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1.
-  * `lookup_array_sop::Array{Int, 4}`: A 4D array with the lookup array for the sops. This can be automatically computed using `lookup_array_sop = compute_lookup_array()`. This will be used to find the index of the sops.
-  * `lam`: A scalar value for lambda for the EWMA chart. This has to be between 0 and 1.
+  * `lam::Float64`: A scalar value for lambda for the EWMA chart.
   * `cl::Float64`: A scalar value for the control limit.
-  * `p_reps::UInt`: An unsigned integer value for the number of repetitions. This has to be an unsigned integer to be compatible with `arl_sop()` which uses threading and multi-processing.
+  * `lookup_array_sop::Array{Int, 4}`: A 4D array with the lookup array for the sops,
+which will be computed computed using `lookup_array_sop = compute_lookup_array_sop()`.
+ 
+  * `p_reps::UnitRange{Int}`: A range of integers for the number of repetitions.
+  * `spatial_dgp::SpatialDGP`: A struct for the out-of-control spatial DGP.
+  * `dist_error::UnivariateDistribution`: A distribution for the error term. Here you can use any
+univariate distribution from the `Distributions.jl` package.
+ 
+  * `dist_ao::Union{Nothing,UnivariateDistribution}`: A distribution for the additive outlier.
   * `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
-  * `spatial_dgp::AbstractSpatialDGP`: A struct for type for the spatial DGP. This can be either `SAR11`, `SINAR11`, `SQMA11`, `BSQMA11` or `SAR1`. Look at their documentation for more information.
-  * `dist_error::Distribution`: A distribution for the error term. Here you can use any univariate distribution from the `Distributions.jl` package.
-  * `dist_ao::Distribution`: A distribution for the out-of-control data. Here you can use any univariate distribution from the `Distributions.jl` package.
+  * `m::Int`: An integer value for the number of rows for the final "SOP" matrix.
+  * `n::Int`: An integer value for the number of columns for the final "SOP" matrix.
+  * `d1::Int`: An integer value for the first delay (d₁).
+  * `d2::Int`: An integer value for the second delay (d₂).
 
 
 :::

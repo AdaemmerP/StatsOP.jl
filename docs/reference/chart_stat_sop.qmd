@@ -14,7 +14,7 @@ chart_stat_sop(p_ewma, chart_choice)
 
 ```
 
-Compute the the test statistic for spatial ordinal patterns. The first input is a vector with three values, based on SOP counts. The second input is the chart.     
+Compute the the test statistic for spatial ordinal patterns. The first input is  a vector with three values, based on SOP counts. The second input is the chart.     
  
 
 

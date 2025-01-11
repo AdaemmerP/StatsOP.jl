@@ -10,32 +10,120 @@ engine: julia
 
 ```{julia}
 #| eval: false
-cl_sop(m::Int, n::Int, lam, L0, reps::Int, cl_init, jmin, jmax, verbose, chart_choice, dist)
+cl_sop(
 
 ```
 
+lam, L0, sop*dgp::ICSP, cl*init, d1::Int, d2::Int, reps=10*000;   chart*choice=3, jmin=4, jmax=6, verbose=false )
+ 
 Compute the control limit for a given in-control distribution. The input parameters are:
  
-  * `m::Int`: The number of rows for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals m + 1.
-  * `n::Int`: The number of columns for the final "SOP" matrix. Note that the final spatial matrix ("picture") equals n + 1.
-  * `lam::Float64`: A scalar value for lambda for the EWMA chart. The value has to be between 0 and 1.
-  * `L0::Float64`: A scalar value for the in-control ARL.
-  * `reps::Int`: An integer value for the number of repetitions.
-  * `cl_init::Float64`: A scalar value for the initial control limit. The value has to be between 0 and 1.
-  * `jmin::Int`: An integer value for the minimum number of values to change after the decimal point.
-  * `jmax::Int`: An integer value for the maximum number of values to change after the decimal point.
-  * `verbose::Bool`: A boolean value whether to print the control limit and ARL.
-  * `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
-  * `dist::Distribution`: A distribution for the in-control data. Here you can use any univariate distribution from the `Distributions.jl` package.
-```julia-repl #– Example
- 
+  * `lam::Float64`:  A scalar value for lambda for the EWMA chart.
+  * `L0::Float64`: The desired average run length.
+  * `sop_dgp::ICSP`: A struct for the in-control spatial process.
+  * `cl_init::Float64`: The initial value for the control limit.
+  * `d1::Int`: The first (row) delay for the spatial process.
+  * `d2::Int`: The second (column) delay for the spatial process.
+  * `reps::Int`: The number of replications to compute the ARL.
+  * `chart_choice::Int`: The chart choice for the SOP chart.
+  * `jmin`: The minimum number of values to change after the decimal point in the control limit.
+  * `jmax`: The maximum number of values to change after the decimal point in the control limit.
+  * `verbose::Bool`: A boolean to indicate whether to print the control limit and ARL for each iteration.
 
-### Parameters
+
+:::
     
-m = 10 n = 10 lam = 0.1 L0 = 370 reps = 10 cl*init = 0.03 jmin = 4 jmax = 7 verbose = true chart*choice = 3 dist = Normal(0, 1)
+
+ --- 
  
-cl*sop(m, n, lam, L0, reps, cl*init, jmin, jmax, verbose, chart_choice, dist)
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+cl_sop(
+
+```
+
+lam, L0, sp*dgp, cl*init, d1*vec::Vector{Int}, d2*vec::Vector{Int}, reps=10*000;   chart*choice=3, jmin=4, jmax=6, verbose=false )
  
+Compute the control limit for the EWMA-chart for the BP-statistic. The function returns the control limit for a given average run. The input parameters are:
+ 
+  * `lam::Float64`:  A scalar value for lambda for the EWMA chart.
+  * `L0::Float64`: The desired average run length.
+  * `sp_dgp`: The in-control spatial process (ICSP) to use for the control limit.
+  * `cl_init::Float64`: The initial value for the control limit.
+  * `d1_vec::Vector{Int}`: The vector of first (row) delays for the spatial process.
+  * `d2_vec::Vector{Int}`: The vector of second (column) delays for the spatial process.
+  * `reps::Int`: The number of replications to compute the ARL.
+  * `chart_choice::Int`: The chart choice for the SOP chart.
+  * `jmin`: The minimum number of values to change after the decimal point in the control limit.
+  * `jmax`: The maximum number of values to change after the decimal point in the control limit.
+  * `verbose::Bool`: A boolean to indicate whether to print the control limit and ARL for each iteration.
+
+
+:::
+    
+
+ --- 
+ 
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+cl_sop(
+
+```
+
+lam, L0, p*mat::Array{Float64,2}, cl*init, reps=10*000;   chart*choice=3, jmin=4, jmax=6, verbose=false )
+ 
+Compute the (bootstrap) SOP control limit for the EWMA-chart for one delay (d₁-d₂) combination. The function returns the control limit for a given average run.
+ 
+The input parameters are:
+ 
+  * `lam::Float64`:  A scalar value for lambda for the EWMA chart.
+  * `L0::Float64`: The desired average run length.
+  * `p_mat::Array{Float64,2}`: The matrix with relative frequencies of the SOPs. These
+can be computed using the `compute_p_array()` function.
+ 
+  * `cl_init::Float64`: The initial value for the control limit.
+  * `reps::Int`: The number of replications to compute the ARL.
+  * `chart_choice::Int`: The chart choice for the SOP chart.
+  * `jmin`: The minimum number of values to change after the decimal point in the control limit.
+  * `jmax`: The maximum number of values to change after the decimal point in the control limit.
+  * `verbose::Bool`: A boolean to indicate whether to print the control limit and ARL for each iteration.
+
+
+:::
+    
+
+ --- 
+ 
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+cl_sop(
+
+```
+
+lam, L0, p*array::Array{Float64,3}, cl*init, reps=10*000;   chart*choice=3, jmin=4, jmax=6, verbose=false )
+ 
+Compute the (bootstrap) SOP control limit for the EWMA-chart for the BP-statistic. The function returns the control limit for a given average run. The input parameters are:
+ 
+  * `lam::Float64`:  A scalar value for lambda for the EWMA chart.
+  * `L0::Float64`: The desired average run length.
+  * `p_array::Array{Float64,3}`: The array with relative frequencies of the SOPs. These
+can be computed using the `compute_p_array()` function.
+ 
+  * `cl_init::Float64`: The initial value for the control limit.
+  * `reps::Int`: The number of replications to compute the ARL.
+  * `chart_choice::Int`: The chart choice for the SOP chart.
+  * `jmin`: The minimum number of values to change after the decimal point in the control limit.
+  * `jmax`: The maximum number of values to change after the decimal point in the control limit.
+  * `verbose::Bool`: A boolean to indicate whether to print the control limit and ARL for each iteration.
 
 
 :::
