@@ -48,26 +48,6 @@ function init_mat!(dgp::SAR22, dist_error, mat)
 
 end
 
-# # Initialize for SQMA(1, 1) process -> do nothing
-# function init_mat!(dgp::SQMA11, dist_error, dgp_params, mat)
-#   # Initialization not necessary
-# end
-
-# # Initialize for SQINMA(1, 1) -> do nothing
-# function init_mat!(dgp::SQINMA11, dist_error, dgp_params, mat)
-#   # Initialization not necessary
-# end
-
-# # Initialize for SQMA(2, 2) -> do nothing
-# function init_mat!(dgp::SQMA22, dist_error, dgp_params, mat)
-#   # Initialization not necessary
-# end
-
-# # Initialize for BSQMA(1, 1) -> do nothing
-# function init_mat!(dgp::BSQMA11, dist_error, dgp_params, mat)
-#   # Initialization not necessary
-# end
-
 # Compute once matrix for SAR(1) process
 function build_sar1_matrix(dgp::SAR1)
 
