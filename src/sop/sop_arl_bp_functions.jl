@@ -457,7 +457,7 @@ function rl_sop(p_array::Array{Float64, 3}, lam, cl, reps_range::UnitRange, char
   p_hat = zeros(3)
   rls = zeros(Int, length(reps_range))
   p_array_mean = mean(p_array, dims=1)
-  range_index = axes(p_array, 1)
+  range_index = axes(p_array, 1) # Range for number of images
   p_ewma = p_array_mean # will be dimension 1 x 3 x 'size(p_array, 3)'
 
   # Loop over repetitions
@@ -472,17 +472,17 @@ function rl_sop(p_array::Array{Float64, 3}, lam, cl, reps_range::UnitRange, char
       # sample from p_vec
       index = rand(range_index)
 
-      for i in 1:size(p_array, 3)
+      for i in axes(p_array, 3)
 
         p_hat[1] = p_array[index, 1, i]
         p_hat[2] = p_array[index, 2, i]
         p_hat[3] = p_array[index, 3, i]
 
         # Apply EWMA
-        @views p_ewma[1, 1:3, i] .= (1 - lam) .* p_ewma[1, 1:3, i] .+ lam .* p_hat
+        @views p_ewma[:, :, i] .= (1 - lam) .* p_ewma[:, :, i] .+ lam .* p_hat
 
         # Compute test statistic
-        @views stat = chart_stat_sop(p_ewma[1, :, i], chart_choice)
+        @views stat = chart_stat_sop(p_ewma[:, :, i], chart_choice)
         bp_stat += stat^2
 
       end
@@ -490,6 +490,7 @@ function rl_sop(p_array::Array{Float64, 3}, lam, cl, reps_range::UnitRange, char
     end
 
     rls[r] = rl
+    
   end
   return rls
 end

@@ -120,11 +120,11 @@ for (k, dist) in enumerate(dist)
             d1 = d1d2[1]
             d2 = d1d2[2]
             # Compute and save for SACF
-            sacf_arl_sd = arl_sacf(lam, cl_sacf_mat[i, j], sp_dgp, d1, d2, reps)
+            sacf_arl_sd = arl_sacf(sp_dgp, lam, cl_sacf_mat[i, j], d1, d2, reps)
             arl_sac_mat[i, j, k] = sacf_arl_sd[1]
             sd_sac_mat[i, j, k] = sacf_arl_sd[2]
             # Compute and save for SOP
-            sop_arl_sd = arl_sop(lam, cl_sop_mat[i, j], sp_dgp, d1, d2, reps; chart_choice=3)
+            sop_arl_sd = arl_sop(sp_dgp, lam, cl_sop_mat[i, j], d1, d2, reps; chart_choice=3)
             arl_sop_mat[i, j, k] = sop_arl_sd[1]
             sd_sop_mat[i, j, k] = sop_arl_sd[2]
             println("Progress -> k: $k, i: $i, j: $j")
@@ -160,7 +160,7 @@ for (i, MN) in enumerate(MN_vec)
         sacf_results = arl_sacf(lam, cl_sacf_mat[i, j], sar11, d1, d2, reps)
         arl_sacf_sar11_mat[i, j] = sacf_results[1]
         sd_sacf_sar11_mat[i, j] = sacf_results[2]
-        sop_results = arl_sop(lam, cl_sop_mat[i, j], sar11, d1, d2, reps; chart_choice=3)
+        sop_results = arl_sop(sar11, lam, cl_sop_mat[i, j], d1, d2, reps; chart_choice=3)
         arl_sop_sar11_mat[i, j] = sop_results[1]
         sd_sop_sar11_mat[i, j] = sop_results[2]
         println("Progress -> SAR(1, 1): i: $i, j: $j")
