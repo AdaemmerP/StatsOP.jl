@@ -116,8 +116,8 @@ function rl_sop(
 
       # Add noise when using count data
       if dist isa DiscreteUnivariateDistribution
-        for j in 1:size(data_tmp, 2)
-          for i in 1:size(data_tmp, 1)
+        for j in axes(data_tmp, 2)
+          for i in axes(data_tmp, 1)
             data_tmp[i, j] = data_tmp[i, j] + rand()
           end
         end
@@ -429,8 +429,8 @@ function rl_sop(
 
       # Check whether to add noise to count data
       if dist_error isa DiscreteUnivariateDistribution
-        for j in 1:size(data, 2)
-          for i in 1:size(data, 1)
+        for j in axes(data, 2)
+          for i in axes(data, 1)
             data[i, j] = data[i, j] + rand()
           end
         end
