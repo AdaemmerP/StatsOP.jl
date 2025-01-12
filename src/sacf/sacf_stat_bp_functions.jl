@@ -50,7 +50,7 @@ function stat_sacf_bp(data::Array{T,3}, lam,  w::Int) where {T<:Real}
 
   # pre-allocate
   X_centered = zeros(size(data[:, :, 1]))
-  rho_hat_all = zeros(length(d1_d2_combinations))
+  rho_hat_all = zeros(length(h1_h2_combinations))
   bp_stats = zeros(size(data, 3))
   bp_stat = 0.0
 

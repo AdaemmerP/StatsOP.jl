@@ -28,6 +28,7 @@ export rl_sop,
        arl_sop,
        arl_sop_bp,
        cl_sop,
+       cl_sop_bp,
        stat_sop,
        stat_sop_bp,
        chart_stat_sop,
@@ -39,11 +40,13 @@ export rl_sop,
 # SACF functions to export
 export rl_sacf,
        arl_sacf,
+       arl_sacf_bp,
        stat_sacf,
        stat_sacf_bp,
        sacf,
        crit_sacf,
        cl_sacf,
+       cl_sacf_bp,
        crit_val_sacf    
 
 # Export functions to compute DGPs
@@ -113,6 +116,7 @@ include("sop/sop_cl_functions.jl")
 
 # Include files for SACFs
 include("sacf/sacf_arl_functions.jl")
+include("sacf/sacf_arl_bp_functions.jl")
 include("sacf/sacf_cl_functions.jl")
 include("sacf/sacf_stat_functions.jl")
 include("sacf/sacf_stat_bp_functions.jl")

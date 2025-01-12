@@ -1,5 +1,4 @@
 using OrdinalPatterns
-using Distributions
 using Distributed
 using JLD2
 
@@ -15,7 +14,8 @@ cd(@__DIR__)
 
 # Vector and delay combinations
 MN_vec = [(11, 11), (16, 16), (26, 26), (41, 26)]
-d1d2_vec = [(1, 1), (2, 2), (3, 3), ([1, 2, 3], [1, 2, 3])]
+d1d2_vec = [(1, 1), (2, 2), (3, 3)]
+w = 3
 
 # ----------------------------------------------------------------------#
 # -------- Computation of critical limits for SACF and SOPs ------------#
@@ -29,40 +29,46 @@ jmax = 7
 #--- Compute critical limits for SACF
 # Build Matrix to store all critical limits
 cl_sacf_mat = zeros(length(MN_vec), length(d1d2_vec))
+cl_sacf_bp_mat = zeros(length(MN_vec), 1)
 
+# Compute SACF statistics for d1-d2-integers
 for (i, MN) in enumerate(MN_vec)
     M = MN[1]
     N = MN[2]
     sp_dgp = ICSP(M, N, Normal(0, 1))
-
     for (j, d1d2) in enumerate(d1d2_vec)
         d1 = d1d2[1]
         d2 = d1d2[2]
-        if d1 isa Int
-            crit_init = map(i -> stat_sacf(0.1, randn(M, N, 370), d1, d2) |> last, 1:1_000) |> x -> quantile(x, 0.99)
-        else
-            # Compute 370 pictures, compute the ARL and save the value at the 370th picture. From these values, compute the 1% quantile
-            crit_init = map(i -> stat_sacf(0.1, randn(M, N, 370), d1, d2) |> last, 1:1_000) |> x -> quantile(x, 0.01)
-        end
+        cl_init = map(i -> stat_sacf(randn(M, N, 370), 0.1, d1, d2) |> last, 1:1_000) |> x -> quantile(x, 0.99)
         println("M = $M, N = $N, d1 = $d1, d2 = $d2")
-        #println("Initial limit: $crit_init")
-        if d1 isa Vector{Int64} 
-            cl = cl_sacf(lam, L0, sp_dgp, crit_init, d1, d2, reps; jmin=1, jmax=jmax, verbose=true) 
-        else 
-            cl = cl_sacf(lam, L0, sp_dgp, crit_init, d1, d2, reps; jmin=jmin, jmax=jmax, verbose=true) 
-        end
+        cl = cl_sacf(sp_dgp, lam, L0, cl_init, d1, d2, reps; jmin=4, jmax=7, verbose=true)
         cl_sacf_mat[i, j] = cl
-
     end
 end
 
+# Compute Bp-statistics
+for (i, MN) in enumerate(MN_vec)
+
+    M = MN[1]
+    N = MN[2]
+    sp_dgp = ICSP(M, N, Normal(0, 1))
+    cl_init = map(i -> stat_sacf_bp(randn(M, N, 370), lam, w) |> last, 1:1_000) |>
+              x -> quantile(x, 0.99)
+
+    cl = cl_sacf_bp(sp_dgp, lam, L0, cl_init, w::Int, reps;
+        jmin=1, jmax=4, verbose=true
+    )
+    cl_sacf_bp_mat[i] = cl
+end
 # --- Save matrix to JLD2 file
 jldsave("cl_sacf_delays.jld2"; cl_sacf_mat)
+jldsave("cl_sacf_bp_delays.jld2"; cl_sacf_bp_mat)
 # load_object("cl_sacf.jld2")
 
 #--- Compute critical limits for SOPs
 # Build Matrix to store all critical limits
 cl_sop_mat = zeros(length(MN_vec), length(d1d2_vec))
+cl_sop_mat_bp = zeros(length(MN_vec), 1)
 
 for (i, MN) in enumerate(MN_vec)
     M = MN[1]
@@ -71,17 +77,24 @@ for (i, MN) in enumerate(MN_vec)
     for (j, d1d2) in enumerate(d1d2_vec)
         d1 = d1d2[1]
         d2 = d1d2[2]
-        if d1 isa Int
-            crit_init = map(i -> stat_sop(0.1, randn(M, N, 370), d1, d2) |> last, 1:1_000) |> x -> quantile(x, 0.999)
-        else
-            # Compute 370 pictures, compute the ARL and save the value at the 370th picture. From these values, compute the 1% quantile
-            crit_init = map(i -> stat_sop(0.1, randn(M, N, 370), d1, d2) |> last, 1:1_000) |> x -> quantile(x, 0.01)
-        end
+        crit_init = map(i -> stat_sop(randn(M, N, 370), 0.1, d1, d2) |> last, 1:1_000) |> x -> quantile(x, 0.99)
         println("M = $M, N = $N, d1 = $d1, d2 = $d2")
         #println("Initial limit: $crit_init")
-        cl = cl_sop(lam, L0, sp_dgp, crit_init, d1, d2, reps; jmin=jmin, jmax=jmax, verbose=true)
+        cl = cl_sop(sp_dgp, lam, L0, crit_init, d1, d2, reps; jmin=jmin, jmax=jmax, verbose=true)
         cl_sop_mat[i, j] = cl
     end
+end
+cl_sop_mat
+
+for (i, MN) in enumerate(MN_vec)
+    M = MN[1]
+    N = MN[2]
+    sp_dgp = ICSP(M, N, Normal(0, 1))
+    crit_init = map(i -> stat_sop_bp(randn(M, N, 370), 0.1, w) |> last, 1:1_000) |> x -> quantile(x, 0.01)
+    cl = cl_sop_bp(
+        sp_dgp, lam, L0, crit_init, w, reps; jmin=jmin, jmax=jmax, verbose=true
+    )
+    cl_sop_mat_bp[i] = cl
 end
 
 # --- Save matrix to JLD2 file
@@ -130,7 +143,7 @@ jldsave("sd_sop_delays.jld2"; sd_sop_mat)
 # ----------------------------------------------------------------------#
 
 cl_sacf_mat = load_object("cl_sacf.jld2")
-cl_sop_mat  = load_object("cl_sop_delays.jld2")
+cl_sop_mat = load_object("cl_sop_delays.jld2")
 
 # --- Results for SAR(1, 1)
 arl_sacf_sar11_mat = zeros(length(MN_vec), length(d1d2_vec))
@@ -288,9 +301,9 @@ for (i, MN) in enumerate(MN_vec)
         d1 = d1d2[1]
         d2 = d1d2[2]
         sqma22 = SQMA22(
-            (0.0, 0.0, 0.0, 0.8, 0.8, 0.0, 0.0, 0.8), 
-            (0.0, 0.0, 0.0, 2, 2, 0.0, 0.0, 2), 
-             M, N, Normal(0, 1), nothing, 1
+            (0.0, 0.0, 0.0, 0.8, 0.8, 0.0, 0.0, 0.8),
+            (0.0, 0.0, 0.0, 2, 2, 0.0, 0.0, 2),
+            M, N, Normal(0, 1), nothing, 1
         )
         sacf_results = arl_sacf(lam, cl_sacf_mat[i, j], sqma22, d1, d2, reps)
         arl_sacf_sqma22_mat[i, j] = sacf_results[1]

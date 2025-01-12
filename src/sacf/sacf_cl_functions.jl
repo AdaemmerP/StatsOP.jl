@@ -37,7 +37,7 @@ jmax = 6
 ```
 """
 function cl_sacf(
-  lam, L0, sp_dgp::ICSP, cl_init, d1::Int, d2::Int, reps=10_000;
+  sp_dgp::ICSP, lam, L0, cl_init, d1::Int, d2::Int, reps=10_000;
   jmin=4, jmax=6, verbose=false
 )
 
@@ -45,7 +45,7 @@ function cl_sacf(
   for j in jmin:jmax
     for dh in 1:80
       cl_init = cl_init + (-1)^j * dh / 10^j
-      L1 = arl_sacf(lam, cl_init, sp_dgp, d1, d2)[1]
+      L1 = arl_sacf(sp_dgp, lam, cl_init, d1, d2)[1]
       if verbose
         println("cl = ", cl_init, "\t", "ARL = ", L1)
       end
@@ -63,8 +63,8 @@ function cl_sacf(
 end
 
 """
-    cl_sacf(
-      lam, L0, sp_dgp::ICSP, cl_init, d1_vec::Vector{Int}, d2_vec::Vector{Int}, reps=10_000; 
+    cl_sacf_bp(
+      lam, L0, sp_dgp::ICSP, cl_init, w::Int, reps=10_000; 
       jmin=4, jmax=6, verbose::Bool=false
     )
 
@@ -81,8 +81,8 @@ The function returns the control limit for a given average run.
 - `d2_vec`: The vector of second (column) delays for the spatial process.
 - `reps`: The number of repetitions to use for the control limit. 
 """
-function cl_sacf(
-  lam, L0, sp_dgp::ICSP, cl_init, d1_vec::Vector{Int}, d2_vec::Vector{Int}, reps=10_000;
+function cl_sacf_bp(
+  sp_dgp::ICSP, lam, L0, cl_init, w::Int, reps=10_000;
   jmin=4, jmax=6, verbose=false
 )
 
@@ -90,7 +90,8 @@ function cl_sacf(
   for j in jmin:jmax
     for dh in 1:80
       cl_init = cl_init + (-1)^j * dh / 10^j
-      L1 = arl_sacf(lam, cl_init, sp_dgp, d1_vec, d2_vec, reps)[1]
+      L1 = arl_sacf_bp(sp_dgp, lam, cl_init, w::Int, reps)[1]
+      
       if verbose
         println("cl = ", cl_init, "\t", "ARL = ", L1)
       end

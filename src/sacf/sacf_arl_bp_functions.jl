@@ -72,7 +72,7 @@ function rl_sacf_bp(
   sp_dgp::ICSP, lam, cl, w::Int, p_reps::UnitRange, dist_error::UnivariateDistribution
 )
 
-  # pre-allocate
+  # Extract matrix size and pre-allocate data matrices
   M = sp_dgp.M_rows
   N = sp_dgp.N_cols
   data = zeros(M, N)
@@ -83,13 +83,12 @@ function rl_sacf_bp(
   set_1 = Iterators.product(1:w, 0:w)
   set_2 = Iterators.product(-w:0, 1:w)
   h1_h2_combinations = Iterators.flatten(Iterators.zip(set_1, set_2))
-  rho_hat_all = zeros(length(h1_h2_combinations))
+  rho_hat_all = Vector{Float64}(undef, length(h1_h2_combinations))
 
   for r in axes(p_reps, 1)
 
-    # rho_hat = 0.0
+    fill!(rho_hat_all, 0.0)
     bp_stat = 0.0
-
     rl = 0
 
     while bp_stat < cl
@@ -101,11 +100,12 @@ function rl_sacf_bp(
       # Demean data for SACF
       X_centered .= data .- mean(data)
 
-      # compute BP-statistic using all d1-d2 combinations
+      # compute BP-statistic using all h1-h2 combinations
       for (i, (h1, h2)) in enumerate(h1_h2_combinations)
-        # compute ρ(d1,d2)-EWMA
+
         @views rho_hat_all[i] = (1 - lam) * rho_hat_all[i] + lam * sacf(X_centered, h1, h2)
         bp_stat += 2 * rho_hat_all[i]^2
+
       end
 
     end
@@ -142,7 +142,7 @@ function arl_sacf_bp(
   spatial_dgp::SpatialDGP, lam, cl, w::Int, reps=10_000
 )
 
-  # Extract distribution        
+  # Extract distribution          
   dist_error = spatial_dgp.dist
   dist_ao = spatial_dgp.dist_ao
 
@@ -204,7 +204,7 @@ function rl_sacf_bp(
   spatial_dgp::SpatialDGP, lam, cl, w::Int, p_reps::UnitRange, dist_error::UnivariateDistribution, dist_ao::Union{UnivariateDistribution,Nothing}
 )
 
-  # pre-allocate
+  # Extract matrix sizes and pre-allocate
   M = spatial_dgp.M_rows
   N = spatial_dgp.N_cols
   data = zeros(M, N)
@@ -215,27 +215,35 @@ function rl_sacf_bp(
   set_1 = Iterators.product(1:w, 0:w)
   set_2 = Iterators.product(-w:0, 1:w)
   h1_h2_combinations = Iterators.flatten(Iterators.zip(set_1, set_2))
-  rho_hat_all = zeros(length(h1_h2_combinations))
+  rho_hat_all = Vector{Float64}(undef, length(h1_h2_combinations))
 
-  # pre-allocate mat, mat_ao and mat_ma
+  # pre-allocate
   # mat:    matrix for the final values of the spatial DGP
   # mat_ao: matrix for additive outlier 
   # mat_ma: matrix for moving averages
   # vec_ar: vector for SAR(1) model
   # vec_ar2: vector for in-place multiplication for SAR(1) model
-  if spatial_dgp isa SAR1
+  if typeof(spatial_dgp) isa SAR1
     mat = build_sar1_matrix(spatial_dgp) # will be done only once
     mat_ao = zeros((M + 2 * spatial_dgp.margin), (N + 2 * spatial_dgp.margin))
     vec_ar = zeros((M + 2 * spatial_dgp.margin) * (N + 2 * spatial_dgp.margin))
     vec_ar2 = similar(vec_ar)
     mat2 = similar(mat_ao)
-  elseif spatial_dgp isa BSQMA11
-    mat = zeros(M + spatial_dgp.prerun, N + spatial_dgp.prerun)
-    mat_ma = zeros(M + spatial_dgp.prerun + 1, N + spatial_dgp.prerun + 1) # add one extra row and column for "forward looking" BSQMA11
-    mat_ao = similar(mat)
-  else
+  elseif typeof(spatial_dgp) ∈ (SAR11, SINAR11, SAR22)
     mat = zeros(M + spatial_dgp.prerun, N + spatial_dgp.prerun)
     mat_ma = similar(mat)
+    mat_ao = similar(mat)
+  elseif typeof(spatial_dgp) ∈ (SQMA11, SQINMA11)
+    mat = zeros(M + 1, N + 1)
+    mat_ma = similar(mat)
+    mat_ao = similar(mat)
+  elseif typeof(spatial_dgp) isa SQMA22
+    mat = zeros(M + 2, N + 2)
+    mat_ma = similar(mat)
+    mat_ao = similar(mat)
+  elseif typeof(spatial_dgp) isa BSQMA11
+    mat = zeros(M + 1, N + 1)
+    mat_ma = zeros(M + 2, N + 2) # one extra row and column for "forward looking"
     mat_ao = similar(mat)
   end
 
@@ -243,15 +251,15 @@ function rl_sacf_bp(
   for r in axes(p_reps, 1)
 
     # Re-initialize matrix 
-    if spatial_dgp isa SAR1 # Add SQMA11, SQINMA11, BSQMA11 which also do not need re-initialization
-    # do nothing, 'mat' will not be overwritten for SAR1
+    if spatial_dgp in (SAR1, SQMA11, SQINMA11, SQMA22, BSQMA11)
+      # 'mat' will not be overwritten for SAR1
+      # 'mat' does not need to be initialized for XSQMAXX processes
     else
-      fill!(mat, 0)
-      init_mat!(spatial_dgp, dist_error, spatial_dgp.dgp_params, mat)
+      init_mat!(spatial_dgp, dist_error, mat)
     end
 
+    fill!(rho_hat_all, 0.0)
     bp_stat = 0.0
-
     rl = 0
 
     while bp_stat < cl # BP-statistic can only be positive
@@ -260,9 +268,13 @@ function rl_sacf_bp(
 
       # Fill matrix with dgp 
       if spatial_dgp isa SAR1
-        data .= fill_mat_dgp_sop!(spatial_dgp, dist_error, dist_ao, mat, mat_ao, vec_ar, vec_ar2, mat2)
+        data .= fill_mat_dgp_sop!(
+          spatial_dgp, dist_error, dist_ao, mat, mat_ao, vec_ar, vec_ar2, mat2
+        )
       else
-        data .= fill_mat_dgp_sop!(spatial_dgp, dist_error, dist_ao, mat, mat_ao, mat_ma)
+        data .= fill_mat_dgp_sop!(
+          spatial_dgp, dist_error, dist_ao, mat, mat_ao, mat_ma
+        )
       end
 
       # Demean data for SACF

@@ -65,7 +65,7 @@ Compute the spatial autocorrelation function (SACF) for a delay combination (d1,
 - `data`: The data matrix.
 - `d1::Int`: The first (row) delay for the spatial process.  
 """
-function stat_sacf(lam, data::Array{T,3}, d1::Int, d2::Int) where {T<:Real}
+function stat_sacf(data::Array{T,3}, lam, d1::Int, d2::Int) where {T<:Real}
 
   # pre-allocate
   data_tmp = similar(data[:, :, 1])
@@ -84,7 +84,6 @@ function stat_sacf(lam, data::Array{T,3}, d1::Int, d2::Int) where {T<:Real}
   return sacf_vals
 
 end
-
 
 # ---------------------------------------------------------------------------#
 # -- Full SACF matrix and particular SACF for particular delay-combination - # 

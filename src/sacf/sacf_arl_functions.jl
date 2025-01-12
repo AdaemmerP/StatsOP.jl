@@ -30,10 +30,10 @@ use for the SACF function.
 spatial process. This can be any univariate distribution from the `Distributions.jl` package.
 """
 function rl_sacf(
-  lam, cl, d1::Int, d2::Int, p_reps::UnitRange, spatial_dgp::ICSP, dist_error::UnivariateDistribution
+  spatial_dgp::ICSP, lam, cl, d1::Int, d2::Int, p_reps::UnitRange, dist_error::UnivariateDistribution
 )
 
-  # pre-allocate  
+  # Extract matrix size and pre-allocate matrices
   M = spatial_dgp.M_rows
   N = spatial_dgp.N_cols
   data = zeros(M, N)
@@ -94,7 +94,7 @@ function arl_sacf(spatial_dgp::ICSP, lam, cl, d1::Int, d2::Int, reps=10_000)
 
     # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
     par_results = map(chunks) do i
-      Threads.@spawn rl_sacf(lam, cl, d1, d2, i, spatial_dgp, dist_error)
+      Threads.@spawn rl_sacf(spatial_dgp, lam, cl, d1, d2, i,dist_error)
     end
 
   elseif nprocs() > 1 # Multi Processing
@@ -103,7 +103,7 @@ function arl_sacf(spatial_dgp::ICSP, lam, cl, d1::Int, d2::Int, reps=10_000)
     chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
 
     par_results = pmap(chunks) do i
-      rl_sacf(lam, cl, d1, d2, i, spatial_dgp, dist_error)
+      Threads.@spawn rl_sacf(spatial_dgp, lam, cl, d1, d2, i,dist_error)
     end
 
   end
@@ -117,7 +117,7 @@ end
 
 """
     rl_sacf(
-  lam, cl, d1::Int, d2::Int, p_reps::UnitRange, spatial_dgp::SpatialDGP,
+ spatial_dgp::SpatialDGP, lam, cl, d1::Int, d2::Int, p_reps::UnitRange, 
   dist_error::UnivariateDistribution, dist_ao::Union{UnivariateDistribution,Nothing}
 )
 
@@ -140,7 +140,7 @@ the SACF function. This can be one of the following: `SAR1`, `SAR11`, `SAR22`,
   `SINAR11`, `SQMA11`, `SQINMA11`, or `BSQMA11`.
 """
 function rl_sacf(
-  lam, cl, d1::Int, d2::Int, p_reps::UnitRange, spatial_dgp::SpatialDGP,
+  spatial_dgp::SpatialDGP, lam, cl, d1::Int, d2::Int, p_reps::UnitRange, 
   dist_error::UnivariateDistribution, dist_ao::Union{UnivariateDistribution,Nothing}
 )
 
@@ -250,7 +250,7 @@ function arl_sacf(sp_dgp::SpatialDGP, lam, cl, d1::Int, d2::Int, reps=10_000)
 
     # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
     par_results = map(chunks) do i
-      Threads.@spawn rl_sacf(lam, cl, d1, d2, i, sp_dgp, dist_error, dist_ao)
+      Threads.@spawn rl_sacf(sp_dgp, lam, cl, d1, d2, i, dist_error, dist_ao)
     end
 
   elseif nprocs() > 1 # Multi Processing

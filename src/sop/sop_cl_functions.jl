@@ -75,8 +75,8 @@ The function returns the control limit for a given average run. The input parame
 - `jmax`: The maximum number of values to change after the decimal point in the control limit.
 - `verbose::Bool`: A boolean to indicate whether to print the control limit and ARL for each iteration.
 """
-function cl_sop(
-  sp_dgp::ICSP, lam, L0, cl_init, d1_vec::Vector{Int}, d2_vec::Vector{Int}, reps=10_000;
+function cl_sop_bp(
+  sp_dgp::ICSP, lam, L0, cl_init, w, reps=10_000;
   chart_choice=3, jmin=4, jmax=6, verbose=false
 )
 
@@ -84,9 +84,8 @@ function cl_sop(
   for j in jmin:jmax
     for dh in 1:80
       cl_init = cl_init + (-1)^j * dh / 10^j
-      L1 = arl_sop(
-        sp_dgp, lam, cl_init, d1_vec, d2_vec, reps;
-        chart_choice=chart_choice
+      L1 = arl_sop_bp(
+        sp_dgp, lam, cl_init, w, reps; chart_choice=chart_choice
       )[1]
       if verbose
         println("cl = ", cl_init, "\t", "ARL = ", L1)
