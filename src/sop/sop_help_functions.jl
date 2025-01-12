@@ -30,7 +30,7 @@ end
 
 Compute the matrix of p-hat values for a given 3D array of data when the delays are integers. These values are used for bootstrapping. 
 """
-function compute_p_array(data::Array{T,3}, d1::Int=1, d2::Int=1; chart_choice=3) where {T<:Real}
+function compute_p_array(data::Array{T,3}, d1::Int, d2::Int; chart_choice=3) where {T<:Real}
 
   # pre-allocate
   m = size(data, 1) - d1
@@ -42,10 +42,11 @@ function compute_p_array(data::Array{T,3}, d1::Int=1, d2::Int=1; chart_choice=3)
   sop_freq = zeros(Int, 24)
   win = zeros(Int, 4)
 
-  # pre-allocate indexes to compute sum of frequencies
-  s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
-  s_2 = [2, 5, 7, 9, 16, 18, 20, 23]
-  s_3 = [4, 6, 10, 12, 13, 15, 19, 21]
+  # indices for sum of frequencies
+  index_sop = create_index_sop()
+  s_1 = index_sop[1] 
+  s_2 = index_sop[2] 
+  s_3 = index_sop[3]
 
   # compute p_hat matrix
   for i in axes(data, 3)
@@ -74,23 +75,24 @@ end
 
 Compute the matrix of p-hat values for a given 3D array of data when the delays are vectors of integers. These values are used for bootstrapping to compute critcial limits for the BP-statistics. 
 """
-function compute_p_array(data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int}; chart_choice=3) where {T<:Real}
+function compute_p_array(data::Array{T,3}, w::Int; chart_choice=3) where {T<:Real}
 
   # pre-allocate
   M_rows = size(data, 1)
   N_cols = size(data, 2)
   lookup_array_sop = compute_lookup_array_sop()
-  d1_d2_combinations = Iterators.product(d1_vec, d2_vec)
+  d1_d2_combinations = Iterators.product(1:w, 1:w)
   p_mat = zeros(size(data, 3), 3, length(d1_d2_combinations))
   p_hat = zeros(1, 3)
   sop = zeros(4)
   sop_freq = zeros(Int, 24)
   win = zeros(Int, 4)
 
-  # pre-allocate indexes to compute sum of frequencies
-  s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
-  s_2 = [2, 5, 7, 9, 16, 18, 20, 23]
-  s_3 = [4, 6, 10, 12, 13, 15, 19, 21]
+  # indices for sum of frequencies
+  index_sop = create_index_sop()
+  s_1 = index_sop[1] 
+  s_2 = index_sop[2] 
+  s_3 = index_sop[3]
 
   # compute p_hat matrix
   for i in axes(data, 3)
