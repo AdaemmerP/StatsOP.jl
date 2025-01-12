@@ -48,7 +48,7 @@ function rl_sop_bp(
   s_2 = index_sop[2]
   s_3 = index_sop[3]
 
-  for r in 1:length(reps_range)
+  for r in reps_range
 
     fill!(p_ewma_all, 1 / 3)
     bp_stat = 0.0
@@ -125,8 +125,7 @@ The input parameters are:
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 """
 function arl_sop_bp(
-  spatial_dgp::ICSP, lam, cl, w::Int, reps=1_000;
-  chart_choice=3
+  spatial_dgp::ICSP, lam, cl, w::Int, reps=1_000; chart_choice=3
 )
 
   # Compute m and n  
@@ -191,7 +190,8 @@ univariate distribution from the `Distributions.jl` package.
 - `d2_vec::Vector{Int}`: A vector with integer values for the second delay (d₂).
 """
 function rl_sop_bp(
-  spatial_dgp::SpatialDGP, lam, cl, w::Int, lookup_array_sop, p_reps::UnitRange, dist_error::UnivariateDistribution, dist_ao::Union{Nothing,UnivariateDistribution}, chart_choice,
+  spatial_dgp::SpatialDGP, lam, cl, w::Int, lookup_array_sop, p_reps::UnitRange, 
+  dist_error::UnivariateDistribution, dist_ao::Union{Nothing,UnivariateDistribution}, chart_choice,
 )
 
   # find maximum values of d1 and d2 for construction of matrices
@@ -250,21 +250,20 @@ function rl_sop_bp(
 
     fill!(p_ewma_all, 1 / 3)
     bp_stat = 0.0
+    rl = 0
 
-    # Re-initialize matrix 
+    # Initialize 'mat' 
     if spatial_dgp in (SAR1, SQMA11, SQINMA11, SQMA22, BSQMA11)
       # 'mat' will not be overwritten for SAR1
-      # 'mat' does not need to be initialized for XSQMAXX processes
+      # 'mat' does not need to be initialized for SQMA processes
     else
       init_mat!(spatial_dgp, dist_error, mat)
     end
 
-    rl = 0
-
     while bp_stat < cl # BP-statistic can only be positive
       rl += 1
 
-      # Fill matrix with dgp 
+      # Fill matrix via dgp 
       if spatial_dgp isa SAR1
         data .= fill_mat_dgp_sop!(
           spatial_dgp, dist_error, dist_ao, mat, mat_ao, vec_ar, vec_ar2, mat2
@@ -386,3 +385,111 @@ function arl_sop_bp(
   return (mean(rlvec), std(rlvec) / sqrt(reps))
 end
 
+
+"""
+    arl_sop(lam, cl, p_array::Array{Float64,3}, reps=10_000; chart_choice=3)
+
+Compute the average run length for the BP-EWMA-SOP for a given control limit 
+  using bootstraping instead of a theoretical in-control distribution.
+
+The input parameters are:
+
+- `lam::Float64`: A scalar value for lambda for the EWMA chart.
+- `cl::Float64`: A scalar value for the control limit.
+- `p_array::Array{Float64, 3}`: A 3D array with the with the relative frequencies 
+of each d1-d2 (delay) combination. The first dimension (rows) is the picture, the 
+second dimension refers to the patterns group (s₁, s₂, or s₃) and the third dimension 
+denotes each d₁-d₂ combination. This matrix will be used for re-sampling.
+- `reps::Int`: An integer value for the number of repetitions.
+- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
+"""
+function arl_sop(p_array::Array{Float64,3}, lam, cl, reps=10_000; chart_choice=3)
+
+  # Check whether to use threading or multi processing --> only one process threading, else distributed
+  if nprocs() == 1
+
+    # Make chunks for separate tasks (based on number of threads)        
+    chunks = Iterators.partition(1:reps, div(reps, Threads.nthreads())) |> collect
+
+    # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
+    par_results = map(chunks) do i
+      Threads.@spawn rl_sop(p_array, lam, cl, i, chart_choice)
+    end
+
+  elseif nprocs() > 1
+
+    # Make chunks for separate tasks (based on number of workers)
+    chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
+
+    par_results = pmap(chunks) do i
+      rl_sop(p_array, lam, cl, i, chart_choice)
+    end
+
+  end
+
+  # Collect results from tasks
+  rls = fetch.(par_results)
+  rlvec = Iterators.flatten(rls) |> collect
+  return (mean(rlvec), std(rlvec) / sqrt(reps))
+end
+
+
+"""
+    rl_sop(lam, cl, reps_range, chart_choice, p_array::Array{Float64,3})
+
+Compute the EWMA-BP-SOP run length for a given control limit using bootstraping instead 
+of a theoretical in-control distribution.
+
+The input parameters are:
+
+- `lam::Float64`: A scalar value for lambda for the EWMA chart.
+- `cl::Float64`: A scalar value for the control limit.
+- `reps_range::UnitRange{Int}`: A range of integers for the number of repetitions.
+- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
+- `p_array::Array{Float64,3}`: A 3D array with the with the relative frequencies for 
+each d1-d2 (delay) combination. The first dimension (rows) is the picture, the second
+dimension refers to the patterns group (s₁, s₂, or s₃) and the third dimension denotes
+each d₁-d₂ combination. This array will be used for re-sampling.
+"""
+function rl_sop(p_array::Array{Float64, 3}, lam, cl, reps_range::UnitRange, chart_choice)
+
+  # Pre-allocate
+  p_hat = zeros(3)
+  rls = zeros(Int, length(reps_range))
+  p_array_mean = mean(p_array, dims=1)
+  range_index = axes(p_array, 1)
+  p_ewma = p_array_mean # will be dimension 1 x 3 x 'size(p_array, 3)'
+
+  # Loop over repetitions
+  for r in 1:length(reps_range)
+    p_ewma .= p_array_mean
+    bp_stat = 0.0
+    rl = 0
+
+    while bp_stat < cl # (bp_stat - bp_stat0) < cl
+      rl += 1
+
+      # sample from p_vec
+      index = rand(range_index)
+
+      for i in 1:size(p_array, 3)
+
+        p_hat[1] = p_array[index, 1, i]
+        p_hat[2] = p_array[index, 2, i]
+        p_hat[3] = p_array[index, 3, i]
+
+        # Apply EWMA
+        @views p_ewma[1, 1:3, i] .= (1 - lam) .* p_ewma[1, 1:3, i] .+ lam .* p_hat
+
+        # Compute test statistic
+        @views stat = chart_stat_sop(p_ewma[1, :, i], chart_choice)
+        bp_stat += stat^2
+
+      end
+
+    end
+
+    rls[r] = rl
+  end
+  return rls
+end
