@@ -83,7 +83,7 @@ function rl_sacf_bp(
   set_1 = Iterators.product(1:w, 0:w)
   set_2 = Iterators.product(-w:0, 1:w)
   h1_h2_combinations = Iterators.flatten(Iterators.zip(set_1, set_2))
-  rho_hat_all = Vector{Float64}(undef, length(h1_h2_combinations))
+  rho_hat_all = zeros(length(h1_h2_combinations))
 
   for r in axes(p_reps, 1)
 
@@ -103,7 +103,7 @@ function rl_sacf_bp(
       # compute BP-statistic using all h1-h2 combinations
       for (i, (h1, h2)) in enumerate(h1_h2_combinations)
 
-        @views rho_hat_all[i] = (1 - lam) * rho_hat_all[i] + lam * sacf(X_centered, h1, h2)
+        rho_hat_all[i] = (1 - lam) * rho_hat_all[i] + lam * sacf(X_centered, h1, h2)
         bp_stat += 2 * rho_hat_all[i]^2
 
       end
@@ -215,7 +215,7 @@ function rl_sacf_bp(
   set_1 = Iterators.product(1:w, 0:w)
   set_2 = Iterators.product(-w:0, 1:w)
   h1_h2_combinations = Iterators.flatten(Iterators.zip(set_1, set_2))
-  rho_hat_all = Vector{Float64}(undef, length(h1_h2_combinations))
+  rho_hat_all = zeros(length(h1_h2_combinations))
 
   # pre-allocate
   # mat:    matrix for the final values of the spatial DGP
@@ -250,7 +250,7 @@ function rl_sacf_bp(
   # Loop over repetitions
   for r in axes(p_reps, 1)
 
-    # Re-initialize matrix 
+    # Initialize 'mat' 
     if spatial_dgp in (SAR1, SQMA11, SQINMA11, SQMA22, BSQMA11)
       # 'mat' will not be overwritten for SAR1
       # 'mat' does not need to be initialized for XSQMAXX processes
@@ -284,7 +284,7 @@ function rl_sacf_bp(
       for (i, (h1, h2)) in enumerate(h1_h2_combinations)
 
         # compute ρ(d1,d2)-EWMA
-        @views rho_hat_all[i] = (1 - lam) * rho_hat_all[i] + lam * sacf(X_centered, h1, h2)
+        rho_hat_all[i] = (1 - lam) * rho_hat_all[i] + lam * sacf(X_centered, h1, h2)
         bp_stat += 2 * rho_hat_all[i]^2
 
       end
