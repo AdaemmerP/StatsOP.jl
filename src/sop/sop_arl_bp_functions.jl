@@ -48,7 +48,7 @@ function rl_sop_bp(
   s_2 = index_sop[2]
   s_3 = index_sop[3]
 
-  for r in reps_range
+  for r in axes(reps_range, 1)
 
     fill!(p_ewma_all, 1 / 3)
     bp_stat = 0.0

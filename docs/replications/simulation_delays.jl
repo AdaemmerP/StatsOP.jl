@@ -46,7 +46,7 @@ for (i, MN) in enumerate(MN_vec)
     end
 end
 
-# Compute Bp-statistics
+# Compute SACF-BP-statistics
 for (i, MN) in enumerate(MN_vec)
 
     M = MN[1]
@@ -77,10 +77,10 @@ for (i, MN) in enumerate(MN_vec)
     for (j, d1d2) in enumerate(d1d2_vec)
         d1 = d1d2[1]
         d2 = d1d2[2]
-        crit_init = map(i -> stat_sop_bp(randn(M, N, 370), 0.1, d1, d2) |> last, 1:1_000) |> x -> quantile(x, 0.99)
+        crit_init = map(i -> stat_sop(randn(M, N, 370), 0.1, d1, d2) |> last, 1:1_000) |> x -> quantile(x, 0.99)
         println("M = $M, N = $N, d1 = $d1, d2 = $d2")
         #println("Initial limit: $crit_init")
-        cl = cl_sop_bp(sp_dgp, lam, L0, crit_init, d1, d2, reps; jmin=jmin, jmax=jmax, verbose=true)
+        cl = cl_sop(sp_dgp, lam, L0, crit_init, d1, d2, reps; jmin=jmin, jmax=jmax, verbose=true)
         cl_sop_mat[i, j] = cl
     end
 end
@@ -99,17 +99,23 @@ end
 
 # --- Save matrix to JLD2 file
 jldsave("cl_sop_delays.jld2"; cl_sop_mat)
+jldsave("cl_sop_bp_delays.jld2"; cl_sop_mat_bp)
 
 
 # ----------------------------------------------------------------------#
 # --------    Computation of ARLs for IC processes          ------------#
 # ----------------------------------------------------------------------#
 dist = [TDist(2), Exponential(1)]
-arl_sac_mat = zeros(length(MN_vec), length(d1d2_vec), length(dist))
-arl_sop_mat = similar(arl_sac_mat)
-sd_sac_mat = similar(arl_sac_mat)
-sd_sop_mat = similar(arl_sac_mat)
+arl_sacf_mat = zeros(length(MN_vec), length(d1d2_vec), length(dist))
+sd_sacf_mat = similar(arl_sacf_mat)
 
+arl_sacf_bp_mat = zeros(length(MN_vec), length(dist))
+sd_sacf_bp_mat = similar(arl_sacf_bp_mat)
+
+arl_sop_mat = similar(arl_sacf_mat)
+sd_sop_mat = similar(sd_sacf_mat)
+
+# For Loop for one d1-d2 pair
 for (k, dist) in enumerate(dist)
     for (i, MN) in enumerate(MN_vec)
         M = MN[1]
@@ -119,11 +125,13 @@ for (k, dist) in enumerate(dist)
         for (j, d1d2) in enumerate(d1d2_vec)
             d1 = d1d2[1]
             d2 = d1d2[2]
-            # Compute and save for SACF
-            sacf_arl_sd = arl_sacf(sp_dgp, lam, cl_sacf_mat[i, j], d1, d2, reps)
-            arl_sac_mat[i, j, k] = sacf_arl_sd[1]
-            sd_sac_mat[i, j, k] = sacf_arl_sd[2]
-            # Compute and save for SOP
+
+            # Compute SACF for one d1-d2 pair
+            sacf_arl = arl_sacf(sp_dgp, lam, cl_sacf_mat[i, j], d1, d2, reps)
+            arl_sacf_mat[i, j, k] = sacf_arl[1]
+            sd_sacf_mat[i, j, k] = sacf_arl[2]
+
+            # Compute SACF-BP for one d1-d2 pair
             sop_arl_sd = arl_sop(sp_dgp, lam, cl_sop_mat[i, j], d1, d2, reps; chart_choice=3)
             arl_sop_mat[i, j, k] = sop_arl_sd[1]
             sd_sop_mat[i, j, k] = sop_arl_sd[2]
@@ -131,6 +139,9 @@ for (k, dist) in enumerate(dist)
         end
     end
 end
+
+# Loop for BP-statistic
+# ...
 
 # --- Save matrices to JLD2 file
 jldsave("arl_sac_delays.jld2"; arl_sac_mat)
