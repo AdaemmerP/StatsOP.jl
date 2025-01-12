@@ -71,7 +71,7 @@ end
 
 
 """
-    compute_p_mat(data::Array{Float64,3})
+    compute_p_array(data::Array{Float64,3})
 
 Compute the matrix of p-hat values for a given 3D array of data when the delays are vectors of integers. These values are used for bootstrapping to compute critcial limits for the BP-statistics. 
 """
@@ -82,7 +82,7 @@ function compute_p_array(data::Array{T,3}, w::Int; chart_choice=3) where {T<:Rea
   N_cols = size(data, 2)
   lookup_array_sop = compute_lookup_array_sop()
   d1_d2_combinations = Iterators.product(1:w, 1:w)
-  p_mat = zeros(size(data, 3), 3, length(d1_d2_combinations))
+  p_array = zeros(size(data, 3), 3, length(d1_d2_combinations))
   p_hat = zeros(1, 3)
   sop = zeros(4)
   sop_freq = zeros(Int, 24)
@@ -109,7 +109,7 @@ function compute_p_array(data::Array{T,3}, w::Int; chart_choice=3) where {T<:Rea
       # Compute sum of frequencies for each group
       fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
 
-      p_mat[i, :, j] = p_hat
+      p_array[i, :, j] = p_hat
 
       # Reset win and sop_freq
       fill!(win, 0)
@@ -119,7 +119,7 @@ function compute_p_array(data::Array{T,3}, w::Int; chart_choice=3) where {T<:Rea
     end
   end
 
-  return p_mat
+  return p_array
 end
 
 # In-place function to sort vector with sops
