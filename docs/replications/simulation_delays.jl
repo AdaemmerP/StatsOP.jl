@@ -77,10 +77,10 @@ for (i, MN) in enumerate(MN_vec)
     for (j, d1d2) in enumerate(d1d2_vec)
         d1 = d1d2[1]
         d2 = d1d2[2]
-        crit_init = map(i -> stat_sop(randn(M, N, 370), 0.1, d1, d2) |> last, 1:1_000) |> x -> quantile(x, 0.99)
+        crit_init = map(i -> stat_sop_bp(randn(M, N, 370), 0.1, d1, d2) |> last, 1:1_000) |> x -> quantile(x, 0.99)
         println("M = $M, N = $N, d1 = $d1, d2 = $d2")
         #println("Initial limit: $crit_init")
-        cl = cl_sop(sp_dgp, lam, L0, crit_init, d1, d2, reps; jmin=jmin, jmax=jmax, verbose=true)
+        cl = cl_sop_bp(sp_dgp, lam, L0, crit_init, d1, d2, reps; jmin=jmin, jmax=jmax, verbose=true)
         cl_sop_mat[i, j] = cl
     end
 end
