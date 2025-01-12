@@ -343,7 +343,7 @@ The input parameters are:
 """
 
 function arl_sop_bp(
-  lam, cl, spatial_dgp::SpatialDGP, w::Int, reps=1_000; chart_choice=3
+  spatial_dgp::SpatialDGP, lam, cl, w::Int, reps=1_000; chart_choice=3
 )
 
   # Compute m and n
@@ -387,7 +387,7 @@ end
 
 
 """
-    arl_sop(lam, cl, p_array::Array{Float64,3}, reps=10_000; chart_choice=3)
+    arl_sop( p_array::Array{Float64,3}, lam, cl, reps=10_000; chart_choice=3)
 
 Compute the average run length for the BP-EWMA-SOP for a given control limit 
   using bootstraping instead of a theoretical in-control distribution.
@@ -435,7 +435,7 @@ end
 
 
 """
-    rl_sop(lam, cl, reps_range, chart_choice, p_array::Array{Float64,3})
+    rl_sop(p_array::Array{Float64,3}, lam, cl, reps_range, chart_choice, )
 
 Compute the EWMA-BP-SOP run length for a given control limit using bootstraping instead 
 of a theoretical in-control distribution.
@@ -490,7 +490,7 @@ function rl_sop(p_array::Array{Float64, 3}, lam, cl, reps_range::UnitRange, char
     end
 
     rls[r] = rl
-    
+
   end
   return rls
 end
