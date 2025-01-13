@@ -50,7 +50,7 @@ function rl_sop_bp(
 
   for r in axes(reps_range, 1)
 
-    fill!(p_ewma_all, 1 / 3)
+    fill!(p_ewma_all, 1 / 3)    
     bp_stat = 0.0
     rl = 0
 
@@ -69,9 +69,10 @@ function rl_sop_bp(
         end
       end
 
-      # -------------------------------------------------#
-      # -----------     Loop for BP-Statistik         ---#
-      # -------------------------------------------------#
+      # -----------------------------------------------------------------------#
+      # ----------------     Loop for BP-Statistik                     --------#
+      # -----------------------------------------------------------------------#
+      bp_stat = 0.0 # Initialize BP-sum
       for (i, (d1, d2)) in enumerate(d1_d2_combinations)
 
         m = spatial_dgp.M_rows - d1
@@ -84,7 +85,7 @@ function rl_sop_bp(
         fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
 
         # Apply EWMA to p-vectors
-        @views p_ewma_all[:, :, i] .= (1 - lam) .* p_ewma_all[:, :, i] .+ lam .* p_hat
+        @views @. p_ewma_all[:, :, i] = (1 - lam) * p_ewma_all[:, :, i] + lam * p_hat
 
         # Compute test statistic for one d1-d2 combination
         @views stat = chart_stat_sop(p_ewma_all[:, :, i], chart_choice)
@@ -283,9 +284,10 @@ function rl_sop_bp(
         end
       end
 
-      # -------------------------------------------------------------------------------#
-      # ----------------     Loop for BP-Statistik                     ----------------#
-      # -------------------------------------------------------------------------------#
+      # -----------------------------------------------------------------------#
+      # ----------------     Loop for BP-Statistik                     --------#
+      # -----------------------------------------------------------------------#
+      bp_stat = 0.0 # Initialize BP-sum
       for (i, (d1, d2)) in enumerate(d1_d2_combinations)
 
         # Determine row and column of SOP matrix
@@ -299,7 +301,7 @@ function rl_sop_bp(
         fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
 
         # Apply EWMA
-        @views p_ewma_all[:, :, i] .= (1 - lam) .* p_ewma_all[:, :, i] .+ lam .* p_hat
+        @views @. p_ewma_all[:, :, i] = (1 - lam) * p_ewma_all[:, :, i] + lam * p_hat
 
         # Compute test statistic for one d1-d2 combination
         @views stat = chart_stat_sop(p_ewma_all[:, :, i], chart_choice)
