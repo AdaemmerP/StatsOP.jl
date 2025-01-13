@@ -151,7 +151,7 @@ function rl_sacf(
   X_centered = similar(data)
   rls = zeros(Int, length(p_reps))
 
-  # pre-allocate mat, mat_ao and mat_ma
+  # pre-allocate
   # mat:    matrix for the final values of the spatial DGP
   # mat_ao: matrix for additive outlier 
   # mat_ma: matrix for moving averages
@@ -162,11 +162,13 @@ function rl_sacf(
     mat_ao = zeros((M + 2 * spatial_dgp.margin), (N + 2 * spatial_dgp.margin))
     vec_ar = zeros((M + 2 * spatial_dgp.margin) * (N + 2 * spatial_dgp.margin))
     vec_ar2 = similar(vec_ar)
-    mat2 = similar(mat_ao)    
+    mat2 = similar(mat_ao)
   elseif typeof(spatial_dgp) ∈ (SAR11, SINAR11, SAR22)
     mat = zeros(M + spatial_dgp.prerun, N + spatial_dgp.prerun)
     mat_ma = similar(mat)
     mat_ao = similar(mat)
+    # Function to initialize matrix only for SAR(1,1) and SINAR(1,1) and SAR(2,2) 
+    init_mat!(spatial_dgp, dist_error, mat) 
   elseif typeof(spatial_dgp) ∈ (SQMA11, SQINMA11)
     mat = zeros(M + 1, N + 1)
     mat_ma = similar(mat)
@@ -177,20 +179,11 @@ function rl_sacf(
     mat_ao = similar(mat)
   elseif typeof(spatial_dgp) isa BSQMA11
     mat = zeros(M + 1, N + 1)
-    mat_ma = zeros(M + 2, N + 2) # add one extra row and column for "forward looking" BSQMA11
+    mat_ma = zeros(M + 2, N + 2) # one extra row and column for "forward looking"
     mat_ao = similar(mat)
   end
 
   for r in axes(p_reps, 1)
-
-    # Re-initialize matrix 
-    if spatial_dgp in (SAR1, SQMA11, SQINMA11, SQMA22, BSQMA11)
-      # 'mat' will not be overwritten for SAR1
-      # 'mat' does not need to be initialized for XSQMAXX processes
-    else
-      # fill!(mat, 0.0)
-      init_mat!(spatial_dgp, dist_error, mat)
-    end
 
     rho_hat = 0
     rl = 0

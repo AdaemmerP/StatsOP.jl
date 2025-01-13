@@ -50,7 +50,7 @@ function rl_sop_bp(
 
   for r in axes(reps_range, 1)
 
-    fill!(p_ewma_all, 1 / 3)    
+    fill!(p_ewma_all, 1 / 3)
     bp_stat = 0.0
     rl = 0
 
@@ -191,7 +191,7 @@ univariate distribution from the `Distributions.jl` package.
 - `d2_vec::Vector{Int}`: A vector with integer values for the second delay (d₂).
 """
 function rl_sop_bp(
-  spatial_dgp::SpatialDGP, lam, cl, w::Int, lookup_array_sop, p_reps::UnitRange, 
+  spatial_dgp::SpatialDGP, lam, cl, w::Int, lookup_array_sop, p_reps::UnitRange,
   dist_error::UnivariateDistribution, dist_ao::Union{Nothing,UnivariateDistribution}, chart_choice,
 )
 
@@ -233,6 +233,8 @@ function rl_sop_bp(
     mat = zeros(M + spatial_dgp.prerun, N + spatial_dgp.prerun)
     mat_ma = similar(mat)
     mat_ao = similar(mat)
+    # Function to initialize matrix only for SAR(1,1) and SINAR(1,1) and SAR(2,2) 
+    init_mat!(spatial_dgp, dist_error, mat)
   elseif typeof(spatial_dgp) ∈ (SQMA11, SQINMA11)
     mat = zeros(M + 1, N + 1)
     mat_ma = similar(mat)
@@ -252,14 +254,6 @@ function rl_sop_bp(
     fill!(p_ewma_all, 1 / 3)
     bp_stat = 0.0
     rl = 0
-
-    # Initialize 'mat' 
-    if spatial_dgp in (SAR1, SQMA11, SQINMA11, SQMA22, BSQMA11)
-      # 'mat' will not be overwritten for SAR1
-      # 'mat' does not need to be initialized for SQMA processes
-    else
-      init_mat!(spatial_dgp, dist_error, mat)
-    end
 
     while bp_stat < cl # BP-statistic can only be positive
       rl += 1
@@ -453,7 +447,7 @@ each d1-d2 (delay) combination. The first dimension (rows) is the picture, the s
 dimension refers to the patterns group (s₁, s₂, or s₃) and the third dimension denotes
 each d₁-d₂ combination. This array will be used for re-sampling.
 """
-function rl_sop(p_array::Array{Float64, 3}, lam, cl, reps_range::UnitRange, chart_choice)
+function rl_sop(p_array::Array{Float64,3}, lam, cl, reps_range::UnitRange, chart_choice)
 
   # Pre-allocate
   p_hat = zeros(3)
@@ -481,7 +475,7 @@ function rl_sop(p_array::Array{Float64, 3}, lam, cl, reps_range::UnitRange, char
       index = rand(range_index)
 
       # initialize sum
-      bp_stat = 0.0 
+      bp_stat = 0.0
       for i in axes(p_array, 3)
 
         @views p_hat .= p_array[index, :, i]
@@ -491,7 +485,7 @@ function rl_sop(p_array::Array{Float64, 3}, lam, cl, reps_range::UnitRange, char
 
         # Compute test statistic
         @views stat = chart_stat_sop(p_ewma[:, :, i], chart_choice)
-        bp_stat += (stat - stat_ic[i])^2  
+        bp_stat += (stat - stat_ic[i])^2
 
       end
 

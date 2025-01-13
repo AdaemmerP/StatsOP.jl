@@ -98,7 +98,7 @@ function rl_sacf_bp(
       rand!(dist_error, data)
 
       # Demean data for SACF
-      X_centered .= data .- mean(data)     
+      X_centered .= data .- mean(data)
 
       # compute BP-statistic using all h1-h2 combinations
       bp_stat = 0.0 # Initialize BP-sum
@@ -234,6 +234,8 @@ function rl_sacf_bp(
     mat = zeros(M + spatial_dgp.prerun, N + spatial_dgp.prerun)
     mat_ma = similar(mat)
     mat_ao = similar(mat)
+    # Function to initialize matrix only for SAR(1,1) and SINAR(1,1) and SAR(2,2) 
+    init_mat!(spatial_dgp, dist_error, mat) 
   elseif typeof(spatial_dgp) ∈ (SQMA11, SQINMA11)
     mat = zeros(M + 1, N + 1)
     mat_ma = similar(mat)
@@ -250,14 +252,6 @@ function rl_sacf_bp(
 
   # Loop over repetitions
   for r in axes(p_reps, 1)
-
-    # Initialize 'mat' 
-    if spatial_dgp in (SAR1, SQMA11, SQINMA11, SQMA22, BSQMA11)
-      # 'mat' will not be overwritten for SAR1
-      # 'mat' does not need to be initialized for XSQMAXX processes
-    else
-      init_mat!(spatial_dgp, dist_error, mat)
-    end
 
     fill!(rho_hat_all, 0.0)
     bp_stat = 0.0
