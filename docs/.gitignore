@@ -1,4 +1,6 @@
 site/
 .quarto/
 .jupyter_cache/
+.Manifest.toml
 _freeze/
+docs/Manifest.toml
