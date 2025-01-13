@@ -98,9 +98,10 @@ function rl_sacf_bp(
       rand!(dist_error, data)
 
       # Demean data for SACF
-      X_centered .= data .- mean(data)
+      X_centered .= data .- mean(data)     
 
       # compute BP-statistic using all h1-h2 combinations
+      bp_stat = 0.0 # Initialize BP-sum
       for (i, (h1, h2)) in enumerate(h1_h2_combinations)
 
         rho_hat_all[i] = (1 - lam) * rho_hat_all[i] + lam * sacf(X_centered, h1, h2)
@@ -281,6 +282,7 @@ function rl_sacf_bp(
       X_centered .= data .- mean(data)
 
       # Compute BP-statistic using all d1-d2 combinations
+      bp_stat = 0.0 # Initialize BP-sum
       for (i, (h1, h2)) in enumerate(h1_h2_combinations)
 
         # compute ρ(d1,d2)-EWMA

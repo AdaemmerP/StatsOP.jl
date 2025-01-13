@@ -52,13 +52,17 @@ function stat_sacf_bp(data::Array{T,3}, lam,  w::Int) where {T<:Real}
   X_centered = zeros(size(data[:, :, 1]))
   rho_hat_all = zeros(length(h1_h2_combinations))
   bp_stats = zeros(size(data, 3))
-  bp_stat = 0.0
 
   # compute sequential BP-statistic
   for i in axes(data, 3)
 
+    # Center the data
     X_centered .= view(data, :, :, i) .- mean(view(data, :, :, i))
 
+    # Initialize the BP-sum
+    bp_stat = 0.0
+
+    # Compute the BP-statistic
     for (j, (h1, h2)) in enumerate(h1_h2_combinations)
       rho_hat_all[j] = (1 - lam) * rho_hat_all[j] + lam * sacf(X_centered, h1, h2)
       bp_stat += 2 * rho_hat_all[j]^2
