@@ -46,9 +46,9 @@ for i in 1:3 # lambda loop
         println("lambda i: $i, chart j: $j")
         data = randn(10_000)
         if j == 1 || j == 2
-            cl_init = quantile(stat_op(data, lam[i], j)[1], 0.01)                
+            cl_init = quantile(stat_op(data, lam[i], chart_choice=j)[1], 0.01)             
         else
-            cl_init = quantile(stat_op(data, lam[i], j)[1], 0.99)
+            cl_init = quantile(stat_op(data, lam[i], chart_choice=j)[1], 0.99)
         end
         matcl_op[i, j] = cl_op(lam[i], L0, op_dgp, cl_init, reps; chart_choice=j, jmin=4, jmax=6, verbose=verbose, d=1, ced=false, ad=100)
                      

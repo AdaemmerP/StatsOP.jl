@@ -9,15 +9,15 @@ Multiple Dispatch for 'arl_sop()' and 'rl_sop()':
 ========================================================================#
 
 """
-    arl_sop(lam, cl, sop_dgp::ICSP, d1::Int, d2::Int, reps=10_000; chart_choice=3)
+    arl_sop(sop_dgp::ICSP, lam, cl, d1::Int, d2::Int, reps=10_000; chart_choice=3)
 
 Compute the average run length (ARL) for a given in-control spatial DGP. 
   
 The input parameters are:
 
+- `sop_dgp::ICSP`: A struct for the in-control spatial DGP.
 - `lam::Float64`: A scalar value for lambda for the EWMA chart.
 - `cl::Float64`: A scalar value for the control limit.
-- `sop_dgp::ICSP`: A struct for the in-control spatial DGP.
 - `d1::Int`: An integer value for the first delay (d₁).
 - `d2::Int`: An integer value for the second delay (d₂).
 - `reps::Int`: An integer value for the number of repetitions. The default value is 10,000.
@@ -84,7 +84,7 @@ univariate distribution from the `Distributions.jl` package.
 - `d2::Int`: An integer value for the second delay (d₂).
 """
 function rl_sop(
-  lam, cl, lookup_array_sop, reps_range::UnitRange, dist, chart_choice, m, n, d1::Int, d2::Int
+  lam, cl, lookup_array_sop, reps_range::UnitRange{Int}, dist, chart_choice, m, n, d1::Int, d2::Int
 )
 
   # Pre-allocate
@@ -98,8 +98,8 @@ function rl_sop(
 
   # indices for sum of frequencies
   index_sop = create_index_sop()
-  s_1 = index_sop[1] 
-  s_2 = index_sop[2] 
+  s_1 = index_sop[1]
+  s_2 = index_sop[2]
   s_3 = index_sop[3]
 
   for r in 1:length(reps_range)
@@ -173,7 +173,7 @@ function arl_sop(p_mat::Array{Float64,2}, lam, cl, reps=10_000)
 
     # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
     par_results = map(chunks) do i
-      Threads.@spawn rl_sop(lam, cl, i, chart_choice, p_mat)
+      Threads.@spawn rl_sop(p_mat, lam, cl, i, chart_choice)
     end
 
   elseif nprocs() > 1
@@ -182,7 +182,7 @@ function arl_sop(p_mat::Array{Float64,2}, lam, cl, reps=10_000)
     chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
 
     par_results = pmap(chunks) do i
-      rl_sop(lam, cl, i, chart_choice, p_mat)
+      rl_sop(p_mat, lam, cl, i, chart_choice)
     end
 
   end
@@ -210,7 +210,7 @@ This has to be a range to be compatible with `arl_sop()` which uses threading an
 - `p_mat::Array{Float64,2}`: A matrix with the values of the relative frequencies 
 of each d1-d2 (delay) combination. This matrix will be used for re-sampling.
 """
-function rl_sop(lam, cl, reps_range, chart_choice, p_mat::Array{Float64,2})
+function rl_sop(p_mat::Array{Float64,2}, lam, cl, reps_range::UnitRange{Int}, chart_choice)
 
   # Pre-allocate  
   p_hat = zeros(3)
@@ -257,16 +257,16 @@ end
 
 """
      arl_sop(
-  lam, cl, spatial_dgp::SpatialDGP, d1::Int, d2::Int, reps=10_000; chart_choice=3
+  spatial_dgp::SpatialDGP, lam, cl, d1::Int, d2::Int, reps=10_000; chart_choice=3
 )
 
 Compute the average run length (ARL) for a given out-of-control spatial DGP. 
   
 The input parameters are:
 
+- `spatial_dgp::SpatialDGP`: A struct for the out-of-control spatial DGP.
 - `lam::Float64`: A scalar value for lambda for the EWMA chart.
 - `cl::Float64`: A scalar value for the control limit.
-- `spatial_dgp::SpatialDGP`: A struct for the out-of-control spatial DGP.
 - `d1::Int`: An integer value for the first delay (d₁).
 - `d2::Int`: An integer value for the second delay (d₂).
 - `reps::Int`: An integer value for the number of repetitions. The default value is 10,000.
@@ -295,7 +295,7 @@ function arl_sop(
     par_results = map(chunks) do i
 
       Threads.@spawn rl_sop(
-        lam, cl, lookup_array_sop, i, spatial_dgp, dist_error, dist_ao, chart_choice,
+        spatial_dgp, lam, cl, lookup_array_sop, i, dist_error, dist_ao, chart_choice,
         m_rows, n_cols, d1, d2
       )
 
@@ -308,7 +308,7 @@ function arl_sop(
     par_results = pmap(chunks) do i
 
       rl_sop(
-        lam, cl, lookup_array_sop, i, spatial_dgp, dist_error, dist_ao, chart_choice,
+        spatial_dgp, lam, cl, lookup_array_sop, i, dist_error, dist_ao, chart_choice,
         m_rows, n_cols, d1, d2
       )
 
@@ -330,13 +330,13 @@ end
   )
 
 Computes the run length for a given out-of-control DGP. The input parameters are:
-  
+
+- `spatial_dgp::SpatialDGP`: A struct for the out-of-control spatial DGP.
 - `lam::Float64`: A scalar value for lambda for the EWMA chart.
 - `cl::Float64`: A scalar value for the control limit.
 - `lookup_array_sop::Array{Int, 4}`: A 4D array with the lookup array for the sops,
 which will be computed computed using `lookup_array_sop = compute_lookup_array_sop()`.
 - `p_reps::UnitRange{Int}`: A range of integers for the number of repetitions.
-- `spatial_dgp::SpatialDGP`: A struct for the out-of-control spatial DGP.
 - `dist_error::UnivariateDistribution`: A distribution for the error term. Here you can use any
 univariate distribution from the `Distributions.jl` package.
 - `dist_ao::Union{Nothing,UnivariateDistribution}`: A distribution for the additive outlier.
@@ -347,7 +347,7 @@ univariate distribution from the `Distributions.jl` package.
 - `d2::Int`: An integer value for the second delay (d₂).
 """
 function rl_sop(
-  lam, cl, lookup_array_sop, p_reps::UnitRange, spatial_dgp::SpatialDGP, dist_error::UnivariateDistribution,
+  spatial_dgp::SpatialDGP, lam, cl, lookup_array_sop, p_reps::UnitRange{Int}, dist_error::UnivariateDistribution,
   dist_ao::Union{Nothing,UnivariateDistribution}, chart_choice, m, n, d1::Int, d2::Int
 )
 
@@ -364,8 +364,8 @@ function rl_sop(
 
   # indices for sum of frequencies
   index_sop = create_index_sop()
-  s_1 = index_sop[1] 
-  s_2 = index_sop[2] 
+  s_1 = index_sop[1]
+  s_2 = index_sop[2]
   s_3 = index_sop[3]
 
   # pre-allocate
@@ -385,7 +385,7 @@ function rl_sop(
     mat_ma = similar(mat)
     mat_ao = similar(mat)
     # Function to initialize matrix only for SAR(1,1) and SINAR(1,1) and SAR(2,2) 
-    init_mat!(spatial_dgp, dist_error, mat) 
+    init_mat!(spatial_dgp, dist_error, mat)
   elseif typeof(spatial_dgp) ∈ (SQMA11, SQINMA11)
     mat = zeros(M + 1, N + 1)
     mat_ma = similar(mat)

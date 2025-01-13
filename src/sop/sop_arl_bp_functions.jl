@@ -1,7 +1,7 @@
 
 """
     rl_sop_bp(
-  lam, cl, lookup_array_sop, spatial_dgp::ICSP, reps_range, dist, chart_choice, 
+  spatial_dgp::ICSP, lam, cl, lookup_array_sop, reps_range, dist, chart_choice, 
   d1_vec::Vector{Int}, d2_vec::Vector{Int}
 )
 
@@ -9,11 +9,11 @@ Computes the run length for a given in-control spatial DGP, using the EWMA-BP-SO
 
 The input parameters are:
 
+- `spatial_dgp::ICSP`: A struct for the in-control spatial DGP.
 - `lam::Float64`: A scalar value for lambda for the EWMA chart.
 - `cl::Float64`: A scalar value for the control limit.
 - `lookup_array_sop::Array{Int, 4}`: A 4D array with the lookup array for the sops,
 which will be computed computed using `lookup_array_sop = compute_lookup_array_sop()`.
-- `spatial_dgp::ICSP`: A struct for the in-control spatial DGP.
 - `reps_range::UnitRange{Int}`: A range of integers for the number of repetitions.
 - `dist::Distribution`: A distribution for the error term. Here you can use any
 univariate distribution from the `Distributions.jl` package.
@@ -109,7 +109,7 @@ end
 
 """
     arl_sop(
-  lam, cl, spatial_dgp::ICSP, d1_vec::Vector{Int}, d2_vec::Vector{Int}, reps=10_000; chart_choice=3
+  spatial_dgp::ICSP, lam, cl, w::Int, reps=10_000; chart_choice=3
 )
 
 Computes the average run length (ARL) for a given in-control spatial DGP, using 
@@ -117,11 +117,10 @@ EWMA-BP-SOP statistics.
 
 The input parameters are:
 
+- `spatial_dgp::ICSP`: A struct for the in-control spatial DGP.
 - `lam::Float64`: A scalar value for lambda for the EWMA chart.
 - `cl::Float64`: A scalar value for the control limit.
-- `spatial_dgp::ICSP`: A struct for the in-control spatial DGP.
-- `d1_vec::Vector{Int}`: A vector with integer values for the first delay (d₁).
-- `d2_vec::Vector{Int}`: A vector with integer values for the second delay (d₂).
+- `w::Int`: An integer value for the window size for the BP-statistic.
 - `reps::Int`: An integer value for the number of repetitions. The default value is 10,000.
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 """
@@ -169,8 +168,8 @@ end
 
 """
     rl_sop_bp(
-  lam, cl, lookup_array_sop, p_reps, spatial_dgp::SpatialDGP, dist_error::UnivariateDistribution,
-  dist_ao::Union{Nothing,UnivariateDistribution}, chart_choice, d1_vec::Vector{Int}, d2_vec::Vector{Int}
+  spatial_dgp::SpatialDGP, lam, cl, w::Int, lookup_array_sop, p_reps, dist_error::UnivariateDistribution,
+  dist_ao::Union{Nothing,UnivariateDistribution}, chart_choice 
 )
 
 Computes the run length for a given out-of-control DGP, using the EWMA-BP-SOP statistic.
@@ -179,6 +178,7 @@ The input parameters are:
 
 - `lam::Float64`: A scalar value for lambda for the EWMA chart.
 - `cl::Float64`: A scalar value for the control limit.
+- `w::Int`: An integer value for the window size for the BP-statistic.
 - `lookup_array_sop::Array{Int, 4}`: A 4D array with the lookup array for the sops,
 which will be computed computed using `lookup_array_sop = compute_lookup_array_sop()`.
 - `p_reps::UnitRange{Int}`: A range of integers for the number of repetitions.
@@ -187,8 +187,6 @@ which will be computed computed using `lookup_array_sop = compute_lookup_array_s
 univariate distribution from the `Distributions.jl` package.
 - `dist_ao::Union{Nothing,UnivariateDistribution}`: A distribution for the additive outlier.
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
-- `d1_vec::Vector{Int}`: A vector with integer values for the first delay (d₁).
-- `d2_vec::Vector{Int}`: A vector with integer values for the second delay (d₂).
 """
 function rl_sop_bp(
   spatial_dgp::SpatialDGP, lam, cl, w::Int, lookup_array_sop, p_reps::UnitRange,
@@ -321,7 +319,7 @@ end
 
 """
   arl_sop_bp(
-  lam, cl, spatial_dgp::SpatialDGP, d1_vec::Vector{Int}, d2_vec::Vector{Int}, reps=10_000; chart_choice=3
+  spatial_dgp::SpatialDGP, lam, cl, w::Int, reps=10_000; chart_choice=3
 )
 
 Compute the average run length (ARL) for a given out-of-control spatial DGP, using 
@@ -332,8 +330,7 @@ The input parameters are:
 - `lam::Float64`: A scalar value for lambda for the EWMA chart.
 - `cl::Float64`: A scalar value for the control limit.
 - `spatial_dgp::SpatialDGP`: A struct for the out-of-control spatial DGP.
-- `d1_vec::Vector{Int}`: A vector with integer values for the first delay (d₁).
-- `d2_vec::Vector{Int}`: A vector with integer values for the second delay (d₂).
+- `w::Int`: An integer value for the window size for the BP-statistic.
 - `reps::Int`: An integer value for the number of repetitions. The default value is 10,000.
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 """
@@ -390,12 +387,12 @@ Compute the average run length for the BP-EWMA-SOP for a given control limit
 
 The input parameters are:
 
-- `lam::Float64`: A scalar value for lambda for the EWMA chart.
-- `cl::Float64`: A scalar value for the control limit.
 - `p_array::Array{Float64, 3}`: A 3D array with the with the relative frequencies 
 of each d1-d2 (delay) combination. The first dimension (rows) is the picture, the 
 second dimension refers to the patterns group (s₁, s₂, or s₃) and the third dimension 
 denotes each d₁-d₂ combination. This matrix will be used for re-sampling.
+- `lam::Float64`: A scalar value for lambda for the EWMA chart.
+- `cl::Float64`: A scalar value for the control limit.
 - `reps::Int`: An integer value for the number of repetitions.
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 """
@@ -438,14 +435,14 @@ of a theoretical in-control distribution.
 
 The input parameters are:
 
-- `lam::Float64`: A scalar value for lambda for the EWMA chart.
-- `cl::Float64`: A scalar value for the control limit.
-- `reps_range::UnitRange{Int}`: A range of integers for the number of repetitions.
-- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 - `p_array::Array{Float64,3}`: A 3D array with the with the relative frequencies for 
 each d1-d2 (delay) combination. The first dimension (rows) is the picture, the second
 dimension refers to the patterns group (s₁, s₂, or s₃) and the third dimension denotes
 each d₁-d₂ combination. This array will be used for re-sampling.
+- `lam::Float64`: A scalar value for lambda for the EWMA chart.
+- `cl::Float64`: A scalar value for the control limit.
+- `reps_range::UnitRange{Int}`: A range of integers for the number of repetitions.
+- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 """
 function rl_sop(p_array::Array{Float64,3}, lam, cl, reps_range::UnitRange, chart_choice)
 

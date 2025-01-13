@@ -27,8 +27,6 @@ export order_vec!,
 export rl_sop, 
        arl_sop,
        arl_sop_bp,
-       rl_sop,
-       rl_sop_bp,
        cl_sop,
        cl_sop_bp,
        stat_sop,
@@ -43,8 +41,6 @@ export rl_sop,
 export rl_sacf,
        arl_sacf,
        arl_sacf_bp,
-       rl_sacf,
-       rl_sacf_bp,
        stat_sacf,
        stat_sacf_bp,
        sacf,
@@ -93,6 +89,8 @@ export IC,
 # OP functions to export
 export rl_op,
        arl_op,
+       stat_op,
+       cl_op,
        count_uv_op,
        count_mv_op,
        dependence_op,
@@ -103,6 +101,9 @@ include("op/op_dgp_structs.jl")
 include("op/op_arl_functions.jl")
 include("op/op_dependence.jl")
 include("op/op_help_functions.jl")
+include("op/op_stat_functions.jl")
+include("op/op_test_functions.jl")
+include("op/op_dgp_functions.jl")
 
 # Include files for ACFs 
 include("acf/op_acf_functions.jl")
