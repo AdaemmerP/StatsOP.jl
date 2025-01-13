@@ -283,9 +283,9 @@ function fill_mat_dgp_sop!(
   # Fill
   for t2 in 2:size(mat, 2)
     for t1 in 2:size(mat, 1)
-      mat[t1, t2] = rand(Binomial(round(mat[t1-1, t2]), α₁)) +
-                    rand(Binomial(round(mat[t1, t2-1]), α₂)) +
-                    rand(Binomial(round(mat[t1-1, t2-1]), α₃)) +
+      mat[t1, t2] = rand(Binomial(mat[t1-1, t2], α₁)) +
+                    rand(Binomial(mat[t1, t2-1], α₂)) +
+                    rand(Binomial(mat[t1-1, t2-1], α₃)) +
                     rand(dist_error)
     end
   end
@@ -309,9 +309,9 @@ function fill_mat_dgp_sop!(
   # Fill
   for t2 in 2:size(mat, 2)
     for t1 in 2:size(mat, 1)
-      mat[t1, t2] = rand(Binomial(round(mat[t1-1, t2]), α₁)) +
-                    rand(Binomial(round(mat[t1, t2-1]), α₂)) +
-                    rand(Binomial(round(mat[t1-1, t2-1]), α₃)) +
+      mat[t1, t2] = rand(Binomial(mat[t1-1, t2], α₁)) +
+                    rand(Binomial(mat[t1, t2-1], α₂)) +
+                    rand(Binomial(mat[t1-1, t2-1], α₃)) +
                     rand(dist_error)
     end
   end
