@@ -15,6 +15,7 @@ eval: false
 # Load packages
 using OrdinalPatterns
 using LinearAlgebra
+using Cthulhu
 BLAS.set_num_threads(1); # Set BLAS threads to 1 when using multithreading
 
 # Parameters
@@ -48,32 +49,28 @@ sop_dgp = ICSP(
 # Limits SOPs
 L0 = 370
 cl_init = 0.01
-cl_sop(sop_dgp, 0.1, L0, cl_init, 1, 1, 1000; chart_choice=1, jmin=4, jmax=6, verbose=true)
+cl_sop(sop_dgp, 0.1, L0, cl_init, 1, 1, 10_000; chart_choice=1, jmin=4, jmax=7, verbose=true)
 
 # Verify ARL
 lam = 0.1
 cl = 0.03049
-arl_sop(lam, cl, sop_dgp, 1, 1, reps; chart_choice=1)
-
-# Limits SACFs
-cl_sacf(lam, L0, sop_dgp, cl_init, 1, 1, reps; jmin=4, jmax=6, verbose=true)
+arl_sop(sop_dgp, lam, cl, 1, 1, 10_000; chart_choice=1)
 ```
 
 ## Table A.1
 
 ```{julia}
 MN_vec = [(11, 11), (16, 16), (26, 26), (41, 26)];
-```
-
-```{julia}
-results_mat = zeros(4 * 4, 5)
 dgp_vals = [
     (0.1, 0.1, 0.1);
     (0.2, 0.2, 0.2);
     (0.2, 0.2, 0.5);
     (0.4, 0.3, 0.1)
 ]
+results_mat = zeros(4 * 4, 5)
+```
 
+```{julia}
 i = 1
 for alphas in dgp_vals
     for (j, mn_tup) in enumerate(MN_vec)
@@ -107,8 +104,8 @@ for alphas in dgp_vals
             cl_sop = ic_sop[j, chart]
             cl_sacf = ic_sacf_count[j]
             sop_dgp = SINAR11(alphas, M, N, Poisson(5), nothing, 100)
-            res_sop = arl_sop(lam, cl_sop, sop_dgp, 1, 1, reps; chart_choice=chart)
-            res_sacf = arl_sacf(lam, cl_sacf, sop_dgp, 1, 1, reps)
+            res_sop = arl_sop(sop_dgp, lam, cl_sop, 1, 1, reps; chart_choice=chart)
+            res_sacf = arl_sacf(sop_dgp, lam, cl_sacf, 1, 1, reps)
             results_mat[i, chart] = res_sop[1]
             results_mat[i, 5] = res_sacf[1]
         end
@@ -118,6 +115,11 @@ for alphas in dgp_vals
 end
 round.(results_mat, digits=2)
 
+spatial_dgp = SAR11((0.1, 0.1, 0.1), 11, 11, Normal(0,1), nothing, 100)
+@descend rl_sacf(
+  spatial_dgp, 0.1, 0.05305, 1, 1, 1:10, 
+  Poisson(5), nothing
+)
 ```
 
 ## Try BP-Statistic

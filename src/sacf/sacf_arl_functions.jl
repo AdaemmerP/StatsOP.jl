@@ -140,7 +140,7 @@ the SACF function. This can be one of the following: `SAR1`, `SAR11`, `SAR22`,
   `SINAR11`, `SQMA11`, `SQINMA11`, or `BSQMA11`.
 """
 function rl_sacf(
-  spatial_dgp::SpatialDGP, lam, cl, d1::Int, d2::Int, p_reps::UnitRange, 
+  spatial_dgp::SpatialDGP, lam, cl, d1::Int, d2::Int, p_reps::UnitRange{Int}, 
   dist_error::UnivariateDistribution, dist_ao::Union{UnivariateDistribution,Nothing}
 )
 
@@ -185,7 +185,7 @@ function rl_sacf(
 
   for r in axes(p_reps, 1)
 
-    rho_hat = 0
+    rho_hat = 0.0
     rl = 0
 
     while abs(rho_hat) < cl
