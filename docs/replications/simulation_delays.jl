@@ -1,6 +1,7 @@
 using OrdinalPatterns
 using Distributed
 using JLD2
+using LinearAlgebra
 
 # Add number of cores
 # addprocs(10)
