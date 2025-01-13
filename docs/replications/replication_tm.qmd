@@ -363,3 +363,12 @@ stat_sop(data; chart_choice=1)
 data = rand(100, 100, 200)
 stat_sop(0.1, data; chart_choice=1, add_noise=false)
 ```
+
+
+```{julia}
+@btime rand(Normal(0, 1));
+@btime rand(TDist(5));
+
+@btime rand(Binomial(10, 0.5));
+@btime rand(Poisson(5));
+```

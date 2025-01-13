@@ -41,7 +41,7 @@ Compute the EWMA-BP-spatial autocorrelation function (EWMA-BP-SACF) for multiple
 - `d1_vec::Vector{Int}`: The vector of first (row) delays for the spatial process.
 - `d2_vec::Vector{Int}`: The vector of second (column) delays for the spatial process.
 """
-function stat_sacf_bp(data::Array{T,3}, lam,  w::Int) where {T<:Real}
+function stat_sacf_bp(data::Array{T,3}, lam, w::Int) where {T<:Real}
 
   # Compute all relevant h1-h2 combinations
   set_1 = Iterators.product(1:w, 0:w)
@@ -59,10 +59,10 @@ function stat_sacf_bp(data::Array{T,3}, lam,  w::Int) where {T<:Real}
     # Center the data
     X_centered .= view(data, :, :, i) .- mean(view(data, :, :, i))
 
-    # Initialize the BP-sum
-    bp_stat = 0.0
 
-    # Compute the BP-statistic
+
+    # Compute the BP-statistic       
+    bp_stat = 0.0  # Initialize BP-sum
     for (j, (h1, h2)) in enumerate(h1_h2_combinations)
       rho_hat_all[j] = (1 - lam) * rho_hat_all[j] + lam * sacf(X_centered, h1, h2)
       bp_stat += 2 * rho_hat_all[j]^2

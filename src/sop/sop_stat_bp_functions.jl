@@ -67,7 +67,6 @@ function stat_sop_bp(
   d1_d2_combinations = Iterators.product(1:w, 1:w)
   p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
   p_ewma_all .= 1.0 / 3.0
-  bp_stat = 0.0
   bp_stats_all = zeros(size(data, 3))
 
   sop_freq = zeros(Int, 24) # factorial(4)
@@ -94,6 +93,7 @@ function stat_sop_bp(
     # -------------------------------------------------------------------------#
     # ----------------     Loop for BP-Statistik                     ----------#
     # -------------------------------------------------------------------------#
+    bp_stat = 0.0 # Initialize BP-sum
     for (j, (d1, d2)) in enumerate(d1_d2_combinations)
 
       m = M_rows - d1
