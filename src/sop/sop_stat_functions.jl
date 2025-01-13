@@ -47,7 +47,7 @@ stat_sop(data, 2)
 ```
 """
 function stat_sop(
-  data::Union{SubArray,Array{T,2}}, d1::Int=1, d2::Int=1;
+  data::Union{SubArray,Array{T,2}}, d1::Int, d2::Int;
   chart_choice=3, add_noise::Bool=false
 ) where {T<:Real}
 
@@ -108,7 +108,7 @@ stat_sop(data, false, lam, chart_choice)
 ```
 """
 function stat_sop(
-  data::Array{T,3}, lam, d1::Int=1, d2::Int=1; chart_choice=3, add_noise::Bool=false
+  data::Array{T,3}, lam, d1::Int, d2::Int; chart_choice=3, add_noise::Bool=false
 ) where {T<:Real}
 
   # Compute lookup cube
