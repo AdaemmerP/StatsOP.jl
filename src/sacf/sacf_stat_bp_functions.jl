@@ -59,8 +59,6 @@ function stat_sacf_bp(data::Array{T,3}, lam, w::Int) where {T<:Real}
     # Center the data
     X_centered .= view(data, :, :, i) .- mean(view(data, :, :, i))
 
-
-
     # Compute the BP-statistic       
     bp_stat = 0.0  # Initialize BP-sum
     for (j, (h1, h2)) in enumerate(h1_h2_combinations)
