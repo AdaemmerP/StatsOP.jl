@@ -482,11 +482,7 @@ function rl_sop_bp(p_array::Array{Float64,3}, lam, cl, reps_range::UnitRange, ch
 
         # Compute test statistic
         @views stat = chart_stat_sop(p_ewma[:, :, i], chart_choice)
-        bp_stat += (stat - stat_ic[i])^2
-        
-        if rl > 1e6 # break if it takes too long
-          break
-        end
+        bp_stat += (stat - stat_ic[i])^2        
 
       end
 

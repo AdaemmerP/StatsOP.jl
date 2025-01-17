@@ -54,8 +54,10 @@ end
 
 # Compute "SOP-EWMA-BP-Statstic" based on sequential images
 function stat_sop_bp(
-  data::Array{T,3}, lam, w::Int;
-  chart_choice=3, add_noise=false, 
+  data::Array{T,3}, 
+  lam, w::Int;
+  chart_choice=3, 
+  add_noise=false, 
 ) where {T<:Real}
 
   # Compute 4 dimensional cube to lookup sops
