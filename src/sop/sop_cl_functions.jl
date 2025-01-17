@@ -202,3 +202,33 @@ function cl_sop_bp(
   return cl_init
 
 end
+
+
+function cl_sop_bp(
+  p_array::Array{T, 3}, lam, L0, cl_init, w, reps=10_000;
+  chart_choice=3, jmin=4, jmax=6, verbose=false
+) where {T<:Real}
+
+  L1 = 0.0
+  for j in jmin:jmax
+    for dh in 1:80
+      cl_init = cl_init + (-1)^j * dh / 10^j
+      L1 = arl_sop_bp(
+        p_array, lam, cl_init, reps; chart_choice=3
+      )[1]      
+      if verbose
+        println("cl = ", cl_init, "\t", "ARL = ", L1)
+      end
+      if (j % 2 == 1 && L1 < L0) || (j % 2 == 0 && L1 > L0)
+        break
+      end
+    end
+    cl_init = cl_init
+  end
+
+  if L1 < L0
+    cl_init = cl_init + 1 / 10^jmax
+  end
+  return cl_init
+
+end

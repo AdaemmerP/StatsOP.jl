@@ -396,7 +396,7 @@ denotes each d₁-d₂ combination. This matrix will be used for re-sampling.
 - `reps::Int`: An integer value for the number of repetitions.
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 """
-function arl_sop(p_array::Array{Float64,3}, lam, cl, reps=10_000; chart_choice=3)
+function arl_sop_bp(p_array::Array{Float64,3}, lam, cl, reps=10_000; chart_choice=3)
 
   # Check whether to use threading or multi processing --> only one process threading, else distributed
   if nprocs() == 1
@@ -406,7 +406,7 @@ function arl_sop(p_array::Array{Float64,3}, lam, cl, reps=10_000; chart_choice=3
 
     # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
     par_results = map(chunks) do i
-      Threads.@spawn rl_sop(p_array, lam, cl, i, chart_choice)
+      Threads.@spawn rl_sop_bp(p_array, lam, cl, i, chart_choice)
     end
 
   elseif nprocs() > 1
@@ -415,7 +415,7 @@ function arl_sop(p_array::Array{Float64,3}, lam, cl, reps=10_000; chart_choice=3
     chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
 
     par_results = pmap(chunks) do i
-      rl_sop(p_array, lam, cl, i, chart_choice)
+      rl_sop_bp(p_array, lam, cl, i, chart_choice)
     end
 
   end
@@ -444,7 +444,7 @@ each d₁-d₂ combination. This array will be used for re-sampling.
 - `reps_range::UnitRange{Int}`: A range of integers for the number of repetitions.
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 """
-function rl_sop(p_array::Array{Float64,3}, lam, cl, reps_range::UnitRange, chart_choice)
+function rl_sop_bp(p_array::Array{Float64,3}, lam, cl, reps_range::UnitRange, chart_choice)
 
   # Pre-allocate
   p_hat = zeros(3)
@@ -483,6 +483,10 @@ function rl_sop(p_array::Array{Float64,3}, lam, cl, reps_range::UnitRange, chart
         # Compute test statistic
         @views stat = chart_stat_sop(p_ewma[:, :, i], chart_choice)
         bp_stat += (stat - stat_ic[i])^2
+        
+        if rl > 1e6 # break if it takes too long
+          break
+        end
 
       end
 
