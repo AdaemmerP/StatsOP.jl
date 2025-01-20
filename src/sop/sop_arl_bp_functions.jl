@@ -396,7 +396,11 @@ denotes each d₁-d₂ combination. This matrix will be used for re-sampling.
 - `reps::Int`: An integer value for the number of repetitions.
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 """
-function arl_sop_bp(p_array::Array{Float64,3}, lam, cl, reps=10_000; chart_choice=3)
+function arl_sop_bp(data::Array{Float64,3}, lam, cl, w, reps=10_000; chart_choice=3)
+
+  # Compute a 3D-array, which contains relative frequencies of p-hat values for 
+  # each pircture (rows) and d1-d2 combination (third dimension)
+  p_array = compute_p_array(data, w; chart_choice=chart_choice)
 
   # Check whether to use threading or multi processing --> only one process threading, else distributed
   if nprocs() == 1
@@ -482,7 +486,7 @@ function rl_sop_bp(p_array::Array{Float64,3}, lam, cl, reps_range::UnitRange, ch
 
         # Compute test statistic
         @views stat = chart_stat_sop(p_ewma[:, :, i], chart_choice)
-        bp_stat += (stat - stat_ic[i])^2        
+        bp_stat += (stat - stat_ic[i])^2
 
       end
 
