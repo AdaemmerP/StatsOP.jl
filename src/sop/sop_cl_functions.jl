@@ -205,7 +205,7 @@ end
 
 
 function cl_sop_bp(
-  p_array::Array{T, 3}, lam, L0, cl_init, w, reps=10_000;
+  data::Array{T, 3}, lam, L0, cl_init, w, reps;
   chart_choice=3, jmin=4, jmax=6, verbose=false
 ) where {T<:Real}
 
@@ -214,7 +214,7 @@ function cl_sop_bp(
     for dh in 1:80
       cl_init = cl_init + (-1)^j * dh / 10^j
       L1 = arl_sop_bp(
-        p_array, lam, cl_init, reps; chart_choice=3
+        data, lam, cl_init, w, reps; chart_choice=chart_choice
       )[1]      
       if verbose
         println("cl = ", cl_init, "\t", "ARL = ", L1)

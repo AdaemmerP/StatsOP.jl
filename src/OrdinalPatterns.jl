@@ -24,7 +24,8 @@ export order_vec!,
        sop_frequencies!
 
 # SOP functions to export
-export rl_sop, 
+export rl_sop,
+       rl_sop_bp,
        arl_sop,
        arl_sop_bp,
        cl_sop,
@@ -47,7 +48,7 @@ export rl_sacf,
        crit_sacf,
        cl_sacf,
        cl_sacf_bp,
-       crit_val_sacf    
+       crit_val_sacf
 
 # Export functions to compute DGPs
 export init_mat!,
@@ -64,7 +65,7 @@ export ICSP,
        SQMA22,
        SQINMA11,
        SAR1,
-       BSQMA11 
+       BSQMA11
 
 # Custom distributions to export (from 'sop_distributions.jl')
 export BinomialC,
@@ -79,12 +80,12 @@ export BinomialC,
 
 # ACF functions to export (from 'op_acf_functions.jl')
 export rl_acf,
-       arl_acf   
+       arl_acf
 
 # OP Types to export (from 'op_dgp_structs.jl')  
 export IC,
        AR1,
-       TEAR1     
+       TEAR1
 
 # OP functions to export
 export rl_op,

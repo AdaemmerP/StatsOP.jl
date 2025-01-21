@@ -1,7 +1,7 @@
 
 # Compute test SOP-BP-statistic for one picture
 function stat_sop_bp(
-  data::Union{SubArray,Array{T, 2}}, w::Int; chart_choice=3, add_noise::Bool=false
+  data::Union{SubArray,Array{T,2}}, w::Int; chart_choice=3, add_noise::Bool=false
 ) where {T<:Real}
 
   # Pre-allocate
@@ -54,10 +54,12 @@ end
 
 # Compute "SOP-EWMA-BP-Statstic" based on sequential images
 function stat_sop_bp(
-  data::Array{T,3}, 
-  lam, w::Int;
-  chart_choice=3, 
-  add_noise=false, 
+  data::Array{T,3},
+  lam,
+  w::Int,
+  ic_sample::Union{UnitRange{Int},Nothing}=nothing;
+  chart_choice=3,
+  add_noise=false,
 ) where {T<:Real}
 
   # Compute 4 dimensional cube to lookup sops
@@ -68,7 +70,6 @@ function stat_sop_bp(
   # Pre-allocate for BP-computations
   d1_d2_combinations = Iterators.product(1:w, 1:w)
   p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
-  p_ewma_all .= 1.0 / 3.0
   bp_stats_all = zeros(size(data, 3))
 
   sop_freq = zeros(Int, 24) # factorial(4)
@@ -78,10 +79,26 @@ function stat_sop_bp(
   data_tmp = similar(data[:, :, 1])
   rand_tmp = rand(M_rows, N_cols)
 
-  # Pre-allocate indexes to compute sum of frequencies
-  s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
-  s_2 = [2, 5, 7, 9, 16, 18, 20, 23]
-  s_3 = [4, 6, 10, 12, 13, 15, 19, 21]
+  # Compute in-control test statistic values    
+  p_array = compute_p_array(data, w; chart_choice=chart_choice)
+  stat_ic = zeros(size(p_array, 3)) # third dimension is number of d1-d2 combinations
+  if ic_sample == nothing
+    stat_ic .= 0.0
+    p_ewma_all .= 1.0 / 3.0
+  else
+    p_array_mean = mean(p_array[ic_sample, :, :], dims=1)
+    p_array = reshape(p_array_mean, 3, 1, size(p_array_mean, 3)) 
+    p_ewma_all .= p_array
+    for i in axes(p_array, 3)
+      @views stat_ic[i] = chart_stat_sop(p_array_mean[:, :, i], chart_choice)
+    end
+  end
+
+  # indices for sum of frequencies
+  index_sop = create_index_sop()
+  s_1 = index_sop[1]
+  s_2 = index_sop[2]
+  s_3 = index_sop[3]
 
   for i = axes(data, 3)
 
@@ -114,14 +131,14 @@ function stat_sop_bp(
       @views stat = chart_stat_sop(p_ewma_all[:, :, j], chart_choice)
 
       # Save temporary test statistic
-      bp_stat += stat^2
+      bp_stat += (stat - stat_ic[j])^2
 
       # Reset win, sop_freq and p_hat
       fill!(win, 0)
       fill!(sop_freq, 0)
       fill!(p_hat, 0)
     end
-    
+
     bp_stats_all[i] = bp_stat
 
   end

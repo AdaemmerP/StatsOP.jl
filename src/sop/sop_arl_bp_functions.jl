@@ -396,15 +396,14 @@ denotes each d₁-d₂ combination. This matrix will be used for re-sampling.
 - `reps::Int`: An integer value for the number of repetitions.
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 """
-function arl_sop_bp(data::Array{Float64,3}, lam, cl, w, reps=10_000; chart_choice=3)
+function arl_sop_bp(data::Array{T,3}, lam, cl, w, reps; chart_choice=3) where {T<:Real}
 
   # Compute a 3D-array, which contains relative frequencies of p-hat values for 
   # each pircture (rows) and d1-d2 combination (third dimension)
   p_array = compute_p_array(data, w; chart_choice=chart_choice)
 
   # Check whether to use threading or multi processing --> only one process threading, else distributed
-  if nprocs() == 1
-
+  if nprocs() == 1    
     # Make chunks for separate tasks (based on number of threads)        
     chunks = Iterators.partition(1:reps, div(reps, Threads.nthreads())) |> collect
 
@@ -426,13 +425,13 @@ function arl_sop_bp(data::Array{Float64,3}, lam, cl, w, reps=10_000; chart_choic
 
   # Collect results from tasks
   rls = fetch.(par_results)
-  rlvec = Iterators.flatten(rls) |> collect
+  rlvec::Vector{Int} = Iterators.flatten(rls) |> collect
   return (mean(rlvec), std(rlvec) / sqrt(reps))
 end
 
 
 """
-    rl_sop(p_array::Array{Float64,3}, lam, cl, reps_range, chart_choice, )
+    rl_sop(p_array::Array{T,3}, lam, cl, reps_range, chart_choice, ) where {T<:Real}
 
 Compute the EWMA-BP-SOP run length for a given control limit using bootstraping instead 
 of a theoretical in-control distribution.
@@ -448,7 +447,7 @@ each d₁-d₂ combination. This array will be used for re-sampling.
 - `reps_range::UnitRange{Int}`: A range of integers for the number of repetitions.
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 """
-function rl_sop_bp(p_array::Array{Float64,3}, lam, cl, reps_range::UnitRange, chart_choice)
+function rl_sop_bp(p_array::Array{T,3}, lam, cl, reps_range::UnitRange, chart_choice) where {T<:Real}
 
   # Pre-allocate
   p_hat = zeros(3)
@@ -469,7 +468,7 @@ function rl_sop_bp(p_array::Array{Float64,3}, lam, cl, reps_range::UnitRange, ch
     bp_stat = 0.0 # in-control value
     rl = 0
 
-    while bp_stat < cl # (bp_stat - bp_stat0) < cl
+    while bp_stat < cl 
       rl += 1
 
       # sample from p_vec
