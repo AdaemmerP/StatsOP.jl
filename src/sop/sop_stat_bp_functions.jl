@@ -80,16 +80,17 @@ function stat_sop_bp(
   rand_tmp = rand(M_rows, N_cols)
 
   # Compute in-control values    
-  p_array = compute_p_array(data, w; chart_choice=chart_choice)
+  p_array = compute_p_array(data, w; chart_choice=chart_choice) # Compute relative frequencies for p-vectors
   stat_ic = zeros(size(p_array, 3)) # third dimension is number of d1-d2 combinations
   if ic_sample == nothing
     stat_ic .= 0.0
     p_ewma_all .= 1.0 / 3.0
   else
     p_array_mean = mean(p_array[ic_sample, :, :], dims=1)
-    p_array = reshape(p_array_mean, 3, 1, size(p_array_mean, 3)) 
-    p_ewma_all .= p_array
-    for i in axes(p_array, 3)
+    p_array_mean = permutedims(p_array_mean, (2, 1, 3)) # Make column vectors to be compatible with p_ewma_all
+    p_ewma_all .= p_array_mean # Initialize 
+    # Compute in-control values for test statitic
+    for i in axes(p_array_mean, 3)
       @views stat_ic[i] = chart_stat_sop(p_array_mean[:, :, i], chart_choice)
     end
   end
