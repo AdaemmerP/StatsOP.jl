@@ -238,9 +238,7 @@ function rl_sop(p_mat::Array{Float64,2}, lam, cl, reps_range::UnitRange{Int}, ch
       index = rand(range_index)
 
       # Compute frequencies of SOPs
-      p_hat[1] = p_mat[index, 1]
-      p_hat[2] = p_mat[index, 2]
-      p_hat[3] = p_mat[index, 3]
+      @views p_hat .= p_mat[index, :]
 
       # Apply EWMA to p-vectors
       @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
