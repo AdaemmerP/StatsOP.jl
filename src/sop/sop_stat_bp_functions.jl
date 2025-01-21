@@ -79,7 +79,7 @@ function stat_sop_bp(
   data_tmp = similar(data[:, :, 1])
   rand_tmp = rand(M_rows, N_cols)
 
-  # Compute in-control test statistic values    
+  # Compute in-control values    
   p_array = compute_p_array(data, w; chart_choice=chart_choice)
   stat_ic = zeros(size(p_array, 3)) # third dimension is number of d1-d2 combinations
   if ic_sample == nothing
