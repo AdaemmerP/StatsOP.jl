@@ -99,7 +99,7 @@ function stat_sop_bp(
     end
   end
 
-  for i = data_range
+  for i in data_range
 
     # -------------------------------------------------------------------------#
     # ----------------     Loop for BP-Statistik                     ----------#
