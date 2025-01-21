@@ -62,20 +62,21 @@ function stat_sop_bp(
   add_noise=false,
 ) where {T<:Real}
 
-  # Compute 4 dimensional cube to lookup sops
-  lookup_array_sop = compute_lookup_array_sop()
-  p_hat = zeros(3)
-  sop = zeros(4)
+  # Index to loop over images
+  if isnothing(ic_sample)
+    data_range = axes(data, 3) # Loop over all images
+  else
+    data_range = (last(ic_sample)+1):size(data, 3) # Loop over out-of-control images
+  end
 
-  # Pre-allocate for BP-computations
-  d1_d2_combinations = Iterators.product(1:w, 1:w)
-  p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
-  bp_stats_all = zeros(size(data, 3))
+  # Pre-allocate for BP-computations  
+  l_d1d2_combs = length(1:w)*length(1:w) # Number of d1-d2 combinations
+  p_hat = zeros(3)
+  p_ewma_all = zeros(3, 1, l_d1d2_combs)
+  bp_stats_all = Float64[] 
 
   sop_freq = zeros(Int, 24) # factorial(4)
   win = zeros(Int, 4)
-  M_rows = size(data, 1)
-  N_cols = size(data, 2)
 
   # Add noise?
   if add_noise
@@ -98,30 +99,16 @@ function stat_sop_bp(
     end
   end
 
-  # indices for sum of frequencies
-  index_sop = create_index_sop()
-  s_1 = index_sop[1]
-  s_2 = index_sop[2]
-  s_3 = index_sop[3]
-
-  for i = axes(data, 3)
-
-    data_tmp = view(data, :, :, i)
+  for i = data_range
 
     # -------------------------------------------------------------------------#
     # ----------------     Loop for BP-Statistik                     ----------#
     # -------------------------------------------------------------------------#
     bp_stat = 0.0 # Initialize BP-sum
-    for (j, (d1, d2)) in enumerate(d1_d2_combinations)
+    for j in 1:l_d1d2_combs
 
-      m = M_rows - d1
-      n = N_cols - d2
-
-      # Compute frequencies of sops    
-      sop_frequencies!(m, n, d1, d2, lookup_array_sop, data_tmp, sop, win, sop_freq)
-
-      # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-      fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
+      # Fill 'p_hat' with type-frequencies
+      @views p_hat .= p_array[i, :, j]
 
       # Apply EWMA to p-vectors
       @views p_ewma_all[:, :, j] .= (1 - lam) .* p_ewma_all[:, :, j] .+ lam .* p_hat
@@ -138,7 +125,8 @@ function stat_sop_bp(
       fill!(p_hat, 0)
     end
 
-    bp_stats_all[i] = bp_stat
+    # Add BP-statistic to array of BP-statistics
+    push!(bp_stats_all, bp_stat)
 
   end
 
