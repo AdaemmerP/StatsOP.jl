@@ -76,8 +76,11 @@ function stat_sop_bp(
   win = zeros(Int, 4)
   M_rows = size(data, 1)
   N_cols = size(data, 2)
-  data_tmp = similar(data[:, :, 1])
-  rand_tmp = rand(M_rows, N_cols)
+
+  # Add noise?
+  if add_noise
+    data = data .+ rand(size(data, 1), size(data, 2), size(data, 3))
+  end
 
   # Compute in-control values    
   p_array = compute_p_array(data, w; chart_choice=chart_choice) # Compute relative frequencies for p-vectors
@@ -103,12 +106,7 @@ function stat_sop_bp(
 
   for i = axes(data, 3)
 
-    # Add noise?
-    if add_noise
-      data_tmp .= view(data, :, :, i) .+ rand!(rand_tmp)
-    else
-      data_tmp .= view(data, :, :, i)
-    end
+    data_tmp = view(data, :, :, i)
 
     # -------------------------------------------------------------------------#
     # ----------------     Loop for BP-Statistik                     ----------#
