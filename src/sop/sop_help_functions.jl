@@ -114,13 +114,14 @@ function compute_p_array_bp(data::Array{T,3}, w::Int; chart_choice=3) where {T<:
   d1_d2_combinations = Iterators.product(1:w, 1:w)
   p_array = zeros(size(data, 3), 3, length(d1_d2_combinations))
 
-  # indices for sum of frequencies
+  # indices for sum of frequencies  
   index_sop = create_index_sop()
   s_1 = index_sop[1]
   s_2 = index_sop[2]
   s_3 = index_sop[3]
 
-  # Function to fill p_array with p_hat values used in parallel computation with Threads.@threads
+  # Function to fill 'p_array' with 'p_hat' values. 
+  # This will be done in parallel via Threads.@threads below
   function fill_p_array_bp!(
     i, data_tmp, p_array, d1_d2_combinations, lookup_array_sop, s_1, s_2, s_3, chart_choice
     )

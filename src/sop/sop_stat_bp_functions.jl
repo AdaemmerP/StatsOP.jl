@@ -52,7 +52,7 @@ function stat_sop_bp(
 
 end
 
-# Compute "SOP-EWMA-BP-Statstic" based on sequential images
+# Compute "SOP-EWMA-BP-Statistic" based on sequential images
 function stat_sop_bp(
   data::Array{T,3},
   lam,
@@ -63,87 +63,64 @@ function stat_sop_bp(
   type_freq_init::Union{Float64,Array{Float64,3}}=1 / 3
 ) where {T<:Real}
 
-  # Compute 4 dimensional cube to lookup sops
-  lookup_array_sop = compute_lookup_array_sop()
-  p_hat = zeros(3)
-  sop = zeros(4)
-
-  # Pre-allocate for BP-computations
-  d1_d2_combinations = Iterators.product(1:w, 1:w)
-  p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
-  bp_stats_all = zeros(size(data, 3))
-  sop_freq = zeros(Int, 24) # factorial(4)
-  win = zeros(Int, 4)
-  M_rows = size(data, 1)
-  N_cols = size(data, 2)
-  data_tmp = similar(data[:, :, 1])
-  rand_tmp = rand(M_rows, N_cols)
+  # Number of d1-d2 combinations
+  length_d1d2 = length(Iterators.product(1:w, 1:w))
 
   # If 'type_freq_init' is a 3d Array: verify that the first and second dimensions are equal to 3 and 1, respectively
-  if typeof(type_freq_init) == Array{Float64,3} && size(type_freq_init, 1) != 3 && size(type_freq_init, 2) != 1
+  if typeof(type_freq_init) == Array{Float64,3} &&
+     size(type_freq_init, 1) != 3 &&
+     size(type_freq_init, 2) != 1
     throw(ArgumentError("First dimension of 'type_freq_init' must be equal to 3 and second dimension must be equal to 1"))
   end
+
   # If 'type_freq_init' is a 3d Array: verify that the third dimension equals the number of d1-d2 combinations  
-  if typeof(type_freq_init) == Array{Float64,3} && size(type_freq_init, 3) != length(d1_d2_combinations)
+  if typeof(type_freq_init) == Array{Float64,3} &&
+     size(type_freq_init, 3) != length_d1d2
     throw(ArgumentError("Third dimension of 'type_freq_init' must be equal to the number of d1-d2 combinations"))
   end
-  # Fill 'p_ewma_all' with initial type frequencies
-  p_ewma_all .= type_freq_init
-  
+
   # Verify that - if 'stat_ic' is a vector - the length is equal to the number of d1-d2 combinations
-  if length(stat_ic) > 1 && length(stat_ic) != length(d1_d2_combinations)
+  if length(stat_ic) > 1 && length(stat_ic) != length_d1d2
     throw(ArgumentError("Length of 'stat_ic' must be equal to the number of d1-d2 combinations"))
   end
-  # Pre-allocate and fill 'stat_ic_vec' with initial test statistics
-  stat_ic_vec = zeros(length(d1_d2_combinations))
+
+  # Pre-allocate for BP-computations
+  bp_stats_all = zeros(size(data, 3))
+  p_ewma_all = zeros(3, 1, length_d1d2)
+  p_ewma_all .= type_freq_init
+  stat_ic_vec = zeros(length_d1d2)
   stat_ic_vec .= stat_ic
 
-  # indices for sum of frequencies
-  index_sop = create_index_sop()
-  s_1 = index_sop[1]
-  s_2 = index_sop[2]
-  s_3 = index_sop[3]
+  # Add noise?
+  if add_noise
+    data = data .+ rand(size(data, 1), size(data, 2), size(data, 3))
+  end
 
+  # Compute p_array
+  # row           -> individual picture
+  # column        -> type-frequencies 
+  # 3rd dimension -> d1-d2 combinations
+  p_array = compute_p_array_bp(data, w; chart_choice=chart_choice)
+
+  # Pre-allocate vector for individual statistics for BP-statistic
+  stat = similar(stat_ic_vec)
+
+  # Loop over all images (can not be parallelized because EWMA is dependent)
   for i = axes(data, 3)
 
-    # Add noise?
-    if add_noise
-      data_tmp .= view(data, :, :, i) .+ rand!(rand_tmp)
-    else
-      data_tmp .= view(data, :, :, i)
-    end
-
-    # -------------------------------------------------------------------------#
-    # ----------------     Loop for BP-Statistik                     ----------#
-    # -------------------------------------------------------------------------#
-    bp_stat = 0.0 # Initialize BP-sum
-    for (j, (d1, d2)) in enumerate(d1_d2_combinations)
-
-      m = M_rows - d1
-      n = N_cols - d2
-
-      # Compute frequencies of sops    
-      sop_frequencies!(m, n, d1, d2, lookup_array_sop, data_tmp, sop, win, sop_freq)
-
-      # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-      fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
+    # Iterate over d1-d2 combination (parallelized) 
+    Threads.@threads for j in 1:length_d1d2
 
       # Apply EWMA to p-vectors
-      @views p_ewma_all[:, :, j] .= (1 - lam) .* p_ewma_all[:, :, j] .+ lam .* p_hat
+      @views p_ewma_all[:, :, j] .= (1 - lam) .* p_ewma_all[:, :, j] .+ lam .* p_array[i, :, j]
 
       # Compute test statistic            
-      @views stat = chart_stat_sop(p_ewma_all[:, :, j], chart_choice)
-
-      # Save temporary test statistic
-      bp_stat += (stat - stat_ic_vec[j])^2
-
-      # Reset win, sop_freq and p_hat
-      fill!(win, 0)
-      fill!(sop_freq, 0)
-      fill!(p_hat, 0)
+      @views stat[j] = chart_stat_sop(p_ewma_all[:, :, j], chart_choice)
     end
 
-    bp_stats_all[i] = bp_stat
+    stat .= (stat .- stat_ic_vec).^2
+    bp_stats_all[i] = sum(stat)
+    fill!(stat, 0.0)
 
   end
 
