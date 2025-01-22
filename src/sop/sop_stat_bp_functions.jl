@@ -96,13 +96,13 @@ function stat_sop_bp(
     data = data .+ rand(size(data, 1), size(data, 2), size(data, 3))
   end
 
-  # Compute p_array
-  # row           -> individual picture
-  # column        -> type-frequencies 
-  # 3rd dimension -> d1-d2 combinations
+  # Compute p_array 
+  # rows     -> pictures 
+  # columns  -> type-frequencies 
+  # 3rd dims -> d1-d2 combinations
   p_array = compute_p_array_bp(data, w; chart_choice=chart_choice)
 
-  # Pre-allocate vector for individual statistics for BP-statistic
+  # Pre-allocate vector for each d1-d2 statistic
   stat = similar(stat_ic_vec)
 
   # Loop over all images (can not be parallelized because EWMA is dependent)
@@ -112,13 +112,14 @@ function stat_sop_bp(
     Threads.@threads for j in 1:length_d1d2
 
       # Apply EWMA to p-vectors
-      @views p_ewma_all[:, :, j] .= (1 - lam) .* p_ewma_all[:, :, j] .+ lam .* p_array[i, :, j]
+      @views @. p_ewma_all[:, :, j] = (1 - lam) * p_ewma_all[:, :, j] + lam * p_array[i, :, j]
 
       # Compute test statistic            
       @views stat[j] = chart_stat_sop(p_ewma_all[:, :, j], chart_choice)
+
     end
 
-    stat .= (stat .- stat_ic_vec).^2
+    @. stat = (stat - stat_ic_vec)^2
     bp_stats_all[i] = sum(stat)
     fill!(stat, 0.0)
 
