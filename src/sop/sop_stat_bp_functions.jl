@@ -59,8 +59,8 @@ function stat_sop_bp(
   w::Int;
   chart_choice=3,
   add_noise=false,
-  stat_ic::Union{Float64, Vector{Float64}}=0.0,
-  type_freq_init::Union{Float64, Array{Float64, 3}} = 1/3
+  stat_ic::Union{Float64,Vector{Float64}}=0.0,
+  type_freq_init::Union{Float64,Array{Float64,3}}=1 / 3
 ) where {T<:Real}
 
   # Compute 4 dimensional cube to lookup sops
@@ -71,8 +71,6 @@ function stat_sop_bp(
   # Pre-allocate for BP-computations
   d1_d2_combinations = Iterators.product(1:w, 1:w)
   p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
-  p_ewma_all .= type_freq_init
-
   bp_stats_all = zeros(size(data, 3))
   sop_freq = zeros(Int, 24) # factorial(4)
   win = zeros(Int, 4)
@@ -81,8 +79,25 @@ function stat_sop_bp(
   data_tmp = similar(data[:, :, 1])
   rand_tmp = rand(M_rows, N_cols)
 
-  # Pre-allocate for ic-statistic (either scalar or vector with individual values for each d1-d2 combination)    
-  stat_ic_vec = zeros(length(d1_d2_combinations)) 
+  # If 'type_freq_init' is a 3d Array: verify that the first and second dimensions are equal to 3 and 1, respectively
+  if typeof(type_freq_init) == Array{Float64,3} && size(type_freq_init, 1) != 3 && size(type_freq_init, 2) != 1
+    throw(ArgumentError("First dimension of 'type_freq_init' must be equal to 3 and second dimension must be equal to 1"))
+  end
+  # If 'type_freq_init' is a 3d Array: verify that the third dimension equals the number of d1-d2 combinations  
+  if typeof(type_freq_init) == Array{Float64,3} && size(type_freq_init, 3) != length(d1_d2_combinations)
+    throw(ArgumentError("Third dimension of 'type_freq_init' must be equal to the number of d1-d2 combinations"))
+  end
+  # Fill 'p_ewma_all' with initial type frequencies
+  p_ewma_all .= type_freq_init
+
+  # Pre-allocate vector for ic-statistic 
+  stat_ic_vec = zeros(length(d1_d2_combinations))
+
+  # Verify that - if 'stat_ic' is a vector - the length is equal to the number of d1-d2 combinations
+  if length(stat_ic) > 1 && length(stat_ic) != length(d1_d2_combinations)
+    throw(ArgumentError("Length of 'stat_ic' must be equal to the number of d1-d2 combinations"))
+  end
+  # Fill 'stat_ic_vec' with initial test statistics
   stat_ic_vec .= stat_ic
 
   # indices for sum of frequencies

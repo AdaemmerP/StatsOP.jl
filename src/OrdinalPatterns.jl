@@ -36,6 +36,7 @@ export rl_sop,
   compute_lookup_array_sop,
   compute_p_array,
   compute_p_array_bp,
+  compute_p_array_bp_parallel,
   init_vals_sop,
   crit_val_sop
 
