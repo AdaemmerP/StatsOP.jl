@@ -128,7 +128,7 @@ function compute_p_array_bp(data::Array{T,3}, w::Int; chart_choice=3) where {T<:
 
     M_rows = size(data_tmp, 1)
     N_cols = size(data_tmp, 2)
-    sop = zeros(Int, 4)
+    sop = zeros(4)
     win = zeros(Int, 4)
     sop_freq = zeros(Int, 24)
     p_hat = zeros(1, 3)
@@ -191,7 +191,7 @@ function sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_fr
       sortperm!(win, sop)
 
       # Get index
-      ind2 = lookup_array_sop[win[1], win[2], win[3], win[4]] #lookup_sop(lookup_array_sop, win)
+      ind2 = lookup_array_sop[win[1], win[2], win[3], win[4]] 
 
       # Add 1 to index position
       sop_freq[ind2] += 1

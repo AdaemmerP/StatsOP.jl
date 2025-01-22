@@ -482,11 +482,11 @@ function rl_sop_bp(p_array::Array{T,3}, lam, cl, reps_range::UnitRange, chart_ch
         # Compute test statistic
         @views stat = chart_stat_sop(p_ewma[:, :, i], chart_choice)
         bp_stat += (stat - stat_ic[i])^2
-
+        
       end
-
+      
     end
-
+    
     rls[r] = rl
 
   end
