@@ -1,6 +1,23 @@
 
 
 """
+Create and return the index of the sops for sortperm values. 
+The type frequencies are based on the ranks of the sops, but we use sortperm to 
+compute the order of the elements in the vector. 
+"""
+# Function that returns SOP indices for sortperm values
+function create_index_sop()
+
+  s_1 = (1, 3, 8, 11, 14, 17, 22, 24)
+  s_2 = (2, 5, 7, 9, 16, 18, 20, 23)
+  s_3 = (4, 6, 10, 12, 13, 15, 19, 21)
+
+  return s_1, s_2, s_3
+
+end
+
+
+"""
 Compute a 4D array to lookup the index of the sops. The original SOPs are based on ranks. Here we use sortperm which computes the order of the elements in the vector.
 """
 function compute_lookup_array_sop()
@@ -26,7 +43,7 @@ end
 
 
 """
-    compute_p_mat(data::Array{Float64,3})
+    compute_p_array(data::Array{T,3})
 
 Compute the matrix of p-hat values for a given 3D array of data when the delays are integers. These values are used for bootstrapping. 
 """
@@ -37,22 +54,24 @@ function compute_p_array(data::Array{T,3}, d1::Int, d2::Int; chart_choice=3) whe
   n = size(data, 2) - d2
   lookup_array_sop = compute_lookup_array_sop()
   p_mat = zeros(size(data, 3), 3)
-  p_hat = zeros(1, 3)
-  sop = zeros(4)
-  sop_freq = zeros(Int, 24)
-  win = zeros(Int, 4)
-
+  
   # indices for sum of frequencies
   index_sop = create_index_sop()
   s_1 = index_sop[1]
   s_2 = index_sop[2]
   s_3 = index_sop[3]
 
-  # compute p_hat matrix
-  for i in axes(data, 3)
+  # Function to fill p_mat with p_hat values used in parallel computation with Threads.@threads
+  function fill_p_mat!(
+    i, data_tmp, p_mat, lookup_array_sop, m, n, d1, d2, s_1, s_2, s_3, chart_choice
+    )
+
+    p_hat = zeros(1, 3)
+    sop = zeros(4)
+    sop_freq = zeros(Int, 24)
+    win = zeros(Int, 4)
 
     # Compute frequencies of sops
-    @views data_tmp = data[:, :, i]
     sop_frequencies!(m, n, d1, d2, lookup_array_sop, data_tmp, sop, win, sop_freq)
 
     # Compute sum of frequencies for each group
@@ -64,13 +83,44 @@ function compute_p_array(data::Array{T,3}, d1::Int, d2::Int; chart_choice=3) whe
     fill!(win, 0)
     fill!(sop_freq, 0)
     fill!(p_hat, 0)
+
+  end
+
+   # Fill p_mat in parallel
+   Threads.@threads for i in axes(data, 3)
+
+    # Compute frequencies of sops
+    @views data_tmp = data[:, :, i]
+    fill_p_mat!(
+      i, data_tmp, p_mat, lookup_array_sop, m, n, d1, d2, s_1, s_2, s_3, chart_choice
+    )
+
   end
 
   return p_mat
+
 end
 
 
-  # Function to fill p_array with p_hat values used for parallel computation
+"""
+compute_p_array(data::Array{Float64,3})
+
+Compute the matrix of p-hat values for a given 3D array of data when the delays are vectors of integers. These values are used for bootstrapping to compute critcial limits for the BP-statistics. 
+"""
+function compute_p_array_bp(data::Array{T,3}, w::Int; chart_choice=3) where {T<:Real}
+
+  # pre-allocate
+  lookup_array_sop = compute_lookup_array_sop()
+  d1_d2_combinations = Iterators.product(1:w, 1:w)
+  p_array = zeros(size(data, 3), 3, length(d1_d2_combinations))
+
+  # indices for sum of frequencies
+  index_sop = create_index_sop()
+  s_1 = index_sop[1]
+  s_2 = index_sop[2]
+  s_3 = index_sop[3]
+
+  # Function to fill p_array with p_hat values used in parallel computation with Threads.@threads
   function fill_p_array_bp!(
     i, data_tmp, p_array, d1_d2_combinations, lookup_array_sop, s_1, s_2, s_3, chart_choice
     )
@@ -98,33 +148,13 @@ end
       # Reset win and sop_freq
       fill!(sop_freq, 0)
       fill!(p_hat, 0)
-
     end
 
   end
 
-"""
-compute_p_array(data::Array{Float64,3})
-
-Compute the matrix of p-hat values for a given 3D array of data when the delays are vectors of integers. These values are used for bootstrapping to compute critcial limits for the BP-statistics. 
-"""
-function compute_p_array_bp(data::Array{T,3}, w::Int; chart_choice=3) where {T<:Real}
-
-  # pre-allocate
-  lookup_array_sop = compute_lookup_array_sop()
-  d1_d2_combinations = Iterators.product(1:w, 1:w)
-  p_array = zeros(size(data, 3), 3, length(d1_d2_combinations))
-
-  # indices for sum of frequencies
-  index_sop = create_index_sop()
-  s_1 = index_sop[1]
-  s_2 = index_sop[2]
-  s_3 = index_sop[3]
-
   # Compute p_hat matrix
   Threads.@threads for i in axes(data, 3)
 
-    #@views data_tmp = data[:, :, i]
     @views fill_p_array_bp!(
       i, data[:, :, i], p_array, d1_d2_combinations, lookup_array_sop, s_1, s_2, s_3, chart_choice
       )
@@ -309,17 +339,46 @@ function init_vals_sop(m, n, lam, chart_choice, dist, runs, p_quantile)
   return return_vec
 end
 
-# Function for SOP indices for sortperm values
-function create_index_sop()
 
-  s_1 = (1, 3, 8, 11, 14, 17, 22, 24)
-  s_2 = (2, 5, 7, 9, 16, 18, 20, 23)
-  s_3 = (4, 6, 10, 12, 13, 15, 19, 21)
 
-  return s_1, s_2, s_3
+# function compute_p_array_single_core(data::Array{T,3}, d1::Int, d2::Int; chart_choice=3) where {T<:Real}
 
-end
+#   # pre-allocate    
+#   m = size(data, 1) - d1
+#   n = size(data, 2) - d2
+#   lookup_array_sop = compute_lookup_array_sop()
+#   p_mat = zeros(size(data, 3), 3)
+#   p_hat = zeros(1, 3)
+#   sop = zeros(4)
+#   sop_freq = zeros(Int, 24)
+#   win = zeros(Int, 4)
 
+#   # indices for sum of frequencies
+#   index_sop = create_index_sop()
+#   s_1 = index_sop[1]
+#   s_2 = index_sop[2]
+#   s_3 = index_sop[3]
+
+#   # compute p_hat matrix
+#   for i in axes(data, 3)
+
+#     # Compute frequencies of sops
+#     @views data_tmp = data[:, :, i]
+#     sop_frequencies!(m, n, d1, d2, lookup_array_sop, data_tmp, sop, win, sop_freq)
+
+#     # Compute sum of frequencies for each group
+#     fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
+
+#     p_mat[i, :] = p_hat
+
+#     # Reset win and sop_freq
+#     fill!(win, 0)
+#     fill!(sop_freq, 0)
+#     fill!(p_hat, 0)
+#   end
+
+#   return p_mat
+# end
 
 # function compute_p_array_bp_single_core(data::Array{T,3}, w::Int; chart_choice=3) where {T<:Real}
 

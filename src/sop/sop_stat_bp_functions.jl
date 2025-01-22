@@ -89,15 +89,13 @@ function stat_sop_bp(
   end
   # Fill 'p_ewma_all' with initial type frequencies
   p_ewma_all .= type_freq_init
-
-  # Pre-allocate vector for ic-statistic 
-  stat_ic_vec = zeros(length(d1_d2_combinations))
-
+  
   # Verify that - if 'stat_ic' is a vector - the length is equal to the number of d1-d2 combinations
   if length(stat_ic) > 1 && length(stat_ic) != length(d1_d2_combinations)
     throw(ArgumentError("Length of 'stat_ic' must be equal to the number of d1-d2 combinations"))
   end
-  # Fill 'stat_ic_vec' with initial test statistics
+  # Pre-allocate and fill 'stat_ic_vec' with initial test statistics
+  stat_ic_vec = zeros(length(d1_d2_combinations))
   stat_ic_vec .= stat_ic
 
   # indices for sum of frequencies
