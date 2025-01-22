@@ -56,59 +56,64 @@ end
 function stat_sop_bp(
   data::Array{T,3},
   lam,
-  w::Int,
-  ic_sample::Union{UnitRange{Int},Nothing}=nothing;
+  w::Int;
   chart_choice=3,
   add_noise=false,
+  stat_ic::Union{Float64, Vector{Float64}}=0.0,
+  type_freq_init::Union{Float64, Array{Float64, 3}} = 1/3
 ) where {T<:Real}
 
-  # Index to loop over images
-  if isnothing(ic_sample)
-    data_range = axes(data, 3) # Loop over all images
-  else
-    data_range = (last(ic_sample)+1):size(data, 3) # Loop over out-of-control images
-  end
-
-  # Pre-allocate for BP-computations  
-  l_d1d2_combs = length(1:w)*length(1:w) # Number of d1-d2 combinations
+  # Compute 4 dimensional cube to lookup sops
+  lookup_array_sop = compute_lookup_array_sop()
   p_hat = zeros(3)
-  p_ewma_all = zeros(3, 1, l_d1d2_combs)
-  bp_stats_all = Float64[] 
+  sop = zeros(4)
 
+  # Pre-allocate for BP-computations
+  d1_d2_combinations = Iterators.product(1:w, 1:w)
+  p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
+  p_ewma_all .= type_freq_init
+
+  bp_stats_all = zeros(size(data, 3))
   sop_freq = zeros(Int, 24) # factorial(4)
   win = zeros(Int, 4)
+  M_rows = size(data, 1)
+  N_cols = size(data, 2)
+  data_tmp = similar(data[:, :, 1])
+  rand_tmp = rand(M_rows, N_cols)
 
-  # Add noise?
-  if add_noise
-    data = data .+ rand(size(data, 1), size(data, 2), size(data, 3))
-  end
+  # Pre-allocate for ic-statistic (either scalar or vector with individual values for each d1-d2 combination)    
+  stat_ic_vec = zeros(length(d1_d2_combinations)) 
+  stat_ic_vec .= stat_ic
 
-  # Compute in-control values    
-  p_array = compute_p_array(data, w; chart_choice=chart_choice) # Compute relative frequencies for p-vectors
-  stat_ic = zeros(size(p_array, 3)) # third dimension is number of d1-d2 combinations
-  if ic_sample == nothing
-    stat_ic .= 0.0
-    p_ewma_all .= 1.0 / 3.0
-  else
-    p_array_mean = mean(p_array[ic_sample, :, :], dims=1)
-    p_array_mean = permutedims(p_array_mean, (2, 1, 3)) # Make column vectors to be compatible with p_ewma_all
-    p_ewma_all .= p_array_mean # Initialize 
-    # Compute in-control values for test statitic
-    for i in axes(p_array_mean, 3)
-      @views stat_ic[i] = chart_stat_sop(p_array_mean[:, :, i], chart_choice)
+  # indices for sum of frequencies
+  index_sop = create_index_sop()
+  s_1 = index_sop[1]
+  s_2 = index_sop[2]
+  s_3 = index_sop[3]
+
+  for i = axes(data, 3)
+
+    # Add noise?
+    if add_noise
+      data_tmp .= view(data, :, :, i) .+ rand!(rand_tmp)
+    else
+      data_tmp .= view(data, :, :, i)
     end
-  end
-
-  for i in data_range
 
     # -------------------------------------------------------------------------#
     # ----------------     Loop for BP-Statistik                     ----------#
     # -------------------------------------------------------------------------#
     bp_stat = 0.0 # Initialize BP-sum
-    for j in 1:l_d1d2_combs
+    for (j, (d1, d2)) in enumerate(d1_d2_combinations)
 
-      # Fill 'p_hat' with type-frequencies
-      @views p_hat .= p_array[i, :, j]
+      m = M_rows - d1
+      n = N_cols - d2
+
+      # Compute frequencies of sops    
+      sop_frequencies!(m, n, d1, d2, lookup_array_sop, data_tmp, sop, win, sop_freq)
+
+      # Fill 'p_hat' with sop-frequencies and compute relative frequencies
+      fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
 
       # Apply EWMA to p-vectors
       @views p_ewma_all[:, :, j] .= (1 - lam) .* p_ewma_all[:, :, j] .+ lam .* p_hat
@@ -117,7 +122,7 @@ function stat_sop_bp(
       @views stat = chart_stat_sop(p_ewma_all[:, :, j], chart_choice)
 
       # Save temporary test statistic
-      bp_stat += (stat - stat_ic[j])^2
+      bp_stat += (stat - stat_ic_vec[j])^2
 
       # Reset win, sop_freq and p_hat
       fill!(win, 0)
@@ -125,8 +130,7 @@ function stat_sop_bp(
       fill!(p_hat, 0)
     end
 
-    # Add BP-statistic to array of BP-statistics
-    push!(bp_stats_all, bp_stat)
+    bp_stats_all[i] = bp_stat
 
   end
 

@@ -20,59 +20,60 @@ using Reexport
 
 # Helper functions
 export order_vec!,
-       sop_frequencies,
-       sop_frequencies!
+  sop_frequencies,
+  sop_frequencies!
 
 # SOP functions to export
 export rl_sop,
-       rl_sop_bp,
-       arl_sop,
-       arl_sop_bp,
-       cl_sop,
-       cl_sop_bp,
-       stat_sop,
-       stat_sop_bp,
-       chart_stat_sop,
-       compute_lookup_array_sop,
-       compute_p_array,
-       init_vals_sop,
-       crit_val_sop
+  rl_sop_bp,
+  arl_sop,
+  arl_sop_bp,
+  cl_sop,
+  cl_sop_bp,
+  stat_sop,
+  stat_sop_bp,
+  chart_stat_sop,
+  compute_lookup_array_sop,
+  compute_p_array,
+  compute_p_array_bp,
+  init_vals_sop,
+  crit_val_sop
 
 # SACF functions to export
 export rl_sacf,
-       arl_sacf,
-       arl_sacf_bp,
-       stat_sacf,
-       stat_sacf_bp,
-       sacf,
-       crit_sacf,
-       cl_sacf,
-       cl_sacf_bp,
-       crit_val_sacf
+  arl_sacf,
+  arl_sacf_bp,
+  stat_sacf,
+  stat_sacf_bp,
+  sacf,
+  crit_sacf,
+  cl_sacf,
+  cl_sacf_bp,
+  crit_val_sacf
 
 # Export functions to compute DGPs
 export init_mat!,
-       fill_mat_dgp_sop!,
-       build_sar1_matrix,
-       stat_sop
+  fill_mat_dgp_sop!,
+  build_sar1_matrix,
+  stat_sop
 
 # SOP Types to export (from 'sop_dgp_structs.jl')
 export ICSP,
-       SAR11,
-       SAR22,
-       SINAR11,
-       SQMA11,
-       SQMA22,
-       SQINMA11,
-       SAR1,
-       BSQMA11
+  SAR11,
+  SAR22,
+  SINAR11,
+  SQMA11,
+  SQMA22,
+  SQINMA11,
+  SAR1,
+  BSQMA11
 
 # Custom distributions to export (from 'sop_distributions.jl')
 export BinomialC,
-       BinomialCvec,
-       ZIP,
-       PoiBin,
-       BinNorm
+  BinomialCvec,
+  ZIP,
+  PoiBin,
+  BinNorm
 
 # ---------------------------------------------#
 # OP related functions and structs  to export #
@@ -80,22 +81,22 @@ export BinomialC,
 
 # ACF functions to export (from 'op_acf_functions.jl')
 export rl_acf,
-       arl_acf
+  arl_acf
 
 # OP Types to export (from 'op_dgp_structs.jl')  
 export IC,
-       AR1,
-       TEAR1
+  AR1,
+  TEAR1
 
 # OP functions to export
 export rl_op,
-       arl_op,
-       stat_op,
-       cl_op,
-       count_uv_op,
-       count_mv_op,
-       dependence_op,
-       changepoint_op
+  arl_op,
+  stat_op,
+  cl_op,
+  count_uv_op,
+  count_mv_op,
+  dependence_op,
+  changepoint_op
 
 # Include files for OPs
 include("op/op_dgp_structs.jl")
