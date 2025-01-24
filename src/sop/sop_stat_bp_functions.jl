@@ -79,7 +79,7 @@ function stat_sop_bp(
     throw(ArgumentError("Third dimension of 'type_freq_init' must be equal to the number of d1-d2 combinations"))
   end
 
-  # Verify that - if 'stat_ic' is a vector - the length is equal to the number of d1-d2 combinations
+  # If 'stat_ic' is a vector: verify that the length is equal to the number of d1-d2 combinations
   if length(stat_ic) > 1 && length(stat_ic) != length_d1d2
     throw(ArgumentError("Length of 'stat_ic' must be equal to the number of d1-d2 combinations"))
   end
@@ -96,8 +96,8 @@ function stat_sop_bp(
     data = data .+ rand(size(data, 1), size(data, 2), size(data, 3))
   end
 
-  # Compute p_array 
-  # rows     -> pictures 
+  # Compute p_array (parallelized)
+  # rows     -> images 
   # columns  -> type-frequencies 
   # 3rd dims -> d1-d2 combinations
   p_array = compute_p_array_bp(data, w; chart_choice=chart_choice)
@@ -119,8 +119,11 @@ function stat_sop_bp(
 
     end
 
+    # Compute BP-statistic for each image
     @. stat = (stat - stat_ic_vec)^2
     bp_stats_all[i] = sum(stat)
+
+    # Reset vector with individual statistics to zero 
     fill!(stat, 0.0)
 
   end
