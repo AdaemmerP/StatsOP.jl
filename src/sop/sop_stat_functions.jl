@@ -108,7 +108,13 @@ stat_sop(data, false, lam, chart_choice)
 ```
 """
 function stat_sop(
-  data::Array{T,3}, lam, d1::Int, d2::Int; chart_choice=3, add_noise::Bool=false
+  data::Array{T,3}, 
+  lam, 
+  d1::Int, 
+  d2::Int; 
+  chart_choice=3, 
+  add_noise::Bool=false,
+  type_freq_init::Union{Float64,Array{Float64,2}}=1 / 3
 ) where {T<:Real}
 
   # Compute lookup cube
@@ -117,7 +123,8 @@ function stat_sop(
   # Pre-allocate
   p_hat = zeros(3)
   sop = zeros(4)
-  p_ewma = repeat([1.0 / 3.0], 3)
+  p_ewma = zeros(3)
+  p_ewma .= type_freq_init
   stats_all = zeros(size(data, 3))
   sop_freq = zeros(Int, 24) # factorial(4)
   win = zeros(Int, 4)
