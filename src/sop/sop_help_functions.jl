@@ -122,7 +122,6 @@ function compute_p_array_bp(data::Array{T,3}, w::Int; chart_choice=3) where {T<:
 
   # Function to fill 'p_array' with 'p_hat' values. 
   # This function will be called in parallel via Threads.@threads below
-  # p_array will be shared among threads
   function fill_p_array_bp!(
     i, data_tmp, p_array, d1_d2_combinations, lookup_array_sop, s_1, s_2, s_3, chart_choice
     )
