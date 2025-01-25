@@ -163,7 +163,7 @@ delay (d₁-d₂) combination. This matrix will be used for re-sampling. The mat
 computed by `compute_p_array()`.
 - `reps::Int`: An integer value for the number of repetitions. The default value is 10,000.
 """
-function arl_sop(p_mat::Array{Float64,2}, lam, cl, reps=10_000)
+function arl_sop(p_mat::Array{Float64,2}, lam, cl, reps=10_000; chart_choice=chart_choice)
 
   # Check whether to use threading or multi processing --> only one process threading, else distributed
   if nprocs() == 1
@@ -187,7 +187,7 @@ function arl_sop(p_mat::Array{Float64,2}, lam, cl, reps=10_000)
 
   end
 
-  # Collect results from tasks
+  # Collect results from tasks   
   rls = fetch.(par_results)
   rlvec = Iterators.flatten(rls) |> collect
   return (mean(rlvec), std(rlvec) / sqrt(reps))
@@ -216,7 +216,8 @@ function rl_sop(p_mat::Array{Float64,2}, lam, cl, reps_range::UnitRange{Int}, ch
   p_hat = zeros(3)
   rls = zeros(Int, length(reps_range))
   p_vec_mean = vec(mean(p_mat, dims=1))
-  p_ewma = p_vec_mean
+  p_ewma = similar(p_vec_mean)
+  p_ewma .= p_vec_mean
 
   # Set initial value for test statistic
   stat = chart_stat_sop(p_ewma, chart_choice)
@@ -226,12 +227,12 @@ function rl_sop(p_mat::Array{Float64,2}, lam, cl, reps_range::UnitRange{Int}, ch
   range_index = axes(p_mat, 1)
 
   # Loop over repetitions
-  for r in 1:length(reps_range)
+  for r in axes(reps_range, 1)
     p_ewma .= p_vec_mean
     stat = stat0
     rl = 0
 
-    while abs(stat - stat0) < cl
+    while abs(stat-stat0) < cl
       rl += 1
 
       # sample from p_vec
@@ -240,15 +241,16 @@ function rl_sop(p_mat::Array{Float64,2}, lam, cl, reps_range::UnitRange{Int}, ch
       # Compute frequencies of SOPs
       @views p_hat .= p_mat[index, :]
 
-      # Apply EWMA to p-vectors
+      # Apply EWMA to p-vectors      
       @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
 
-      # Compute test statistic
+      # Compute test statistic      
       stat = chart_stat_sop(p_ewma, chart_choice)
     end
 
     rls[r] = rl
   end
+
   return rls
 end
 

@@ -78,16 +78,18 @@ can be computed using the `compute_p_array()` function.
 - `verbose::Bool`: A boolean to indicate whether to print the control limit and ARL for each iteration.  
 """
 function cl_sop(
-  lam, L0, p_mat::Array{Float64,2}, cl_init, reps=10_000;
-  chart_choice=3, jmin=4, jmax=6, verbose=false
-)
+  data::Array{T,3}, lam, L0, cl_init, d1, d2, reps=10_000;
+  chart_choice=3, jmin=3, jmax=7, verbose=false
+) where {T<:Real}
+ 
+p_array = compute_p_array(data, d1, d2; chart_choice=chart_choice)
 
   L1 = 0.0
   for j in jmin:jmax
     for dh in 1:80
       cl_init = cl_init + (-1)^j * dh / 10^j
       L1 = arl_sop(
-        p_mat, lam, cl_init, reps; chart_choice=chart_choice
+        p_array, lam, cl_init, reps, chart_choice=chart_choice
       )[1]
       if verbose
         println("cl = ", cl_init, "\t", "ARL = ", L1)
@@ -103,55 +105,6 @@ function cl_sop(
   end
   return cl_init
 end
-
-#--- Method to compute critical limits based on bootstraping for BP-statistic
-"""
-    cl_sop(
-  lam, L0, p_array::Array{Float64,3}, cl_init, reps=10_000;
-  chart_choice=3, jmin=4, jmax=6, verbose=false
-)
-
-Compute the (bootstrap) SOP control limit for the EWMA-chart for the BP-statistic.
-The function returns the control limit for a given average run. The input parameters are:
-
-- `lam::Float64`:  A scalar value for lambda for the EWMA chart.
-- `L0::Float64`: The desired average run length.
-- `p_array::Array{Float64,3}`: The array with relative frequencies of the SOPs. These
-can be computed using the `compute_p_array()` function.
-- `cl_init::Float64`: The initial value for the control limit.
-- `reps::Int`: The number of replications to compute the ARL.
-- `chart_choice::Int`: The chart choice for the SOP chart.
-- `jmin`: The minimum number of values to change after the decimal point in the control limit.
-- `jmax`: The maximum number of values to change after the decimal point in the control limit.
-- `verbose::Bool`: A boolean to indicate whether to print the control limit and ARL for each iteration.
-"""
-function cl_sop(
-  lam, L0, p_array::Array{Float64,3}, cl_init, reps=10_000;
-  chart_choice=3, jmin=4, jmax=6, verbose=false
-)
-
-  L1 = 0.0
-  for j in jmin:jmax
-    for dh in 1:80
-      cl_init = cl_init + (-1)^j * dh / 10^j
-      L1 = arl_sop(
-        p_array, lam, cl_init, reps; chart_choice=chart_choice
-      )[1]
-      if verbose
-        println("cl = ", cl_init, "\t", "ARL = ", L1)
-      end
-      if (j % 2 == 1 && L1 < L0) || (j % 2 == 0 && L1 > L0)
-        break
-      end
-    end
-    cl_init = cl_init
-  end
-  if L1 < L0
-    cl_init = cl_init + 1 / 10^jmax
-  end
-  return cl_init
-end
-
 
 """
     cl_sop(
@@ -236,3 +189,53 @@ function cl_sop_bp(
   return cl_init
 
 end
+
+
+
+# #--- Method to compute critical limits based on bootstraping for BP-statistic
+# """
+#     cl_sop(
+#   lam, L0, p_array::Array{Float64,3}, cl_init, reps=10_000;
+#   chart_choice=3, jmin=4, jmax=6, verbose=false
+# )
+
+# Compute the (bootstrap) SOP control limit for the EWMA-chart for the BP-statistic.
+# The function returns the control limit for a given average run. The input parameters are:
+
+# - `lam::Float64`:  A scalar value for lambda for the EWMA chart.
+# - `L0::Float64`: The desired average run length.
+# - `p_array::Array{Float64,3}`: The array with relative frequencies of the SOPs. These
+# can be computed using the `compute_p_array()` function.
+# - `cl_init::Float64`: The initial value for the control limit.
+# - `reps::Int`: The number of replications to compute the ARL.
+# - `chart_choice::Int`: The chart choice for the SOP chart.
+# - `jmin`: The minimum number of values to change after the decimal point in the control limit.
+# - `jmax`: The maximum number of values to change after the decimal point in the control limit.
+# - `verbose::Bool`: A boolean to indicate whether to print the control limit and ARL for each iteration.
+# """
+# function cl_sop(
+#   p_array::Array{Float64,3}, lam, L0, cl_init, reps=10_000;
+#   chart_choice=3, jmin=4, jmax=6, verbose=false
+# )
+
+#   L1 = 0.0
+#   for j in jmin:jmax
+#     for dh in 1:80
+#       cl_init = cl_init + (-1)^j * dh / 10^j
+#       L1 = arl_sop(
+#         p_array, lam, cl_init, reps; chart_choice=chart_choice
+#       )[1]
+#       if verbose
+#         println("cl = ", cl_init, "\t", "ARL = ", L1)
+#       end
+#       if (j % 2 == 1 && L1 < L0) || (j % 2 == 0 && L1 > L0)
+#         break
+#       end
+#     end
+#     cl_init = cl_init
+#   end
+#   if L1 < L0
+#     cl_init = cl_init + 1 / 10^jmax
+#   end
+#   return cl_init
+# end

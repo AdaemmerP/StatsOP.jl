@@ -450,7 +450,7 @@ function rl_sop_bp(p_array::Array{T,3}, lam, cl, reps_range::UnitRange, chart_ch
   rls = zeros(Int, length(reps_range))
   p_array_mean = mean(p_array, dims=1)
   range_index = axes(p_array, 1) # Range for number of images
-  p_ewma = p_array_mean # will be dimension 1 x 3 x 'size(p_array, 3)'
+  p_ewma = similar(p_array_mean) # will be dimension 1 x 3 x 'size(p_array, 3)'
   stat_ic = zeros(size(p_array, 3))
 
   # Compute in-control values
