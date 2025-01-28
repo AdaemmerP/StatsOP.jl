@@ -95,8 +95,7 @@ end
 
 # Method to fill data matrix for SAR(1) without additive outliers
 function fill_mat_dgp_sop!(
-  dgp::SAR1, dist_error, dist_ao::Nothing, mat, mat_ao::Matrix{Float64},
-  vec_ar::Vector{Float64}, vec_ar2::Vector{Float64}, mat2::Matrix{Float64}
+  dgp::SAR1, dist_error::UnivariateDistribution, dist_ao::Nothing, mat, mat_ao::Matrix{Float64}, vec_ar::Vector{Float64}, vec_ar2::Vector{Float64}, mat2::Matrix{Float64}
 )
 
   # draw MA-errors  
@@ -116,7 +115,8 @@ end
 # Method to fill matrix for SAR(1) with additive outliers
 function fill_mat_dgp_sop!(
   dgp::SAR1, dist_error::UnivariateDistribution, dist_ao::UnivariateDistribution,
-  mat, mat_ao::Matrix{Float64}, vec_ar::Vector{Float64}, vec_ar2::Vector{Float64}
+  mat, mat_ao::Matrix{Float64}, vec_ar::Vector{Float64}, vec_ar2::Vector{Float64},
+  mat2::Matrix{Float64}
 )
 
   # draw MA-errors  

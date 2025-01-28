@@ -118,7 +118,7 @@ function rl_sop_oc(
   # mat_ma: matrix for moving averages
   # vec_ar: vector for SAR(1) model
   # vec_ar2: vector for in-place multiplication for SAR(1) model
-  if typeof(spatial_dgp) isa SAR1
+  if spatial_dgp isa SAR1
     mat = build_sar1_matrix(spatial_dgp) # will be done only once
     mat_ao = zeros((M + 2 * spatial_dgp.margin), (N + 2 * spatial_dgp.margin))
     vec_ar = zeros((M + 2 * spatial_dgp.margin) * (N + 2 * spatial_dgp.margin))
@@ -134,11 +134,11 @@ function rl_sop_oc(
     mat = zeros(M + 1, N + 1)
     mat_ma = similar(mat)
     mat_ao = similar(mat)
-  elseif typeof(spatial_dgp) isa SQMA22
+  elseif spatial_dgp isa SQMA22
     mat = zeros(M + 2, N + 2)
     mat_ma = similar(mat)
     mat_ao = similar(mat)
-  elseif typeof(spatial_dgp) isa BSQMA11
+  elseif spatial_dgp isa BSQMA11
     mat = zeros(M + 1, N + 1)
     mat_ma = zeros(M + 2, N + 2) # one extra row and column for "forward looking"
     mat_ao = similar(mat)
@@ -149,13 +149,13 @@ function rl_sop_oc(
     fill!(p_ewma, 1.0 / 3.0)
     stat = chart_stat_sop(p_ewma, chart_choice)
 
-    # Re-initialize matrix 
-    if spatial_dgp isa SAR1
-      # do nothing, 'mat' will not be overwritten for SAR1
-    else
-      #fill!(mat, 0)
-      init_mat!(spatial_dgp, dist_error, mat)
-    end
+    # # Re-initialize matrix 
+    # if spatial_dgp isa SAR1
+    #   # do nothing, 'mat' will not be overwritten for SAR1
+    # else
+    #   #fill!(mat, 0)
+    #   init_mat!(spatial_dgp, dist_error, mat)
+    # end
 
     rl = 0
 

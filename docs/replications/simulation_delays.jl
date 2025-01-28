@@ -32,7 +32,10 @@ jmax = 7
 cl_sacf_mat = zeros(length(MN_vec), length(d1d2_vec))
 cl_sacf_bp_mat = zeros(length(MN_vec), 1)
 
-# Compute SACF statistics for d1-d2-integers
+cl_sop_mat = similar(cl_sacf_mat)
+cl_sop_mat_bp = similar(cl_sacf_bp_mat)
+
+# Compute SACF and SOP statistics for d1-d2-combinations
 for (i, MN) in enumerate(MN_vec)
     M = MN[1]
     N = MN[2]
@@ -40,72 +43,57 @@ for (i, MN) in enumerate(MN_vec)
     for (j, d1d2) in enumerate(d1d2_vec)
         d1 = d1d2[1]
         d2 = d1d2[2]
-        cl_init = map(i -> stat_sacf(randn(M, N, 370), 0.1, d1, d2) |> last, 1:1_000) |> x -> quantile(x, 0.99)
         println("M = $M, N = $N, d1 = $d1, d2 = $d2")
-        cl = cl_sacf(sp_dgp, lam, L0, cl_init, d1, d2, reps; jmin=4, jmax=7, verbose=true)
+
+        # Limits for SACF
+        cl_init_sacf = map(i -> stat_sacf(randn(M, N, 370), 0.1, d1, d2) |> last, 1:1_000) |> x -> quantile(x, 0.99)
+        cl = cl_sacf(sp_dgp, lam, L0, cl_init_sacf, d1, d2, reps; jmin=4, jmax=7, verbose=true)
         cl_sacf_mat[i, j] = cl
-    end
-end
 
-# Compute SACF-BP-statistics
-for (i, MN) in enumerate(MN_vec)
-
-    M = MN[1]
-    N = MN[2]
-    sp_dgp = ICSP(M, N, Normal(0, 1))
-    cl_init = map(i -> stat_sacf_bp(randn(M, N, 370), lam, w) |> last, 1:1_000) |>
-              x -> quantile(x, 0.99)
-
-    cl = cl_sacf_bp(sp_dgp, lam, L0, cl_init, w::Int, reps;
-        jmin=1, jmax=4, verbose=true
-    )
-    cl_sacf_bp_mat[i] = cl
-end
-# --- Save matrix to JLD2 file
-jldsave("cl_sacf_delays.jld2"; cl_sacf_mat)
-jldsave("cl_sacf_bp_delays.jld2"; cl_sacf_bp_mat)
-# load_object("cl_sacf.jld2")
-
-#--- Compute critical limits for SOPs
-# Build Matrix to store all critical limits
-cl_sop_mat = zeros(length(MN_vec), length(d1d2_vec))
-cl_sop_mat_bp = zeros(length(MN_vec), 1)
-
-for (i, MN) in enumerate(MN_vec)
-    M = MN[1]
-    N = MN[2]
-    sp_dgp = ICSP(M, N, Normal(0, 1))
-    for (j, d1d2) in enumerate(d1d2_vec)
-        d1 = d1d2[1]
-        d2 = d1d2[2]
-        crit_init = map(i -> stat_sop(randn(M, N, 370), 0.1, d1, d2) |> last, 1:1_000) |> x -> quantile(x, 0.99)
+        # Limits for SOPs
+        cl_init_sop = map(i -> stat_sop(randn(M, N, 370), 0.1, d1, d2) |> last, 1:1_000) |> x -> quantile(x, 0.99)
         println("M = $M, N = $N, d1 = $d1, d2 = $d2")
-        #println("Initial limit: $crit_init")
-        cl = cl_sop(sp_dgp, lam, L0, crit_init, d1, d2, reps; jmin=jmin, jmax=jmax, verbose=true)
+        cl = cl_sop(sp_dgp, lam, L0, cl_init_sop, d1, d2, reps; jmin=jmin, jmax=jmax, verbose=true)
         cl_sop_mat[i, j] = cl
     end
 end
-cl_sop_mat
 
+# Save 
+jldsave("cl_sacf_delays.jld2"; cl_sacf_mat)
+jldsave("cl_sop_delays.jld2"; cl_sop_mat)
+
+# Compute critical limits for SACF-BP and SOP-BP
 for (i, MN) in enumerate(MN_vec)
     M = MN[1]
     N = MN[2]
     sp_dgp = ICSP(M, N, Normal(0, 1))
-    crit_init = map(i -> stat_sop_bp(randn(M, N, 370), 0.1, w) |> last, 1:1_000) |> x -> quantile(x, 0.01)
-    cl = cl_sop_bp(
-        sp_dgp, lam, L0, crit_init, w, reps; jmin=jmin, jmax=jmax, verbose=true
-    )
-    cl_sop_mat_bp[i] = cl
+
+    for w in 1:w
+        println("M = $M, N = $N, w = $w")
+
+        # Limits for SACF-BP
+        cl_init_sacf = map(i -> stat_sacf_bp(randn(M, N, 370), lam, w) |> last, 1:1_000) |>
+                       x -> quantile(x, 0.99)
+        cl = cl_sacf_bp(sp_dgp, lam, L0, cl_init_sacf, w::Int, reps;
+            jmin=jmin, jmax=jmax, verbose=true
+        )
+        cl_sacf_bp_mat[i] = cl
+
+        # Limits for SOP-BP
+        cl_init_sop = map(i -> stat_sop_bp(randn(M, N, 370), 0.1, w) |> last, 1:1_000) |> x -> quantile(x, 0.99)
+        cl = cl_sop_bp(sp_dgp, lam, L0, cl_init_sop, w, reps; jmin=jmin, jmax=jmax, verbose=true)
+        cl_sop_mat_bp[i] = cl
+    end
+
 end
-
 # --- Save matrix to JLD2 file
-jldsave("cl_sop_delays.jld2"; cl_sop_mat)
-jldsave("cl_sop_bp_delays.jld2"; cl_sop_mat_bp)
-
+jldsave("cl_sacf_bp.jld2"; cl_sacf_bp_mat)
+jldsave("cl_sop_bp.jld2"; cl_sop_mat_bp)
 
 # ----------------------------------------------------------------------#
 # --------    Computation of ARLs for IC processes          ------------#
 # ----------------------------------------------------------------------#
+reps = 10^5
 dist = [TDist(2), Exponential(1)]
 arl_sacf_mat = zeros(length(MN_vec), length(d1d2_vec), length(dist))
 sd_sacf_mat = similar(arl_sacf_mat)
@@ -128,21 +116,18 @@ for (k, dist) in enumerate(dist)
             d2 = d1d2[2]
 
             # Compute SACF for one d1-d2 pair
-            sacf_arl = arl_sacf(sp_dgp, lam, cl_sacf_mat[i, j], d1, d2, reps)
+            sacf_arl = arl_sacf_ic(sp_dgp, lam, cl_sacf_mat[i, j], d1, d2, reps)
             arl_sacf_mat[i, j, k] = sacf_arl[1]
             sd_sacf_mat[i, j, k] = sacf_arl[2]
 
             # Compute SACF-BP for one d1-d2 pair
-            sop_arl_sd = arl_sop(sp_dgp, lam, cl_sop_mat[i, j], d1, d2, reps; chart_choice=3)
+            sop_arl_sd = arl_sop_ic(sp_dgp, lam, cl_sop_mat[i, j], d1, d2, reps; chart_choice=3)
             arl_sop_mat[i, j, k] = sop_arl_sd[1]
             sd_sop_mat[i, j, k] = sop_arl_sd[2]
             println("Progress -> k: $k, i: $i, j: $j")
         end
     end
 end
-
-# Loop for BP-statistic
-# ...
 
 # --- Save matrices to JLD2 file
 jldsave("arl_sac_delays.jld2"; arl_sac_mat)
@@ -154,7 +139,7 @@ jldsave("sd_sop_delays.jld2"; sd_sop_mat)
 # --------    Computation of ARLs for OOC processes          -----------#
 # ----------------------------------------------------------------------#
 
-cl_sacf_mat = load_object("cl_sacf.jld2")
+cl_sacf_mat = load_object("cl_sacf_delays.jld2")
 cl_sop_mat = load_object("cl_sop_delays.jld2")
 
 # --- Results for SAR(1, 1)
@@ -169,10 +154,14 @@ for (i, MN) in enumerate(MN_vec)
         d1 = d1d2[1]
         d2 = d1d2[2]
         sar11 = SAR11((0.4, 0.3, 0.1), M, N, Normal(0, 1), nothing, 100)
-        sacf_results = arl_sacf(lam, cl_sacf_mat[i, j], sar11, d1, d2, reps)
+
+        # Compute ARL for SAR(1, 1)
+        sacf_results = arl_sacf_oc(sar11, lam, cl_sacf_mat[i, j], d1, d2, reps)        
         arl_sacf_sar11_mat[i, j] = sacf_results[1]
         sd_sacf_sar11_mat[i, j] = sacf_results[2]
-        sop_results = arl_sop(sar11, lam, cl_sop_mat[i, j], d1, d2, reps; chart_choice=3)
+
+        # Compute ARL for SOP for SAR(1, 1)
+        sop_results = arl_sop_oc(sar11, lam, cl_sop_mat[i, j], d1, d2, reps; chart_choice=3)
         arl_sop_sar11_mat[i, j] = sop_results[1]
         sd_sop_sar11_mat[i, j] = sop_results[2]
         println("Progress -> SAR(1, 1): i: $i, j: $j")
@@ -197,10 +186,14 @@ for (i, MN) in enumerate(MN_vec)
         d1 = d1d2[1]
         d2 = d1d2[2]
         sar11_outl = SAR11((0.4, 0.3, 0.1), M, N, Normal(0, 1), BinomialC(0.1, 10), 100)
-        sacf_results = arl_sacf(lam, cl_sacf_mat[i, j], sar11_outl, d1, d2, reps)
+
+        # Compute ARL for SAR(1, 1) with outliers
+        sacf_results = arl_sacf_oc(sar11_outl, lam, cl_sacf_mat[i, j], d1, d2, reps)
         arl_sacf_sar11_outl_mat[i, j] = sacf_results[1]
         sd_sacf_sar11_outl_mat[i, j] = sacf_results[2]
-        sop_results = arl_sop(lam, cl_sop_mat[i, j], sar11_outl, d1, d2, reps; chart_choice=3)
+
+        # Compute ARL for SOP for SAR(1, 1) with outliers
+        sop_results = arl_sop_oc(sar11_outl, lam, cl_sop_mat[i, j], d1, d2, reps; chart_choice=3)
         arl_sop_sar11_outl_mat[i, j] = sop_results[1]
         sd_sop_sar11_outl_mat[i, j] = sop_results[2]
         println("Progress -> SAR(1, 1) with outliers: i: $i, j: $j")
@@ -226,10 +219,14 @@ for (i, MN) in enumerate(MN_vec)
         d1 = d1d2[1]
         d2 = d1d2[2]
         sar22 = SAR22((0.0, 0.0, 0.0, 0.4, 0.3, 0.0, 0.0, 0.1), M, N, Normal(0, 1), nothing, 100)
-        sacf_results = arl_sacf(lam, cl_sacf_mat[i, j], sar22, d1, d2, reps)
+
+        # Compute ARL for SACF for SAR(2, 2)
+        sacf_results = arl_sacf_oc(sar22, lam, cl_sacf_mat[i, j],d1, d2, reps)
         arl_sacf_sar22_mat[i, j] = sacf_results[1]
         sd_sacf_sar22_mat[i, j] = sacf_results[2]
-        sop_results = arl_sop(lam, cl_sop_mat[i, j], sar22, d1, d2, reps; chart_choice=3)
+
+        # Compute ARL for SOP for SAR(2, 2)
+        sop_results = arl_sop_oc(sar22, lam, cl_sop_mat[i, j], d1, d2, reps; chart_choice=3)
         arl_sop_sar22_mat[i, j] = sop_results[1]
         sd_sop_sar22_mat[i, j] = sop_results[2]
         println("Progress -> SAR(2, 2): i: $i, j: $j")
@@ -255,10 +252,14 @@ for (i, MN) in enumerate(MN_vec)
         d1 = d1d2[1]
         d2 = d1d2[2]
         sar22_outl = SAR22((0.0, 0.0, 0.0, 0.4, 0.3, 0.0, 0.0, 0.1), M, N, Normal(0, 1), BinomialC(0.1, 10), 100)
-        sacf_results = arl_sacf(lam, cl_sacf_mat[i, j], sar22_outl, d1, d2, reps)
+
+        # Compute ARL for SACF for SAR(2, 2) with outliers
+        sacf_results = arl_sacf_oc(sar22_outl, lam, cl_sacf_mat[i, j], d1, d2, reps)
         arl_sacf_sar22_outl_mat[i, j] = sacf_results[1]
         sd_sacf_sar22_outl_mat[i, j] = sacf_results[2]
-        sop_results = arl_sop(lam, cl_sop_mat[i, j], sar22_outl, d1, d2, reps; chart_choice=3)
+
+        # Compute ARL for SOP for SAR(2, 2) with outliers
+        sop_results = arl_sop_oc(sar22_outl, lam, cl_sop_mat[i, j], d1, d2, reps; chart_choice=3)
         arl_sop_sar22_outl_mat[i, j] = sop_results[1]
         sd_sop_sar22_outl_mat[i, j] = sop_results[2]
         println("Progress -> SAR(2, 2) with outliers: i: $i, j: $j")
@@ -283,11 +284,15 @@ for (i, MN) in enumerate(MN_vec)
     for (j, d1d2) in enumerate(d1d2_vec)
         d1 = d1d2[1]
         d2 = d1d2[2]
-        sqma11 = SQMA11((0.8, 0.8, 0.8), (2, 2, 2), M, N, Normal(0, 1), nothing, 1)
-        sacf_results = arl_sacf(lam, cl_sacf_mat[i, j], sqma11, d1, d2, reps)
+        sqma11 = SQMA11((0.8, 0.8, 0.8), (2, 2, 2), M, N, Normal(0, 1), nothing)
+
+        # Compute ARL for SACF for SQMA(1, 1)
+        sacf_results = arl_sacf_oc(sqma11, lam, cl_sacf_mat[i, j], d1, d2, reps)
         arl_sacf_sqma11_mat[i, j] = sacf_results[1]
         sd_sacf_sqma11_mat[i, j] = sacf_results[2]
-        sop_results = arl_sop(lam, cl_sop_mat[i, j], sqma11, d1, d2, reps; chart_choice=3)
+
+        # Compute ARL for SOP for SQMA(1, 1)
+        sop_results = arl_sop_oc(sqma11, lam, cl_sop_mat[i, j], d1, d2, reps; chart_choice=3)
         arl_sop_sqma11_mat[i, j] = sop_results[1]
         sd_sop_sqma11_mat[i, j] = sop_results[2]
         println("Progress -> SQMA(1, 1): i: $i, j: $j")
@@ -315,12 +320,16 @@ for (i, MN) in enumerate(MN_vec)
         sqma22 = SQMA22(
             (0.0, 0.0, 0.0, 0.8, 0.8, 0.0, 0.0, 0.8),
             (0.0, 0.0, 0.0, 2, 2, 0.0, 0.0, 2),
-            M, N, Normal(0, 1), nothing, 1
+            M, N, Normal(0, 1), nothing
         )
-        sacf_results = arl_sacf(lam, cl_sacf_mat[i, j], sqma22, d1, d2, reps)
+
+        # Compute ARL for SACF for SQMA(2, 2)
+        sacf_results = arl_sacf_oc(sqma22, lam, cl_sacf_mat[i, j], d1, d2, reps)
         arl_sacf_sqma22_mat[i, j] = sacf_results[1]
         sd_sacf_sqma22_mat[i, j] = sacf_results[2]
-        sop_results = arl_sop(lam, cl_sop_mat[i, j], sqma22, d1, d2, reps; chart_choice=3)
+
+        # Compute ARL for SOP for SQMA(2, 2)
+        sop_results = arl_sop_oc(sqma22, lam, cl_sop_mat[i, j], d1, d2, reps; chart_choice=3)
         arl_sop_sqma22_mat[i, j] = sop_results[1]
         sd_sop_sqma22_mat[i, j] = sop_results[2]
         println("Progress -> SQMA(2, 2): i: $i, j: $j")
@@ -351,10 +360,14 @@ for (i, MN) in enumerate(MN_vec)
         d1 = d1d2[1]
         d2 = d1d2[2]
         sar1 = SAR1((0.1, 0.1, 0.1, 0.1), M, N, Normal(0, 1), nothing, 20)
-        sacf_results = arl_sacf(lam, cl_sacf_mat[i, j], sar1, d1, d2, reps)
+
+        # Compute ARL for SACF for SAR(1)
+        sacf_results = arl_sacf_oc(sar1, lam, cl_sacf_mat[i, j], d1, d2, reps)
         arl_sacf_sar1_mat[i, j] = sacf_results[1]
         sd_sacf_sar1_mat[i, j] = sacf_results[2]
-        sop_results = arl_sop(lam, cl_sop_mat[i, j], sar1, d1, d2, reps; chart_choice=3)
+
+        # Compute ARL for SOP for SAR(1)
+        sop_results = arl_sop_oc(sar1, lam, cl_sop_mat[i, j], d1, d2, reps; chart_choice=3)
         arl_sop_sar1_mat[i, j] = sop_results[1]
         sd_sop_sar1_mat[i, j] = sop_results[2]
         println("Progress -> SAR(1): i: $i, j: $j")
@@ -380,10 +393,14 @@ for (i, MN) in enumerate(MN_vec)
         d1 = d1d2[1]
         d2 = d1d2[2]
         sar1_outl = SAR1((0.1, 0.1, 0.1, 0.1), M, N, Normal(0, 1), BinomialC(0.1, 10), 20)
-        sacf_results = arl_sacf(lam, cl_sacf_mat[i, j], sar1_outl, d1, d2, reps)
+
+        # Compute ARL for SACF for SAR(1) with outliers
+        sacf_results = arl_sacf_oc(sar1_outl, lam, cl_sacf_mat[i, j], d1, d2, reps)
         arl_sacf_sar1_outl_mat[i, j] = sacf_results[1]
         sd_sacf_sar1_outl_mat[i, j] = sacf_results[2]
-        sop_results = arl_sop(lam, cl_sop_mat[i, j], sar1_outl, d1, d2, reps; chart_choice=3)
+
+        # Compute ARL for SOP for SAR(1) with outliers
+        sop_results = arl_sop_oc(sar1_outl, lam, cl_sop_mat[i, j], d1, d2, reps; chart_choice=3)
         arl_sop_sar1_outl_mat[i, j] = sop_results[1]
         sd_sop_sar1_outl_mat[i, j] = sop_results[2]
         println("Progress -> SAR(1) with outliers: i: $i, j: $j")

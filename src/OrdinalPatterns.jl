@@ -45,7 +45,8 @@ export arl_sop_ic,
 
 # SACF functions to export
 export rl_sacf,
-  arl_sacf,
+  arl_sacf_ic,
+  arl_sacf_oc,
   arl_sacf_bp,
   stat_sacf,
   stat_sacf_bp,
@@ -148,6 +149,7 @@ include("sacf/sacf_arl_oc_functions.jl")
 include("sacf/sacf_bp_arl_ic_functions.jl")
 include("sacf/sacf_bp_arl_oc_functions.jl")
 include("sacf/sacf_cl_functions.jl")
+include("sacf/sacf_cl_bp_functions.jl")
 include("sacf/sacf_stat_functions.jl")
 include("sacf/sacf_stat_bp_functions.jl")
 

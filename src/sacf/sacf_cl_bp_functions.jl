@@ -27,7 +27,7 @@ function cl_sacf_bp(
   for j in jmin:jmax
     for dh in 1:80
       cl_init = cl_init + (-1)^j * dh / 10^j
-      L1 = arl_sacf_bp(sp_dgp, lam, cl_init, w::Int, reps)[1]
+      L1 = arl_sacf_bp_ic(sp_dgp, lam, cl_init, w::Int, reps)[1]
       
       if verbose
         println("cl = ", cl_init, "\t", "ARL = ", L1)
