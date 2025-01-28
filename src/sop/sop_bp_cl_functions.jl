@@ -1,5 +1,5 @@
 """
-    cl_sop_bp_ic(
+    cl_sop_bp(
   sp_dgp::ICSP, lam, L0, cl_init, w, reps=10_000;
   chart_choice=3, jmin=4, jmax=6, verbose=false
 )
@@ -18,7 +18,7 @@ The function returns the control limit for a given average run. The input parame
 - `jmax`: The maximum number of values to change after the decimal point in the control limit.
 - `verbose::Bool`: A boolean to indicate whether to print the control limit and ARL for each iteration.
 """
-function cl_sop_bp_ic(
+function cl_sop_bp(
     sp_dgp::ICSP, lam, L0, cl_init, w, reps=10_000;
     chart_choice=3, jmin=4, jmax=6, verbose=false
 )

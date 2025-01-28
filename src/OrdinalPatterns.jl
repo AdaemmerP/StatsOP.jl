@@ -30,10 +30,9 @@ export arl_sop_ic,
   arl_sop_bp_ic,
   arl_sop_bp_oc,
   arl_sop_bp_bootstrap,
-  cl_sop_ic,
+  cl_sop,
   cl_sop_bootstrap,
-  cl_sop_bp_ic,
-  cl_sop_bp_oc,
+  cl_sop_bp,
   cl_sop_bp_bootstrap,
   stat_sop,
   stat_sop_bp,
@@ -132,10 +131,10 @@ include("sop/sop_bp_arl_ic_functions.jl")
 include("sop/sop_bp_arl_oc_functions.jl")
 include("sop/sop_bp_arl_bootstrap_functions.jl")
 # ---
-include("sop/sop_cl_ic_functions.jl")
+include("sop/sop_cl_functions.jl")
 include("sop/sop_cl_bootstrap_functions.jl")
-include("sop/sop_cl_bp_ic.jl")
-include("sop/sop_cl_bp_bootstrap.jl")
+include("sop/sop_bp_cl_functions.jl")
+include("sop/sop_bp_cl_bootstrap_functions.jl")
 # ---
 include("sop/sop_stat_functions.jl")
 include("sop/sop_stat_bp_functions.jl")
@@ -144,8 +143,10 @@ include("sop/sop_distributions.jl")
 include("sop/sop_help_functions.jl")
 
 # SACFs
-include("sacf/sacf_arl_functions.jl")
-include("sacf/sacf_arl_bp_functions.jl")
+include("sacf/sacf_arl_ic_functions.jl")
+include("sacf/sacf_arl_oc_functions.jl")
+include("sacf/sacf_bp_arl_ic_functions.jl")
+include("sacf/sacf_bp_arl_oc_functions.jl")
 include("sacf/sacf_cl_functions.jl")
 include("sacf/sacf_stat_functions.jl")
 include("sacf/sacf_stat_bp_functions.jl")
