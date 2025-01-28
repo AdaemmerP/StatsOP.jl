@@ -72,7 +72,12 @@ for i in 1:2
 
 
   # Use Makie to plots stats_bp. Draw in red the critical limits  
-  ax = Axis(fig[1, i], width=150, height=150)
+  ax = Axis(
+    fig[1, i],
+    width=150,
+    height=150,
+    xticks=(1:6, string.(collect(95:100)))
+  )
   lines!(ax, stats_sop, color=:blue)
   scatter!(ax, stats_sop, color=:blue)
   hlines!(ax, cl_low, color=:red)
@@ -81,6 +86,7 @@ end
 
 resize_to_layout!(fig)
 fig
+# save("sop_images.pdf", fig)
 
 # -----------------------------------------------------------------------------
 #     SOP chart combined plots (Shewart and EWMA) based on residuals
@@ -109,7 +115,12 @@ for i in 1:2
 
 
   # Use Makie to plots stats_bp. Draw in red the critical limits
-  ax = Axis(fig[1, i], width=150, height=150)
+  ax = ax = Axis(
+    fig[1, i],
+    width=150,
+    height=150,
+    xticks=(1:6, string.(collect(95:100)))
+  )
   lines!(ax, stats_sop, color=:blue)
   scatter!(ax, stats_sop, color=:blue)
   hlines!(ax, cl_low, color=:red)
@@ -118,21 +129,25 @@ end
 
 resize_to_layout!(fig)
 fig
+save("sop_resid.pdf", fig)
 
 
 # -----------------------------------------------------------------------------
-#     BP statsitics (Shewart and EWMA) based on original images
+#     BP statistics (Shewart and EWMA) based on original images
 # ----------------------------------------------------------------------------- 
-w = 5
+w = [3, 5, 7]
+lam = [0.1, 1]
+reps = 10^5
+
+fig_title = [
+  "(a) BP-EWMA chart (w = 3, λ = 0.1)" "(b) BP-EWMA chart (w = 3, λ = 1)";
+  "(c) BP-EWMA chart (w = 5, λ = 0.1)" "(d) BP-EWMA chart (w = 5, λ = 1)";
+  "(e) BP-EWMA chart (w = 7, λ = 0.1)" "(f) BP-EWMA chart (w = 7, λ = 1)"
+  ]
 
 fig = Figure()
-for i in 1:2
-  for w in 1:w
-    # Compute critical limits for BP-statistic
-    cl = cl_sop_bp(
-      images_ic, lam[i], 20, 7.47162523909521e-7, w, reps;
-      chart_choice=3, jmin=6, jmax=9, verbose=true
-    )
+for (i, w) in enumerate(w)
+  for j in 1:2
 
     # Compute in-control values    
     p_array = compute_p_array_bp(images_ic, w; chart_choice=chart_choice) # Compute relative frequencies for p-vectors
@@ -147,9 +162,25 @@ for i in 1:2
       @views stat_ic[i] = chart_stat_sop(p_array_mean[:, :, i], chart_choice)
     end
 
+    crit_init =  map(x -> stat_sop_bp(
+      images_ic[:, :, rand(1:94, 20)],
+      lam[j],
+      w,
+      chart_choice=3,
+      add_noise=false,
+      stat_ic=stat_ic,
+      type_freq_init=p_array_mean
+    )[20], 1:20) |>  mean
+
+    # Compute critical limits for BP-statistic
+    cl = cl_sop_bp(
+      images_ic, lam[j], 20, crit_init, w, reps;
+      chart_choice=3, jmin=4, jmax=7, verbose=true
+    )
+
     stats_bp = stat_sop_bp(
       images_oc,
-      lam[i],
+      lam[j],
       w,
       chart_choice=3,
       add_noise=false,
@@ -158,7 +189,13 @@ for i in 1:2
     )
 
     # Use Makie to plots stats_bp. Draw in red the critical limits
-    ax = Axis(fig[i, w], width=150, height=150)
+    ax = Axis(
+      fig[i, j],
+      title=fig_title[i, j],
+      width=350,
+      height=250,
+      xticks=(1:6, string.(collect(95:100)))
+    )
     lines!(ax, stats_bp, color=:blue)
     scatter!(ax, stats_bp, color=:blue)
     hlines!(ax, [cl], color=:red)
@@ -167,6 +204,10 @@ for i in 1:2
 end
 resize_to_layout!(fig)
 fig
+
+save("BP_textile.pdf", fig)
+
+
 
 # -----------------------------------------------------------------------------
 #           BP statsitics (Shewart and EWMA) based on residuals
@@ -206,7 +247,11 @@ for i in 1:2
     )
 
     # Use Makie to plots stats_bp. Draw in red the critical limits
-    ax = Axis(fig[i, w], width=150, height=150)
+    ax = Axis(
+      fig[i, w], 
+    width=150, 
+    height=150
+    )
     lines!(ax, stats_bp, color=:blue)
     scatter!(ax, stats_bp, color=:blue)
     hlines!(ax, [cl], color=:red)

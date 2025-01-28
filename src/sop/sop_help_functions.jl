@@ -47,7 +47,7 @@ end
 
 Compute the matrix of p-hat values for a given 3D array of data when the delays are integers. These values are used for bootstrapping. 
 """
-function compute_p_array(data::Array{T,3}, d1::Int, d2::Int; chart_choice=3) where {T<:Real}
+function compute_p_array(data::Array{T,3}, d1::Int, d2::Int; chart_choice=3, add_noise=false) where {T<:Real}
 
   # pre-allocate  
   m = size(data, 1) - d1
@@ -60,6 +60,11 @@ function compute_p_array(data::Array{T,3}, d1::Int, d2::Int; chart_choice=3) whe
   s_1 = index_sop[1]
   s_2 = index_sop[2]
   s_3 = index_sop[3]
+
+  # Add noise?
+  if add_noise
+    data = data .+ rand(size(data, 1), size(data, 2), size(data, 3))
+  end
 
   # Function to fill p_mat with p_hat values used in parallel computation with Threads.@threads
   function fill_p_mat!(
@@ -107,7 +112,7 @@ compute_p_array(data::Array{Float64,3})
 
 Compute the matrix of p-hat values for a given 3D array of data when the delays are vectors of integers. These values are used for bootstrapping to compute critcial limits for the BP-statistics. 
 """
-function compute_p_array_bp(data::Array{T,3}, w::Int; chart_choice=3) where {T<:Real}
+function compute_p_array_bp(data::Array{T,3}, w::Int; chart_choice=3, add_noise=false) where {T<:Real}
 
   # pre-allocate
   lookup_array_sop = compute_lookup_array_sop()
@@ -119,6 +124,11 @@ function compute_p_array_bp(data::Array{T,3}, w::Int; chart_choice=3) where {T<:
   s_1 = index_sop[1]
   s_2 = index_sop[2]
   s_3 = index_sop[3]
+
+  # Add noise?
+  if add_noise
+    data = data .+ rand(size(data, 1), size(data, 2), size(data, 3))
+  end
 
   # Function to fill 'p_array' with 'p_hat' values. 
   # This function will be called in parallel via Threads.@threads below

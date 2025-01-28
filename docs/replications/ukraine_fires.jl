@@ -97,11 +97,11 @@ all_mats = map(dates_sort) do i
 end
 
 # Pre-allocate 3d array of type Float64
-empty = zeros(Float64, M, N, 52)
+mat_all = zeros(Float64, M, N, 52)
 
 # Fill the 3d array with the matrices and add noise
-for i in axes(empty, 3)
-  empty[:, :, i] = convert.(Float64, all_mats[i])
+for i in axes(mat_all, 3)
+  mat_all[:, :, i] = convert.(Float64, all_mats[i])
 end
 
 
@@ -113,7 +113,7 @@ fig_title = ["EWMA chart (λ = 0.1)", "Shewhart chart (λ = 1)"]
 for i in 1:2
   # Compute the statistic 1000 times
   Random.seed!(123)
-  results_all = map(x -> stat_sop(empty, lam[i], 1, 1; chart_choice=3, add_noise=true)', 1:1000)
+  results_all = map(x -> stat_sop(mat_all, lam[i], 1, 1; chart_choice=3, add_noise=true)', 1:1000)
   # Convert to matrix
   mapooc_stat_sops = vcat(results_all...)
 
@@ -143,8 +143,69 @@ for i in 1:2
   lines!(ax, 1:length(ooc_vec), ooc_vec, color=:black, label="Typical run")
   lines!(ax, mean_vec, color=:blue, label="Mean of runs")
   hlines!([-cl[i], cl[i]], color=:"red", label="Control limits")
-  #axislegend(ax, merge=true, unique=true, position=(0, 0), labelsize = 12)
+
+  # Add legend
+  if i == 2
+    Legend(fig[2, 1:2], ax, labelsize=14, framecolor = :white, orientation=:horizontal)
+  end
+
 end
-Legend(fig[2, 1:2], ax, labelsize=14, framecolor = :white, orientation=:horizontal)
+
 resize_to_layout!(fig)
 fig
+
+
+# -----------------------------------------------------------------------------
+#                           Makie heatmaps
+# -----------------------------------------------------------------------------
+#Random.seed!(123)
+v = [1, 39]
+ic_mats = log.(cat((all_mats[1:3])..., dims = 3))
+oc_mats = log.(cat(all_mats[[31, 33, 39]]..., dims = 3))
+maps = cat(ic_mats, oc_mats, dims = 3)
+
+title_string = "Week " .* ["1", "2", "3", "31", "33", "39"]
+maps[maps .== -Inf] .= 0
+
+extremas = map(extrema, maps)
+global_min = minimum(t -> first(t), extremas)
+global_max = maximum(t -> last(t), extremas)
+
+# These limits have to be shared by the maps and the colorbar
+clims = (global_min, global_max)
+cm = CairoMakie.cgrad([:white, :firebrick1, :darkred])
+
+borders_x = collect(0:25)
+borders_y = collect(40:-1:0)
+## plots
+let
+  fig = Figure()
+  k = 1
+  for i in 1:2
+    for j in 1:3
+      ax = Axis(
+        fig[i, j], 
+        title="$(title_string[k])", 
+        aspect = CairoMakie.AxisAspect(1),
+        xaxisposition = :top,
+        xticks = 0:5:(N-1),
+        yticks = 0:10:(M-1),
+
+      )      
+      ax.yreversed=true
+      heatmap!(
+                fig[i, j], 
+                borders_x,
+                borders_y,
+                transpose(maps[M:-1:1, :, k]);
+                colorrange=clims, 
+                colormap=cm,                
+      )      
+      k += 1
+    end
+  end
+  cb = Colorbar(fig[:, n_cols+1]; limits=clims, colormap=cm)
+  resize_to_layout!(fig)
+  fig
+  #save("ukraine_spatial_plot_combined_layout.pdf", fig) 
+end
