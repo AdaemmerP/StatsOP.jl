@@ -34,7 +34,7 @@ function arl_sacf_bp_ic(sp_dgp::ICSP, lam, cl, w::Int, reps=10_000)
         chunks = Iterators.partition(1:reps, div(reps, nworkers()))
 
         par_results = pmap(chunks) do i
-            rl_sacf_bp_ic(lam, cl, sp_dgp, d1_vec, d2_vec, i, dist_error)
+          rl_sacf_bp_ic(sp_dgp, lam, cl, w, i, dist_error)
         end
 
     end

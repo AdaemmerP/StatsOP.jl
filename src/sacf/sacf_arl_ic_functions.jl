@@ -32,12 +32,12 @@ function arl_sacf_ic(spatial_dgp::ICSP, lam, cl, d1::Int, d2::Int, reps=10_000)
         end
 
     elseif nprocs() > 1 # Multi Processing
-
+        
         # Make chunks for separate tasks (based on number of workers)
         chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
 
         par_results = pmap(chunks) do i
-            Threads.@spawn rl_sacf_ic(spatial_dgp, lam, cl, d1, d2, i, dist_error)
+            rl_sacf_ic(spatial_dgp, lam, cl, d1, d2, i, dist_error)
         end
 
     end
