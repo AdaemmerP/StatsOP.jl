@@ -34,7 +34,7 @@ jmax = 7
 #--- Compute critical limits for SACF
 # Build Matrix to store all critical limits
 cl_sacf_mat = zeros(length(MN_vec), length(d1d2_vec))
-cl_sacf_bp_mat = zeros(length(MN_vec), 1)
+cl_sacf_bp_mat = zeros(length(MN_vec), w)
 
 cl_sop_mat = similar(cl_sacf_mat)
 cl_sop_mat_bp = similar(cl_sacf_bp_mat)
@@ -68,7 +68,7 @@ jldsave("cl_sop_delays.jld2"; cl_sop_mat)
 # ----------------------------------------------------------------------#
 # --- Computation of critical limits for BP-SACF and BP-SOPs -----------#
 # ----------------------------------------------------------------------#
-for (i, MN) in enumerate(MN_vec)
+@time for (i, MN) in enumerate(MN_vec)
     M = MN[1]
     N = MN[2]
     sp_dgp = ICSP(M, N, Normal(0, 1))
@@ -82,12 +82,12 @@ for (i, MN) in enumerate(MN_vec)
         cl = cl_sacf_bp(sp_dgp, lam, L0, cl_init_sacf, w::Int, reps;
             jmin=jmin, jmax=jmax, verbose=true
         )
-        cl_sacf_bp_mat[i] = cl
+        cl_sacf_bp_mat[i, w] = cl
 
         # Limits for SOP-BP
         cl_init_sop = map(i -> stat_sop_bp(randn(M, N, 370), 0.1, w) |> last, 1:1_000) |> x -> quantile(x, 0.99)
         cl = cl_sop_bp(sp_dgp, lam, L0, cl_init_sop, w, reps; jmin=jmin, jmax=jmax, verbose=true)
-        cl_sop_mat_bp[i] = cl
+        cl_sop_mat_bp[i, w] = cl
     end
 
 end

@@ -1,50 +1,5 @@
 
 # ----------------------------------------------------------------------#
-# --------    Computation of ARLs for IC processes          ------------#
-# ----------------------------------------------------------------------#
-reps = 10^5
-dist = [TDist(2), Exponential(1)]
-arl_sacf_mat = zeros(length(MN_vec), length(d1d2_vec), length(dist))
-sd_sacf_mat = similar(arl_sacf_mat)
-
-arl_sacf_bp_mat = zeros(length(MN_vec), length(dist))
-sd_sacf_bp_mat = similar(arl_sacf_bp_mat)
-
-arl_sop_mat = similar(arl_sacf_mat)
-sd_sop_mat = similar(sd_sacf_mat)
-
-# For Loop for one d1-d2 pair
-for (k, dist) in enumerate(dist)
-    for (i, MN) in enumerate(MN_vec)
-        M = MN[1]
-        N = MN[2]
-        sp_dgp = ICSP(M, N, dist)
-
-        for (j, d1d2) in enumerate(d1d2_vec)
-            d1 = d1d2[1]
-            d2 = d1d2[2]
-
-            # Compute SACF for one d1-d2 pair
-            sacf_arl = arl_sacf_ic(sp_dgp, lam, cl_sacf_mat[i, j], d1, d2, reps)
-            arl_sacf_mat[i, j, k] = sacf_arl[1]
-            sd_sacf_mat[i, j, k] = sacf_arl[2]
-
-            # Compute SACF-BP for one d1-d2 pair
-            sop_arl_sd = arl_sop_ic(sp_dgp, lam, cl_sop_mat[i, j], d1, d2, reps; chart_choice=3)
-            arl_sop_mat[i, j, k] = sop_arl_sd[1]
-            sd_sop_mat[i, j, k] = sop_arl_sd[2]
-            println("Progress -> k: $k, i: $i, j: $j")
-        end
-    end
-end
-
-# --- Save matrices to JLD2 file
-jldsave("arl_sac_delays.jld2"; arl_sac_mat)
-jldsave("sd_sac_delays.jld2"; sd_sac_mat)
-jldsave("arl_sop_delays.jld2"; arl_sop_mat)
-jldsave("sd_sop_delays.jld2"; sd_sop_mat)
-
-# ----------------------------------------------------------------------#
 # --------    Computation of ARLs for OOC processes          -----------#
 # ----------------------------------------------------------------------#
 
