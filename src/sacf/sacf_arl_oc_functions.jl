@@ -39,7 +39,7 @@ function arl_sacf_oc(sp_dgp::SpatialDGP, lam, cl, d1::Int, d2::Int, reps=10_000)
         chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
 
         par_results = pmap(chunks) do i
-            rl_sacf_oc(lam, cl, d1, d2, i, sp_dgp, dist_error, dist_ao)
+            rl_sacf_oc(sp_dgp, lam, cl, d1, d2, i, dist_error, dist_ao)
         end
 
     end

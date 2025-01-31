@@ -36,7 +36,7 @@ function arl_sop_bp_oc(
         par_results = map(chunks) do i
 
             Threads.@spawn rl_sop_bp_oc(
-                spatial_dgp, lam, cl, w, lookup_array_sop, p_reps, dist_error, dist_ao, chart_choice
+                spatial_dgp, lam, cl, w, lookup_array_sop, i, dist_error, dist_ao, chart_choice
             )
 
         end
@@ -47,7 +47,7 @@ function arl_sop_bp_oc(
         par_results = pmap(chunks) do i
 
             rl_sop_bp_oc(
-                spatial_dgp, lam, cl, w, lookup_array_sop, p_reps, dist_error, dist_ao, chart_choice
+                spatial_dgp, lam, cl, w, lookup_array_sop, i, dist_error, dist_ao, chart_choice
             )
 
         end
