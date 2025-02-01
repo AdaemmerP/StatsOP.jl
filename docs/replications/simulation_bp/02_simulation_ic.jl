@@ -25,10 +25,10 @@ d1d2_vec = [(1, 1), (2, 2), (3, 3)]
 w_max = 3
 
 # Load critical values
-cl_sacf_mat = load_object("cl_sacf_delays.jld2")
-cl_sop_mat = load_object("cl_sop_delays.jld2")
-cl_sacf_bp_mat = load_object("cl_sacf_bp.jld2")
-cl_sop_bp_mat = load_object("cl_sop_bp.jld2")
+cl_sacf_mat = load_object("climits/cl_sacf_delays.jld2")
+cl_sop_mat = load_object("climits/cl_sop_delays.jld2")
+cl_sacf_bp_mat = load_object("climits/cl_sacf_bp.jld2")
+cl_sop_bp_mat = load_object("climits/cl_sop_bp.jld2")
 
 # Pre-allocate matrices
 dist = [Normal(0, 1), TDist(2), Exponential(1)]

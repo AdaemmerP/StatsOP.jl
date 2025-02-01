@@ -116,11 +116,11 @@ function rl_sacf_bp(
         mat = zeros(M + 1, N + 1)
         mat_ma = similar(mat)
         mat_ao = similar(mat)
-    elseif typeof(spatial_dgp) isa SQMA22
+    elseif spatial_dgp isa SQMA22
         mat = zeros(M + 2, N + 2)
         mat_ma = similar(mat)
         mat_ao = similar(mat)
-    elseif typeof(spatial_dgp) isa BSQMA11
+    elseif spatial_dgp isa BSQMA11
         mat = zeros(M + 1, N + 1)
         mat_ma = zeros(M + 2, N + 2) # one extra row and column for "forward looking"
         mat_ao = similar(mat)

@@ -9,7 +9,7 @@ using LinearAlgebra
 using SlurmClusterManager
 
 # Add number of cores
-addprocs(5)
+addprocs(20)
 # addprocs(SlurmManager())
 @everywhere using OrdinalPatterns
 @everywhere using LinearAlgebra
@@ -159,3 +159,9 @@ for (i, MN) in enumerate(MN_vec)
         println("Progress -> SAR(1, 1) with outliers: i: $i, w: $w")
     end
 end
+
+# Safe
+jldsave("arl_sacf_bp_sar11_outl.jld2"; arl_sacf_bp_sar11_outl_mat)
+jldsave("sd_sacf_bp_sar11_outl.jld2"; sd_sacf_bp_sar11_outl_mat)
+jldsave("arl_sop_bp_sar11_outl.jld2"; arl_sop_bp_sar11_outl_mat)
+jldsave("sd_sop_bp_sar11_outl.jld2"; sd_sop_bp_sar11_outl_mat)
