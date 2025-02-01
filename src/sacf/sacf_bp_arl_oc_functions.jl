@@ -100,7 +100,7 @@ function rl_sacf_bp(
     # mat_ma: matrix for moving averages
     # vec_ar: vector for SAR(1) model
     # vec_ar2: vector for in-place multiplication for SAR(1) model
-    if typeof(spatial_dgp) isa SAR1
+    if spatial_dgp isa SAR1
         mat = build_sar1_matrix(spatial_dgp) # will be done only once
         mat_ao = zeros((M + 2 * spatial_dgp.margin), (N + 2 * spatial_dgp.margin))
         vec_ar = zeros((M + 2 * spatial_dgp.margin) * (N + 2 * spatial_dgp.margin))

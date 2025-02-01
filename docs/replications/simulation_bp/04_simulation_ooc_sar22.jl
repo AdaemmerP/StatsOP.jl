@@ -135,7 +135,7 @@ for (i, MN) in enumerate(MN_vec)
     end
 end
 
-# Safe
+# Save
 jldsave("arl_sacf_sar22_bp.jld2"; arl_sacf_sar22_bp_mat)
 jldsave("sd_sacf_sar22_bp.jld2"; sd_sacf_sar22_bp_mat)
 jldsave("arl_sop_sar22_bp.jld2"; arl_sop_sar22_bp_mat)
@@ -168,7 +168,7 @@ for (i, MN) in enumerate(MN_vec)
     end
 end
 
-# Safe
+# Save
 jldsave("arl_sacf_sar22_outl_bp.jld2"; arl_sacf_sar22_outl_bp_mat)
 jldsave("sd_sacf_sar22_outl_bp.jld2"; sd_sacf_sar22_outl_bp_mat)
 jldsave("arl_sop_sar22_outl_bp.jld2"; arl_sop_sar22_outl_bp_mat)
