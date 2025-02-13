@@ -10,24 +10,24 @@ using SlurmClusterManager
 
 # Add number of cores
 #addprocs(20)
-# addprocs(SlurmManager())
-# @everywhere using OrdinalPatterns
-# @everywhere using LinearAlgebra
-# @everywhere BLAS.set_num_threads(1)
-# BLAS.set_num_threads(1)
+addprocs(SlurmManager())
+@everywhere using OrdinalPatterns
+@everywhere using LinearAlgebra
+@everywhere BLAS.set_num_threads(1)
+BLAS.set_num_threads(1)
 
-# # Vector and delay combinations
-# reps = 10^5
-# lam = 0.1
-# MN_vec = [(11, 11), (16, 16), (26, 26), (41, 26)]
-# d1d2_vec = [(1, 1), (2, 2), (3, 3)]
-# w_max = 3
+# Vector and delay combinations
+reps = 10^5
+lam = 0.1
+MN_vec = [(11, 11), (16, 16), (26, 26), (41, 26)]
+d1d2_vec = [(1, 1), (2, 2), (3, 3)]
+w_max = 3
 
-# # Load critical values
-# cl_sacf_mat = load_object("climits/cl_sacf_delays.jld2")
-# cl_sop_mat = load_object("climits/cl_sop_delays.jld2")
-# cl_sacf_bp_mat = load_object("climits/cl_sacf_bp.jld2")
-# cl_sop_bp_mat = load_object("climits/cl_sop_bp.jld2")
+# Load critical values
+cl_sacf_mat = load_object("climits/cl_sacf_delays.jld2")
+cl_sop_mat = load_object("climits/cl_sop_delays.jld2")
+cl_sacf_bp_mat = load_object("climits/cl_sacf_bp.jld2")
+cl_sop_bp_mat = load_object("climits/cl_sop_bp.jld2")
 
 # # ---------------------------------------------------------------- #
 # # ----                      SACF and SOP                -----------#
