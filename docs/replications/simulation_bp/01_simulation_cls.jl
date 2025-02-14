@@ -80,13 +80,13 @@ jldsave("cl_sop_delays.jld2"; cl_sop_mat)
         cl_init_sacf = map(i -> stat_sacf_bp(randn(M, N, 370), lam, w) |> last, 1:1_000) |>
                        x -> quantile(x, 0.99)
         cl = cl_sacf_bp(sp_dgp, lam, L0, cl_init_sacf, w::Int, reps;
-            jmin=jmin, jmax=jmax, verbose=true
+            jmin=jmin, jmax=jmax, verbose=false
         )
         cl_sacf_bp_mat[i, w] = cl
 
         # Limits for SOP-BP
         cl_init_sop = map(i -> stat_sop_bp(randn(M, N, 370), 0.1, w) |> last, 1:1_000) |> x -> quantile(x, 0.99)
-        cl = cl_sop_bp(sp_dgp, lam, L0, cl_init_sop, w, reps; jmin=jmin, jmax=jmax, verbose=true)
+        cl = cl_sop_bp(sp_dgp, lam, L0, cl_init_sop, w, reps; jmin=jmin, jmax=jmax, verbose=false)
         cl_sop_mat_bp[i, w] = cl
     end
 
