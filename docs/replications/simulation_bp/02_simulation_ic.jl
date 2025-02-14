@@ -9,7 +9,7 @@ using LinearAlgebra
 using SlurmClusterManager
 
 # Add number of cores
-addprocs(5)
+addprocs(20)
 # addprocs(SlurmManager())
 @everywhere using OrdinalPatterns
 @everywhere using LinearAlgebra
@@ -31,7 +31,7 @@ cl_sacf_bp_mat = load_object("climits/cl_sacf_bp.jld2")
 cl_sop_bp_mat = load_object("climits/cl_sop_bp.jld2")
 
 # Pre-allocate matrices
-dist = [Normal(0, 1), TDist(2), Exponential(1)]
+dist = [Normal(0, 1)] #[Normal(0, 1), TDist(2), Exponential(1)]
 
 # SACF 
 arl_ic_sacf_mat = zeros(length(MN_vec), length(d1d2_vec), length(dist))
