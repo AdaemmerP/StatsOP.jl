@@ -11,20 +11,20 @@ function sacf(X_centered, d1::Int, d2::Int)
   N = size(X_centered, 2)
 
   # Lag 0x0
-  @views cov_00 = dot(X_centered[1:M, 1:N], X_centered[1:M, 1:N]) / (M * N)
+  @views cov_00 = dot(X_centered[1:M, 1:N], X_centered[1:M, 1:N]) #/ (M * N)
 
   # Lag d1xd2
   if d1 >= 0
     if d2 >= 0
-      @views cov_d1d2 = dot(X_centered[1:(M-d1), 1:(N-d2)], X_centered[(1+d1):M, (1+d2):N]) / (M * N)
+      @views cov_d1d2 = dot(X_centered[1:(M-d1), 1:(N-d2)], X_centered[(1+d1):M, (1+d2):N]) #/ (M * N)
     else
-      @views cov_d1d2 = dot(X_centered[1:(M-d1), (1+abs(d2)):N], X_centered[(1+d1):M, 1:(N-abs(d2))]) / (M * N)
+      @views cov_d1d2 = dot(X_centered[1:(M-d1), (1+abs(d2)):N], X_centered[(1+d1):M, 1:(N-abs(d2))]) #/ (M * N)
     end
   else
     if d2 >= 0
-      @views cov_d1d2 = dot(X_centered[(1+abs(d1)):M, 1:(N-d2)], X_centered[1:(M-abs(d1)), (1+d2):N]) / (M * N)
+      @views cov_d1d2 = dot(X_centered[(1+abs(d1)):M, 1:(N-d2)], X_centered[1:(M-abs(d1)), (1+d2):N]) #/ (M * N)
     else
-      @views cov_d1d2 = dot(X_centered[(1+abs(d1)):M, (1+abs(d2)):N], X_centered[1:(M-abs(d1)), 1:(N-abs(d2))]) / (M * N)
+      @views cov_d1d2 = dot(X_centered[(1+abs(d1)):M, (1+abs(d2)):N], X_centered[1:(M-abs(d1)), 1:(N-abs(d2))]) #/ (M * N)
     end
   end
 

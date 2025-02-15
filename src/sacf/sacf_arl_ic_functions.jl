@@ -85,7 +85,7 @@ function rl_sacf_ic(
         while abs(rho_hat) < cl
             rl += 1
 
-            # fill matrix with iid N(0,1) values
+            # fill matrix with iid values
             rand!(dist_error, data)
             X_centered .= data .- mean(data)
 

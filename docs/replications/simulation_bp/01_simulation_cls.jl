@@ -29,7 +29,7 @@ reps = 10^6
 lam = 0.1
 L0 = 370
 jmin = 3
-jmax = 8
+jmax = 7
 
 #--- Compute critical limits for SACF
 # Build Matrix to store all critical limits
@@ -50,13 +50,13 @@ for (i, MN) in enumerate(MN_vec)
         println("M = $M, N = $N, d1 = $d1, d2 = $d2")
 
         # Limits for SACF
-        cl_init_sacf = map(i -> stat_sacf(randn(M, N, 370), 0.1, d1, d2) |> last, 1:1_000) |> x -> quantile(x, 0.99)
-        cl = cl_sacf(sp_dgp, lam, L0, cl_init_sacf, d1, d2, reps; jmin=jmin, jmax=jmax, verbose=false)
+        cl_init_sacf = (0.1 .* quantile(Normal(0, 1), 1-1/L0) / sqrt(M*N)) #map(i -> stat_sacf(randn(M, N, 370), 0.1, d1, d2) |> last, 1:1_000) |> x -> quantile(x, 0.99)
+        cl = cl_sacf(sp_dgp, lam, L0, cl_init_sacf, d1, d2, reps; jmin=jmin, jmax=jmax, verbose=true)
         cl_sacf_mat[i, j] = cl
 
         # Limits for SOPs
         cl_init_sop = map(i -> stat_sop(randn(M, N, 370), 0.1, d1, d2) |> last, 1:1_000) |> x -> quantile(x, 0.99)
-        cl = cl_sop(sp_dgp, lam, L0, cl_init_sop, d1, d2, reps; jmin=jmin, jmax=jmax, verbose=false)
+        cl = cl_sop(sp_dgp, lam, L0, cl_init_sop, d1, d2, reps; jmin=jmin, jmax=jmax, verbose=true)
         cl_sop_mat[i, j] = cl
     end
 end
