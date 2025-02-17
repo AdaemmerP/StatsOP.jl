@@ -1,7 +1,8 @@
 
 cd(@__DIR__)
+using Pkg
+Pkg.activate("../../../.")
 using JLD2
-using LatexPrint
 using RCall
 
 # ----------------------------------------------------------------------#
@@ -16,6 +17,7 @@ using RCall
 # SACF in-control ARLs
 arl_ic_sacf_delays = load_object("ic/arl_ic_sacf_delays.jld2")
 arl_ic_sacf_delays = arl_ic_sacf_delays[:, :, 2:3]
+arl_ic_sacf_delays = reshape(arl_ic_sacf_delays, 4, 6)
 
 # SACF in-control ARLs
 arl_ic_sacf_bp = load_object("ic/arl_ic_sacf_bp.jld2")
@@ -36,6 +38,8 @@ print(xtable(arl_ic_sacf_all_tmp, digits=2, caption = "SACF-IC-Results for Norma
       include.colnames = TRUE,
       align = "l|lllllllll",
       caption.placement = "top",
+      #tabular.environment = 'longtable',
+      #floating = FALSE,
       sanitize.rownames.function = function(x) {x},
       sanitize.colnames.function = function(x) {x}   
       )
@@ -99,10 +103,10 @@ print(xtable(arl_sar11_sacf_sop_bp_all_tmp, digits=2, caption = "SOP-BP-Results 
       type = "latex",
       add.rownames = TRUE,
       include.colnames = TRUE,
-      #align = "l|lllllllll",
-      #caption.placement = "top",
+      align = "l|lllllllll",
+      caption.placement = "top",
       #tabular.environment = 'longtable',
-      floating = FALSE,
+      #floating = FALSE,
       sanitize.rownames.function = function(x) {x},
       sanitize.colnames.function = function(x) {x}   
       )
@@ -136,11 +140,11 @@ print(xtable(arl_sar22_sacf_sop_all_tmp, digits=2, caption = "SOP-Results and SA
       add.rownames = TRUE,
       include.colnames = TRUE,
       align = "l|lllllllll",
-      #caption.placement = "top",
+      caption.placement = "top",
       #tabular.environment = 'longtable',
-      floating = FALSE,
+      #floating = FALSE,
       sanitize.rownames.function = function(x) {x},
-      sanitize.colnames.function = function(x) {x}   
+      sanitize.colnames.function = function(x) {x}    
       )
 """
 
@@ -181,12 +185,12 @@ print(xtable(arl_sar22_sacf_sop_bp_all, digits=2, caption = "SOP-BP-Results and 
 # ---------------------      SQMA(1, 1)            ---------------------# 
 # ----------------------------------------------------------------------#
 
-# Delays without outliers
+# Delays
 arl_sop_sqma11 = load_object("sqma11/arl_sop_sqma11.jld2")
 arl_sacf_sqma11 = load_object("sqma11/arl_sacf_sqma11.jld2")
 arl_sqma11_sacf_sop = hcat(arl_sop_sqma11, arl_sacf_sqma11)
 
-# BP without outliers
+# BP 
 arl_sop_sqma11_bp = load_object("sqma11/arl_sop_bp_sqma11.jld2")
 arl_sacf_sqma11_bp = load_object("sqma11/arl_sacf_bp_sqma11.jld2")
 arl_sqma11_sacf_sop_bp = hcat(arl_sop_sqma11_bp, arl_sacf_sqma11_bp)
@@ -216,17 +220,17 @@ print(xtable(arl_sqma11_sacf_sop_all_tmp, digits=2, caption = "SOP-Results and S
 # ---------------------      SQMA(2, 2)            ---------------------# 
 # ----------------------------------------------------------------------#
 
-# Delays without outliers
+# Delays 
 arl_sop_sqma22 = load_object("sqma22/arl_sop_sqma22.jld2")
 arl_sacf_sqma22 = load_object("sqma22/arl_sacf_sqma22.jld2")
 arl_sqma22_sacf_sop = hcat(arl_sop_sqma22, arl_sacf_sqma22)
 
-# BP without outliers
+# BP 
 arl_sop_sqma22_bp = load_object("sqma22/arl_sop_bp_sqma22.jld2")
 arl_sacf_sqma22_bp = load_object("sqma22/arl_sacf_bp_sqma22.jld2")
 arl_sqma22_sacf_sop_bp = hcat(arl_sop_sqma22_bp, arl_sacf_sqma22_bp)
 arl_sqma22_sacf_sop_all = hcat(arl_sqma22_sacf_sop, arl_sqma22_sacf_sop_bp)
-@rput arl_sqma22_sacf_sop_all   
+@rput arl_sqma22_sacf_sop_all
 
 R"""
 library(xtable)
