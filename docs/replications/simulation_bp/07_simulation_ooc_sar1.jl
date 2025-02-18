@@ -78,7 +78,7 @@ for (i, MN) in enumerate(MN_vec)
     for (j, d1d2) in enumerate(d1d2_vec)
         d1 = d1d2[1]
         d2 = d1d2[2]
-        sar1_outl = SAR1((0.05, 0.15, 0.05, 0.15), M, N, Normal(0, 1), BinomialCvec(0.1, [-5, 5]), 20)
+        sar1_outl = SAR1((0.1, 0.1, 0.1, 0.1), M, N, Normal(0, 1), BinomialCvec(0.1, [-5, 5]), 20)
 
         # Compute ARL for SACF for SAR(1) with outliers
         sacf_results = arl_sacf_oc(sar1_outl, lam, cl_sacf_mat[i, j], d1, d2, reps)
@@ -145,7 +145,7 @@ for (i, MN) in enumerate(MN_vec)
     M = MN[1]
     N = MN[2]
     for w in 1:w_max
-        sar1_outl = SAR1((0.05, 0.15, 0.05, 0.15), M, N, Normal(0, 1), BinomialCvec(0.1, [-5, 5]), 20)
+        sar1_outl = SAR1((0.1, 0.1, 0.1, 0.1), M, N, Normal(0, 1), BinomialCvec(0.1, [-5, 5]), 20)
 
         # Compute ARL for SACF for SAR(1) with outliers
         sacf_results = arl_sacf_bp_oc(sar1_outl, lam, cl_sacf_bp_mat[i, w], w, reps)
