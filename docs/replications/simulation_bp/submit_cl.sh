@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH -p snowball
-#SBATCH -N 20
+#SBATCH -p dev
+#SBATCH -N 1
 #SBATCH --ntasks-per-node=72
 
 
-julia simulation_cls.jl
+julia 07_simulation_ooc_sar1.jl
