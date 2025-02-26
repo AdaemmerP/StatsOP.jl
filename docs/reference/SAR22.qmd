@@ -1,0 +1,40 @@
+---
+engine: julia
+---
+
+# SAR22 {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+SAR22(dgp_params, M_rows, N_cols, dist, dist_ao, prerun)
+
+```
+
+A struct to define a first-order spatial autoregressive (SAR(1, 1)) process:
+ 
+$\qquad \qquad Y_{t_1, t_2} =                \alpha_1 \cdot Y_{t_1-1, t_2}              + \alpha_2 \cdot Y_{t_1,   t_2-1}              + \alpha_3 \cdot Y_{t_1-1, t_2-1}              + \alpha_4 \cdot Y_{t_1-2, t_2}              + \alpha_5 \cdot Y_{t_1,   t_2-2}              + \alpha_6 \cdot Y_{t_1-2, t_2-1}              + \alpha_7 \cdot Y_{t_1-1, t_2-2}              + \alpha_8 \cdot Y_{t_1-2, t_2-2}              + \varepsilon_{t_1, t_2}.$
+ 
+
+```{julia}
+#| eval: false
+        Yₜ₁ = α₁ ⋅ Yₜ₁₋₁ + 
+              α₂ ⋅ Yₜ₁,ₜ₂₋₁ + 
+              α₃ ⋅ Yₜ₁₋₁,ₜ₂₋₁ + 
+              α₄ ⋅ Yₜ₁₋₂,ₜ₂ + 
+              α₅ ⋅ Yₜ₁,ₜ₂₋₂ + 
+              α₆ ⋅ Yₜ₁₋₂,ₜ₂₋₁ + 
+              α₇ ⋅ Yₜ₁₋₁,ₜ₂₋₂ + 
+              α₈ ⋅ Yₜ₁₋₂,ₜ₂₋₂ + 
+              εₜ₁,ₜ₂
+
+```
+
+
+
+:::
+    
+

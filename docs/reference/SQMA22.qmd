@@ -1,0 +1,37 @@
+---
+engine: julia
+---
+
+# SQMA22 {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+SQMA22(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao, prerun)
+
+```
+
+A struct to define a Spatial quadratic moving-average (SQMA(1, 1)):
+ 
+``   \quad \quad Y*{t*1, t*2} =    \beta*1 \cdot \varepsilon*{t*1-1, t_2}^a 
+ 
+  * \beta*2 \cdot \varepsilon*{t*1, t*2-1}^b
+  * \beta*3 \cdot \varepsilon*{t*1-1, t*2-1}^c
+  * \beta*4 \cdot \varepsilon*{t*1-2, t*2}^d
+  * \beta*5 \cdot \varepsilon*{t*1, t*2-2}^e
+  * \beta*6 \cdot \varepsilon*{t*1-2, t*2-1}^f
+  * \beta*7 \cdot \varepsilon*{t*1-1, t*2-2}^g
+  * \beta*8 \cdot \varepsilon*{t*1-2, t*2-2}^h
+  * \varepsilon*{t*1, t_2}.
+``
+ 
+Yₜ₁,ₜ₂ = β₁ ⋅ εₜ₁₋₁,ₜ₂ᵃ +            β₂ ⋅ εₜ₁,ₜ₂₋₁ᵇ +            β₃ ⋅ εₜ₁₋₁,ₜ₂₋₁ᶜ +            β₄ ⋅ εₜ₁₋₂,ₜ₂ᵈ +            β₅ ⋅ εₜ₁,ₜ₂₋₂ᵉ +            β₆ ⋅ εₜ₁₋₂,ₜ₂₋₁ᶠ +            β₇ ⋅ εₜ₁₋₁,ₜ₂₋₂ᵍ +            β₈ ⋅ εₜ₁₋₂,ₜ₂₋₂ʰ +            εₜ₁,ₜ₂
+ 
+
+
+:::
+    
+

@@ -1,0 +1,47 @@
+---
+engine: julia
+---
+
+# stat_sacf {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+stat_sacf(data::Union{SubArray,Matrix{T}}, d1::Int, d2::Int) where {T<:Real}
+
+```
+
+Compute the spatial autocorrelation for a delay combination (d1, d2) for a single picture.
+ 
+  * `data`: The data matrix.
+  * `d1::Int`: The first (row) delay for the spatial process.
+  * `d2::Int`: The second (column) delay for the spatial process.
+
+
+:::
+    
+
+ --- 
+ 
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+stat_sacf(lam, data::Array{T,3}, d1::Int, d2::Int) where {T<:Real}
+
+```
+
+Compute the spatial autocorrelation function (SACF) for a delay combination (d1, d2) for multiple images.
+ 
+  * `lam`: The smoothing parameter for the SACF.
+  * `data`: The data matrix.
+  * `d1::Int`: The first (row) delay for the spatial process.
+
+
+:::
+    
+
