@@ -279,7 +279,7 @@ end
 
 
 """ 
-    BSQMA11(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao, prerun)
+    BSQMA11(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao)
 
 A struct to define a bilateral spatial quadratic moving-average (BSQMA(1, 1)) process:
 
@@ -299,7 +299,7 @@ Yₜ₁,ₜ₂ = b₁ ⋅ εₜ₁₋₁,ₜ₂₋₁ᵃ +
 - `dist_ao::Nothing`: Nothing.
 
 ```julia
-bsqma11 = BSQMA11((0.5, 0.3, 0.2, 0.1), (1, 1, 2, 2), 10, 10, Normal(0, 1), nothing, 1)
+bsqma11 = BSQMA11((0.5, 0.3, 0.2, 0.1), (1, 1, 2, 2), 10, 10, Normal(0, 1), nothing)
 ```
 """
 struct BSQMA11 <: SpatialDGP
