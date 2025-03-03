@@ -85,6 +85,28 @@ function stat_sacf(data::Array{T,3}, lam, d1::Int, d2::Int) where {T<:Real}
 
 end
 
+
+"""
+  crit_val_sacf(M, N, alpha)
+
+Computes the critical value for the SACF of lag 1. The input parameters are:
+
+- `M::Int64`: The number of rows in the data matrix.
+- `N::Int64`: The number of columns in the data matrix.
+- `alpha::Float64`: The significance level.
+
+# Examples
+```julia-repl
+# compute critical value
+crit_val_sacf(11, 11, 0.05)
+```
+"""
+function crit_val_sacf(M, N, alpha)
+  quantile(Normal(0, 1), 1 - alpha / 2) / sqrt(M * N)
+end
+
+
+
 # ---------------------------------------------------------------------------#
 # -- Full SACF matrix and particular SACF for particular delay-combination - # 
 # ---------------------------------------------------------------------------#
