@@ -41,6 +41,8 @@ export arl_sop_ic,
   compute_p_array,
   compute_p_array_bp,
   init_vals_sop,
+  init_mat!,
+  fill_mat_dgp_sop!,
   crit_val_sop
 
 # SACF functions to export
@@ -49,10 +51,9 @@ export rl_sacf,
   arl_sacf_oc,
   arl_sacf_bp_ic,
   arl_sacf_bp_oc,
-  stat_sacf,
+  stat_sacf,  
   stat_sacf_bp,
   sacf,
-  crit_sacf,
   cl_sacf,
   cl_sacf_bp,
   crit_val_sacf
@@ -143,6 +144,7 @@ include("sop/sop_stat_bp_functions.jl")
 include("sop/sop_dgp_functions.jl")
 include("sop/sop_distributions.jl")
 include("sop/sop_help_functions.jl")
+include("sop/sop_test_functions.jl")
 
 # SACFs
 include("sacf/sacf_arl_ic_functions.jl")
