@@ -155,13 +155,13 @@ end
 # -------------------------------------------------#
 
 # Method to initialize in-control
-function init_dgp_acf!(dgp::IC, x_vec, dist_error)
+function init_dgp_acf!(dgp::ICTS, x_vec, dist_error)
   rand!(dist_error, x_vec)
   return nothing
 end
 
 # Method to update in-control
-function update_dgp_acf!(dgp::IC, x_vec, dist_error)
+function update_dgp_acf!(dgp::ICTS, x_vec, dist_error)
   x_vec[1] = x_vec[2]
   x_vec[2] = rand(dist_error)
   return nothing

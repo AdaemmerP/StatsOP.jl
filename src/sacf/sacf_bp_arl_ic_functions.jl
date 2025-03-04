@@ -12,7 +12,7 @@ SACF function.
 - `d2_vec::Vector{Int}`: The second (column) delays for the spatial process.
 - `reps`: The number of repetitions to compute the ARL.
 """
-function arl_sacf_bp_ic(sp_dgp::ICSP, lam, cl, w::Int, reps=10_000)
+function arl_sacf_bp_ic(sp_dgp::ICSTS, lam, cl, w::Int, reps=10_000)
 
     # Extract distribution        
     dist_error = sp_dgp.dist
@@ -68,7 +68,7 @@ has to be a unit range of integers to allow for parallel processing, since the
 in the spatial process. This can be any univariate distribution from the `Distributions.jl` package.
 """
 function rl_sacf_bp_ic(
-    sp_dgp::ICSP, lam, cl, w::Int, p_reps::UnitRange, dist_error::UnivariateDistribution
+    sp_dgp::ICSTS, lam, cl, w::Int, p_reps::UnitRange, dist_error::UnivariateDistribution
 )
 
     # Extract matrix size and pre-allocate data matrices
