@@ -13,7 +13,7 @@ A struct to define an independent and identically distributed (IID) process for 
 - `N_cols::Int`: The number of columns for image.
 - `dist::UnivariateDistribution`: A distribution from the Distributions.jl package.
 """
-struct ICSP 
+struct ICSTS
   M_rows::Int
   N_cols::Int
   dist::UnivariateDistribution
