@@ -19,7 +19,7 @@ The function returns the control limit for a given average run.
 - `reps`: The number of repetitions to use for the control limit. 
 """
 function cl_sacf_bp(
-  sp_dgp::ICSP, lam, L0, cl_init, w::Int, reps=10_000;
+  sp_dgp::ICSTS, lam, L0, cl_init, w::Int, reps=10_000;
   jmin=4, jmax=6, verbose=false
 )
 

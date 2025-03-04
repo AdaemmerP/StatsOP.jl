@@ -1,6 +1,6 @@
 """
     cl_sacf(
-      sp_dgp::ICSP, lam, L0, cl_init, d1::Int, d2::Int, reps=10_000;
+      sp_dgp::ICSTS, lam, L0, cl_init, d1::Int, d2::Int, reps=10_000;
   jmin=4, jmax=6, verbose=false
     )
 
@@ -36,7 +36,7 @@ jmax = 6
 ```
 """
 function cl_sacf(
-    sp_dgp::ICSP, lam, L0, cl_init, d1::Int, d2::Int, reps=10_000;
+    sp_dgp::ICSTS, lam, L0, cl_init, d1::Int, d2::Int, reps=10_000;
     jmin=4, jmax=7, verbose=false
 )
 
