@@ -91,7 +91,7 @@ export rl_acf,
   arl_acf
 
 # OP Types to export (from 'op_dgp_structs.jl')  
-export IC,
+export ICTS,
   AR1,
   TEAR1
 

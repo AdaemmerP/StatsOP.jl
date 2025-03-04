@@ -7,7 +7,7 @@ A struct to define the in-control (IC) process. The struct contains one field, n
 ic = IC(Normal(0, 1))
 ```    
 """
-struct IC
+struct ICTS
     dist::UnivariateDistribution
 end
 
