@@ -15,7 +15,7 @@ The input parameters are:
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4. 
 The default value is 3.
 """
-function arl_sop_ic(sop_dgp::ICSP, lam, cl, d1::Int, d2::Int, reps=10_000; chart_choice=3)
+function arl_sop_ic(sop_dgp::ICSTS, lam, cl, d1::Int, d2::Int, reps=10_000; chart_choice=3)
 
   # Extract values  
   m = sop_dgp.M_rows - d1
