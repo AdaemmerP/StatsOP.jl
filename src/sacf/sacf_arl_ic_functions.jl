@@ -1,6 +1,6 @@
 
 """
-   arl_sacf_ic(lam, cl, spatial_dgp::ICSP, d1::Int, d2::Int, reps=10_000)
+   arl_sacf_ic(lam, cl, spatial_dgp::ICSTS, d1::Int, d2::Int, reps=10_000)
 
 Compute the in-control average run length (ARL), using the spatial autocorrelation 
 function (SACF) for a delay (d1, d2) combination. The function returns the ARL 
@@ -15,7 +15,7 @@ The input arguments are:
 - `d2::Int`: The second (column) delay for the spatial process.
 - `reps`: The number of repetitions to compute the ARL.
 """
-function arl_sacf_ic(spatial_dgp::ICSP, lam, cl, d1::Int, d2::Int, reps=10_000)
+function arl_sacf_ic(spatial_dgp::ICSTS, lam, cl, d1::Int, d2::Int, reps=10_000)
 
     # Extract        
     dist_error = spatial_dgp.dist
@@ -67,7 +67,7 @@ The input arguments are:
 - `dist_error::UnivariateDistribution`: The distribution to use for the error term.
 """
 function rl_sacf_ic(
-    spatial_dgp::ICSP, lam, cl, d1::Int, d2::Int, p_reps::UnitRange, dist_error::UnivariateDistribution
+    spatial_dgp::ICSTS, lam, cl, d1::Int, d2::Int, p_reps::UnitRange, dist_error::UnivariateDistribution
 )
 
     # Extract matrix size and pre-allocate matrices

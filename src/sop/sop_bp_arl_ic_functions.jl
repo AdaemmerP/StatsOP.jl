@@ -17,7 +17,7 @@ The input parameters are:
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 """
 function arl_sop_bp_ic(
-  spatial_dgp::ICSP, lam, cl, w::Int, reps=1_000; chart_choice=3
+  spatial_dgp::ICSTS, lam, cl, w::Int, reps=1_000; chart_choice=3
 )
 
   # Compute m and n  
@@ -82,7 +82,7 @@ univariate distribution from the `Distributions.jl` package.
 - `d2_vec::Vector{Int}`: A vector with integer values for the second delay (d₂).
 """
 function rl_sop_bp_ic(
-  spatial_dgp::ICSP, lam, cl, w::Int, lookup_array_sop, reps_range::UnitRange,
+  spatial_dgp::ICSTS, lam, cl, w::Int, lookup_array_sop, reps_range::UnitRange,
   dist_error, chart_choice,
 )
 

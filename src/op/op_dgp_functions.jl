@@ -2,13 +2,13 @@
 # --------------- In-control methods---------------#
 # -------------------------------------------------#
 # Method to initialize in-control when d is Int
-function init_dgp_op!(dgp::IC, x_long, eps_long, dist_error, d::Int, xbiv)
+function init_dgp_op!(dgp::ICTS, x_long, eps_long, dist_error, d::Int, xbiv)
     rand!(dist_error, x_long)
     return @views x_long[1:d:end]
 end
 
 # Method to update in-control when d is Int
-function update_dgp_op!(dgp::IC, x_long, eps_long, dist_error, d::Int)
+function update_dgp_op!(dgp::ICTS, x_long, eps_long, dist_error, d::Int)
     for i in 1:(lastindex(x_long)-1)
         x_long[i] = x_long[i+1]
     end
@@ -17,13 +17,13 @@ function update_dgp_op!(dgp::IC, x_long, eps_long, dist_error, d::Int)
 end
 
 # Method to initialize in-control when d is Vector{Int}
-function init_dgp_op!(dgp::IC, x_long, eps_long, dist_error, d::Vector{Int}, xbiv)
+function init_dgp_op!(dgp::ICTS, x_long, eps_long, dist_error, d::Vector{Int}, xbiv)
     rand!(dist_error, x_long)
     return @views x_long[d]
 end
 
 # Method to update in-control when d is Vector{Int}
-function update_dgp_op!(dgp::IC, x_long, eps_long, dist_error, d::Vector{Int})
+function update_dgp_op!(dgp::ICTS, x_long, eps_long, dist_error, d::Vector{Int})
     for i in 1:(lastindex(x_long)-1)
         x_long[i] = x_long[i+1]
     end

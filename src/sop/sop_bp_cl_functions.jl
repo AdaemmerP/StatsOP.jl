@@ -7,7 +7,7 @@
 Compute the control limit for the EWMA-chart for the BP-statistic.
 The function returns the control limit for a given average run. The input parameters are:
 
-- `sp_dgp::ICSP`: The in-control spatial process (ICSP).
+- `sp_dgp::ICSTS`: The in-control spatial process (ICSTS).
 - `lam::Float64`:  A scalar value for lambda for the EWMA chart.
 - `L0::Float64`: The desired average run length.
 - `cl_init::Float64`: The initial value for the control limit.
@@ -19,7 +19,7 @@ The function returns the control limit for a given average run. The input parame
 - `verbose::Bool`: A boolean to indicate whether to print the control limit and ARL for each iteration.
 """
 function cl_sop_bp(
-    sp_dgp::ICSP, lam, L0, cl_init, w, reps=10_000;
+    sp_dgp::ICSTS, lam, L0, cl_init, w, reps=10_000;
     chart_choice=3, jmin=4, jmax=6, verbose=false
 )
 

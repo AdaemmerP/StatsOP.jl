@@ -1,12 +1,12 @@
 """
     cl_sop(
-  sop_dgp::ICSP, lam, L0, cl_init, d1::Int, d2::Int, reps=10_000;
+  sop_dgp::ICSTS, lam, L0, cl_init, d1::Int, d2::Int, reps=10_000;
   chart_choice=3, jmin=4, jmax=6, verbose=false
 )
 
 Compute the control limit for a given in-control process. The input parameters are:
   
-- `sop_dgp`: The in-control spatial process (ICSP) to use for the control limit.
+- `sop_dgp`: The in-control spatial process (ICSTS) to use for the control limit.
 - `lam::Float64`:  A scalar value for lambda for the EWMA chart.
 - `L0::Float64`: The desired average run length.
 - `cl_init::Float64`: The initial value for the control limit.
@@ -19,7 +19,7 @@ Compute the control limit for a given in-control process. The input parameters a
 - `verbose::Bool`: A boolean to indicate whether to print the control limit and ARL for each iteration.
 """
 function cl_sop(
-    sop_dgp::ICSP, lam, L0, cl_init, d1::Int, d2::Int, reps=10_000;
+    sop_dgp::ICSTS, lam, L0, cl_init, d1::Int, d2::Int, reps=10_000;
     chart_choice=3, jmin=4, jmax=6, verbose=false
 )
 
