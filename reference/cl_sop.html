@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.39">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -69,7 +69,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-fcccb32a033b87c7a704632ba49fd707.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -184,27 +184,23 @@ docblock
 <div id="callout-1" class="callout-1-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <div id="2" class="cell" data-execution_count="0">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cl_sop</span>(m<span class="op">::</span><span class="dt">Int</span>, n<span class="op">::</span><span class="dt">Int</span>, lam, L0, reps<span class="op">::</span><span class="dt">Int</span>, cl_init, jmin, jmax, verbose, chart_choice, dist)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cl_sop</span>(</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Compute the control limit for a given in-control distribution. The input parameters are:</p>
+<p>sop<em>dgp::ICSTS, lam, L0, cl</em>init, d1::Int, d2::Int, reps=10<em>000; chart</em>choice=3, jmin=4, jmax=6, verbose=false )</p>
+<p>Compute the control limit for a given in-control process. The input parameters are:</p>
 <ul>
-<li><code>m::Int</code>: The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.</li>
-<li><code>n::Int</code>: The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.</li>
-<li><code>lam::Float64</code>: A scalar value for lambda for the EWMA chart. The value has to be between 0 and 1.</li>
-<li><code>L0::Float64</code>: A scalar value for the in-control ARL.</li>
-<li><code>reps::Int</code>: An integer value for the number of repetitions.</li>
-<li><code>cl_init::Float64</code>: A scalar value for the initial control limit. The value has to be between 0 and 1.</li>
-<li><code>jmin::Int</code>: An integer value for the minimum number of values to change after the decimal point.</li>
-<li><code>jmax::Int</code>: An integer value for the maximum number of values to change after the decimal point.</li>
-<li><code>verbose::Bool</code>: A boolean value whether to print the control limit and ARL.</li>
-<li><code>chart_choice::Int</code>: An integer value for the chart choice. The options are 1-4.</li>
-<li><code>dist::Distribution</code>: A distribution for the in-control data. Here you can use any univariate distribution from the <code>Distributions.jl</code> package. ```julia-repl #– Example</li>
+<li><code>sop_dgp</code>: The in-control spatial process (ICSTS) to use for the control limit.</li>
+<li><code>lam::Float64</code>: A scalar value for lambda for the EWMA chart.</li>
+<li><code>L0::Float64</code>: The desired average run length.</li>
+<li><code>cl_init::Float64</code>: The initial value for the control limit.</li>
+<li><code>d1::Int</code>: The first (row) delay for the spatial process.</li>
+<li><code>d2::Int</code>: The second (column) delay for the spatial process.</li>
+<li><code>reps::Int</code>: The number of replications to compute the ARL.</li>
+<li><code>chart_choice::Int</code>: The chart choice for the SOP chart.</li>
+<li><code>jmin</code>: The minimum number of values to change after the decimal point in the control limit.</li>
+<li><code>jmax</code>: The maximum number of values to change after the decimal point in the control limit.</li>
+<li><code>verbose::Bool</code>: A boolean to indicate whether to print the control limit and ARL for each iteration.</li>
 </ul>
-<section id="parameters" class="level3">
-<h3 class="anchored" data-anchor-id="parameters">Parameters</h3>
-<p>m = 10 n = 10 lam = 0.1 L0 = 370 reps = 10 cl<em>init = 0.03 jmin = 4 jmax = 7 verbose = true chart</em>choice = 3 dist = Normal(0, 1)</p>
-<p>cl<em>sop(m, n, lam, L0, reps, cl</em>init, jmin, jmax, verbose, chart_choice, dist)</p>
-</section>
 </div>
 </div>
 </div>

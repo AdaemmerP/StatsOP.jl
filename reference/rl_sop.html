@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.39">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -69,7 +69,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-fcccb32a033b87c7a704632ba49fd707.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -184,18 +184,21 @@ docblock
 <div id="callout-1" class="callout-1-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <div id="2" class="cell" data-execution_count="0">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rl_sop</span>(m, n, lookup_array_sop, lam, cl, reps_range, chart_choice, dist)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rl_sop</span>(lam, cl, lookup_array_sop, reps_range, dist, chart_choice, m, n, d1<span class="op">::</span><span class="dt">Int</span>, d2<span class="op">::</span><span class="dt">Int</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>A function to compute the run length for a given control limit and in-control distribution. The input parameters are:</p>
+<p>Compute the run length for a given in-control spatial DGP.</p>
+<p>The input parameters are:</p>
 <ul>
-<li><code>m::Int</code>: The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.</li>
-<li><code>n::Int</code>: The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.</li>
-<li><code>lookup_array_sop::Array{Int, 4}</code>: A 4D array with the lookup array for the sops. This can be automatically computed using lookup<em>array</em>sop = <code>compute_lookup_array()</code>. This will be used to find the index of the sops.</li>
-<li><code>lam::Float64</code>: A scalar value for lambda for the EWMA chart.</li>
-<li><code>cl::Float64</code>: A scalar value for the control limit.</li>
-<li><code>reps_range::UnitRange{Int}</code>: A range of integers for the number of repetitions. This has to be a range to be compatible with <code>arl_sop()</code> which uses threading and multi-processing.</li>
-<li><code>chart_choice::Int</code>: An integer value for the chart choice. The options are 1-4.</li>
-<li><code>dist::Distribution</code>: A distribution for the in-control data. Here you can use any univariate distribution from the <code>Distributions.jl</code> package.</li>
+<li><p><code>lam::Float64</code>: A scalar value for lambda for the EWMA chart.</p></li>
+<li><p><code>cl::Float64</code>: A scalar value for the control limit.</p></li>
+<li><p><code>lookup_array_sop::Array{Int, 4}</code>: A 4D array with the lookup array for the sops, which will be computed computed using <code>lookup_array_sop = compute_lookup_array_sop()</code>.</p></li>
+<li><p><code>reps_range::UnitRange{Int}</code>: A range of integers for the number of repetitions.</p></li>
+<li><p><code>dist::Distribution</code>: A distribution for the error term. Here you can use any univariate distribution from the <code>Distributions.jl</code> package.</p></li>
+<li><p><code>chart_choice::Int</code>: An integer value for the chart choice. The options are 1-4.</p></li>
+<li><p><code>m::Int</code>: An integer value for the number of rows for the final “SOP” matrix.</p></li>
+<li><p><code>n::Int</code>: An integer value for the number of columns for the final “SOP” matrix.</p></li>
+<li><p><code>d1::Int</code>: An integer value for the first delay (d₁).</p></li>
+<li><p><code>d2::Int</code>: An integer value for the second delay (d₂).</p></li>
 </ul>
 </div>
 </div>
@@ -214,15 +217,16 @@ docblock
 <div id="callout-2" class="callout-2-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <div id="4" class="cell" data-execution_count="0">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rl_sop</span>(lam, cl, reps_range, chart_choice, p_mat<span class="op">::</span><span class="dt">Matrix{Float64}</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rl_sop</span>(lam, cl, reps_range, chart_choice, p_mat<span class="op">::</span><span class="dt">Array{Float64,2}</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>A function to compute the run length for a given control limit using bootstraping instead of a theoretical in-control distribution. The input parameters are:</p>
+<p>Compute the run length for a given control limit using bootstraping instead of a theoretical in-control distribution.</p>
+<p>The input parameters are:</p>
 <ul>
-<li><code>lam::Float64</code>: A scalar value for lambda for the EWMA chart.</li>
-<li><code>cl::Float64</code>: A scalar value for the control limit.</li>
-<li><code>reps_range::UnitRange{Int}</code>: A range of integers for the number of repetitions. This has to be a range to be compatible with <code>arl_sop()</code> which uses threading and multi-processing.</li>
-<li><code>chart_choice::Int</code>: An integer value for the chart choice. The options are 1-4.</li>
-<li><code>p_mat::Matrix{Float64}</code>: A matrix with the values of each pattern group obtained by <code>compute_p_mat()</code>. This matrix will be used for re-sampling</li>
+<li><p><code>lam::Float64</code>: A scalar value for lambda for the EWMA chart.</p></li>
+<li><p><code>cl::Float64</code>: A scalar value for the control limit.</p></li>
+<li><p><code>reps_range::UnitRange{Int}</code>: A range of integers for the number of repetitions. This has to be a range to be compatible with <code>arl_sop()</code> which uses threading and multi-processing.</p></li>
+<li><p><code>chart_choice::Int</code>: An integer value for the chart choice. The options are 1-4.</p></li>
+<li><p><code>p_mat::Array{Float64,2}</code>: A matrix with the values of the relative frequencies of each d1-d2 (delay) combination. This matrix will be used for re-sampling.</p></li>
 </ul>
 </div>
 </div>
@@ -241,20 +245,51 @@ docblock
 <div id="callout-3" class="callout-3-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <div id="6" class="cell" data-execution_count="0">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rl_sop</span>(m, n, lookup_array_sop, lam, cl, p_reps, chart_choice, spatial_dgp, dist_error, dist_ao)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rl_sop</span>(lam, cl, reps_range, chart_choice, p_array<span class="op">::</span><span class="dt">Array{Float64,3}</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>Compute the EWMA-BP-SOP run length for a given control limit using bootstraping instead of a theoretical in-control distribution.</p>
+<p>The input parameters are:</p>
+<ul>
+<li><code>lam::Float64</code>: A scalar value for lambda for the EWMA chart.</li>
+<li><code>cl::Float64</code>: A scalar value for the control limit.</li>
+<li><code>reps_range::UnitRange{Int}</code>: A range of integers for the number of repetitions.</li>
+<li><code>chart_choice::Int</code>: An integer value for the chart choice. The options are 1-4.</li>
+<li><code>p_array::Array{Float64,3}</code>: A 3D array with the with the relative frequencies for each d1-d2 (delay) combination. The first dimension (rows) is the picture, the second dimension refers to the patterns group (s₁, s₂, or s₃) and the third dimension denotes each d₁-d₂ combination. This array will be used for re-sampling.</li>
+</ul>
+</div>
+</div>
+</div>
+<hr>
+<div class="callout callout-style-simple callout-note callout-titled" title="docblock">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+docblock
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<div id="8" class="cell" data-execution_count="0">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rl_sop</span>(</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>lam, cl, lookup<em>array</em>sop, p<em>reps, spatial</em>dgp::SpatialDGP, dist<em>error::UnivariateDistribution, dist</em>ao::Union{Nothing,UnivariateDistribution}, chart_choice, m, n, d1::Int, d2::Int )</p>
 <p>Computes the run length for a given out-of-control DGP. The input parameters are:</p>
 <ul>
-<li><code>m::Int</code>: The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.</li>
-<li><code>n::Int</code>: The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.</li>
-<li><code>lookup_array_sop::Array{Int, 4}</code>: A 4D array with the lookup array for the sops. This can be automatically computed using <code>lookup_array_sop = compute_lookup_array()</code>. This will be used to find the index of the sops.</li>
-<li><code>lam</code>: A scalar value for lambda for the EWMA chart. This has to be between 0 and 1.</li>
-<li><code>cl::Float64</code>: A scalar value for the control limit.</li>
-<li><code>p_reps::UInt</code>: An unsigned integer value for the number of repetitions. This has to be an unsigned integer to be compatible with <code>arl_sop()</code> which uses threading and multi-processing.</li>
-<li><code>chart_choice::Int</code>: An integer value for the chart choice. The options are 1-4.</li>
-<li><code>spatial_dgp::AbstractSpatialDGP</code>: A struct for type for the spatial DGP. This can be either <code>SAR11</code>, <code>SINAR11</code>, <code>SQMA11</code>, <code>BSQMA11</code> or <code>SAR1</code>. Look at their documentation for more information.</li>
-<li><code>dist_error::Distribution</code>: A distribution for the error term. Here you can use any univariate distribution from the <code>Distributions.jl</code> package.</li>
-<li><code>dist_ao::Distribution</code>: A distribution for the out-of-control data. Here you can use any univariate distribution from the <code>Distributions.jl</code> package.</li>
+<li><p><code>lam::Float64</code>: A scalar value for lambda for the EWMA chart.</p></li>
+<li><p><code>cl::Float64</code>: A scalar value for the control limit.</p></li>
+<li><p><code>lookup_array_sop::Array{Int, 4}</code>: A 4D array with the lookup array for the sops, which will be computed computed using <code>lookup_array_sop = compute_lookup_array_sop()</code>.</p></li>
+<li><p><code>p_reps::UnitRange{Int}</code>: A range of integers for the number of repetitions.</p></li>
+<li><p><code>spatial_dgp::SpatialDGP</code>: A struct for the out-of-control spatial DGP.</p></li>
+<li><p><code>dist_error::UnivariateDistribution</code>: A distribution for the error term. Here you can use any univariate distribution from the <code>Distributions.jl</code> package.</p></li>
+<li><p><code>dist_ao::Union{Nothing,UnivariateDistribution}</code>: A distribution for the additive outlier.</p></li>
+<li><p><code>chart_choice::Int</code>: An integer value for the chart choice. The options are 1-4.</p></li>
+<li><p><code>m::Int</code>: An integer value for the number of rows for the final “SOP” matrix.</p></li>
+<li><p><code>n::Int</code>: An integer value for the number of columns for the final “SOP” matrix.</p></li>
+<li><p><code>d1::Int</code>: An integer value for the first delay (d₁).</p></li>
+<li><p><code>d2::Int</code>: An integer value for the second delay (d₂).</p></li>
 </ul>
 </div>
 </div>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.39">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -71,7 +71,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-fcccb32a033b87c7a704632ba49fd707.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -341,17 +341,18 @@ docblock
 <div id="callout-1" class="callout-1-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <div id="2" class="cell" data-execution_count="0">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">arl_sop</span>(m<span class="op">::</span><span class="dt">Int</span>, n<span class="op">::</span><span class="dt">Int</span>, lam, cl, reps, chart_choice, dist<span class="op">::</span><span class="dt">UnivariateDistribution</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">arl_sop</span>(lam, cl, sop_dgp<span class="op">::</span><span class="dt">ICSP</span>, d1<span class="op">::</span><span class="dt">Int</span>, d2<span class="op">::</span><span class="dt">Int</span>, reps<span class="op">=</span><span class="fl">10_000</span>; chart_choice<span class="op">=</span><span class="fl">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Function to compute the average run length (ARL) for a given control-limit and in-control distribution. The input parameters are:</p>
+<p>Compute the average run length (ARL) for a given in-control spatial DGP.</p>
+<p>The input parameters are:</p>
 <ul>
-<li><code>m::Int</code>: The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.</li>
-<li><code>n::Int</code>: The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.</li>
 <li><code>lam::Float64</code>: A scalar value for lambda for the EWMA chart.</li>
 <li><code>cl::Float64</code>: A scalar value for the control limit.</li>
-<li><code>reps::Int</code>: An integer value for the number of repetitions.</li>
-<li><code>chart_choice::Int</code>: An integer value for the chart choice. The options are 1-4.</li>
-<li><code>dist::Distribution</code>: A distribution for the in-control data. Here you can use any univariate distribution from the <code>Distributions.jl</code> package.</li>
+<li><code>sop_dgp::ICSP</code>: A struct for the in-control spatial DGP.</li>
+<li><code>d1::Int</code>: An integer value for the first delay (d₁).</li>
+<li><code>d2::Int</code>: An integer value for the second delay (d₂).</li>
+<li><code>reps::Int</code>: An integer value for the number of repetitions. The default value is 10,000.</li>
+<li><code>chart_choice::Int</code>: An integer value for the chart choice. The options are 1-4. The default value is 3.</li>
 </ul>
 </div>
 </div>
@@ -370,15 +371,15 @@ docblock
 <div id="callout-2" class="callout-2-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <div id="4" class="cell" data-execution_count="0">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">arl_sop</span>(lam, cl, reps, chart_choice, data<span class="op">::</span><span class="dt">Array{Float64, 3}</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">arl_sop</span>(lam, cl, p_mat<span class="op">::</span><span class="dt">Array{Float64,2}</span>, reps<span class="op">=</span><span class="fl">10_000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Function to compute the average run length (ARL) using a bootstraping approach. The input parameters are:</p>
+<p>Compute the average run length (ARL) using a bootstrap approach for a particular delay (d₁-d₂) combination.</p>
+<p>The input parameters are:</p>
 <ul>
-<li><code>lam::Float64</code>: A scalar value for lambda for the EWMA chart.</li>
-<li><code>cl::Float64</code>: A scalar value for the control limit.</li>
-<li><code>reps::Int</code>: An integer value for the number of repetitions.</li>
-<li><code>chart_choice::Int</code>: An integer value for the chart choice. The options are 1-4.</li>
-<li><code>p_mat::Array{Float64, 3}</code>: A 3D array with the data. The data has to be in the form of a 3D array.</li>
+<li><p><code>lam::Float64</code>: A scalar value for lambda for the EWMA chart.</p></li>
+<li><p><code>cl::Float64</code>: A scalar value for the control limit.</p></li>
+<li><p><code>p_mat::Array{Float64,2}</code>: A matrix with the relative frequencies for a particular delay (d₁-d₂) combination. This matrix will be used for re-sampling. The matrix has to be computed by <code>compute_p_array()</code>.</p></li>
+<li><p><code>reps::Int</code>: An integer value for the number of repetitions. The default value is 10,000.</p></li>
 </ul>
 </div>
 </div>
@@ -397,16 +398,47 @@ docblock
 <div id="callout-3" class="callout-3-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <div id="6" class="cell" data-execution_count="0">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">arl_sop</span>(lam, cl, reps, chart_choice, spatial_dgp, dist_error<span class="op">::</span><span class="dt">UnivariateDistribution</span>, dist_ao<span class="op">::</span><span class="dt">Union{Nothing, UnivariateDistribution}</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">arl_sop</span>(lam, cl, p_array<span class="op">::</span><span class="dt">Array{Float64,3}</span>, reps<span class="op">=</span><span class="fl">10_000</span>; chart_choice<span class="op">=</span><span class="fl">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Function to compute the average run length (ARL) for a given out-of-control DGP. The input parameters are:</p>
+<p>Compute the average run length for the BP-EWMA-SOP for a given control limit using bootstraping instead of a theoretical in-control distribution.</p>
+<p>The input parameters are:</p>
+<ul>
+<li><p><code>lam::Float64</code>: A scalar value for lambda for the EWMA chart.</p></li>
+<li><p><code>cl::Float64</code>: A scalar value for the control limit.</p></li>
+<li><p><code>p_array::Array{Float64, 3}</code>: A 3D array with the with the relative frequencies of each d1-d2 (delay) combination. The first dimension (rows) is the picture, the second dimension refers to the patterns group (s₁, s₂, or s₃) and the third dimension denotes each d₁-d₂ combination. This matrix will be used for re-sampling.</p></li>
+<li><p><code>reps::Int</code>: An integer value for the number of repetitions.</p></li>
+<li><p><code>chart_choice::Int</code>: An integer value for the chart choice. The options are 1-4.</p></li>
+</ul>
+</div>
+</div>
+</div>
+<hr>
+<div class="callout callout-style-simple callout-note callout-titled" title="docblock">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+docblock
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<div id="8" class="cell" data-execution_count="0">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a> <span class="fu">arl_sop</span>(</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>lam, cl, spatial<em>dgp::SpatialDGP, d1::Int, d2::Int, reps=10</em>000; chart_choice=3 )</p>
+<p>Compute the average run length (ARL) for a given out-of-control spatial DGP.</p>
+<p>The input parameters are:</p>
 <ul>
 <li><code>lam::Float64</code>: A scalar value for lambda for the EWMA chart.</li>
 <li><code>cl::Float64</code>: A scalar value for the control limit.</li>
-<li><code>chart_choice::Int</code>: An integer value for the chart choice. The options are 1-4.</li>
-<li><code>spatial_dgp::AbstractSpatialDGP</code>: A struct for type for the spatial DGP. This can be either <code>SAR11</code>, <code>SINAR11</code>, <code>SQMA11</code>, <code>BSQMA11</code> or <code>SAR1</code>. Look at their documentation for more information.</li>
-<li><code>dist_error::Distribution</code>: A distribution for the error term. Here you can use any univariate distribution from the <code>Distributions.jl</code> package.</li>
-<li><code>dist_ao::Distribution</code>: A distribution for the out-of-control data. Here you can use any univariate distribution from the <code>Distributions.jl</code> package.</li>
+<li><code>spatial_dgp::SpatialDGP</code>: A struct for the out-of-control spatial DGP.</li>
+<li><code>d1::Int</code>: An integer value for the first delay (d₁).</li>
+<li><code>d2::Int</code>: An integer value for the second delay (d₂).</li>
+<li><code>reps::Int</code>: An integer value for the number of repetitions. The default value is 10,000.</li>
+<li><code>chart_choice::Int</code>: An integer value for the chart choice. The options are 1-4. The default value is 3.</li>
 </ul>
 </div>
 </div>

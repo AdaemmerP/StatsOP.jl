@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.39">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -35,7 +35,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-fcccb32a033b87c7a704632ba49fd707.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -152,45 +152,14 @@ docblock
 <p>crit<em>val</em>sop(m, n, alpha, chart_choice, approximate::Bool)</p>
 <p>Computes the critical value for the SOP test. Also allows the approximation of the critical value. The input parameters are:</p>
 <ul>
-<li><code>m::Int64</code>: The number of rows in the sop-matrix. Note that the data matrix has dimensions <code>M = m + 1</code>.</li>
-<li><code>n::Int64</code>: The number of columns in the sop-matrix. Note that the data matrix has dimensions <code>N = n + 1</code>.</li>
-<li><code>alpha::Float64</code>: The significance level.</li>
-<li><code>chart_choice::Int64</code>: The choice of chart.</li>
-<li><code>approximate::Bool</code>: If <code>true</code>, the approximate critical value is computed. If <code>false</code>, the exact critical value is computed.</li>
+<li><p><code>m::Int64</code>: The number of rows in the sop-matrix. Note that the data matrix has dimensions <code>M = m + d₁</code>, where <code>d₁</code> denotes the row delay.</p></li>
+<li><p><code>n::Int64</code>: The number of columns in the sop-matrix. Note that the data matrix has dimensions <code>N = n + d₂</code>, where <code>d₂</code> denotes the column delay.</p></li>
+<li><p><code>alpha::Float64</code>: The significance level.</p></li>
+<li><p><code>chart_choice::Int64</code>: The choice of chart.</p></li>
+<li><p><code>approximate::Bool</code>: If <code>true</code>, the approximate critical value is computed. If <code>false</code>, the exact critical value is computed.</p></li>
 </ul>
 <section id="examples" class="level3">
 <h3 class="anchored" data-anchor-id="examples">Examples</h3>
-<pre class="{julia-repl}"><code>#| eval: false
-# compute approximate critical value for chart 1 
-crit_val_sop(10, 10, 0.05, 1, true)
-</code></pre>
-</section>
-</div>
-</div>
-</div>
-<hr>
-<div class="callout callout-style-simple callout-note callout-titled" title="docblock">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="true" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-docblock
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-2" class="callout-2-contents callout-collapse collapse show">
-<div class="callout-body-container callout-body">
-<p>crit<em>val</em>sop(m, n, alpha, chart_choice, approximate::Bool)</p>
-<p>Computes the exact critical value for the SOP test. The input parameters are:</p>
-<ul>
-<li><code>m::Int64</code>: The number of rows in the sop-matrix. Note that the data matrix has dimensions <code>M = m + 1</code>.</li>
-<li><code>n::Int64</code>: The number of columns in the sop-matrix. Note that the data matrix has dimensions <code>N = n + 1</code>.</li>
-<li><code>alpha::Float64</code>: The significance level.</li>
-<li><code>chart_choice::Int64</code>: The choice of chart. The options are:</li>
-</ul>
-<section id="examples-1" class="level3">
-<h3 class="anchored" data-anchor-id="examples-1">Examples</h3>
 <pre class="{julia-repl}"><code>#| eval: false
 # compute approximate critical value for chart 1 
 crit_val_sop(10, 10, 0.05, 1, true)

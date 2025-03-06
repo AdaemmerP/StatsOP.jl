@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.39">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -69,7 +69,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-fcccb32a033b87c7a704632ba49fd707.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -184,30 +184,20 @@ docblock
 <div id="callout-1" class="callout-1-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <div id="2" class="cell" data-execution_count="0">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rl_sacf</span>(m<span class="op">::</span><span class="dt">Int</span>, n<span class="op">::</span><span class="dt">Int</span>, lam, cl, p_reps, dist_error)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rl_sacf</span>(</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Compute the in-control run length (RL) using the spatial autocorrelation function (SACF) for a lag length of 1. The function returns the RL for a given control limit <code>cl</code> and a given number of repetitions <code>p_reps</code>. The input arguments are:</p>
+<p>lam, cl, d1::Int, d2::Int, p<em>reps::UnitRange, spatial</em>dgp::ICSP, dist_error::UnivariateDistribution )</p>
+<p>Compute the in-control run length using the spatial autocorrelation function (SACF) for a delay (d1, d2) combination. The function returns the run length for a given control limit <code>cl</code>.</p>
+<p>The input arguments are:</p>
 <ul>
-<li><code>m::Int</code>: The number of rows in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).</li>
-<li><code>n::Int</code>: The number of columns in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).</li>
-<li><code>lam</code>: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.</li>
-<li><code>cl</code>: The control limit for the EWMA control chart.</li>
-<li><code>p_reps</code>: The number of repetitions to compute the RL. This has to be a unit range of integers to allow for parallel processing, since the function is called by <code>arl_sacf()</code>.</li>
-<li><code>dist_error</code>: The distribution to use for the error term in the SACF function.</li>
+<li><p><code>lam</code>: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.</p></li>
+<li><p><code>cl</code>: The control limit for the EWMA control chart.</p></li>
+<li><p><code>d1::Int</code>: The first (row) delay for the spatial process.</p></li>
+<li><p><code>d2::Int</code>: The second (column) delay for the spatial process.</p></li>
+<li><p><code>p_reps::UnitRange</code>: The number of repetitions to compute the run length. This has to be a unit range of integers to allow for parallel processing, since the function is called by <code>arl_sacf()</code>.</p></li>
+<li><p><code>spatial_dgp::ICSP</code>: The in-control spatial data generating process (DGP) to use for the SACF function.</p></li>
+<li><p><code>dist_error::UnivariateDistribution</code>: The distribution to use for the error term in the spatial process. This can be any univariate distribution from the <code>Distributions.jl</code> package.</p></li>
 </ul>
-<pre class="{julia-repl}"><code>#| eval: false
-#--- Example
-# Set parameters
-m = 10
-n = 10
-lam = 0.1
-cl = .001
-p_reps = 1:10
-dist_error = Normal(0, 1)
-
-# Compute run length
-rls = rl_sacf(m, n, lam, cl, p_reps, dist_error)
-</code></pre>
 </div>
 </div>
 </div>
@@ -225,34 +215,19 @@ docblock
 <div id="callout-2" class="callout-2-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <div id="4" class="cell" data-execution_count="0">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rl_sacf</span>(m<span class="op">::</span><span class="dt">Int</span>, n<span class="op">::</span><span class="dt">Int</span>, lam, cl, p_reps<span class="op">::</span><span class="dt">UnitRange</span>, spatial_dgp, dist_error<span class="op">::</span><span class="dt">UnivariateDistribution</span>, dist_ao<span class="op">::</span><span class="dt">Union{UnivariateDistribution, Nothing}</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rl_sacf</span>(</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Compute the out-of-control run length (RL) using the spatial autocorrelation function (SACF) for a lag length of 1. The function returns the RL for a given control limit <code>cl</code> and a given number of repetitions <code>p_reps</code>. The input arguments are:</p>
+<p>lam, cl, d1::Int, d2::Int, p<em>reps::UnitRange, spatial</em>dgp::SpatialDGP, dist<em>error::UnivariateDistribution, dist</em>ao::Union{UnivariateDistribution,Nothing} )</p>
+<p>Compute the out-of-control run length using the spatial autocorrelation function (SACF). The function returns the run length for a given control limit <code>cl</code> and a given number of repetitions <code>reps</code>.</p>
+<p>The input arguments are:</p>
 <ul>
-<li><code>m::Int</code>: The number of rows in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).</li>
-<li><code>n::Int</code>: The number of columns in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).</li>
-<li><code>lam</code>: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.</li>
-<li><code>cl</code>: The control limit for the EWMA control chart.</li>
-<li><code>p_reps</code>: The number of repetitions to compute the RL. This has to be a unit range of integers to allow for parallel processing, since the function is called by <code>arl_sacf()</code>.</li>
-<li><code>spatial_dgp</code>: The spatial data generating process (DGP) to use for the SACF function. This can be one of the following: <code>SAR1</code>, <code>SAR11</code>, <code>SINAR11</code>, <code>SQMA11</code>, <code>SQINMA11</code>, or <code>BSQMA11</code>.</li>
-<li><code>dist_error</code>: The distribution to use for the error term in the SACF function. This can be any univariate distribution from the <code>Distributions.jl</code> package with a defined mean or a custom distribution.</li>
-<li><code>dist_ao</code>: The distribution to use for for additive outliers. This can be any univariate distribution from the <code>Distributions.jl</code> package or a custom distribution.</li>
+<li><p><code>lam</code>: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.</p></li>
+<li><p><code>cl</code>: The control limit for the EWMA control chart.</p></li>
+<li><p><code>d1::Int</code>: The first (row) delay for the spatial process.</p></li>
+<li><p><code>d2::Int</code>: The second (column) delay for the spatial process.</p></li>
+<li><p><code>p_reps::UnitRange</code>: The number of repetitions to compute the run length. This has to be a unit range of integers to allow for parallel processing, since the function is called by <code>arl_sacf()</code>.</p></li>
+<li><p><code>spatial_dgp::SpatialDGP</code>: The spatial data generating process (DGP) to use for the SACF function. This can be one of the following: <code>SAR1</code>, <code>SAR11</code>, <code>SAR22</code>, <code>SINAR11</code>, <code>SQMA11</code>, <code>SQINMA11</code>, or <code>BSQMA11</code>.</p></li>
 </ul>
-<pre class="{julia-repl}"><code>#| eval: false
-#--- Example
-# Set parameters
-m = 10
-n = 10
-lam = 0.1
-cl = .001
-p_reps = 1:10
-spatial_dgp = SAR11((0.1, 0.1, 0.1), 10, 10, 100)
-dist_error = Normal(0, 1)
-dist_ao = nothing
-
-# Compute run length
-rls = rl_sacf(m, n, lam, cl, p_reps, spatial_dgp, dist_error, dist_ao)
-</code></pre>
 </div>
 </div>
 </div>

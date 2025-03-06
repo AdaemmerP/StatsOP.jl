@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.39">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -70,7 +70,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-fcccb32a033b87c7a704632ba49fd707.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -339,31 +339,17 @@ docblock
 </div>
 <div id="callout-1" class="callout-1-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
-<div id="2" class="cell" data-execution_count="0">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">arl_sacf</span>(m<span class="op">::</span><span class="dt">Int</span>, n<span class="op">::</span><span class="dt">Int</span>, lam, cl, reps<span class="op">::</span><span class="dt">Int</span>, dist_error)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>Compute the in-control average run length (ARL), using the spatial autocorrelation function (SACF) for a lag length of 1. The function returns the ARL for a given control limit <code>cl</code> and a given number of repetitions <code>reps</code>. The input arguments are:</p>
+<p>arl<em>sacf(lam, cl, spatial</em>dgp::ICSP, d1::Int, d2::Int, reps=10_000)</p>
+<p>Compute the in-control average run length (ARL), using the spatial autocorrelation function (SACF) for a delay (d1, d2) combination. The function returns the ARL for a given control limit <code>cl</code> and a given number of repetitions <code>reps</code>.</p>
+<p>The input arguments are:</p>
 <ul>
-<li><code>m::Int</code>: The number of rows in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).</li>
-<li><code>n::Int</code>: The number of columns in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).</li>
 <li><code>lam</code>: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.</li>
 <li><code>cl</code>: The control limit for the EWMA control chart.</li>
+<li><code>spatial_dgp</code>: The in-control spatial data generating process (DGP) to use for the SACF function.</li>
+<li><code>d1::Int</code>: The first (row) delay for the spatial process.</li>
+<li><code>d2::Int</code>: The second (column) delay for the spatial process.</li>
 <li><code>reps</code>: The number of repetitions to compute the ARL.</li>
-<li><code>dist_error</code>: The distribution to use for the error term in the SACF function. This can be any univariate distribution from the <code>Distributions.jl</code> package or a custom distribution with a defined method for <code>rand()</code> and <code>rand!()</code>.</li>
 </ul>
-<div id="4" class="cell" data-execution_count="0">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#--- Example</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Set parameters</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fl">10</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="fl">10</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>lam <span class="op">=</span> <span class="fl">0.1</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>cl <span class="op">=</span> <span class="fl">.001</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>reps <span class="op">=</span> <span class="fl">100</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>dist_error <span class="op">=</span> <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>)</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute average run length</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>arl <span class="op">=</span> <span class="fu">arl_sacf</span>(m, n, lam, cl, reps, dist_error)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
 </div>
 </div>
 </div>
@@ -380,31 +366,19 @@ docblock
 </div>
 <div id="callout-2" class="callout-2-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
-<div id="6" class="cell" data-execution_count="0">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">arl_sacf</span>(lam, cl, reps, spatial_dgp, dist_error<span class="op">::</span><span class="dt">UnivariateDistribution</span>, dist_ao<span class="op">::</span><span class="dt">Union{UnivariateDistribution,Nothing}</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="2" class="cell" data-execution_count="0">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">arl_sacf</span>(lam, cl, sp_dgp<span class="op">::</span><span class="dt">SpatialDGP</span>, d1<span class="op">::</span><span class="dt">Int</span>, d2<span class="op">::</span><span class="dt">Int</span>, reps<span class="op">=</span><span class="fl">10_000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Compute the out-of-control average run length (ARL), using the spatial autocorrelation function (SACF) for a lag length of 1. The function returns the ARL for a given control limit <code>cl</code> and a given number of repetitions <code>reps</code>. The input arguments are:</p>
+<p>Compute the in-control average run length (ARL) using the spatial autocorrelation function (SACF) for a delay (d1, d2) combination and an out-of-control process.</p>
+<p>The input arguments are:</p>
 <ul>
-<li><code>lam</code>: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.</li>
-<li><code>cl</code>: The control limit for the EWMA control chart.</li>
-<li><code>reps</code>: The number of repetitions to compute the ARL.</li>
-<li><code>spatial_dgp</code>: The spatial data generating process (DGP) to use for the SACF function. This can be one of the following: <code>SAR1</code>, <code>SAR11</code>, <code>SINAR11</code>, <code>SQMA11</code>, <code>SQINMA11</code>, or <code>BSQMA11</code>.</li>
-<li><code>dist_error</code>: The distribution to use for the error term in the SACF function. This can be any univariate distribution from the <code>Distributions.jl</code> package with a defined mean or a custom distribution.</li>
-<li><code>dist_ao</code>: The distribution to use for additive outliers. This can be any univariate distribution from the <code>Distributions.jl</code> package or a custom distribution.</li>
+<li><p><code>lam</code>: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.</p></li>
+<li><p><code>cl</code>: The control limit for the EWMA control chart.</p></li>
+<li><p><code>sp_dgp</code>: The spatial data generating process (DGP) to use for the SACF function. This can be one of the following: <code>SAR1</code>, <code>SAR11</code>, <code>SAR22</code>, <code>SINAR11</code>, <code>SQMA11</code>, <code>SQINMA11</code>, or <code>BSQMA11</code>.</p></li>
+<li><p><code>d1::Int</code>: The first (row) delay for the spatial process.</p></li>
+<li><p><code>d2::Int</code>: The second (column) delay for the spatial process.</p></li>
+<li><p><code>reps</code>: The number of repetitions to compute the ARL.</p></li>
 </ul>
-<div id="8" class="cell" data-execution_count="0">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#--- Example</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Set parameters</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>lam <span class="op">=</span> <span class="fl">0.1</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>cl <span class="op">=</span> <span class="fl">.001</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>reps <span class="op">=</span> <span class="fl">100</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>spatial_dgp <span class="op">=</span> <span class="fu">SAR11</span>((<span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>), <span class="fl">10</span>, <span class="fl">10</span>, <span class="fl">100</span>)</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>dist_error <span class="op">=</span> <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>)</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>dist_ao <span class="op">=</span> <span class="cn">nothing</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute average run length</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>arl <span class="op">=</span> <span class="fu">arl_sacf</span>(lam, cl, reps, spatial_dgp, dist_error, dist_ao)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
 </div>
 </div>
 </div>

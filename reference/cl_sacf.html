@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.39">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -69,7 +69,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-fcccb32a033b87c7a704632ba49fd707.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -184,37 +184,36 @@ docblock
 <div id="callout-1" class="callout-1-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <div id="2" class="cell" data-execution_count="0">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cl_sacf</span>(m, n, lam, L0, reps, clinit, jmin, jmax, verbose, dist_error)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cl_sacf</span>(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  sp_dgp<span class="op">::</span><span class="dt">ICSTS</span>, lam, L0, cl_init, d1<span class="op">::</span><span class="dt">Int</span>, d2<span class="op">::</span><span class="dt">Int</span>, reps<span class="op">=</span><span class="fl">10_000</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Compute the control limit for the exponentially weighted moving average (EWMA) control chart using the spatial autocorrelation function (SACF) for a lag length of 1. The function returns the control limit for a given average run length (ARL) <code>L0</code> and a given number of repetitions <code>reps</code>. The input arguments are:</p>
+<p>jmin=4, jmax=6, verbose=false )</p>
+<p>Compute the control limit for the exponentially weighted moving average (EWMA) control chart for one delay (d₁-d₂) combination, using the spatial autocorrelation function (SACF) and an in-control spatial process (ICSP).</p>
+<p>The function returns the control limit for a given average run.</p>
 <ul>
-<li><code>m::Int</code>: The number of rows in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).</li>
-<li><code>n::Int</code>: The number of columns in the matrix for the SOP matrix. Note that the original matrix will have dimensions (m + 1) x (n + 1).</li>
+<li><code>sp_dgp</code>: The in-control spatial process (ICSP) to use for the control limit.</li>
 <li><code>lam</code>: The smoothing parameter for the EWMA control chart.</li>
 <li><code>L0</code>: The average run length (ARL) to use for the control limit.</li>
-<li><code>reps</code>: The number of repetitions to compute the ARL.</li>
-<li><code>clinit</code>: The initial control limit to use for the EWMA control chart. If set to 0, the function will search for the control limit that gives an ARL greater than <code>L0</code>.</li>
+<li><code>cl_init</code>: The initial control limit to use for the control limit.</li>
+<li><code>d1</code>: The first (row) delay for the spatial process.</li>
+<li><code>d2</code>: The second (column) delay for the spatial process.</li>
+<li><code>reps</code>: The number of repetitions to use for the control limit.</li>
 <li><code>jmin</code>: The minimum number of values to change after the decimal point in the control limit.</li>
 <li><code>jmax</code>: The maximum number of values to change after the decimal point in the control limit.</li>
 <li><code>verbose</code>: A boolean to indicate whether to print the control limit and ARL for each iteration.</li>
-<li><code>dist_error</code>: The distribution to use for the error term in the SACF function. This can be any univariate distribution from the <code>Distributions.jl</code> package or a custom distribution with a defined method for <code>rand()</code> and <code>rand!()</code>.</li>
 </ul>
 <div id="4" class="cell" data-execution_count="0">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#--- Example</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Set parameters</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fl">10</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="fl">10</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>lam <span class="op">=</span> <span class="fl">0.1</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>L0 <span class="op">=</span> <span class="fl">370</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>reps <span class="op">=</span> <span class="fl">1000</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>clinit <span class="op">=</span> <span class="fl">0.05</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>jmin <span class="op">=</span> <span class="fl">4</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>jmax <span class="op">=</span> <span class="fl">7</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>verbose <span class="op">=</span> <span class="cn">true</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>dist_error <span class="op">=</span> <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>)</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute control limit</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>cl <span class="op">=</span> <span class="fu">cl_sacf</span>(m, n, lam, L0, reps, clinit, jmin, jmax, verbose, dist_error)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Parameters</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>lam <span class="op">=</span> <span class="fl">0.1</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>L0 <span class="op">=</span> <span class="fl">370</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>sp_dgp <span class="op">=</span> <span class="fu">ICSP</span>(<span class="fl">20</span>, <span class="fl">20</span>, <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>))</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>cl_init <span class="op">=</span> <span class="fl">0.5</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>d1 <span class="op">=</span> <span class="fl">1</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>d2 <span class="op">=</span> <span class="fl">1</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>reps <span class="op">=</span> <span class="fl">10_000</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>jmin <span class="op">=</span> <span class="fl">4</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>jmax <span class="op">=</span> <span class="fl">6</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.39">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -71,7 +71,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-fcccb32a033b87c7a704632ba49fd707.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -370,15 +370,18 @@ docblock
 <div id="callout-1" class="callout-1-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <div id="2" class="cell" data-execution_count="0">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">SINAR11</span>(dgp_params, m, n, prerun)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">SINAR11</span>(dgp_params, M_rows, N_cols, dist, dist_ao, prerun)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>A struct to define a first-order integer spatial autoregressive (SINAR(1, 1)) model:</p>
-<p><span class="math inline">\(\qquad X_{t_1, t_2}=\alpha_1 \circ X_{t_1-1, t_2}+\alpha_2 \circ X_{t_1, t_2-1}+\alpha_3 \circ X_{t_1-1, t_2-1}+\epsilon_{t_1, t_2}.\)</span></p>
+<p><span class="math inline">\(\qquad X_{t_1, t_2}=\alpha_1 \circ X_{t_1-1, t_2}+\alpha_2 \circ X_{t_1, t_2-1}+\alpha_3 \circ X_{t_1-1, t_2-1}+\varepsilon_{t_1, t_2}.\)</span></p>
 <ul>
 <li><code>dgp_params::Tuple(α₁::Float64, α₂::Float64, α₃::Float64)</code> Note that α₁, α₂, and α₃ ∈ [0, 1) and α₁ + α₂ + α₃ &lt; 1 to guarantee stationarity.</li>
 <li><code>m::Int</code> The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.</li>
 <li><code>n::Int</code> The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.</li>
 <li><code>prerun::Int</code> A value to initialize the DGP to guarantee stationarity. These number of rows and columns will be discarded for the final spatial matrix.</li>
+<li><code>dist::Distribution</code> A distribution for . You can use any univariate distribution from the <code>Distributions.jl</code> package.</li>
+<li><code>dist_ao::Union{Nothing, Distribution}</code> Nothing or a distribution for additive outliers. For additive outliers you can use any univariate distribution from the <code>Distributions.jl</code> package.</li>
+<li><code>prerun::Int</code> A value to initialize the DGP to achieve stationarity. These number of rows and columns will be discarded after the initialization.</li>
 </ul>
 <div id="4" class="cell" data-execution_count="0">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>sar11 <span class="op">=</span> <span class="fu">SINAR</span>((<span class="fl">0.5</span>, <span class="fl">0.3</span>, <span class="fl">0.2</span>), <span class="fl">11</span>, <span class="fl">11</span>, <span class="fl">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
