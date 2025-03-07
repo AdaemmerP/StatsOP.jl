@@ -1,0 +1,39 @@
+---
+engine: julia
+---
+
+# rl_sacf_oc {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+rl_sacf_oc(
+
+```
+
+spatial*dgp::SpatialDGP, lam, cl, d1::Int, d2::Int, p*reps::UnitRange,    dist*error::UnivariateDistribution, dist*ao::Union{UnivariateDistribution,Nothing} )
+ 
+Compute the out-of-control run length using the spatial autocorrelation function (SACF). The function returns the run length for a given control limit `cl` and a given number of repetitions `reps`. 
+ 
+The input arguments are:
+ 
+  * `spatial_dgp::SpatialDGP`: The spatial data generating process (DGP) to use for
+the SACF function. This can be one of the following: `SAR1`, `SAR11`, `SAR22`,    `SINAR11`, `SQMA11`, `SQINMA11`, or `BSQMA11`.
+ 
+  * `lam`: The smoothing parameter for the exponentially weighted moving average (EWMA)
+control chart.
+ 
+  * `cl`: The control limit for the EWMA control chart.
+  * `d1::Int`: The first (row) delay for the spatial process.
+  * `d2::Int`: The second (column) delay for the spatial process.
+  * `p_reps::UnitRange`: The number of repetitions to compute the run length. This
+has to be a unit range of integers to allow for parallel processing, since the  function is called by `arl_sacf()`.
+ 
+
+
+:::
+    
+

@@ -1,0 +1,32 @@
+---
+engine: julia
+---
+
+# arl_sop_bootstrap {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+arl_sop_bootstrap(p_mat::Array{Float64,2}, lam, cl, reps=10_000; chart_choice=chart_choice)
+
+```
+
+Compute the average run length (ARL) using a bootstrap approach  for a particular delay (d₁-d₂) combination. 
+ 
+The input parameters are:
+ 
+  * `p_mat::Array{Float64,2}`: A matrix with the values of the relative type frequencies.
+  * `lam::Float64`: A scalar value for lambda for the EWMA chart.
+  * `cl::Float64`: A scalar value for the control limit.
+  * `reps::Int`: An integer value for the number of repetitions. The default value is 10,000.
+  * `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
+The default value is 3.
+ 
+
+
+:::
+    
+

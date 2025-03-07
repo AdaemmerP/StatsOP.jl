@@ -1,0 +1,32 @@
+---
+engine: julia
+---
+
+# rl_sop_bp_bootstrap {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+rl_sop_bp_bootstrap(p_array::Array{T,3}, lam, cl, reps_range, chart_choice, ) where {T<:Real}
+
+```
+
+Compute the EWMA-BP-SOP run length for a given control limit using bootstraping.
+ 
+The input parameters are:
+ 
+  * `p_array::Array{Float64,3}`: A 3D array with the with the relative frequencies for
+each d1-d2 (delay) combination. The first dimension (rows) is the picture, the second dimension refers to the patterns group (s₁, s₂, or s₃) and the third dimension denotes each d₁-d₂ combination. This array will be used for re-sampling.
+ 
+  * `lam::Float64`: A scalar value for lambda for the EWMA chart.
+  * `cl::Float64`: A scalar value for the control limit.
+  * `reps_range::UnitRange{Int}`: A range of integers for the number of repetitions.
+  * `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
+
+
+:::
+    
+

@@ -1,0 +1,34 @@
+---
+engine: julia
+---
+
+# rl_sop_bootstrap {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+rl_sop_bootstrap(lam, cl, reps_range, chart_choice, p_mat::Array{Float64,2})
+
+```
+
+Compute the run length for a given control limit using bootstraping instead  of a theoretical in-control distribution.
+ 
+The input parameters are:
+ 
+  * `lam::Float64`: A scalar value for lambda for the EWMA chart.
+  * `cl::Float64`: A scalar value for the control limit.
+  * `reps_range::UnitRange{Int}`: A range of integers for the number of repetitions.
+This has to be a range to be compatible with `arl_sop()` which uses threading and multi-processing.
+ 
+  * `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
+  * `p_mat::Array{Float64,2}`: A matrix with the values of the relative frequencies
+of each d1-d2 (delay) combination. This matrix will be used for re-sampling.
+ 
+
+
+:::
+    
+

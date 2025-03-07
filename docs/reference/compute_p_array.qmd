@@ -10,29 +10,11 @@ engine: julia
 
 ```{julia}
 #| eval: false
-compute_p_mat(data::Array{Float64,3})
+compute_p_array(data::Array{T,3})
 
 ```
 
 Compute the matrix of p-hat values for a given 3D array of data when the delays are integers. These values are used for bootstrapping. 
- 
-
-
-:::
-    
-
- --- 
- 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
-
-
-```{julia}
-#| eval: false
-compute_p_mat(data::Array{Float64,3})
-
-```
-
-Compute the matrix of p-hat values for a given 3D array of data when the delays are vectors of integers. These values are used for bootstrapping to compute critcial limits for the BP-statistics. 
  
 
 

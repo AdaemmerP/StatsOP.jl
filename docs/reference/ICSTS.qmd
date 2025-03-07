@@ -1,0 +1,26 @@
+---
+engine: julia
+---
+
+# ICSTS {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+ICSP(M_rows, N_cols, dist)
+
+```
+
+A struct to define an independent and identically distributed (IID) process for in-control
+ 
+  * `M_rows::Int`: The number of rows for the image.
+  * `N_cols::Int`: The number of columns for image.
+  * `dist::UnivariateDistribution`: A distribution from the Distributions.jl package.
+
+
+:::
+    
+

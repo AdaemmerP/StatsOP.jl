@@ -1,0 +1,33 @@
+---
+engine: julia
+---
+
+# arl_sacf_oc {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+arl_sacf_oc(sp_dgp::SpatialDGP, lam, cl, d1::Int, d2::Int, reps=10_000)
+
+```
+
+Compute the in-control average run length (ARL) using the spatial autocorrelation  function (SACF) for a delay (d1, d2) combination and an out-of-control process. 
+ 
+The input arguments are: 
+ 
+  * `lam`: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.
+  * `cl`: The control limit for the EWMA control chart.
+  * `sp_dgp`: The spatial data generating process (DGP) to use for the SACF function.
+This can be one of the following: `SAR1`, `SAR11`, `SAR22`, `SINAR11`, `SQMA11`,  `SQINMA11`, or `BSQMA11`.
+ 
+  * `d1::Int`: The first (row) delay for the spatial process.
+  * `d2::Int`: The second (column) delay for the spatial process.
+  * `reps`: The number of repetitions to compute the ARL.
+
+
+:::
+    
+

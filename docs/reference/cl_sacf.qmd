@@ -11,19 +11,19 @@ engine: julia
 ```{julia}
 #| eval: false
 cl_sacf(
-  lam, L0, sp_dgp::ICSP, cl_init, d1::Int, d2::Int, reps=10_000; 
-  jmin=4, jmax=6, verbose::Bool=false
-)
+  sp_dgp::ICSTS, lam, L0, cl_init, d1::Int, d2::Int, reps=10_000;
 
 ```
 
+jmin=4, jmax=6, verbose=false     )
+ 
 Compute the control limit for the exponentially weighted moving average (EWMA)  control chart for one delay (d₁-d₂) combination, using the spatial autocorrelation  function (SACF) and an in-control spatial process (ICSP). 
  
 The function returns the control limit for a given average run.
  
+  * `sp_dgp`: The in-control spatial process (ICSP) to use for the control limit.
   * `lam`: The smoothing parameter for the EWMA control chart.
   * `L0`: The average run length (ARL) to use for the control limit.
-  * `sp_dgp`: The in-control spatial process (ICSP) to use for the control limit.
   * `cl_init`: The initial control limit to use for the control limit.
   * `d1`: The first (row) delay for the spatial process.
   * `d2`: The second (column) delay for the spatial process.
@@ -48,36 +48,6 @@ jmax = 6
 
 ```
 
-
-
-:::
-    
-
- --- 
- 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
-
-
-```{julia}
-#| eval: false
-cl_sacf(
-  lam, L0, sp_dgp::ICSP, cl_init, d1_vec::Vector{Int}, d2_vec::Vector{Int}, reps=10_000; 
-  jmin=4, jmax=6, verbose::Bool=false
-)
-
-```
-
-Compute the control limit for BP-EWMA control chart for multiple delay (d₁-d₂) combinations,  using the spatial autocorrelation function (SACF) and an in-control spatial process (ICSP). 
- 
-The function returns the control limit for a given average run.
- 
-  * `lam`: The smoothing parameter for the EWMA control chart.
-  * `L0`: The average run length (ARL) to use for the control limit.
-  * `sp_dgp`: The in-control spatial process (ICSP) to use for the control limit.
-  * `cl_init`: The initial control limit to use for the control limit.
-  * `d1_vec`: The vector of first (row) delays for the spatial process.
-  * `d2_vec`: The vector of second (column) delays for the spatial process.
-  * `reps`: The number of repetitions to use for the control limit.
 
 
 :::

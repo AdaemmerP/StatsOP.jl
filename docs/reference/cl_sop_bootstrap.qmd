@@ -1,0 +1,38 @@
+---
+engine: julia
+---
+
+# cl_sop_bootstrap {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+cl_sop_bootstrap(
+
+```
+
+data::Array{T,3}, lam, L0, cl*init, d1, d2, reps=10*000;   chart_choice=3, jmin=3, jmax=7, verbose=false )
+ 
+Compute the SOP control limit for the EWMA-chart based on bootstraping. The function returns the control limit for a given average run.
+ 
+The input parameters are:
+ 
+  * `data::Array{T,3}`: A 3D-array containing the data for the EWMA-chart.
+  * `lam::Real`: The smoothing parameter for the EWMA-chart.
+  * `L0::Real`: The average run length for the EWMA-chart.
+  * `cl_init::Real`: The initial value for the control limit.
+  * `d1::Int`: The first dimension of the data array.
+  * `d2::Int`: The second dimension of the data array.
+  * `reps::Int=10_000`: The number of bootstrap replications.
+  * `chart_choice::Int`: The choice of the chart for the EWMA-chart. The default is 3.
+  * `jmin`: The minimum number of values to change after the decimal point in the control limit.
+  * `jmax`: The maximum number of values to change after the decimal point in the control limit.
+  * `verbose::Bool`: A boolean to indicate whether to print the control limit and ARL for each iteration.
+
+
+:::
+    
+

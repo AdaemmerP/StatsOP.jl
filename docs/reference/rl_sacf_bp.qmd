@@ -1,0 +1,42 @@
+---
+engine: julia
+---
+
+# rl_sacf_bp {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+rl_sacf_bp(
+
+```
+
+lam, cl, d1*vec::Vector{Int}, d2*vec::Vector{Int}, p*reps::UnitRange, spatial*dgp::SpatialDGP, dist*error::UnivariateDistribution, dist*ao::Union{UnivariateDistribution,Nothing} )
+ 
+Compute the out-of-control run length using the spatial autocorrelation function  (SACF) for the BP-statistic. The function returns the run length for a given control    limit `cl` and a given number of repetitions `reps`. The input arguments are:
+ 
+  * `lam`: The smoothing parameter for the exponentially weighted moving average
+(EWMA) control chart.
+ 
+  * `cl`: The control limit for the EWMA control chart.
+  * `w::Int`: The window size for the BP-statistic.'
+  * `p_reps::UnitRange`: The number of repetitions to compute the run length. This
+has to be a unit range of integers to allow for parallel processing, since the function    is called by `arl_sacf()`.
+ 
+  * `spatial_dgp::SpatialDGP`: The spatial data generating process (DGP) to use for
+the SACF function. This can be one of the following: `SAR1`, `SAR11`, `SAR22`,    `SINAR11`, `SQMA11`, `SQINMA11`, or `BSQMA11`.
+ 
+  * `dist_error::UnivariateDistribution`: The distribution to use for the error
+term in the spatial process. This can be any univariate distribution from the  `Distributions.jl` package.
+ 
+  * `dist_ao::Union{UnivariateDistribution,Nothing}`: The distribution to use for
+the additive outlier term in the spatial process. This can be any univariate , distribution from the `Distributions.jl` package or `Nothing`.
+ 
+
+
+:::
+    
+

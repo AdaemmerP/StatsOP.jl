@@ -1,0 +1,33 @@
+---
+engine: julia
+---
+
+# arl_sacf_bp_oc {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+arl_sacf_bp_oc(spatial_dgp::SpatialDGP, lam, cl, w::Int, reps=10_000)
+
+```
+
+Compute the out-of-control average run length (ARL) using the spatial autocorrelation  function (SACF) for the BP-statistic. The function returns the ARL for a given control limit `cl` and a given number of repetitions `reps`. The input arguments are:
+ 
+  * `spatial_dgp::SpatialDGP`: The spatial data generating process (DGP) to use for
+the SACF function. This can be one of the following: `SAR1`, `SAR11`, `SAR22`,    `SINAR11`, `SQMA11`, `SQINMA11`, or `BSQMA11`.    
+ 
+  * `lam`: The smoothing parameter for the exponentially weighted moving average (EWMA)
+control chart.
+ 
+  * `cl`: The control limit for the EWMA control chart.
+  * `d1_vec::Vector{Int}`: The first (row) delays for the spatial process.
+  * `d2_vec::Vector{Int}`: The second (column) delays for the spatial process.
+  * `reps`: The number of repetitions to compute the ARL.
+
+
+:::
+    
+

@@ -1,0 +1,39 @@
+---
+engine: julia
+---
+
+# rl_sop_ic {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+rl_sop_ic(lam, cl, lookup_array_sop, reps_range, dist, chart_choice, m, n, d1::Int, d2::Int)
+
+```
+
+Compute the run length for a given in-control spatial DGP. 
+ 
+The input parameters are:
+ 
+  * `lam::Float64`: A scalar value for lambda for the EWMA chart.
+  * `cl::Float64`: A scalar value for the control limit.
+  * `lookup_array_sop::Array{Int, 4}`: A 4D array with the lookup array for the sops,
+which will be computed computed using `lookup_array_sop = compute_lookup_array_sop()`. 
+ 
+  * `reps_range::UnitRange{Int}`: A range of integers for the number of repetitions.
+  * `dist::Distribution`: A distribution for the error term. Here you can use any
+univariate distribution from the `Distributions.jl` package.
+ 
+  * `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
+  * `m::Int`: An integer value for the number of rows for the final "SOP" matrix.
+  * `n::Int`: An integer value for the number of columns for the final "SOP" matrix.
+  * `d1::Int`: An integer value for the first delay (d₁).
+  * `d2::Int`: An integer value for the second delay (d₂).
+
+
+:::
+    
+

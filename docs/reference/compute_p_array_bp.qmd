@@ -1,0 +1,18 @@
+---
+engine: julia
+---
+
+# compute_p_array_bp {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+compute*p*array(data::Array{Float64,3})
+ 
+Compute the matrix of p-hat values for a given 3D array of data when the delays are vectors of integers. These values are used for bootstrapping to compute critcial limits for the BP-statistics. 
+ 
+
+
+:::
+    
+

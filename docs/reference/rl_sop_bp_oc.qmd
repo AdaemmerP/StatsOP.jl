@@ -1,0 +1,38 @@
+---
+engine: julia
+---
+
+# rl_sop_bp_oc {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```{julia}
+#| eval: false
+rl_sop_bp_oc(
+spatial_dgp::SpatialDGP, lam, cl, w::Int, lookup_array_sop, p_reps::UnitRange,
+dist_error::UnivariateDistribution, dist_ao::Union{Nothing,UnivariateDistribution}, chart_choice
+
+```
+
+)
+ 
+Computes the run length for a given out-of-control DGP, using the EWMA-BP-SOP statistic.
+ 
+The input parameters are:
+ 
+  * `spatial_dgp::SpatialDGP`: A struct for the out-of-control spatial DGP.
+  * `lam::Float64`: A scalar value for lambda for the EWMA chart.
+  * `cl::Float64`: A scalar value for the control limit.
+  * `w::Int`: An integer value for the window size for the BP-statistic.
+  * `lookup_array_sop::Array{Int, 2}`: A 2D array with the lookup table for the SOPs.
+  * `p_reps::UnitRange`: A range of integers for the number of repetitions.
+  * `dist_error::UnivariateDistribution`: A distribution for the error term.
+  * `dist_ao::Union{Nothing,UnivariateDistribution}`: A distribution for the additive outlier.
+  * `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
+
+
+:::
+    
+
