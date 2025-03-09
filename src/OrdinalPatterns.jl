@@ -96,10 +96,10 @@ export ICTS,
   TEAR1
 
 # OP functions to export
-export rl_op,
-  rl_op_ic,
-  arl_op,
+export rl_op_ic,
+  rl_op_oc,
   arl_op_ic,
+  arl_op_oc,
   stat_op,
   cl_op,
   count_uv_op,
@@ -113,7 +113,7 @@ export rl_op,
 # OP files
 include("op/op_dgp_structs.jl")
 include("op/op_arl_ic_functions.jl")
-include("op/op_arl_functions.jl")
+include("op/op_arl_oc_functions.jl")
 include("op/op_cl_functions.jl")
 include("op/op_dependence.jl")
 include("op/op_help_functions.jl")
