@@ -10,6 +10,7 @@ using Distributed
 using StaticArrays
 using StatsBase
 using Reexport
+import PrecompileTools
 
 # Reexport
 @reexport using Distributions
@@ -160,5 +161,8 @@ include("sacf/sacf_cl_functions.jl")
 include("sacf/sacf_cl_bp_functions.jl")
 include("sacf/sacf_stat_functions.jl")
 include("sacf/sacf_stat_bp_functions.jl")
+
+# Precompile
+include("other/precompile.jl")
 
 end

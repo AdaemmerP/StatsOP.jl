@@ -20,7 +20,9 @@ If `false`, the exact critical value is computed.
 crit_val_sop(10, 10, 0.05, 1, true)
 ```
 """
-function crit_val_sop(M, N, alpha, d1::Int, d2::Int; chart_choice, approximate::Bool=false)
+function crit_val_sop(
+  M, N, alpha, d1::Int, d2::Int; chart_choice, approximate::Bool=false
+  )
 
   # sizes
   m = M - d1
@@ -76,11 +78,15 @@ end
 function test_sop(data, alpha, d1::Int, d2::Int; chart_choice, add_noise::Bool=false, approximate::Bool=false)
 
   # sizes
-  m = size(data, 1) - d1
-  n = size(data, 2) - d2
+  M = size(data, 1)
+  N = size(data, 2)
+  m = M - d1
+  n = N - d2
 
   # compute critical value
-  crit_val = crit_val_sop(m, n, alpha; chart_choice=chart_choice, approximate=approximate)
+  crit_val = crit_val_sop(
+    M, N, alpha, d1, d2; chart_choice=chart_choice, approximate=approximate
+    )
 
   # compute test statistic
   test_stat = stat_sop(
