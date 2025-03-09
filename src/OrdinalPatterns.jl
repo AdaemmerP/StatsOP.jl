@@ -122,7 +122,8 @@ include("op/op_test_functions.jl")
 include("op/op_dgp_functions.jl")
 
 # ACF files 
-include("acf/op_acf_functions.jl")
+include("acf/acf_functions.jl")
+include("acf/acf_cl_functions.jl")
 
 # ---------------------------------------------#
 # SOP related functions and structs to include #  
