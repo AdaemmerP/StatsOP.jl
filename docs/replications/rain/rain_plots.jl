@@ -5,9 +5,10 @@ using JLD2
 using Random
 using CairoMakie
 
-
+# Load the data
+cd(@__DIR__)
 # load data
-mat_all = load("docs/replications/rain/rain_data_2007_08_self_extracted.jld2")["large_array"]
+mat_all = load("rainfall_data_2007_08_one_week.jld2")["large_array"]
 
 # check for missing values in array all_mats
 missing_values = sum(ismissing.(mat_all))
@@ -83,20 +84,32 @@ let
             )
 
             if lam[i] == 0.1
-                cl = d1_d2_crit_ewma[d1, d2] #cl_sop_crit[i]
+                cl = d1_d2_crit_ewma[d1, d2]
             elseif lam[i] == 1
                 cl = d1_d2_shewart[d1, d2]
             end
             for i in 1:1000
-                lines!(ax, ic_start:ic_end, mapooc_stat_sops[i, ic_start:ic_end], color=:grey, alpha=0.05, label="Single runs")
+                lines!(ax, ic_start:ic_end, mapooc_stat_sops[i, ic_start:ic_end], color=(:grey, 0.05), label="Single runs")
             end
             lines!(ax, ooc_vec, color=:black, label="Typical run")
             lines!(ax, mean_vec, color=:blue, label="Mean of runs")
             hlines!([-cl, cl], color=:"red", label="Control limits")
 
+
             # Add legend
-            if i == 2
-                Legend(fig[2, 1:2], ax, labelsize=14, framecolor=:white, orientation=:horizontal, merge=true, unique=true)
+            if i == 1
+                #axislegend(ax, merge=true, unique=true, position=:lb, labelsize=10)
+                axislegend(
+                    ax,
+                    [
+                        li => (; linestyle = :solid, linewidth=1.5, color=(:grey, 0.5)),
+                        li => (; linestyle = :solid, linewidth=1.5, color=(:black)),
+                        li => (; linestyle = :solid, linewidth=1.5, color=(:blue)),
+                        li => (; linestyle = :solid, linewidth=1.5, color=(:red)),
+                    ],
+                    ["Single runs", "Typical run", "Mean of runs", "Control limits"],
+                    merge=true, unique=true, position=:lb, labelsize=10
+                )
             end
 
             # summarize alarm point results
@@ -131,18 +144,18 @@ end
 lam = [0.1, 1]
 clbp = [
     0.0013443 0.0287518; # w = 3, lam = 0.1, 1
-    0.0031717 0.0668780  # w = 5, lam = 0.1, 1
+    # 0.0031717 0.0668780  # w = 5, lam = 0.1, 1
 ]
 
 fig_title = [
-    "(a) BP-EWMA chart (w = 3, λ = 0.1)" "(b) BP-EWMA chart (w = 3, λ = 1)";
-    "(c) BP-EWMA chart (w = 5, λ = 0.1)" "(d) BP-EWMA chart (w = 5, λ = 1)"
+    "(a) BP-EWMA chart (w = 3, λ = 0.1)" "(b) BP-EWMA chart (w = 3, λ = 0.1)";
+    #    "(c) BP-EWMA chart (w = 5, λ = 0.1)" "(d) BP-EWMA chart (w = 5, λ = 1)"
 ]
 
 
-w = [3, 5]
-lam = [0.1, 1]
-YLS = [(0, 0.01), (0, 0.02), (0, 0.15), (0, 0.25)]
+w = 3
+lam = [0.1, 0.1]
+YLS = [(0, 0.01)]#, (0, 0.02), (0, 0.15), (0, 0.25)]
 
 let
     fig = Figure()
@@ -186,35 +199,46 @@ let
                 xticks=collect(0:24:168),
             )
             for i in 1:1000
-                lines!(ax, ic_start:ic_end, mapooc_stat_sops[i, ic_start:ic_end], color=:grey, alpha=0.05, label="Single runs")
+                lines!(ax, ic_start:ic_end, mapooc_stat_sops[i, ic_start:ic_end], color=(:grey, 0.05), label="Single runs")
             end
             lines!(ax, ooc_vec, color=:black, label="Typical run")
             lines!(ax, mean_vec, color=:blue, label="Mean of runs")
 
-            hlines!([clbp[i, j]], color=:"red", label="Control limits")
+            hlines!([clbp[i, 1]], color=:"red", label="Control limits")
 
             # Add legend
-            if i == 2 && j == 2
-                Legend(fig[3, 1:2], ax, labelsize=14, framecolor=:white, orientation=:horizontal, merge=true, unique=true)
+            if i == 1 && j == 1
+                axislegend(
+                    ax,
+                    [
+                        li => (; linestyle = :solid, linewidth=1.5, color=(:grey, 0.5)),
+                        li => (; linestyle = :solid, linewidth=1.5, color=(:black)),
+                        li => (; linestyle = :solid, linewidth=1.5, color=(:blue)),
+                        li => (; linestyle = :solid, linewidth=1.5, color=(:red)),
+                    ],
+                    ["Single runs", "Typical run", "Mean of runs", "Control limits"],
+                    merge=true, unique=true, position=:lt, labelsize=10
+                )
+                #axislegend(ax, merge=true, unique=true, position=:lt, labelsize=10)
             end
 
             # Individual plot limits
-            if i == 1 && j == 1
-                ylims!(ax, YLS[i+2*(j-1)])
-            end
+            #if i == 1 && j == 1
+            #    ylims!(ax, YLS[i+2*(j-1)])
+            #end
+            #            if i == 1 && j == 2
+            #                ylims!(ax, YLS[i+2*(j-1)])
+            #            end
             if i == 1 && j == 2
-                ylims!(ax, YLS[i+2*(j-1)])
+                ylims!(ax, YLS[1])
             end
-            if i == 2 && j == 1
-                ylims!(ax, YLS[i+2*(j-1)])
-            end
-            if i == 2 && j == 2
-                ylims!(ax, YLS[i+2*(j-1)])
-            end
+            #            if i == 2 && j == 2
+            #                ylims!(ax, YLS[i+2*(j-1)])
+            #            end
 
             # summarize alarm point results
 
-            println(map(x -> sum(x .>= clbp[i, j]), mean_vec[136:140]))
+            println(map(x -> sum(x .>= clbp[i, 1]), mean_vec[136:140]))
 
         end
 
@@ -223,7 +247,7 @@ let
     resize_to_layout!(fig)
     fig
 
-    save("Figure3_v5_BP_rain.pdf", fig)
+    save("Figure4_$(w).pdf", fig)
 end
 
 # -----------------------------------------------------------------------------
@@ -293,3 +317,23 @@ let
     fig
     save("rain_data_spatial_plot_single.pdf", fig)
 end
+
+using CairoMakie
+f = Figure()
+ax = Axis(f[1, 1])
+li = lines!(ax, 1:5, linestyle=:dot)
+sc = scatter!(ax, 1:5, markersize=10)
+axislegend(
+    ax,
+    [
+        sc => (; markersize=20),
+        li => (; linewidth=3),
+        [li, sc] => (; color=(:grey, 0.05)),
+        [li => (; linewidth=3), sc => (; markersize=20)],
+    ],
+    ["Scatter", "Line", "Both", "Both 2"],
+    merge=true, unique=true, position=:lt, labelsize=10
+)
+f
+
+axislegend(ax, merge=true, unique=true, position=:lt, labelsize=10)

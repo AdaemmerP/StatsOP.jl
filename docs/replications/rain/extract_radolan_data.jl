@@ -1,8 +1,10 @@
-# The data for the matrices is extracted from the RADOLAN data and stored in a 3D array.It is extracted using the following code:
+# The data 
 # https://opendata.dwd.de/climate_environment/CDC/help/landing_pages/doi_landingpage_RADKLIM_RW_V2017.002-de.html
-# download raw data from
+# for the matrices is extracted from the RADOLAN data and stored in a 3D array.
+# Download the raw data from
 # https://opendata.dwd.de/climate_environment/CDC/grids_germany/hourly/radolan/reproc/2017_002/asc/2007/RW2017.002_200708_asc.tar.gz
-# extract asc files from "RW_2017.002_20070803_0050" to "RW_2017.002_20070809_2350" into folder
+# and extract asc files from "RW_2017.002_20070803_0050" to "RW_2017.002_20070809_2350" into folder "raw_data"
+# then use the following code for extraction:
 
 using RCall
 using JLD2
