@@ -54,7 +54,7 @@ let
         for i in 1:2
             # Compute the statistic 1000 times
             Random.seed!(123)  # Random.seed!(4321) # 10
-            results_all = map(x -> stat_sop(mat_all, lam[i], d1, d2; chart_choice=3, add_noise=true, noise_dist=Uniform(0, 0.01))', 1:1_000)
+            results_all = map(x -> stat_sop(mat_all, lam[i], d1, d2; chart_choice=3, add_noise=true, noise_dist=Uniform(0, .1))', 1:1_000)
 
             # Convert to matrix
             mapooc_stat_sops = vcat(results_all...)
@@ -169,7 +169,8 @@ let
                     lam[j],
                     w,
                     chart_choice=3,
-                    add_noise=true
+                    add_noise=true,
+                    noise_dist=Uniform(0, 0.1)
                 )', 1:1_000)
 
             # Convert to matrix

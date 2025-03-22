@@ -1,7 +1,9 @@
 
 # Compute test SOP-BP-statistic for one picture
 function stat_sop_bp(
-  data::Union{SubArray,Array{T,2}}, w::Int; chart_choice=3, add_noise::Bool=false
+  data::Union{SubArray,Array{T,2}}, w::Int; chart_choice=3, 
+  add_noise::Bool=false,
+  noise_dist::UnivariateDistribution=Uniform(0, 1)
 ) where {T<:Real}
 
   # Pre-allocate
@@ -24,7 +26,7 @@ function stat_sop_bp(
 
   # Add noise?
   if add_noise
-    data .= data .+ rand(size(data, 1), size(data, 2))
+    data = data .+ rand(noise_dist, size(data, 1), size(data, 2))
   end
 
   for (d1, d2) in d1_d2_combinations
@@ -59,6 +61,7 @@ function stat_sop_bp(
   w::Int;
   chart_choice=3,
   add_noise=false,
+  noise_dist::UnivariateDistribution=Uniform(0, 1),
   stat_ic::Union{Float64,Vector{Float64}}=0.0,
   type_freq_init::Union{Float64,Array{Float64,3}}=1 / 3
 ) where {T<:Real}
@@ -93,7 +96,7 @@ function stat_sop_bp(
 
   # Add noise?
   if add_noise
-    data = data .+ rand(size(data, 1), size(data, 2), size(data, 3))
+    data = data .+ rand(noise_dist, size(data, 1), size(data, 2), size(data, 3))
   end
 
   # Compute p_array (parallelized)
