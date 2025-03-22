@@ -87,25 +87,28 @@ end
 
 # 2. Method to compute test statistic for multiple pictures
 """
-   stat_sop(data::Array{Float64, 3}, add_noise::Bool, lam::Float64, chart_choice::Int)
+   stat_sop(
+      data::Array{T,3}, 
+      lam, 
+      d1::Int, 
+      d2::Int; 
+      chart_choice=3, 
+      add_noise::Bool=false,
+      noise_dist::UnivariateDistribution=Uniform(0, 1),
+      type_freq_init::Union{Float64,Array{Float64,2}}=1 / 3
+) 
 
 Computes the test statistic for a 3D array of data, a given lambda value, and a given chart choice. 
 The input parameters are:
 
 - `data::Array{Float64,3}`: A 3D array of data.
-- `add_noise::Bool`: A boolean value whether to add noise to the data. This is 
-necessary when the matrices consist of count data.
-- `lam::Float64`: A scalar value for lambda.
-- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
-
-# Examples
-```julia-repl
-data = rand(20, 20, 10);
-lam = 0.1;
-chart_choice = 2;
-
-stat_sop(data, false, lam, chart_choice)
-```
+- `lam::Float64`: The lambda value for the EWMA.
+- `d1::Int`: The delay value for the rows.
+- `d2::Int`: The delay value for the columns.
+- `chart_choice::Int`: The choice of chart. The options are 1-4.
+- `add_noise::Bool`: A boolean value to add noise to the data.
+- `noise_dist::UnivariateDistribution`: The distribution for the noise.
+- `type_freq_init::Union{Float64,Array{Float64,2}}`: The initial type frequencies.
 """
 function stat_sop(
   data::Array{T,3}, 
@@ -114,6 +117,7 @@ function stat_sop(
   d2::Int; 
   chart_choice=3, 
   add_noise::Bool=false,
+  noise_dist::UnivariateDistribution=Uniform(0, 1),
   type_freq_init::Union{Float64,Array{Float64,2}}=1 / 3
 ) where {T<:Real}
 
@@ -145,7 +149,7 @@ function stat_sop(
 
     # add noise?
     if add_noise
-      data_tmp .= view(data, :, :, i) .+ rand!(rand_tmp)
+      data_tmp .= view(data, :, :, i) .+ rand!(noise_dist, rand_tmp)
     else
       data_tmp .= view(data, :, :, i)
     end

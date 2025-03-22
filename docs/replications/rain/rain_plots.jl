@@ -54,7 +54,7 @@ let
         for i in 1:2
             # Compute the statistic 1000 times
             Random.seed!(123)  # Random.seed!(4321) # 10
-            results_all = map(x -> stat_sop(mat_all, lam[i], d1, d2; chart_choice=3, add_noise=true)', 1:1_000)
+            results_all = map(x -> stat_sop(mat_all, lam[i], d1, d2; chart_choice=3, add_noise=true, noise_dist=Uniform(0, 0.01))', 1:1_000)
 
             # Convert to matrix
             mapooc_stat_sops = vcat(results_all...)
@@ -96,21 +96,21 @@ let
             hlines!([-cl, cl], color=:"red", label="Control limits")
 
 
-            # Add legend
-            if i == 1
-                #axislegend(ax, merge=true, unique=true, position=:lb, labelsize=10)
-                axislegend(
-                    ax,
-                    [
-                        li => (; linestyle = :solid, linewidth=1.5, color=(:grey, 0.5)),
-                        li => (; linestyle = :solid, linewidth=1.5, color=(:black)),
-                        li => (; linestyle = :solid, linewidth=1.5, color=(:blue)),
-                        li => (; linestyle = :solid, linewidth=1.5, color=(:red)),
-                    ],
-                    ["Single runs", "Typical run", "Mean of runs", "Control limits"],
-                    merge=true, unique=true, position=:lb, labelsize=10
-                )
-            end
+            # # Add legend
+            # if i == 1
+            #     #axislegend(ax, merge=true, unique=true, position=:lb, labelsize=10)
+            #     axislegend(
+            #         ax,
+            #         [
+            #             li => (; linestyle = :solid, linewidth=1.5, color=(:grey, 0.5)),
+            #             li => (; linestyle = :solid, linewidth=1.5, color=(:black)),
+            #             li => (; linestyle = :solid, linewidth=1.5, color=(:blue)),
+            #             li => (; linestyle = :solid, linewidth=1.5, color=(:red)),
+            #         ],
+            #         ["Single runs", "Typical run", "Mean of runs", "Control limits"],
+            #         merge=true, unique=true, position=:lb, labelsize=10
+            #     )
+            # end
 
             # summarize alarm point results
             println(map(x -> sum((x .>= cl .|| x .<= -cl)), ooc_vec[136:140]))
