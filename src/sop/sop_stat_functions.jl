@@ -32,12 +32,23 @@ Multiple Dispatch for 'stat_sop()':
 # 1. Method to compute test statistic for one picture
 """
   function stat_sop(
-    data::Union{SubArray,Array{T,2}}, d1::Int, d2::Int;
-    chart_choice=3, add_noise::Bool=false
+    data::Union{SubArray,Array{T,2}}, d1::Int, d2::Int;    
+    chart_choice=3, 
+    add_noise::Bool=false,
+    noise_dist::UnivariateDistribution=Uniform(0, 1)
 ) where {T<:Real}
 
 Computes the test statistic for a single picture and chosen test statistic. 
 `chart_coice` is an integer value for the chart choice. The options are 1-4.
+
+  The input parameters are:
+
+- `data::Union{SubArray,Array{T,2}}`: A 2D array of data.
+- `d1::Int`: The delay value for the rows.
+- `d2::Int`: The delay value for the columns.
+- `chart_choice::Int`: The choice of chart. The options are 1-4.
+- `add_noise::Bool`: A boolean value to add noise to the data.
+- `noise_dist::UnivariateDistribution`: The distribution for the noise.  
 
 # Examples
 ```julia-repl
@@ -47,8 +58,11 @@ stat_sop(data, 2)
 ```
 """
 function stat_sop(
-  data::Union{SubArray,Array{T,2}}, d1::Int, d2::Int;
-  chart_choice=3, add_noise::Bool=false
+  data::Union{SubArray,Array{T,2}}, 
+  d1::Int, d2::Int;
+  chart_choice=3, 
+  add_noise::Bool=false,
+  noise_dist::UnivariateDistribution=Uniform(0, 1)
 ) where {T<:Real}
 
   # Compute 4 dimensional cube to lookup sops
@@ -70,7 +84,7 @@ function stat_sop(
 
   # Add noise?
   if add_noise
-    data .= data + rand(size(data, 1), size(data, 2))
+    data = data .+ rand(noise_dist, size(data, 1), size(data, 2))
   end
 
   # Compute frequencies of sops    
@@ -99,6 +113,7 @@ end
 ) 
 
 Computes the test statistic for a 3D array of data, a given lambda value, and a given chart choice. 
+
 The input parameters are:
 
 - `data::Array{Float64,3}`: A 3D array of data.
