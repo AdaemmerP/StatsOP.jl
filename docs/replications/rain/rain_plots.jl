@@ -49,12 +49,12 @@ let
         fig = Figure()
         d1 = d1_d2[1]
         d2 = d1_d2[2]
-        fig_title = ["EWMA chart (λ = 0.1)", "EWMA chart (λ = 1)"]
+        fig_title = ["EWMA chart (d1 = $d1, d2 = $d2, λ = 0.1)", "EWMA chart (d1 = $d1, d2 = $d2, λ = 1)"]
 
         for i in 1:2
             # Compute the statistic 1000 times
             Random.seed!(123)  # Random.seed!(4321) # 10
-            results_all = map(x -> stat_sop(mat_all, lam[i], d1, d2; chart_choice=3, add_noise=true, noise_dist=Uniform(0, 0.1))', 1:1_000)
+            results_all = map(x -> stat_sop(mat_all, lam[i], d1, d2; chart_choice=3, add_noise=true, noise_dist=Uniform(0, .1))', 1:1_000)
 
             # Convert to matrix
             mapooc_stat_sops = vcat(results_all...)
@@ -91,26 +91,25 @@ let
             for i in 2:1000
                 lines!(ax, ic_start:ic_end, mapooc_stat_sops[i, ic_start:ic_end], color=(:grey, 0.05), label="Single runs")
             end
-            li = lines!(ax, ic_start:ic_end, mapooc_stat_sops[1, ic_start:ic_end], color=(:grey, 0.05), label="Single runs")
+            li  = lines!(ax, ic_start:ic_end, mapooc_stat_sops[1, ic_start:ic_end], color=(:grey, 0.05), label="Single runs")
             li1 = lines!(ax, ooc_vec, color=:black, label="Typical run")
             li2 = lines!(ax, mean_vec, color=:blue, label="Mean of runs")
             li3 = hlines!([-cl, cl], color=:"red", label="Control limits")
 
-            #li = lines!(ax, 1:4, linestyle = :solid)
             # # Add legend
-            if i == 1
-                #axislegend(ax, merge=true, unique=true, position=:lb, labelsize=10)
-                axislegend(
-                    ax,
-                    [
-                        li => (; linewidth=1.5, color=(:grey, 0.5)),
-                        li1 => (; linewidth=1.5, color=(:black)),
-                        li2 => (; linewidth=1.5, color=(:blue)),
-                        li3 => (; linewidth=1.5, color=(:red)),
-                    ],
-                    ["Single runs", "Typical run", "Mean of runs", "Control limits"],
-                    merge=true, unique=true, position=:lb, labelsize=10
-                )
+             if i == 1
+                 #axislegend(ax, merge=true, unique=true, position=:lb, labelsize=10)
+                 axislegend(
+                     ax,
+                     [
+                         li => (; linewidth=1.5, color=(:grey, 0.5)),
+                         li1 => (; linewidth=1.5, color=(:black)),
+                         li2 => (; linewidth=1.5, color=(:blue)),
+                         li3 => (; linewidth=1.5, color=(:red)),
+                     ],
+                     ["Single runs", "Typical run", "Mean of runs", "Control limits"],
+                     merge=true, unique=true, position=:lb, labelsize=10
+                 )
             end
 
             # summarize alarm point results
@@ -213,10 +212,10 @@ let
                 axislegend(
                     ax,
                     [
-                        li => (; linestyle=:solid, linewidth=1.5, color=(:grey, 0.5)),
-                        li => (; linestyle=:solid, linewidth=1.5, color=(:black)),
-                        li => (; linestyle=:solid, linewidth=1.5, color=(:blue)),
-                        li => (; linestyle=:solid, linewidth=1.5, color=(:red)),
+                        li => (; linestyle = :solid, linewidth=1.5, color=(:grey, 0.5)),
+                        li => (; linestyle = :solid, linewidth=1.5, color=(:black)),
+                        li => (; linestyle = :solid, linewidth=1.5, color=(:blue)),
+                        li => (; linestyle = :solid, linewidth=1.5, color=(:red)),
                     ],
                     ["Single runs", "Typical run", "Mean of runs", "Control limits"],
                     merge=true, unique=true, position=:lt, labelsize=10
