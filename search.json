@@ -310,7 +310,7 @@
     "href": "replications/replication_ukraine.html",
     "title": "",
     "section": "",
-    "text": "using DataFrames\nusing DataFramesMeta\nusing OrdinalPatterns\nusing Dates\nusing CSV\nusing CategoricalArrays\nusing Plots"
+    "text": "using DataFrames\nusing DataFramesMeta\nusing OrdinalPatterns\nusing Dates\nusing CSV\nusing CategoricalArrays\nusing Plots\n\nPrecompiling DataFramesMeta...\n    948.2 ms  ✓ DataFramesMeta\n  1 dependency successfully precompiled in 1 seconds. 37 already precompiled.\nPrecompiling CSV...\n    391.6 ms  ✓ WeakRefStrings\n   5613.4 ms  ✓ CSV\n  2 dependencies successfully precompiled in 6 seconds. 28 already precompiled."
   },
   {
     "objectID": "index.html",
@@ -348,7 +348,7 @@
     "href": "page_files/op_changepoint.html",
     "title": "Changepoint test",
     "section": "",
-    "text": "Changepoint test\nOrdinalPatterns.jl allows to compute the chanegpoint statistic based on @schnurr2017.\n\nusing RCall\nusing OrdinalPatterns\nusing BenchmarkTools\n\ntsx = rand(100)\ntsy = rand(100)\n\n# R\n@rput tsx tsy \nR\"\"\"\nlibrary(ordinalpattern)\nresult_dep = patterndependence(tsx, tsy)\nresult_dep$patterncoef |&gt; print()\n\nmicrobenchmark::microbenchmark(\n  timing = patterndependence(tsx, tsy, tiesmethod=\"first\"), times = 100\n  )\n\"\"\"\n\n[1] -0.05391174\n\n\nRObject{VecSxp}\nUnit: microseconds\n   expr     min       lq     mean median       uq     max neval\n timing 213.491 220.5335 246.8976 223.99 233.1375 937.809   100\n\n\n\nchangepoint_op(tsx, tsy, op_length=3)\n\n(0.5636244275166998, 17, 0.9084852780652319, (-1.3580986393225503, 1.3580986393225503))",
+    "text": "Changepoint test\nOrdinalPatterns.jl allows to compute the chanegpoint statistic based on @schnurr2017.\n\nusing RCall\nusing OrdinalPatterns\nusing BenchmarkTools\n\ntsx = rand(100)\ntsy = rand(100)\n\n# R\n@rput tsx tsy \nR\"\"\"\nlibrary(ordinalpattern)\nresult_dep = patterndependence(tsx, tsy)\nresult_dep$patterncoef |&gt; print()\n\nmicrobenchmark::microbenchmark(\n  timing = patterndependence(tsx, tsy, tiesmethod=\"first\"), times = 100\n  )\n\"\"\"\n\n[1] -0.09179712\n\n\nRObject{VecSxp}\nUnit: microseconds\n   expr     min       lq     mean  median      uq     max neval\n timing 211.628 216.3365 242.9533 220.304 228.149 950.366   100\n\n\n\nchangepoint_op(tsx, tsy, op_length=3)\n\n(0.6461728647954094, 71, 0.7979148208788993, (-1.3580986393225503, 1.3580986393225503))",
     "crumbs": [
       "OPs",
       "Changepoint test"
@@ -377,7 +377,7 @@
     "href": "page_files/op_dependence.html",
     "title": "Dependency test",
     "section": "",
-    "text": "Dependency test\nOrdinalPatterns.jl allows to compute the dependency statistic based on @schnurr2017.\n\nusing RCall\nusing OrdinalPatterns\nusing BenchmarkTools\n\ntsx = rand(100)\ntsy = rand(100)\n\n# R\n@rput tsx tsy \nR\"\"\"\nlibrary(ordinalpattern)\nresult_dep = patterndependence(tsx, tsy)\nresult_dep$patterncoef |&gt; print()\n\nmicrobenchmark::microbenchmark(\n  timing = patterndependence(tsx, tsy, tiesmethod=\"first\"), times = 100\n  )\n\"\"\"\n\n[1] -0.1162325\n\n\nRObject{VecSxp}\nUnit: microseconds\n   expr     min       lq     mean  median      uq      max neval\n timing 216.075 223.7545 258.1607 230.538 249.989 1401.178   100\n\n\n\ndependence_op(tsx, tsy; op_length=3, d=1)\n@btime dependence_op(tsx, tsy; op_length=3, d=1)\n\n  7.133 μs (44 allocations: 6.41 KiB)\n\n\n(-0.11623246492985974, [1, 1, 2, 6, 4, 2, 3, 2, 6, 4  …  2, 6, 3, 1, 5, 4, 2, 4, 5, 4], [6, 4, 1, 5, 4, 2, 6, 6, 3, 1  …  4, 1, 1, 5, 4, 1, 5, 4, 2, 6])\n\n\n\nchangepoint_op(tsx, tsy, op_length=3)\n\n(0.4948651683114599, 39, 0.967134580735974, (-1.3580986393225503, 1.3580986393225503))",
+    "text": "Dependency test\nOrdinalPatterns.jl allows to compute the dependency statistic based on @schnurr2017.\n\nusing RCall\nusing OrdinalPatterns\nusing BenchmarkTools\n\ntsx = rand(100)\ntsy = rand(100)\n\n# R\n@rput tsx tsy \nR\"\"\"\nlibrary(ordinalpattern)\nresult_dep = patterndependence(tsx, tsy)\nresult_dep$patterncoef |&gt; print()\n\nmicrobenchmark::microbenchmark(\n  timing = patterndependence(tsx, tsy, tiesmethod=\"first\"), times = 100\n  )\n\"\"\"\n\n[1] -0.09270612\n\n\nRObject{VecSxp}\nUnit: microseconds\n   expr     min       lq    mean  median       uq     max neval\n timing 209.173 217.2135 242.277 220.384 226.4005 863.122   100\n\n\n\ndependence_op(tsx, tsy; op_length=3, d=1)\n@btime dependence_op(tsx, tsy; op_length=3, d=1)\n\n  7.717 μs (44 allocations: 6.41 KiB)\n\n\n(-0.09270611785312148, [3, 1, 5, 6, 3, 1, 5, 3, 2, 6  …  5, 4, 1, 5, 6, 3, 5, 3, 2, 3], [1, 5, 4, 1, 5, 4, 2, 4, 1, 5  …  3, 2, 4, 1, 5, 4, 2, 6, 6, 4])\n\n\n\nchangepoint_op(tsx, tsy, op_length=3)\n\n(0.5496259485429987, 18, 0.9231919670831487, (-1.3580986393225503, 1.3580986393225503))",
     "crumbs": [
       "OPs",
       "Dependency test"
