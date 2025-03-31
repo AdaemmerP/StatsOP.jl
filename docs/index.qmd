@@ -5,8 +5,6 @@ bibliography: references.bib
 #  OrdinalPatterns.jl 
 
 
-<!-- [![Build Status](https://github.com/AdaemmerP/OrdinalPatterns.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/AdaemmerP/OrdinalPatterns.jl/actions/workflows/CI.yml?query=branch%3Amain) -->
-
 `OrdinalPatterns.jl` is a Julia package that provides functions to conduct (sequential) tests for time series data, using ordinal patterns. The package builds on the seminal work of @bandt2002. The package is highly optimized and fast. The package is designed to be easy to use and provides a simple interface to compute ordinal patterns from time series data.
 
 ## Installation
