@@ -23,14 +23,15 @@ select!(ukraine_fires, :date, :year, :latitude, :longitude, r"fire")
 @chain ukraine_fires begin
   @rtransform!(:week = string(week(:date)))
   @rtransform!(:week = ifelse(length(:week) == 1, string("0", :week), :week))
-  @rtransform!(:week_year = string(:year, "_", :week))
-  select!(:date, :week_year, All())
+  @rtransform!(:year_week = string(:year, "_", :week))
+  select!(:date, :year_week, All())
 end
 
 chart_choice = 3
 M = 41    # grid size for M (latitude)
 N = 26    # grid size for N (longitude)
 N_charts = Int(1e3) # Number of charts
+
 
 # Prepare data and compute number of fires in each bin
 df_prepared = @chain ukraine_fires begin
@@ -45,11 +46,11 @@ df_prepared = @chain ukraine_fires begin
   @transform(:lat_bin = :lat_bin.refs) # convert to integer
   @transform(:long_bin = :long_bin.refs) # convert to integer  
   # Compute sum of fires in each bin
-  groupby([:week_year, :lat_bin, :long_bin])
+  groupby([:year_week, :lat_bin, :long_bin])
   combine(:war_fire => sum => :sum_fire)
   # Add 'year' and 'week' columns as integers
-  @rtransform(:year = parse(Int, :week_year[1:4]))
-  @rtransform(:week = parse(Int, :week_year[6:7]))
+  @rtransform(:year = parse(Int, :year_week[1:4]))
+  @rtransform(:week = parse(Int, :year_week[6:7]))
   # Subset 
   @rsubset!(:year >= 2023, :year <= 2024)
 end
