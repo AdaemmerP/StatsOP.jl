@@ -1,4 +1,3 @@
-
 using DataFrames
 using DataFramesMeta
 using OrdinalPatterns
@@ -73,35 +72,35 @@ end
 dates_sort = reduce(vcat, [[string("2023_", x), string("2024_", x)] for x in week_vec]) |> sort
 
 # Create grid-matrices for all possible lat and long bins. 
-# Fill fire column :sum_fire with 0
-add_df = DataFrame(lat_bin=Int[], long_bin=Int[], sum_fire=Int[])
+# Initialize column :sum_fire with 0
+add_df = DataFrame(lat_bin=UInt32[], long_bin=UInt32[], sum_fire=Int[])
 foreach(x -> push!(add_df, x), Iterators.product(1:M, 1:N, 0))
 tuple_add_df = Tuple.(eachrow(add_df[:, 1:2]))
 
-# Create matrices for each week based on the prepared data frame
+# Create matrices for each year-week based on the prepared data frame
 all_mats = map(dates_sort) do i
   # Subset data frame based on year-week
   df_tmp = df_prepared[df_prepared.year_week.==i, [:lat_bin, :long_bin, :sum_fire]]
   # Convert data frames to tuples to find which rows from 'add_df' to keep 
   tuple_df_tmp = Tuple.(eachrow(df_tmp[:, 1:2]))
-  # Find rows from 'add_df' to keep
+  # Find rows from 'add_df' ('tuple_add_df') to keep
   index = map(x -> x ∉ tuple_df_tmp, tuple_add_df)
-  # Add rows from 'add_df' to 'df_tmp' that are not already in 'df_tmp'
+  # vcat 'df_tmp' and 'add_df' -> 'df_tmp' contains identified fires, 'add_df' contains remaining 0s
   df_tmp = vcat(df_tmp, add_df[index, :])
-  # Make data frame wider, sort the rows based on 'lat_bin' and remove column 'lat_bin' for conversion  
+  # Make data frame wider, sort the rows based on :lat_bin and remove column :lat_bin for conversion  
   df_tmp_wide = sort(unstack(df_tmp, :lat_bin, :long_bin, :sum_fire), :lat_bin)[:, 2:end]
-  # Get column names and sort them ascendingly  
+  # Get column names and sort them ascendingly 
   col_names = names(df_tmp_wide)[parse.(Int, names(df_tmp_wide))|>sortperm]
   # Select columns based on sorted column names  
-  select!(df_tmp_wide, col_names)
+  select!(df_tmp_wide, col_names) # -> do not use integers for col_names, otherwise they will not be sorted
   # Make data frame wider and convert to Matrix
-  Matrix(df_tmp_wide)[M:-1:1, :] # flip y-axis
+  Matrix(df_tmp_wide)[M:-1:1, :] # flip y-axis to be consistent with notation in paper
 end
 
-# Pre-allocate 3d array of type Float64
-mat_all = zeros(Float64, M, N, size(dates_sort, 1))#52)
+# Pre-allocate 3d array of type Float64 -> M x N x 104
+mat_all = zeros(Float64, M, N, size(dates_sort, 1))
 
-# Fill the 3d array with the matrices and add noise
+# Fill 3d arrays with the matrices from 'all_mats'
 for i in axes(mat_all, 3)
   mat_all[:, :, i] = convert.(Float64, all_mats[i])
 end
@@ -111,37 +110,12 @@ dates_23 = map(x -> Date(date -> week(date) == x, 2023, 01, 01), 1:52)
 dates_24 = map(x -> Date(date -> week(date) == x, 2024, 01, 01), 1:52)
 dates = vcat(dates_23, dates_24)
 
-
 dates_ym = map(x -> string(x)[1:4] * "-" * string(week(x)), dates)
 
 # ---------------------------------------------------------#
 #                    SOP statistics                        #
 # ---------------------------------------------------------#
-d1_d2_vec = Iterators.product(1:1, 1:1) |> collect
-
-# # Compute the critical limits for the EWMA chart
-# d1_d2_crit_ewma = zeros(5, 5)
-# d1_d2_shewart = zeros(5, 5)
-# for d1d2 in d1_d2_vec 
-#   d1 = d1d2[1]
-#   d2 = d1d2[2]
-#   cl = cl_sop(
-#     ICSP(41, 25, Normal(0, 1)), 0.1, 370, 0.01, d1, d2, 10^3;
-#     chart_choice=3, jmin=4, jmax=7, verbose=true
-#   )
-#   d1_d2_crit_ewma[d1, d2] = cl
-# end
-# # Verify critical limits
-# for d1d2 in d1_d2_vec 
-#   d1 = d1d2[1]
-#   d2 = d1d2[2]
-#   cl = cl_sop(
-#     ICSP(41, 25, Normal(0, 1)), 1, 370, 0.05, d1, d2, 10^3;
-#     chart_choice=3, jmin=4, jmax=7, verbose=true
-#   )
-#   d1_d2_shewart[d1, d2] = cl
-# end
-
+d1_d2_vec = [(1, 1)] #Iterators.product(1:1, 1:1) |> collect
 
 lam = [0.1, 1]
 d1_d2_crit_ewma = [0.01009]
@@ -165,8 +139,8 @@ for d1_d2 in d1_d2_vec
     mean_vec = vec(mean(mapooc_stat_sops, dims=1))
 
     # Get L1 distance
-    dist_vec = map(x -> sum(abs.(mean_vec - x)), eachrow(mapooc_stat_sops))
-    ooc_vec = mapooc_stat_sops[sortperm(dist_vec)[1], :]
+    dist_vec = map(x -> sum(abs.(mean_vec .- x)), eachrow(mapooc_stat_sops))
+    ooc_vec = mapooc_stat_sops[sortperm(dist_vec)[1], :] # Get that sequence with the smallest distance
 
     # Makie figure to save
     fontsize_theme = Theme(fontsize=14)
@@ -174,7 +148,7 @@ for d1_d2 in d1_d2_vec
 
     ax = Axis(
       fig[1, i],
-      ylabel="τ̃",
+      ylabel=L"\tilde{\tau}", #"τ̃",
       xlabel="Year-Week",
       title=fig_title[i],
       titlefont=:regular,
@@ -215,12 +189,13 @@ end
 # -----------------------------------------------------------------------------
 #                           Makie heatmaps
 # -----------------------------------------------------------------------------
-#Random.seed!(123)
-v = [1, 39]
+
+# Compute logs of the matrices 
 ic_mats = log.(cat((all_mats[[1, 2, 53]])..., dims=3))
 oc_mats = log.(cat(all_mats[[33, 39, 92]]..., dims=3))
 maps = cat(ic_mats, oc_mats, dims=3)
 
+# Make title -> first three are in-control, last three are out-of-control
 title_string = ["2023 - 01", "2023 - 02", "2024 - 01", "2023 - 33", "2023 - 39", "2024 - 40"]
 maps[maps.==-Inf] .= 0
 
@@ -232,8 +207,8 @@ global_max = maximum(t -> last(t), extremas)
 clims = (global_min, global_max)
 cm = CairoMakie.cgrad([:white, :firebrick1, :darkred])
 
-borders_x = collect(0:25)
-borders_y = collect(40:-1:0)
+borders_x = collect(0:25) # For consistent notation with paper
+borders_y = collect(40:-1:0) # For consistent notation with paper
 ## plots
 let
   fig = Figure()
@@ -259,7 +234,7 @@ let
       k += 1
     end
   end
-  cb = Colorbar(fig[:, n_cols+1]; limits=clims, colormap=cm)
+  cb = Colorbar(fig[:, 4]; limits=clims, colormap=cm)
   resize_to_layout!(fig)
   fig
   save("ukraine_heatmap_update.pdf", fig)
