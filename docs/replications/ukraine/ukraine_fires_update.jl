@@ -49,7 +49,7 @@ df_prepared = @chain ukraine_fires begin
   @transform(:long_bin = :long_bin.refs) # Use integers
   # Compute sum of fires in each bin
   groupby([:year_week, :lat_bin, :long_bin])
-  combine(:war_fire => sum => :sum_fire) # :war_fire -> determines whether this specific fire is assessed as war-related (0 or 1)
+  combine(:war_fire => sum => :sum_fire) # :war_fire -> determines whether this specific fire is assessed as war-related (always 1 in that data set)
   # Add 'year' and 'week' columns as integers
   @rtransform(:year = parse(Int, :year_week[1:4]))
   @rtransform(:week = parse(Int, :year_week[6:7]))
@@ -177,6 +177,7 @@ for d1_d2 in d1_d2_vec
         ax,
         labelsize=13.5,
         #framecolor=:white,
+        margin = (5, 5, 5, 5),
         halign=:left,
         valign=:bottom,
         orientation=:vertical)
@@ -328,6 +329,7 @@ for (i, w) in enumerate(w)
         ax,
         labelsize=13.5,
         #framecolor=:white,
+        margin = (5, 5, 5, 5),
         halign=:left,
         valign=:top,
         orientation=:vertical)
