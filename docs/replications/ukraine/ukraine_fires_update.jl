@@ -31,18 +31,21 @@ chart_choice = 3
 M = 41    # grid size for M (latitude)
 N = 26    # grid size for N (longitude)
 N_charts = Int(1e3) # Number of charts
-
+latitude_lower = 45.75651 
+latitude_upper = 50.43185
+longitude_lower = 31.50439
+longitude_upper = 40.15952
 
 # Prepare data and compute number of fires in each bin
 df_prepared = @chain ukraine_fires begin
   # Subset data frame based on long-and latitude for east ukraine  
-  @subset(:latitude .>= 45.75651,
-    :latitude .<= 50.43185,
-    :longitude .>= 31.50439,
-    :longitude .<= 40.15952)
+  @subset(:latitude .>= latitude_lower,
+    :latitude .<= latitude_upper,
+    :longitude .>= longitude_lower,
+    :longitude .<= longitude_upper)
   # Make bins for longitude and latitude        
-  @transform(:lat_bin = cut(:latitude, collect(range(45.75651, 50.43185, length=M + 1)), labels=1:M))
-  @transform(:long_bin = cut(:longitude, collect(range(31.50439, 40.15952, length=N + 1)), labels=1:N))
+  @transform(:lat_bin = cut(:latitude, collect(range(latitude_lower, latitude_upper, length=M + 1)), labels=1:M))
+  @transform(:long_bin = cut(:longitude, collect(range(longitude_lower, longitude_upper, length=N + 1)), labels=1:N))
   @transform(:lat_bin = :lat_bin.refs) # convert to integer
   @transform(:long_bin = :long_bin.refs) # convert to integer  
   # Compute sum of fires in each bin
@@ -58,10 +61,10 @@ end
 # Count number of fires in eastern Ukraine
 @chain ukraine_fires begin
   # Subset data frame based on long-and latitude for east ukraine  
-  @subset(:latitude .>= 45.75651,
-    :latitude .<= 50.43185,
-    :longitude .>= 31.50439,
-    :longitude .<= 40.15952)
+  @subset(:latitude .>= latitude_lower,
+    :latitude .<= latitude_upper,
+    :longitude .>= longitude_lower,
+    :longitude .<= longitude_upper)
   @rsubset(:year >= 2023, :year <= 2024)
 end
 
@@ -84,7 +87,7 @@ tuple_add_df = Tuple.(eachrow(add_df[:, 1:2]))
 # Create matrices for each week based on the prepared data frame
 all_mats = map(dates_sort) do i
   # Subset data frame based on year-week
-  df_tmp = df_prepared[df_prepared.week_year.==i, [:lat_bin, :long_bin, :sum_fire]]
+  df_tmp = df_prepared[df_prepared.year_week.==i, [:lat_bin, :long_bin, :sum_fire]]
   # Convert data frames to tuples to find which rows from 'add_df' to keep 
   tuple_df_tmp = Tuple.(eachrow(df_tmp[:, 1:2]))
   # Find rows from 'add_df' to keep
