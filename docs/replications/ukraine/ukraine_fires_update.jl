@@ -46,11 +46,11 @@ df_prepared = @chain ukraine_fires begin
   # Make bins for longitude and latitude        
   @transform(:lat_bin = cut(:latitude, collect(range(latitude_lower, latitude_upper, length=M + 1)), labels=1:M))
   @transform(:long_bin = cut(:longitude, collect(range(longitude_lower, longitude_upper, length=N + 1)), labels=1:N))
-  @transform(:lat_bin = :lat_bin.refs) # convert to integer
-  @transform(:long_bin = :long_bin.refs) # convert to integer  
+  @transform(:lat_bin = :lat_bin.refs) # Use integers
+  @transform(:long_bin = :long_bin.refs) # Use integers
   # Compute sum of fires in each bin
   groupby([:year_week, :lat_bin, :long_bin])
-  combine(:war_fire => sum => :sum_fire)
+  combine(:war_fire => sum => :sum_fire) # :war_fire -> determines whether this specific fire is assessed as war-related (0 or 1)
   # Add 'year' and 'week' columns as integers
   @rtransform(:year = parse(Int, :year_week[1:4]))
   @rtransform(:week = parse(Int, :year_week[6:7]))
@@ -58,19 +58,12 @@ df_prepared = @chain ukraine_fires begin
   @rsubset!(:year >= 2023, :year <= 2024)
 end
 
-# Count number of fires in eastern Ukraine
-@chain ukraine_fires begin
-  # Subset data frame based on long-and latitude for east ukraine  
-  @subset(:latitude .>= latitude_lower,
-    :latitude .<= latitude_upper,
-    :longitude .>= longitude_lower,
-    :longitude .<= longitude_upper)
-  @rsubset(:year >= 2023, :year <= 2024)
-end
+# Count number of war-related fires in eastern Ukraine between 2023 and 2024
+sum(df_prepared.sum_fire)
 
 # Create a vector with all possible week-year combinations
-week_vec = []
-for i in 1:52
+week_vec = String[]
+for i in sort(unique(df_prepared.week)) # 1:52
   if i < 10
     push!(week_vec, string("0", i))
   else
@@ -79,8 +72,9 @@ for i in 1:52
 end
 dates_sort = reduce(vcat, [[string("2023_", x), string("2024_", x)] for x in week_vec]) |> sort
 
-# Create grid-matrices for all possible lat and long bins. Fill fires with zero
-add_df = DataFrame(lat_bin=UInt32[], long_bin=UInt32[], sum_fire=Int64[])
+# Create grid-matrices for all possible lat and long bins. 
+# Fill fire column :sum_fire with 0
+add_df = DataFrame(lat_bin=Int[], long_bin=Int[], sum_fire=Int[])
 foreach(x -> push!(add_df, x), Iterators.product(1:M, 1:N, 0))
 tuple_add_df = Tuple.(eachrow(add_df[:, 1:2]))
 
