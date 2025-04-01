@@ -30,7 +30,7 @@ chart_choice = 3
 M = 41    # grid size for M (latitude)
 N = 26    # grid size for N (longitude)
 N_charts = Int(1e3) # Number of charts
-latitude_lower = 45.75651 
+latitude_lower = 45.75651
 latitude_upper = 50.43185
 longitude_lower = 31.50439
 longitude_upper = 40.15952
@@ -122,12 +122,15 @@ d1_d2_crit_ewma = [0.01009]
 d1_d2_shewart = [0.04867]
 
 for d1_d2 in d1_d2_vec
-  fig = Figure()
+  #fig = Figure()
   d1 = d1_d2[1]
   d2 = d1_d2[2]
   fig_title = ["EWMA chart (d1 = $d1, d2 = $d2, λ = 0.1)", "EWMA chart (d1 = $d1, d2 = $d2, λ = 1)"]
 
   for i in 1:2
+    # Start figure
+    fig = Figure()
+
     # Compute the statistic 1000 times
     Random.seed!(123)  # Random.seed!(4321) # 10
     results_all = map(x -> stat_sop(mat_all, lam[i], d1, d2; chart_choice=3, add_noise=true)', 1:1_000)
@@ -147,10 +150,10 @@ for d1_d2 in d1_d2_vec
     set_theme!(fontsize_theme)
 
     ax = Axis(
-      fig[1, i],
+      fig[1, 1], #fig[1, i],
       ylabel=L"\tilde{\tau}", #"τ̃",
       xlabel="Year-Week",
-      title=fig_title[i],
+      title="", #fig_title[i],
       titlefont=:regular,
       xaxisposition=:bottom,
       yreversed=false,
@@ -163,28 +166,30 @@ for d1_d2 in d1_d2_vec
       cl = d1_d2_crit_ewma[d1, d2] #cl_sop_crit[i]
     elseif lam[i] == 1
       cl = d1_d2_shewart[d1, d2]
-    end    
+    end
     lines!(ax, ooc_vec, color=:black, label="Typical run")
     lines!(ax, mean_vec, color=:blue, label="Mean of runs")
     hlines!([-cl, cl], color=:"red", label="Control limits")
 
     # Add legend
-    if i == 2
-      Legend(fig[2, 1:2], ax, labelsize=14, framecolor=:white, orientation=:horizontal)
+    if i == 1
+      Legend(fig[1, 1],
+        ax,
+        labelsize=13.5,
+        #framecolor=:white,
+        halign=:left,
+        valign=:bottom,
+        orientation=:vertical)
+      #Legend(fig[2, 1:2], ax, labelsize=14, framecolor=:white, orientation=:horizontal)
     end
+
+    # Save figure
+    resize_to_layout!(fig)
+    save("Figure_Ukraine_d1$(d1)_d2$(d2)_$(lam[i]).pdf", fig)
 
   end
 
-  # Save figure
-  resize_to_layout!(fig)
-  save("Figure5_$(d1)_$(d2).pdf", fig)
-
 end
-
-##save("Figure5_4321.pdf", fig)
-#save("Figure5_update.pdf", fig)
-#
-
 
 # -----------------------------------------------------------------------------
 #                           Makie heatmaps
@@ -237,7 +242,7 @@ let
   cb = Colorbar(fig[:, 4]; limits=clims, colormap=cm)
   resize_to_layout!(fig)
   fig
-  save("ukraine_heatmap_update.pdf", fig)
+  save("ukraine_heatmap_23_24.pdf", fig)
 end
 
 
@@ -269,11 +274,12 @@ fig_title = [
 ]
 
 
-w = [3, 5]
+w = [3] # [3, 5]
 lam = [0.1, 1]
-fig = Figure()
 for (i, w) in enumerate(w)
   for j in 1:2
+    # Start Figure 
+    fig = Figure()
 
     # Compute the statistic 1000 times
     Random.seed!(123) #Random.seed!(4321) #
@@ -300,10 +306,10 @@ for (i, w) in enumerate(w)
     set_theme!(fontsize_theme)
 
     ax = Axis(
-      fig[i, j],
+      fig[1, 1], #fig[i, j],
       ylabel="τ̃",
       xlabel="Year-Week",
-      title=fig_title[i, j],
+      title="", #fig_title[i, j],
       titlefont=:regular,
       xaxisposition=:bottom,
       yreversed=false,
@@ -317,16 +323,23 @@ for (i, w) in enumerate(w)
     hlines!([cl_bp[i, j]], color=:"red", label="Control limits")
 
     # Add legend
-    if i == 2 && j == 2
-      Legend(fig[3, 1:2], ax, labelsize=14, framecolor=:white, orientation=:horizontal)
+    if j == 1  #i == 2 && j == 2
+      Legend(fig[1, 1],
+        ax,
+        labelsize=13.5,
+        #framecolor=:white,
+        halign=:left,
+        valign=:top,
+        orientation=:vertical)
+      #Legend(fig[3, 1:2], ax, labelsize=14, framecolor=:white, orientation=:horizontal)
     end
+
+    resize_to_layout!(fig)
+    fig
+
+    # save("Figure5_BP_4321.pdf", fig)
+    save("Figure_Ukraine_BP_w$(w)_$(lam[j]).pdf", fig)
 
   end
 end
 
-resize_to_layout!(fig)
-fig
-
-
-# save("Figure5_BP_4321.pdf", fig)
-save("Figure5_BP_Ukraine.pdf", fig)
