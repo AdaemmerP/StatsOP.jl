@@ -115,17 +115,19 @@ dates_ym = map(x -> string(x)[1:4] * "-" * string(week(x)), dates)
 # ---------------------------------------------------------#
 #                    SOP statistics                        #
 # ---------------------------------------------------------#
+
+# Compute Shewart critical limits
+# d1_d2_shewart = cl_sop(ICSTS(M, N, Normal(0, 1)), 1, 370, 0.04867, 1, 1, 10^4; jmin=3, jmax=7, verbose=true)
+
 d1_d2_vec = [(1, 1)] #Iterators.product(1:1, 1:1) |> collect
 
 lam = [0.1, 1]
-d1_d2_crit_ewma = [0.01009]
+d1_d2_crit_ewma = [0.01009] # from table in paper
 d1_d2_shewart = [0.04867]
 
 for d1_d2 in d1_d2_vec
-  #fig = Figure()
   d1 = d1_d2[1]
   d2 = d1_d2[2]
-  fig_title = ["EWMA chart (d1 = $d1, d2 = $d2, λ = 0.1)", "EWMA chart (d1 = $d1, d2 = $d2, λ = 1)"]
 
   for i in 1:2
     # Start figure
@@ -150,10 +152,10 @@ for d1_d2 in d1_d2_vec
     set_theme!(fontsize_theme)
 
     ax = Axis(
-      fig[1, 1], #fig[1, i],
+      fig[1, 1],
       ylabel=L"\tilde{\tau}", #"τ̃",
       xlabel="Year-Week",
-      title="", #fig_title[i],
+      title="", 
       titlefont=:regular,
       xaxisposition=:bottom,
       yreversed=false,
@@ -163,7 +165,7 @@ for d1_d2 in d1_d2_vec
     )
 
     if lam[i] == 0.1
-      cl = d1_d2_crit_ewma[d1, d2] #cl_sop_crit[i]
+      cl = d1_d2_crit_ewma[d1, d2] 
     elseif lam[i] == 1
       cl = d1_d2_shewart[d1, d2]
     end
@@ -181,7 +183,6 @@ for d1_d2 in d1_d2_vec
         halign=:left,
         valign=:bottom,
         orientation=:vertical)
-      #Legend(fig[2, 1:2], ax, labelsize=14, framecolor=:white, orientation=:horizontal)
     end
 
     # Save figure
@@ -251,31 +252,25 @@ end
 #   BP statistics with w = 3 and 5, and nthreads = 10      #
 # ---------------------------------------------------------#
 
-# M = 41
-# N = 26
-# w = 5
-# reps = 1_000
-# lam = 1
-# L0 = 370
-# sp_dgp = ICSP(M, N, Normal(0, 1))
-# crit_init = map(i -> stat_sop_bp(randn(M, N, 370), lam, w) |> last, 1:1_000) |> x -> quantile(x, 0.99)
-# cl = cl_sop_bp(
-#     sp_dgp, lam, L0, crit_init, w, reps; jmin=4, jmax=7, verbose=true
-# )
+M = 41
+N = 26
+w = 3
+reps = 10_000# 1_000#_000
+lam = 1
+L0 = 370
+sp_dgp = ICSTS(M, N, Normal(0, 1))
+#crit_init = map(i -> stat_sop_bp(randn(M, N, 370), lam, w) |> last, 1:1_000) |> x -> quantile(x, 0.999)
+start_init = [0.000362, 0.00765] # => extracted with low values of iterations; value 1 -> lam = 0.1, value 2 -> lam = 1 
+cl = cl_sop_bp(
+    sp_dgp, lam, L0, start_init[2], w, reps; jmin=4, jmax=8, verbose=true
+)
 
 lam = [0.1, 1]
 cl_bp = [
-  0.000362 0.00765; # w = 3, lam = 0.1, 1
-  0.000786 0.01619  # w = 5, lam = 0.1, 1
+  0.000361713 0.00764491; # w = 3, lam = 0.1, 1
 ]
 
-fig_title = [
-  "(a) BP-EWMA chart (w = 3, λ = 0.1)" "(b) BP-EWMA chart (w = 3, λ = 1)";
-  "(c) BP-EWMA chart (w = 5, λ = 0.1)" "(d) BP-EWMA chart (w = 5, λ = 1)"
-]
-
-
-w = [3] # [3, 5]
+w = [3] 
 lam = [0.1, 1]
 for (i, w) in enumerate(w)
   for j in 1:2
@@ -307,10 +302,10 @@ for (i, w) in enumerate(w)
     set_theme!(fontsize_theme)
 
     ax = Axis(
-      fig[1, 1], #fig[i, j],
+      fig[1, 1], 
       ylabel="τ̃",
       xlabel="Year-Week",
-      title="", #fig_title[i, j],
+      title="", 
       titlefont=:regular,
       xaxisposition=:bottom,
       yreversed=false,
@@ -324,7 +319,7 @@ for (i, w) in enumerate(w)
     hlines!([cl_bp[i, j]], color=:"red", label="Control limits")
 
     # Add legend
-    if j == 1  #i == 2 && j == 2
+    if j == 1  
       Legend(fig[1, 1],
         ax,
         labelsize=13.5,
@@ -333,13 +328,11 @@ for (i, w) in enumerate(w)
         halign=:left,
         valign=:top,
         orientation=:vertical)
-      #Legend(fig[3, 1:2], ax, labelsize=14, framecolor=:white, orientation=:horizontal)
     end
 
     resize_to_layout!(fig)
     fig
 
-    # save("Figure5_BP_4321.pdf", fig)
     save("Figure_Ukraine_BP_w$(w)_$(lam[j]).pdf", fig)
 
   end
