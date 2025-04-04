@@ -332,8 +332,8 @@ for (i, w) in enumerate(w)
 
     resize_to_layout!(fig)
     fig
-
-    save("Figure_Ukraine_BP_w$(w)_$(lam[j]).pdf", fig)
+    display(fig)
+    #save("Figure_Ukraine_BP_w$(w)_$(lam[j]).pdf", fig)
 
   end
 end
