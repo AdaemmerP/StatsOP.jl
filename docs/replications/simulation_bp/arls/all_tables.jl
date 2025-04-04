@@ -44,6 +44,20 @@ print(xtable(arl_ic_sacf_all_tmp, digits=2, caption = "SACF-IC-Results for Norma
       sanitize.colnames.function = function(x) {x}   
       )
 """
+# find standard errors of ARL calculations
+# SACF in-control ARLSEs
+arlse_ic_sacf_delays = load_object("ic/sd_ic_sacf_delays.jld2")
+arlse_ic_sacf_delays = arlse_ic_sacf_delays[:, :, 2:3]
+arlse_ic_sacf_delays = reshape(arlse_ic_sacf_delays, 4, 6)
+
+# SACF in-control ARLSEs
+arlse_ic_sacf_bp = load_object("ic/sd_ic_sacf_bp.jld2")
+arlse_ic_sacf_bp = arlse_ic_sacf_bp[:, :, 2:3]
+arlse_ic_sacf_bp = reshape(arlse_ic_sacf_bp, 4, 6)
+arlse_ic_sacf_all = hcat(arlse_ic_sacf_delays, arlse_ic_sacf_bp)
+
+findmax(arlse_ic_sacf_all)
+
 
 # ----------------------------------------------------------------------#
 # ---------------------      SAR(1, 1)             ---------------------# 
@@ -59,6 +73,7 @@ arl_sop_sar11_outl = load_object("sar11/arl_sop_sar11_outl.jld2")
 arl_sacf_sar11_outl = load_object("sar11/arl_sacf_sar11_outl.jld2")
 arl_sar11_sacf_sop_outl = hcat(arl_sop_sar11_outl, arl_sacf_sar11_outl)
 arl_sar11_sacf_sop_all = hcat(arl_sar11_sacf_sop, arl_sar11_sacf_sop_outl)
+
 @rput arl_sar11_sacf_sop_all
 
 R"""
@@ -79,6 +94,19 @@ print(xtable(arl_sar11_sacf_sop_all_tmp, digits=2, caption = "SOP-Results and SA
       )
 """
 
+# find standard errors of ARL calculations
+# Delays without outliers
+arlse_sop_sar11 = load_object("sar11/sd_sop_sar11.jld2")
+arlse_sacf_sar11 = load_object("sar11/sd_sacf_sar11.jld2")
+arlse_sar11_sacf_sop = hcat(arlse_sop_sar11, arlse_sacf_sar11)
+
+# Delays with outliers
+arlse_sop_sar11_outl = load_object("sar11/sd_sop_sar11_outl.jld2")
+arlse_sacf_sar11_outl = load_object("sar11/sd_sacf_sar11_outl.jld2")
+arlse_sar11_sacf_sop_outl = hcat(arlse_sop_sar11_outl, arlse_sacf_sar11_outl)
+arlse_sar11_sacf_sop_all = hcat(arlse_sar11_sacf_sop, arlse_sar11_sacf_sop_outl)
+
+findmax(arlse_sar11_sacf_sop_all)
 # --------------------- 
 
 # BP without outliers
@@ -112,6 +140,19 @@ print(xtable(arl_sar11_sacf_sop_bp_all_tmp, digits=2, caption = "SOP-BP-Results 
       )
 """
 
+# find standard errors of ARL calculations
+# BP without outliers
+arlse_sop_sar11_bp = load_object("sar11/sd_sop_bp_sar11.jld2")
+arlse_sacf_sar11_bp = load_object("sar11/sd_sacf_bp_sar11.jld2")
+arlse_sar11_sacf_sop_bp = hcat(arlse_sop_sar11_bp, arlse_sacf_sar11_bp)
+
+# BP with outliers
+arlse_sop_sar11_bp_outl = load_object("sar11/sd_sop_bp_sar11_outl.jld2")
+arlse_sacf_sar11_bp_outl = load_object("sar11/sd_sacf_bp_sar11_outl.jld2")
+arlse_sar11_sacf_sop_bp_outl = hcat(arlse_sop_sar11_bp_outl, arlse_sacf_sar11_bp_outl)
+arlse_sar11_sacf_sop_bp_all = hcat(arlse_sar11_sacf_sop_bp, arlse_sar11_sacf_sop_bp_outl)
+
+findmax(arlse_sar11_sacf_sop_bp_all)
 
 # ----------------------------------------------------------------------#
 # ---------------------      SAR(2, 2)             ---------------------# 
@@ -148,6 +189,20 @@ print(xtable(arl_sar22_sacf_sop_all_tmp, digits=2, caption = "SOP-Results and SA
       )
 """
 
+# find standard errors of ARL calculations
+# Delays without outliers
+arlse_sop_sar22 = load_object("sar22/sd_sop_sar22.jld2")
+arlse_sacf_sar22 = load_object("sar22/sd_sacf_sar22.jld2")
+arlse_sar22_sacf_sop = hcat(arlse_sop_sar22, arlse_sacf_sar22)
+
+# Delays with outliers
+arlse_sop_sar22_outl = load_object("sar22/sd_sop_sar22_outl.jld2")
+arlse_sacf_sar22_outl = load_object("sar22/sd_sacf_sar22_outl.jld2")
+arlse_sar22_sacf_sop_outl = hcat(arlse_sop_sar22_outl, arlse_sacf_sar22_outl)
+arlse_sar22_sacf_sop_all = hcat(arlse_sar22_sacf_sop, arlse_sar22_sacf_sop_outl)
+
+findmax(arlse_sar22_sacf_sop_all)
+
 # --------------------- 
 
 # BP without outliers
@@ -180,6 +235,21 @@ print(xtable(arl_sar22_sacf_sop_bp_all, digits=2, caption = "SOP-BP-Results and 
       sanitize.colnames.function = function(x) {x}   
       )
 """
+
+# find standard errors of ARL calculations
+# BP without outliers
+arlse_sop_sar22_bp = load_object("sar22/sd_sop_sar22_bp.jld2")
+arlse_sacf_sar22_bp = load_object("sar22/sd_sacf_sar22_bp.jld2")
+arlse_sar22_sacf_sop_bp = hcat(arlse_sop_sar22_bp, arlse_sacf_sar22_bp)
+
+# BP with outliers
+arlse_sop_sar22_bp_outl = load_object("sar22/sd_sop_sar22_outl_bp.jld2")
+arlse_sacf_sar22_bp_outl = load_object("sar22/sd_sacf_sar22_outl_bp.jld2")
+arlse_sar22_sacf_sop_bp_outl = hcat(arlse_sop_sar22_bp_outl, arlse_sacf_sar22_bp_outl)
+arlse_sar22_sacf_sop_bp_all = hcat(arlse_sar22_sacf_sop_bp, arlse_sar22_sacf_sop_bp_outl)
+
+findmax(arlse_sar22_sacf_sop_bp_all)
+
 
 # ----------------------------------------------------------------------#
 # ---------------------      SQMA(1, 1)            ---------------------# 
@@ -216,6 +286,20 @@ print(xtable(arl_sqma11_sacf_sop_all_tmp, digits=2, caption = "SOP-Results and S
       )
 """
 
+# find standard errors of ARL calculations
+# Delays
+arlse_sop_sqma11 = load_object("sqma11/sd_sop_sqma11.jld2")
+arlse_sacf_sqma11 = load_object("sqma11/sd_sacf_sqma11.jld2")
+arlse_sqma11_sacf_sop = hcat(arlse_sop_sqma11, arlse_sacf_sqma11)
+
+# BP 
+arlse_sop_sqma11_bp = load_object("sqma11/sd_sop_bp_sqma11.jld2")
+arlse_sacf_sqma11_bp = load_object("sqma11/sd_sacf_bp_sqma11.jld2")
+arlse_sqma11_sacf_sop_bp = hcat(arlse_sop_sqma11_bp, arlse_sacf_sqma11_bp)
+arlse_sqma11_sacf_sop_all = hcat(arlse_sqma11_sacf_sop, arlse_sqma11_sacf_sop_bp)
+
+findmax(arlse_sqma11_sacf_sop_all)  
+
 # ----------------------------------------------------------------------#
 # ---------------------      SQMA(2, 2)            ---------------------# 
 # ----------------------------------------------------------------------#
@@ -250,6 +334,19 @@ print(xtable(arl_sqma22_sacf_sop_all_tmp, digits=2, caption = "SOP-Results and S
       )
 """
 
+# find standard errors of ARL calculations
+# Delays 
+arlse_sop_sqma22 = load_object("sqma22/sd_sop_sqma22.jld2")
+arlse_sacf_sqma22 = load_object("sqma22/sd_sacf_sqma22.jld2")
+arlse_sqma22_sacf_sop = hcat(arlse_sop_sqma22, arlse_sacf_sqma22)
+
+# BP 
+arlse_sop_sqma22_bp = load_object("sqma22/sd_sop_bp_sqma22.jld2")
+arlse_sacf_sqma22_bp = load_object("sqma22/sd_sacf_bp_sqma22.jld2")
+arlse_sqma22_sacf_sop_bp = hcat(arlse_sop_sqma22_bp, arlse_sacf_sqma22_bp)
+arlse_sqma22_sacf_sop_all = hcat(arlse_sqma22_sacf_sop, arlse_sqma22_sacf_sop_bp)
+
+findmax(arlse_sqma22_sacf_sop_all)
 
 # ----------------------------------------------------------------------#
 # ---------------------       SAR (1)              ---------------------# 
@@ -287,6 +384,21 @@ print(xtable(arl_sar1_sacf_sop_all_tmp, digits=2, caption = "SOP-Results and SAC
       )
 """
 
+
+# find standard errors of ARL calculations
+# Delays without outliers
+arlse_sop_sar1 = load_object("sar1/sd_sop_sar1.jld2")
+arlse_sacf_sar1 = load_object("sar1/sd_sacf_sar1.jld2")
+arlse_sar1_sacf_sop = hcat(arlse_sop_sar1, arlse_sacf_sar1)
+
+
+# Delays with outliers
+arlse_sop_sar1_outl = load_object("sar1/sd_sop_sar1_outl.jld2")
+arlse_sacf_sar1_outl = load_object("sar1/sd_sacf_sar1_outl.jld2")
+arlse_sar1_sacf_sop_outl = hcat(arlse_sop_sar1_outl, arlse_sacf_sar1_outl)
+arlse_sar1_sacf_sop_all = hcat(arlse_sar1_sacf_sop, arlse_sar1_sacf_sop_outl)
+
+findmax(arlse_sar1_sacf_sop_all)
 # --------------------- 
 
 # BP without outliers
@@ -317,6 +429,20 @@ print(xtable(arl_sar1_sacf_sop_bp_all_tmp, digits=2, caption = "SOP-BP-Results a
       sanitize.colnames.function = function(x) {x}   
       )
 """
+
+# find standard errors of ARL calculations
+# BP without outliers
+arlse_sop_sar1_bp = load_object("sar1/sd_sop_bp_sar1.jld2")
+arlse_sacf_sar1_bp = load_object("sar1/sd_sacf_bp_sar1.jld2")
+arlse_sar1_sacf_sop_bp = hcat(arlse_sop_sar1_bp, arlse_sacf_sar1_bp)
+
+# BP with outliers
+arlse_sop_sar1_bp_outl = load_object("sar1/sd_sop_bp_sar1_outl.jld2")
+arlse_sacf_sar1_bp_outl = load_object("sar1/sd_sacf_bp_sar1_outl.jld2")
+arlse_sar1_sacf_sop_bp_outl = hcat(arlse_sop_sar1_bp_outl, arlse_sacf_sar1_bp_outl)
+arlse_sar1_sacf_sop_bp_all = hcat(arlse_sar1_sacf_sop_bp, arlse_sar1_sacf_sop_bp_outl)
+
+findmax(arlse_sar1_sacf_sop_bp_all) 
 
 
 # R"""

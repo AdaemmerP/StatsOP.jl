@@ -9,7 +9,7 @@ images_ic = textile::icImgs
 images_oc = textile::ocImgs
 
 images = textile::icImgs
-model = readRDS("docs/replications/model_bui.rds")
+model = readRDS("~/clones/OrdinalPatterns.jl/docs/replications/textile/model_bui.rds")
 
 # In-control
 resid_ic_mat = array(NA, c(235, 220, 94))
@@ -49,8 +49,8 @@ clinit = 0.001
 # -----------------------------------------------------------------------------
 
 fig = Figure()
-for i in 1:2
-  cl = cl_sop(
+for i in 2:2
+  cl = cl_sop_bootstrap(
     images_ic, lam[i], L0, clinit, 1, 1, reps;
     chart_choice=chart_choice, jmin=3, jmax=7, verbose=true
   )
@@ -73,7 +73,9 @@ for i in 1:2
 
   # Use Makie to plots stats_bp. Draw in red the critical limits  
   ax = Axis(
-    fig[1, i],
+    fig[1, 1],
+    ylabel="τ̃",
+    xlabel="Image number",
     width=150,
     height=150,
     xticks=(1:6, string.(collect(95:100)))
@@ -86,7 +88,7 @@ end
 
 resize_to_layout!(fig)
 fig
-# save("sop_images.pdf", fig)
+save("sop_images_b.pdf", fig)
 
 # -----------------------------------------------------------------------------
 #     SOP chart combined plots (Shewart and EWMA) based on residuals

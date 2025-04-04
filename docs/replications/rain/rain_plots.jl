@@ -42,19 +42,138 @@ d1_d2_vec = Iterators.product(1:1, 1:1) |> collect
 
 lam = [0.1, 1]
 d1_d2_crit_ewma = [0.018819]
-d1_d2_shewart = [0.092075]
+d1_d2_shewhart = [0.092075]
+
+# EWMA chart λ = 0.1
+fig1 = Figure()
+d1 = 1
+d2 = 1
+
+let
+    Random.seed!(123)  # Random.seed!(4321) # 10
+    results_all = map(x -> stat_sop(mat_all, lam[1], d1, d2; chart_choice=3, add_noise=true, noise_dist=Uniform(0, 0.1))', 1:1_000)
+
+    # Convert to matrix
+    mapooc_stat_sops = vcat(results_all...)
+
+    # Compute mean vector
+    mean_vec = vec(mean(mapooc_stat_sops, dims=1))
+
+    # Get L1 distance
+    dist_vec = map(x -> sum(abs.(mean_vec - x)), eachrow(mapooc_stat_sops))
+    ooc_vec = mapooc_stat_sops[sortperm(dist_vec)[1], :]
+
+    # Makie figure to save
+    fontsize_theme = Theme(fontsize=14)
+    set_theme!(fontsize_theme)
+
+    ax1 = Axis(
+        fig1[1, 1],
+        ylabel="τ̃",
+        xlabel="Hour",
+        xaxisposition=:bottom,
+        yreversed=false,
+        width=350,
+        height=250,
+        xticks=collect(0:24:168),
+    )
+
+    # control limits
+    cl = d1_d2_crit_ewma[d1, d2]
+
+    for i in 2:1000
+        lines!(ax1, ic_start:ic_end, mapooc_stat_sops[i, ic_start:ic_end], color=(:grey, 0.05), label="Single runs")
+    end
+    li = lines!(ax1, ic_start:ic_end, mapooc_stat_sops[1, ic_start:ic_end], color=(:grey, 0.05), label="Single runs")
+    li1 = lines!(ax1, ooc_vec, color=:black, label="Typical run")
+    li2 = lines!(ax1, mean_vec, color=:blue, label="Mean of runs")
+    li3 = hlines!([-cl, cl], color=:"red", label="Control limits")
+
+    # # Add legend
+    #axislegend(ax, merge=true, unique=true, position=:lb, labelsize=10)
+    axislegend(
+        ax1,
+        [
+            li => (; linewidth=1.5, color=(:grey, 0.5)),
+            li1 => (; linewidth=1.5, color=(:black)),
+            li2 => (; linewidth=1.5, color=(:blue)),
+            li3 => (; linewidth=1.5, color=(:red)),
+        ],
+        ["Single runs", "Typical run", "Mean of runs", "Control limits"],
+        merge=true, unique=true, position=:lb, labelsize=10#, framecolor=:white
+    )
+
+    # summarize alarm point results
+    println(transpose(collect(136:140)))
+    println(map(x -> sum((x .>= cl .|| x .<= -cl)), ooc_vec[136:140]))
+
+    # Save figure
+    resize_to_layout!(fig1)
+    save("Figure3a_rain.pdf", fig1)
+end
+
+# Shewhart chart λ = 1
+fig2 = Figure()
+
+let
+    Random.seed!(123)  # Random.seed!(4321) # 10
+    results_all = map(x -> stat_sop(mat_all, lam[2], d1, d2; chart_choice=3, add_noise=true, noise_dist=Uniform(0, 0.1))', 1:1_000)
+
+    # Convert to matrix
+    mapooc_stat_sops = vcat(results_all...)
+
+    # Compute mean vector
+    mean_vec = vec(mean(mapooc_stat_sops, dims=1))
+
+    # Get L1 distance
+    dist_vec = map(x -> sum(abs.(mean_vec - x)), eachrow(mapooc_stat_sops))
+    ooc_vec = mapooc_stat_sops[sortperm(dist_vec)[1], :]
+
+    # Makie figure to save
+    fontsize_theme = Theme(fontsize=14)
+    set_theme!(fontsize_theme)
+
+    ax2 = Axis(
+        fig2[1, 1],
+        ylabel="τ̃",
+        xlabel="Hour",
+        xaxisposition=:bottom,
+        yreversed=false,
+        width=350,
+        height=250,
+        xticks=collect(0:24:168),
+    )
+
+    # control limits
+    cl = d1_d2_shewhart[d1, d2]
+
+    for i in 2:1000
+        lines!(ax2, ic_start:ic_end, mapooc_stat_sops[i, ic_start:ic_end], color=(:grey, 0.05), label="Single runs")
+    end
+    li = lines!(ax2, ic_start:ic_end, mapooc_stat_sops[1, ic_start:ic_end], color=(:grey, 0.05), label="Single runs")
+    li1 = lines!(ax2, ooc_vec, color=:black, label="Typical run")
+    li2 = lines!(ax2, mean_vec, color=:blue, label="Mean of runs")
+    li3 = hlines!([-cl, cl], color=:"red", label="Control limits")
+
+    # summarize alarm point results
+    println(transpose(collect(136:140)))
+    println(map(x -> sum((x .>= cl .|| x .<= -cl)), ooc_vec[136:140]))
+
+    # Save figure
+    resize_to_layout!(fig2)
+    save("Figure3b_rain.pdf", fig2)
+end
 
 let
     for d1_d2 in d1_d2_vec
         fig = Figure()
         d1 = d1_d2[1]
         d2 = d1_d2[2]
-        fig_title = ["EWMA chart (d1 = $d1, d2 = $d2, λ = 0.1)", "EWMA chart (d1 = $d1, d2 = $d2, λ = 1)"]
 
         for i in 1:2
             # Compute the statistic 1000 times
             Random.seed!(123)  # Random.seed!(4321) # 10
-            results_all = map(x -> stat_sop(mat_all, lam[i], d1, d2; chart_choice=3, add_noise=true, noise_dist=Uniform(0, .1))', 1:1_000)
+            results_all = map(x -> stat_sop(mat_all, lam[i], d1, d2; chart_choice=3, add_noise=true, noise_dist=Uniform(0, 0.1))', 1:1_000)
 
             # Convert to matrix
             mapooc_stat_sops = vcat(results_all...)
@@ -91,25 +210,109 @@ let
             for i in 2:1000
                 lines!(ax, ic_start:ic_end, mapooc_stat_sops[i, ic_start:ic_end], color=(:grey, 0.05), label="Single runs")
             end
-            li  = lines!(ax, ic_start:ic_end, mapooc_stat_sops[1, ic_start:ic_end], color=(:grey, 0.05), label="Single runs")
+            li = lines!(ax, ic_start:ic_end, mapooc_stat_sops[1, ic_start:ic_end], color=(:grey, 0.05), label="Single runs")
             li1 = lines!(ax, ooc_vec, color=:black, label="Typical run")
             li2 = lines!(ax, mean_vec, color=:blue, label="Mean of runs")
             li3 = hlines!([-cl, cl], color=:"red", label="Control limits")
 
             # # Add legend
-             if i == 1
-                 #axislegend(ax, merge=true, unique=true, position=:lb, labelsize=10)
-                 axislegend(
-                     ax,
-                     [
-                         li => (; linewidth=1.5, color=(:grey, 0.5)),
-                         li1 => (; linewidth=1.5, color=(:black)),
-                         li2 => (; linewidth=1.5, color=(:blue)),
-                         li3 => (; linewidth=1.5, color=(:red)),
-                     ],
-                     ["Single runs", "Typical run", "Mean of runs", "Control limits"],
-                     merge=true, unique=true, position=:lb, labelsize=10
-                 )
+            if i == 1
+                #axislegend(ax, merge=true, unique=true, position=:lb, labelsize=10)
+                axislegend(
+                    ax,
+                    [
+                        li => (; linewidth=1.5, color=(:grey, 0.5)),
+                        li1 => (; linewidth=1.5, color=(:black)),
+                        li2 => (; linewidth=1.5, color=(:blue)),
+                        li3 => (; linewidth=1.5, color=(:red)),
+                    ],
+                    ["Single runs", "Typical run", "Mean of runs", "Control limits"],
+                    merge=true, unique=true, position=:lb, labelsize=10
+                )
+            end
+
+            # summarize alarm point results
+            println(transpose(collect(136:140)))
+            println(map(x -> sum((x .>= cl .|| x .<= -cl)), ooc_vec[136:140]))
+
+
+
+            # Save figure
+            resize_to_layout!(fig)
+            save("Figure3_$(d1)_$(d2)_$i.pdf", fig[1, i])
+        end
+
+    end
+end
+
+
+####################################
+let
+    for d1_d2 in d1_d2_vec
+        fig = Figure()
+        d1 = d1_d2[1]
+        d2 = d1_d2[2]
+        fig_title = ["EWMA chart (d1 = $d1, d2 = $d2, λ = 0.1)", "EWMA chart (d1 = $d1, d2 = $d2, λ = 1)"]
+
+        for i in 1:2
+            # Compute the statistic 1000 times
+            Random.seed!(123)  # Random.seed!(4321) # 10
+            results_all = map(x -> stat_sop(mat_all, lam[i], d1, d2; chart_choice=3, add_noise=true, noise_dist=Uniform(0, 0.1))', 1:1_000)
+
+            # Convert to matrix
+            mapooc_stat_sops = vcat(results_all...)
+
+            # Compute mean vector
+            mean_vec = vec(mean(mapooc_stat_sops, dims=1))
+
+            # Get L1 distance
+            dist_vec = map(x -> sum(abs.(mean_vec - x)), eachrow(mapooc_stat_sops))
+            ooc_vec = mapooc_stat_sops[sortperm(dist_vec)[1], :]
+
+            # Makie figure to save
+            fontsize_theme = Theme(fontsize=14)
+            set_theme!(fontsize_theme)
+
+            ax = Axis(
+                fig[1, i],
+                ylabel="τ̃",
+                xlabel="Hour",
+                title=fig_title[i],
+                titlefont=:regular,
+                xaxisposition=:bottom,
+                yreversed=false,
+                width=350,
+                height=250,
+                xticks=collect(0:24:168),
+            )
+
+            if lam[i] == 0.1
+                cl = d1_d2_crit_ewma[d1, d2]
+            elseif lam[i] == 1
+                cl = d1_d2_shewart[d1, d2]
+            end
+            for i in 2:1000
+                lines!(ax, ic_start:ic_end, mapooc_stat_sops[i, ic_start:ic_end], color=(:grey, 0.05), label="Single runs")
+            end
+            li = lines!(ax, ic_start:ic_end, mapooc_stat_sops[1, ic_start:ic_end], color=(:grey, 0.05), label="Single runs")
+            li1 = lines!(ax, ooc_vec, color=:black, label="Typical run")
+            li2 = lines!(ax, mean_vec, color=:blue, label="Mean of runs")
+            li3 = hlines!([-cl, cl], color=:"red", label="Control limits")
+
+            # # Add legend
+            if i == 1
+                #axislegend(ax, merge=true, unique=true, position=:lb, labelsize=10)
+                axislegend(
+                    ax,
+                    [
+                        li => (; linewidth=1.5, color=(:grey, 0.5)),
+                        li1 => (; linewidth=1.5, color=(:black)),
+                        li2 => (; linewidth=1.5, color=(:blue)),
+                        li3 => (; linewidth=1.5, color=(:red)),
+                    ],
+                    ["Single runs", "Typical run", "Mean of runs", "Control limits"],
+                    merge=true, unique=true, position=:lb, labelsize=10
+                )
             end
 
             # summarize alarm point results
@@ -148,107 +351,107 @@ clbp = [
 ]
 
 fig_title = [
-    "(a) BP-EWMA chart (w = 3, λ = 0.1)" "(b) BP-EWMA chart (w = 3, λ = 0.1)";
+    "BP-EWMA chart (w = 3, λ = 0.1)" "BP-EWMA chart (w = 3, λ = 0.1)";
     #    "(c) BP-EWMA chart (w = 5, λ = 0.1)" "(d) BP-EWMA chart (w = 5, λ = 1)"
 ]
 
 
 w = 3
-lam = [0.1, 0.1]
-YLS = [(0, 0.01)]#, (0, 0.02), (0, 0.15), (0, 0.25)]
+lam = 0.1
+YLS = [0, 0.01]
 
 let
-    fig = Figure()
-    for (i, w) in enumerate(w)
-        for j in 1:2
+    fig1 = Figure()
+    fig2 = Figure()
+    Random.seed!(123) #Random.seed!(4321) #
+    # Compute the statistic 1000 times
+    results_all = map(x -> stat_sop_bp(
+            mat_all,
+            lam,
+            w,
+            chart_choice=3,
+            add_noise=true,
+            noise_dist=Uniform(0, 0.1)
+        )', 1:1_000)
 
-            # Compute the statistic 1000 times
-            Random.seed!(123) #Random.seed!(4321) #
-            results_all = map(x -> stat_sop_bp(
-                    mat_all,
-                    lam[j],
-                    w,
-                    chart_choice=3,
-                    add_noise=true,
-                    noise_dist=Uniform(0, 0.1)
-                )', 1:1_000)
+    mapooc_stat_sops = vcat(results_all...)
 
-            # Convert to matrix
-            mapooc_stat_sops = vcat(results_all...)
+    # Compute mean vector
+    mean_vec = vec(mean(mapooc_stat_sops, dims=1))
 
-            # Compute mean vector
-            mean_vec = vec(mean(mapooc_stat_sops, dims=1))
+    # Get L1 distance
+    dist_vec = map(x -> sum(abs.(mean_vec - x)), eachrow(mapooc_stat_sops))
+    ooc_vec = mapooc_stat_sops[sortperm(dist_vec)[1], :]
 
-            # Get L1 distance
-            dist_vec = map(x -> sum(abs.(mean_vec - x)), eachrow(mapooc_stat_sops))
-            ooc_vec = mapooc_stat_sops[sortperm(dist_vec)[1], :]
+    # Makie figure to save
+    fontsize_theme = Theme(fontsize=14)
+    set_theme!(fontsize_theme)
 
-            # Makie figure to save
-            fontsize_theme = Theme(fontsize=14)
-            set_theme!(fontsize_theme)
+    ## plot 1 (normal y-axis)
+    ax1 = Axis(
+        fig1[1, 1],
+        ylabel="τ̃",
+        xlabel="Hour",
+        titlefont=:regular,
+        xaxisposition=:bottom,
+        yreversed=false,
+        width=350,
+        height=250,
+        xticks=collect(0:24:168),
+    )
 
-            ax = Axis(
-                fig[i, j],
-                ylabel="τ̃",
-                xlabel="Hour",
-                title=fig_title[i, j],
-                titlefont=:regular,
-                xaxisposition=:bottom,
-                yreversed=false,
-                width=350,
-                height=250,
-                xticks=collect(0:24:168),
-            )
-            for i in 1:1000
-                lines!(ax, ic_start:ic_end, mapooc_stat_sops[i, ic_start:ic_end], color=(:grey, 0.05), label="Single runs")
-            end
-            lines!(ax, ooc_vec, color=:black, label="Typical run")
-            lines!(ax, mean_vec, color=:blue, label="Mean of runs")
-
-            hlines!([clbp[i, 1]], color=:"red", label="Control limits")
-
-            # Add legend
-            if i == 1 && j == 1
-                axislegend(
-                    ax,
-                    [
-                        li => (; linestyle = :solid, linewidth=1.5, color=(:grey, 0.5)),
-                        li => (; linestyle = :solid, linewidth=1.5, color=(:black)),
-                        li => (; linestyle = :solid, linewidth=1.5, color=(:blue)),
-                        li => (; linestyle = :solid, linewidth=1.5, color=(:red)),
-                    ],
-                    ["Single runs", "Typical run", "Mean of runs", "Control limits"],
-                    merge=true, unique=true, position=:lt, labelsize=10
-                )
-                #axislegend(ax, merge=true, unique=true, position=:lt, labelsize=10)
-            end
-
-            # Individual plot limits
-            #if i == 1 && j == 1
-            #    ylims!(ax, YLS[i+2*(j-1)])
-            #end
-            #            if i == 1 && j == 2
-            #                ylims!(ax, YLS[i+2*(j-1)])
-            #            end
-            if i == 1 && j == 2
-                ylims!(ax, YLS[1])
-            end
-            #            if i == 2 && j == 2
-            #                ylims!(ax, YLS[i+2*(j-1)])
-            #            end
-
-            # summarize alarm point results
-
-            println(map(x -> sum(x .>= clbp[i, 1]), mean_vec[136:140]))
-
-        end
-
+    li = lines!(ax1, ic_start:ic_end, mapooc_stat_sops[1, ic_start:ic_end], color=(:grey, 0.05), label="Single runs")
+    for i in 2:1000
+        lines!(ax1, ic_start:ic_end, mapooc_stat_sops[i, ic_start:ic_end], color=(:grey, 0.05), label="Single runs")
     end
+    li1 = lines!(ax1, ooc_vec, color=:black, label="Typical run")
+    li2 = lines!(ax1, mean_vec, color=:blue, label="Mean of runs")
+    li3 = hlines!(ax1, [clbp[1, 1]], color=:"red", label="Control limits")
 
-    resize_to_layout!(fig)
-    fig
+    # Add legend
+    axislegend(
+        ax1,
+        [
+            li => (; linestyle=:solid, linewidth=1.5, color=(:grey, 0.5)),
+            li1 => (; linestyle=:solid, linewidth=1.5, color=(:black)),
+            li2 => (; linestyle=:solid, linewidth=1.5, color=(:blue)),
+            li3 => (; linestyle=:solid, linewidth=1.5, color=(:red)),
+        ],
+        ["Single runs", "Typical run", "Mean of runs", "Control limits"],
+        merge=true, unique=true, position=:lt, labelsize=10
+    )
 
-    save("Figure4_$(w).pdf", fig)
+    ## plot 2 (zoomed y-axis)
+    ax2 = Axis(
+        fig2[1, 1],
+        ylabel="τ̃",
+        xlabel="Hour",
+        titlefont=:regular,
+        xaxisposition=:bottom,
+        yreversed=false,
+        width=350,
+        height=250,
+        xticks=collect(0:24:168),
+    )
+
+    li = lines!(ax2, ic_start:ic_end, mapooc_stat_sops[1, ic_start:ic_end], color=(:grey, 0.05), label="Single runs")
+    for i in 2:1000
+        lines!(ax2, ic_start:ic_end, mapooc_stat_sops[i, ic_start:ic_end], color=(:grey, 0.05), label="Single runs")
+    end
+    li1 = lines!(ax2, ooc_vec, color=:black, label="Typical run")
+    li2 = lines!(ax2, mean_vec, color=:blue, label="Mean of runs")
+    li3 = hlines!(ax2, [clbp[1, 1]], color=:"red", label="Control limits")
+    ylims!(ax2, [0 0.01])
+
+    # summarize alarm point results
+    println(transpose(collect(136:140)))
+    println(map(x -> sum(x .>= clbp[1, 1]), mean_vec[136:140]))
+
+    resize_to_layout!(fig1)
+    resize_to_layout!(fig2)
+
+    save("Figure4a.pdf", fig1)
+    save("Figure4b.pdf", fig2)
 end
 
 # -----------------------------------------------------------------------------
