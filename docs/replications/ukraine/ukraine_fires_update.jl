@@ -1,4 +1,3 @@
-
 using DataFrames
 using DataFramesMeta
 using OrdinalPatterns
@@ -23,50 +22,47 @@ select!(ukraine_fires, :date, :year, :latitude, :longitude, r"fire")
 @chain ukraine_fires begin
   @rtransform!(:week = string(week(:date)))
   @rtransform!(:week = ifelse(length(:week) == 1, string("0", :week), :week))
-  @rtransform!(:week_year = string(:year, "_", :week))
-  select!(:date, :week_year, All())
+  @rtransform!(:year_week = string(:year, "_", :week))
+  select!(:date, :year_week, All())
 end
 
 chart_choice = 3
 M = 41    # grid size for M (latitude)
 N = 26    # grid size for N (longitude)
 N_charts = Int(1e3) # Number of charts
+latitude_lower = 45.75651
+latitude_upper = 50.43185
+longitude_lower = 31.50439
+longitude_upper = 40.15952
 
 # Prepare data and compute number of fires in each bin
 df_prepared = @chain ukraine_fires begin
   # Subset data frame based on long-and latitude for east ukraine  
-  @subset(:latitude .>= 45.75651,
-    :latitude .<= 50.43185,
-    :longitude .>= 31.50439,
-    :longitude .<= 40.15952)
+  @subset(:latitude .>= latitude_lower,
+    :latitude .<= latitude_upper,
+    :longitude .>= longitude_lower,
+    :longitude .<= longitude_upper)
   # Make bins for longitude and latitude        
-  @transform(:lat_bin = cut(:latitude, collect(range(45.75651, 50.43185, length=M + 1)), labels=1:M))
-  @transform(:long_bin = cut(:longitude, collect(range(31.50439, 40.15952, length=N + 1)), labels=1:N))
-  @transform(:lat_bin = :lat_bin.refs) # convert to integer
-  @transform(:long_bin = :long_bin.refs) # convert to integer  
+  @transform(:lat_bin = cut(:latitude, collect(range(latitude_lower, latitude_upper, length=M + 1)), labels=1:M))
+  @transform(:long_bin = cut(:longitude, collect(range(longitude_lower, longitude_upper, length=N + 1)), labels=1:N))
+  @transform(:lat_bin = :lat_bin.refs) # Use integers
+  @transform(:long_bin = :long_bin.refs) # Use integers
   # Compute sum of fires in each bin
-  groupby([:week_year, :lat_bin, :long_bin])
-  combine(:war_fire => sum => :sum_fire)
+  groupby([:year_week, :lat_bin, :long_bin])
+  combine(:war_fire => sum => :sum_fire) # :war_fire -> determines whether this specific fire is assessed as war-related (always 1 in that data set)
   # Add 'year' and 'week' columns as integers
-  @rtransform(:year = parse(Int, :week_year[1:4]))
-  @rtransform(:week = parse(Int, :week_year[6:7]))
+  @rtransform(:year = parse(Int, :year_week[1:4]))
+  @rtransform(:week = parse(Int, :year_week[6:7]))
   # Subset 
   @rsubset!(:year >= 2023, :year <= 2024)
 end
 
-# Count number of fires in eastern Ukraine
-@chain ukraine_fires begin
-  # Subset data frame based on long-and latitude for east ukraine  
-  @subset(:latitude .>= 45.75651,
-    :latitude .<= 50.43185,
-    :longitude .>= 31.50439,
-    :longitude .<= 40.15952)
-  @rsubset(:year >= 2023, :year <= 2024)
-end
+# Count number of war-related fires in eastern Ukraine between 2023 and 2024
+sum(df_prepared.sum_fire)
 
 # Create a vector with all possible week-year combinations
-week_vec = []
-for i in 1:52
+week_vec = String[]
+for i in sort(unique(df_prepared.week)) # 1:52
   if i < 10
     push!(week_vec, string("0", i))
   else
@@ -75,35 +71,36 @@ for i in 1:52
 end
 dates_sort = reduce(vcat, [[string("2023_", x), string("2024_", x)] for x in week_vec]) |> sort
 
-# Create grid-matrices for all possible lat and long bins. Fill fires with zero
-add_df = DataFrame(lat_bin=UInt32[], long_bin=UInt32[], sum_fire=Int64[])
+# Create grid-matrices for all possible lat and long bins. 
+# Initialize column :sum_fire with 0
+add_df = DataFrame(lat_bin=UInt32[], long_bin=UInt32[], sum_fire=Int[])
 foreach(x -> push!(add_df, x), Iterators.product(1:M, 1:N, 0))
 tuple_add_df = Tuple.(eachrow(add_df[:, 1:2]))
 
-# Create matrices for each week based on the prepared data frame
+# Create matrices for each year-week based on the prepared data frame
 all_mats = map(dates_sort) do i
   # Subset data frame based on year-week
-  df_tmp = df_prepared[df_prepared.week_year.==i, [:lat_bin, :long_bin, :sum_fire]]
+  df_tmp = df_prepared[df_prepared.year_week.==i, [:lat_bin, :long_bin, :sum_fire]]
   # Convert data frames to tuples to find which rows from 'add_df' to keep 
   tuple_df_tmp = Tuple.(eachrow(df_tmp[:, 1:2]))
-  # Find rows from 'add_df' to keep
+  # Find rows from 'add_df' ('tuple_add_df') to keep
   index = map(x -> x ∉ tuple_df_tmp, tuple_add_df)
-  # Add rows from 'add_df' to 'df_tmp' that are not already in 'df_tmp'
+  # vcat 'df_tmp' and 'add_df' -> 'df_tmp' contains identified fires, 'add_df' contains remaining 0s
   df_tmp = vcat(df_tmp, add_df[index, :])
-  # Make data frame wider, sort the rows based on 'lat_bin' and remove column 'lat_bin' for conversion  
+  # Make data frame wider, sort the rows based on :lat_bin and remove column :lat_bin for conversion  
   df_tmp_wide = sort(unstack(df_tmp, :lat_bin, :long_bin, :sum_fire), :lat_bin)[:, 2:end]
-  # Get column names and sort them ascendingly  
+  # Get column names and sort them ascendingly 
   col_names = names(df_tmp_wide)[parse.(Int, names(df_tmp_wide))|>sortperm]
   # Select columns based on sorted column names  
-  select!(df_tmp_wide, col_names)
+  select!(df_tmp_wide, col_names) # -> do not use integers for col_names, otherwise they will not be sorted
   # Make data frame wider and convert to Matrix
-  Matrix(df_tmp_wide)[M:-1:1, :] # flip y-axis
+  Matrix(df_tmp_wide)[M:-1:1, :] # flip y-axis to be consistent with notation in paper
 end
 
-# Pre-allocate 3d array of type Float64
-mat_all = zeros(Float64, M, N, size(dates_sort, 1))#52)
+# Pre-allocate 3d array of type Float64 -> M x N x 104
+mat_all = zeros(Float64, M, N, size(dates_sort, 1))
 
-# Fill the 3d array with the matrices and add noise
+# Fill 3d arrays with the matrices from 'all_mats'
 for i in axes(mat_all, 3)
   mat_all[:, :, i] = convert.(Float64, all_mats[i])
 end
@@ -113,49 +110,29 @@ dates_23 = map(x -> Date(date -> week(date) == x, 2023, 01, 01), 1:52)
 dates_24 = map(x -> Date(date -> week(date) == x, 2024, 01, 01), 1:52)
 dates = vcat(dates_23, dates_24)
 
-
 dates_ym = map(x -> string(x)[1:4] * "-" * string(week(x)), dates)
 
 # ---------------------------------------------------------#
 #                    SOP statistics                        #
 # ---------------------------------------------------------#
-d1_d2_vec = Iterators.product(1:1, 1:1) |> collect
 
-# # Compute the critical limits for the EWMA chart
-# d1_d2_crit_ewma = zeros(5, 5)
-# d1_d2_shewart = zeros(5, 5)
-# for d1d2 in d1_d2_vec 
-#   d1 = d1d2[1]
-#   d2 = d1d2[2]
-#   cl = cl_sop(
-#     ICSP(41, 25, Normal(0, 1)), 0.1, 370, 0.01, d1, d2, 10^3;
-#     chart_choice=3, jmin=4, jmax=7, verbose=true
-#   )
-#   d1_d2_crit_ewma[d1, d2] = cl
-# end
-# # Verify critical limits
-# for d1d2 in d1_d2_vec 
-#   d1 = d1d2[1]
-#   d2 = d1d2[2]
-#   cl = cl_sop(
-#     ICSP(41, 25, Normal(0, 1)), 1, 370, 0.05, d1, d2, 10^3;
-#     chart_choice=3, jmin=4, jmax=7, verbose=true
-#   )
-#   d1_d2_shewart[d1, d2] = cl
-# end
+# Compute Shewart critical limits
+# d1_d2_shewart = cl_sop(ICSTS(M, N, Normal(0, 1)), 1, 370, 0.04867, 1, 1, 10^4; jmin=3, jmax=7, verbose=true)
 
+d1_d2_vec = [(1, 1)] #Iterators.product(1:1, 1:1) |> collect
 
 lam = [0.1, 1]
-d1_d2_crit_ewma = [0.01009]
+d1_d2_crit_ewma = [0.01009] # from table in paper
 d1_d2_shewart = [0.04867]
 
 for d1_d2 in d1_d2_vec
-  fig = Figure()
   d1 = d1_d2[1]
   d2 = d1_d2[2]
-  fig_title = ["EWMA chart (d1 = $d1, d2 = $d2, λ = 0.1)", "EWMA chart (d1 = $d1, d2 = $d2, λ = 1)"]
 
   for i in 1:2
+    # Start figure
+    fig = Figure()
+
     # Compute the statistic 1000 times
     Random.seed!(123)  # Random.seed!(4321) # 10
     results_all = map(x -> stat_sop(mat_all, lam[i], d1, d2; chart_choice=3, add_noise=true)', 1:1_000)
@@ -167,18 +144,18 @@ for d1_d2 in d1_d2_vec
     mean_vec = vec(mean(mapooc_stat_sops, dims=1))
 
     # Get L1 distance
-    dist_vec = map(x -> sum(abs.(mean_vec - x)), eachrow(mapooc_stat_sops))
-    ooc_vec = mapooc_stat_sops[sortperm(dist_vec)[1], :]
+    dist_vec = map(x -> sum(abs.(mean_vec .- x)), eachrow(mapooc_stat_sops))
+    ooc_vec = mapooc_stat_sops[sortperm(dist_vec)[1], :] # Get that sequence with the smallest distance
 
     # Makie figure to save
     fontsize_theme = Theme(fontsize=14)
     set_theme!(fontsize_theme)
 
     ax = Axis(
-      fig[1, i],
-      ylabel="τ̃",
+      fig[1, 1],
+      ylabel=L"\tilde{\tau}", #"τ̃",
       xlabel="Year-Week",
-      title=fig_title[i],
+      title="", 
       titlefont=:regular,
       xaxisposition=:bottom,
       yreversed=false,
@@ -188,41 +165,44 @@ for d1_d2 in d1_d2_vec
     )
 
     if lam[i] == 0.1
-      cl = d1_d2_crit_ewma[d1, d2] #cl_sop_crit[i]
+      cl = d1_d2_crit_ewma[d1, d2] 
     elseif lam[i] == 1
       cl = d1_d2_shewart[d1, d2]
-    end    
+    end
     lines!(ax, ooc_vec, color=:black, label="Typical run")
     lines!(ax, mean_vec, color=:blue, label="Mean of runs")
     hlines!([-cl, cl], color=:"red", label="Control limits")
 
     # Add legend
-    if i == 2
-      Legend(fig[2, 1:2], ax, labelsize=14, framecolor=:white, orientation=:horizontal)
+    if i == 1
+      Legend(fig[1, 1],
+        ax,
+        labelsize=13.5,
+        #framecolor=:white,
+        margin = (5, 5, 5, 5),
+        halign=:left,
+        valign=:bottom,
+        orientation=:vertical)
     end
+
+    # Save figure
+    resize_to_layout!(fig)
+    save("Figure_Ukraine_d1$(d1)_d2$(d2)_$(lam[i]).pdf", fig)
 
   end
 
-  # Save figure
-  resize_to_layout!(fig)
-  save("Figure5_$(d1)_$(d2).pdf", fig)
-
 end
-
-##save("Figure5_4321.pdf", fig)
-#save("Figure5_update.pdf", fig)
-#
-
 
 # -----------------------------------------------------------------------------
 #                           Makie heatmaps
 # -----------------------------------------------------------------------------
-#Random.seed!(123)
-v = [1, 39]
+
+# Compute logs of the matrices 
 ic_mats = log.(cat((all_mats[[1, 2, 53]])..., dims=3))
 oc_mats = log.(cat(all_mats[[33, 39, 92]]..., dims=3))
 maps = cat(ic_mats, oc_mats, dims=3)
 
+# Make title -> first three are in-control, last three are out-of-control
 title_string = ["2023 - 01", "2023 - 02", "2024 - 01", "2023 - 33", "2023 - 39", "2024 - 40"]
 maps[maps.==-Inf] .= 0
 
@@ -234,8 +214,8 @@ global_max = maximum(t -> last(t), extremas)
 clims = (global_min, global_max)
 cm = CairoMakie.cgrad([:white, :firebrick1, :darkred])
 
-borders_x = collect(0:25)
-borders_y = collect(40:-1:0)
+borders_x = collect(0:25) # For consistent notation with paper
+borders_y = collect(40:-1:0) # For consistent notation with paper
 ## plots
 let
   fig = Figure()
@@ -261,10 +241,10 @@ let
       k += 1
     end
   end
-  cb = Colorbar(fig[:, n_cols+1]; limits=clims, colormap=cm)
+  cb = Colorbar(fig[:, 4]; limits=clims, colormap=cm)
   resize_to_layout!(fig)
   fig
-  save("ukraine_heatmap_update.pdf", fig)
+  save("ukraine_heatmap_23_24.pdf", fig)
 end
 
 
@@ -272,35 +252,30 @@ end
 #   BP statistics with w = 3 and 5, and nthreads = 10      #
 # ---------------------------------------------------------#
 
-# M = 41
-# N = 26
-# w = 5
-# reps = 1_000
-# lam = 1
-# L0 = 370
-# sp_dgp = ICSP(M, N, Normal(0, 1))
-# crit_init = map(i -> stat_sop_bp(randn(M, N, 370), lam, w) |> last, 1:1_000) |> x -> quantile(x, 0.99)
-# cl = cl_sop_bp(
-#     sp_dgp, lam, L0, crit_init, w, reps; jmin=4, jmax=7, verbose=true
-# )
+M = 41
+N = 26
+w = 3
+reps = 10_000# 1_000#_000
+lam = 1
+L0 = 370
+sp_dgp = ICSTS(M, N, Normal(0, 1))
+#crit_init = map(i -> stat_sop_bp(randn(M, N, 370), lam, w) |> last, 1:1_000) |> x -> quantile(x, 0.999)
+start_init = [0.000362, 0.00765] # => extracted with low values of iterations; value 1 -> lam = 0.1, value 2 -> lam = 1 
+cl = cl_sop_bp(
+    sp_dgp, lam, L0, start_init[2], w, reps; jmin=4, jmax=8, verbose=true
+)
 
 lam = [0.1, 1]
 cl_bp = [
-  0.000362 0.00765; # w = 3, lam = 0.1, 1
-  0.000786 0.01619  # w = 5, lam = 0.1, 1
+  0.000361713 0.00764491; # w = 3, lam = 0.1, 1
 ]
 
-fig_title = [
-  "(a) BP-EWMA chart (w = 3, λ = 0.1)" "(b) BP-EWMA chart (w = 3, λ = 1)";
-  "(c) BP-EWMA chart (w = 5, λ = 0.1)" "(d) BP-EWMA chart (w = 5, λ = 1)"
-]
-
-
-w = [3, 5]
+w = [3] 
 lam = [0.1, 1]
-fig = Figure()
 for (i, w) in enumerate(w)
   for j in 1:2
+    # Start Figure 
+    fig = Figure()
 
     # Compute the statistic 1000 times
     Random.seed!(123) #Random.seed!(4321) #
@@ -327,10 +302,10 @@ for (i, w) in enumerate(w)
     set_theme!(fontsize_theme)
 
     ax = Axis(
-      fig[i, j],
+      fig[1, 1], 
       ylabel="τ̃",
       xlabel="Year-Week",
-      title=fig_title[i, j],
+      title="", 
       titlefont=:regular,
       xaxisposition=:bottom,
       yreversed=false,
@@ -344,16 +319,22 @@ for (i, w) in enumerate(w)
     hlines!([cl_bp[i, j]], color=:"red", label="Control limits")
 
     # Add legend
-    if i == 2 && j == 2
-      Legend(fig[3, 1:2], ax, labelsize=14, framecolor=:white, orientation=:horizontal)
+    if j == 1  
+      Legend(fig[1, 1],
+        ax,
+        labelsize=13.5,
+        #framecolor=:white,
+        margin = (5, 5, 5, 5),
+        halign=:left,
+        valign=:top,
+        orientation=:vertical)
     end
+
+    resize_to_layout!(fig)
+    fig
+
+    save("Figure_Ukraine_BP_w$(w)_$(lam[j]).pdf", fig)
 
   end
 end
 
-resize_to_layout!(fig)
-fig
-
-
-# save("Figure5_BP_4321.pdf", fig)
-save("Figure5_BP_Ukraine.pdf", fig)
