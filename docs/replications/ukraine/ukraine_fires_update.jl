@@ -116,14 +116,14 @@ dates_ym = map(x -> string(x)[1:4] * "-" * string(week(x)), dates)
 #                    SOP statistics                        #
 # ---------------------------------------------------------#
 
-# Compute Shewart critical limits
+# Compute Shewhart critical limits
 # d1_d2_shewart = cl_sop(ICSTS(M, N, Normal(0, 1)), 1, 370, 0.04867, 1, 1, 10^4; jmin=3, jmax=7, verbose=true)
 
 d1_d2_vec = [(1, 1)] #Iterators.product(1:1, 1:1) |> collect
 
 lam = [0.1, 1]
-d1_d2_crit_ewma = [0.01009] # from table in paper
-d1_d2_shewart = [0.04867]
+d1_d2_crit_ewma = [0.0100925] # from table in paper
+d1_d2_shewhart = [0.04867]
 
 for d1_d2 in d1_d2_vec
   d1 = d1_d2[1]
@@ -167,7 +167,7 @@ for d1_d2 in d1_d2_vec
     if lam[i] == 0.1
       cl = d1_d2_crit_ewma[d1, d2] 
     elseif lam[i] == 1
-      cl = d1_d2_shewart[d1, d2]
+      cl = d1_d2_shewhart[d1, d2]
     end
     lines!(ax, ooc_vec, color=:black, label="Typical run")
     lines!(ax, mean_vec, color=:blue, label="Mean of runs")
@@ -267,7 +267,7 @@ cl = cl_sop_bp(
 
 lam = [0.1, 1]
 cl_bp = [
-  0.000361713 0.00764491; # w = 3, lam = 0.1, 1
+  0.000361649 0.00764394; # w = 3, lam = 0.1, 1
 ]
 
 w = [3] 
