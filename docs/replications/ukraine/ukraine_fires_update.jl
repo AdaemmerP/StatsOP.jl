@@ -122,7 +122,7 @@ dates_ym = map(x -> string(x)[1:4] * "-" * string(week(x)), dates)
 d1_d2_vec = [(1, 1)] #Iterators.product(1:1, 1:1) |> collect
 
 lam = [0.1, 1]
-d1_d2_crit_ewma = [0.0100925] # from table in paper
+d1_d2_crit_ewma = [0.0100925] # computed but also from table in paper
 d1_d2_shewhart = [0.04867]
 
 for d1_d2 in d1_d2_vec
@@ -252,19 +252,7 @@ end
 #   BP statistics with w = 3 and 5, and nthreads = 10      #
 # ---------------------------------------------------------#
 
-M = 41
-N = 26
-w = 3
-reps = 10_000# 1_000#_000
-lam = 1
-L0 = 370
-sp_dgp = ICSTS(M, N, Normal(0, 1))
-#crit_init = map(i -> stat_sop_bp(randn(M, N, 370), lam, w) |> last, 1:1_000) |> x -> quantile(x, 0.999)
-start_init = [0.000362, 0.00765] # => extracted with low values of iterations; value 1 -> lam = 0.1, value 2 -> lam = 1 
-cl = cl_sop_bp(
-    sp_dgp, lam, L0, start_init[2], w, reps; jmin=4, jmax=8, verbose=true
-)
-
+# externally computed limits  
 lam = [0.1, 1]
 cl_bp = [
   0.000361649 0.00764394; # w = 3, lam = 0.1, 1
