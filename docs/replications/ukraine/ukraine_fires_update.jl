@@ -123,7 +123,7 @@ d1_d2_vec = [(1, 1)] #Iterators.product(1:1, 1:1) |> collect
 
 lam = [0.1, 1]
 d1_d2_crit_ewma = [0.0100925] # computed but also from table in paper
-d1_d2_shewhart = [0.04867]
+d1_d2_shewhart = [0.0486662]
 
 for d1_d2 in d1_d2_vec
   d1 = d1_d2[1]
