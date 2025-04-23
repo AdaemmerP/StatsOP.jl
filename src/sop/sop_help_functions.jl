@@ -1,22 +1,4 @@
 
-
-"""
-Create and return the index of the sops for sortperm values. 
-The type frequencies are based on the ranks of the sops, but we use sortperm to 
-compute the order of the elements in the vector. 
-"""
-# Function that returns SOP indices for sortperm values
-function create_index_sop()
-
-  s_1 = (1, 3, 8, 11, 14, 17, 22, 24)
-  s_2 = (2, 5, 7, 9, 16, 18, 20, 23)
-  s_3 = (4, 6, 10, 12, 13, 15, 19, 21)
-
-  return s_1, s_2, s_3
-
-end
-
-
 """
 Compute a 4D array to lookup the index of the sops. The original SOPs are based on ranks. Here we use sortperm which computes the order of the elements in the vector.
 """
@@ -41,6 +23,22 @@ function compute_lookup_array_sop()
 
 end
 
+
+"""
+Create and return the index of the sops for sortperm values. 
+The type frequencies are based on the ranks of the sops, but we use sortperm to 
+compute the order of the elements in the vector. 
+"""
+# Function that returns SOP indices for sortperm values
+function create_index_sop()
+
+  s_1 = (1, 3, 8, 11, 14, 17, 22, 24)
+  s_2 = (2, 5, 7, 9, 16, 18, 20, 23)
+  s_3 = (4, 6, 10, 12, 13, 15, 19, 21)
+
+  return s_1, s_2, s_3
+
+end
 
 """
     compute_p_array(data::Array{T,3})
@@ -244,112 +242,112 @@ function fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
 end
 
 
-# Function to get sensible starting values for the control limit
-function init_vals_sop(lam, dist, runs; chart_choice, p_quantile)
+# # Function to get sensible starting values for the control limit
+# function init_vals_sop(lam, dist, runs; chart_choice, p_quantile)
 
-  # Pre-allocate
-  lookup_array_sop = compute_lookup_array_sop()
-  sop_freq = zeros(24)
-  win = zeros(Int, 4)
-  data = zeros(m + 1, n + 1)
-  p_ewma = zeros(3)
-  p_hat = zeros(3)
-  vals = zeros(runs)
-  sop = zeros(4)
+#   # Pre-allocate
+#   lookup_array_sop = compute_lookup_array_sop()
+#   sop_freq = zeros(24)
+#   win = zeros(Int, 4)
+#   data = zeros(m + 1, n + 1)
+#   p_ewma = zeros(3)
+#   p_hat = zeros(3)
+#   vals = zeros(runs)
+#   sop = zeros(4)
 
-  fill!(p_ewma, 1.0 / 3.0)
-  stat = chart_stat_sop(p_ewma, chart_choice)
+#   fill!(p_ewma, 1.0 / 3.0)
+#   stat = chart_stat_sop(p_ewma, chart_choice)
 
-  for i in 1:runs
+#   for i in 1:runs
 
-    # Fill data with i.i.d data 
-    rand!(dist, data)
+#     # Fill data with i.i.d data 
+#     rand!(dist, data)
 
-    # Add noise when using random count data
-    if dist isa DiscreteUnivariateDistribution
-      for j in 1:size(data, 2)
-        for i in 1:size(data, 1)
-          data[i, j] = data[i, j] + rand()
-        end
-      end
-    end
+#     # Add noise when using random count data
+#     if dist isa DiscreteUnivariateDistribution
+#       for j in 1:size(data, 2)
+#         for i in 1:size(data, 1)
+#           data[i, j] = data[i, j] + rand()
+#         end
+#       end
+#     end
 
-    # dist as in SACF functions!
-    sop_frequencies!(m, n, lookup_array_sop, data, sop, win, sop_freq)
+#     # dist as in SACF functions!
+#     sop_frequencies!(m, n, lookup_array_sop, data, sop, win, sop_freq)
 
-    @views p_hat[1] = sum(sop_freq[[1, 3, 8, 11, 14, 17, 22, 24]])
-    @views p_hat[2] = sum(sop_freq[[2, 5, 7, 9, 16, 18, 20, 23]])
-    @views p_hat[3] = sum(sop_freq[[4, 6, 10, 12, 13, 15, 19, 21]])
-    p_hat ./= m * n # Divide each element of p_hat by m*n
+#     @views p_hat[1] = sum(sop_freq[[1, 3, 8, 11, 14, 17, 22, 24]])
+#     @views p_hat[2] = sum(sop_freq[[2, 5, 7, 9, 16, 18, 20, 23]])
+#     @views p_hat[3] = sum(sop_freq[[4, 6, 10, 12, 13, 15, 19, 21]])
+#     p_hat ./= m * n # Divide each element of p_hat by m*n
 
-    @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
+#     @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
 
-    stat = chart_stat_sop(p_ewma, chart_choice)
-    vals[i] = abs(stat)
+#     stat = chart_stat_sop(p_ewma, chart_choice)
+#     vals[i] = abs(stat)
 
-    fill!(win, 0)
-    fill!(sop_freq, 0)
-  end
+#     fill!(win, 0)
+#     fill!(sop_freq, 0)
+#   end
 
-  quantile_val = quantile(vals, p_quantile)
-  return_vec = (vals, quantile_val)
+#   quantile_val = quantile(vals, p_quantile)
+#   return_vec = (vals, quantile_val)
 
-  return return_vec
-end
+#   return return_vec
+# end
 
 
-# Function to get sensible starting values for the control limit
-function init_vals_sop(m, n, lam, chart_choice, dist, runs, p_quantile)
+# # Function to get sensible starting values for the control limit
+# function init_vals_sop(m, n, lam, chart_choice, dist, runs, p_quantile)
 
-  # Pre-allocate
-  lookup_array_sop = compute_lookup_array_sop()
-  sop_freq = zeros(24)
-  win = zeros(Int, 4)
-  data = zeros(m + 1, n + 1)
-  p_ewma = zeros(3)
-  p_hat = zeros(3)
-  vals = zeros(runs)
-  sop = zeros(4)
+#   # Pre-allocate
+#   lookup_array_sop = compute_lookup_array_sop()
+#   sop_freq = zeros(24)
+#   win = zeros(Int, 4)
+#   data = zeros(m + 1, n + 1)
+#   p_ewma = zeros(3)
+#   p_hat = zeros(3)
+#   vals = zeros(runs)
+#   sop = zeros(4)
 
-  fill!(p_ewma, 1.0 / 3.0)
-  stat = chart_stat_sop(p_ewma, chart_choice)
+#   fill!(p_ewma, 1.0 / 3.0)
+#   stat = chart_stat_sop(p_ewma, chart_choice)
 
-  for i in 1:runs
+#   for i in 1:runs
 
-    # Fill data with i.i.d data 
-    rand!(dist, data)
+#     # Fill data with i.i.d data 
+#     rand!(dist, data)
 
-    # Add noise when using random count data
-    if dist isa DiscreteUnivariateDistribution
-      for j in 1:size(data, 2)
-        for i in 1:size(data, 1)
-          data[i, j] = data[i, j] + rand()
-        end
-      end
-    end
+#     # Add noise when using random count data
+#     if dist isa DiscreteUnivariateDistribution
+#       for j in 1:size(data, 2)
+#         for i in 1:size(data, 1)
+#           data[i, j] = data[i, j] + rand()
+#         end
+#       end
+#     end
 
-    # dist as in SACF functions!
-    sop_frequencies!(m, n, lookup_array_sop, data, sop, win, sop_freq)
+#     # dist as in SACF functions!
+#     sop_frequencies!(m, n, lookup_array_sop, data, sop, win, sop_freq)
 
-    @views p_hat[1] = sum(sop_freq[[1, 3, 8, 11, 14, 17, 22, 24]])
-    @views p_hat[2] = sum(sop_freq[[2, 5, 7, 9, 16, 18, 20, 23]])
-    @views p_hat[3] = sum(sop_freq[[4, 6, 10, 12, 13, 15, 19, 21]])
-    p_hat ./= m * n # Divide each element of p_hat by m*n
+#     @views p_hat[1] = sum(sop_freq[[1, 3, 8, 11, 14, 17, 22, 24]])
+#     @views p_hat[2] = sum(sop_freq[[2, 5, 7, 9, 16, 18, 20, 23]])
+#     @views p_hat[3] = sum(sop_freq[[4, 6, 10, 12, 13, 15, 19, 21]])
+#     p_hat ./= m * n # Divide each element of p_hat by m*n
 
-    @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
+#     @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
 
-    stat = chart_stat_sop(p_ewma, chart_choice)
-    vals[i] = abs(stat)
+#     stat = chart_stat_sop(p_ewma, chart_choice)
+#     vals[i] = abs(stat)
 
-    fill!(win, 0)
-    fill!(sop_freq, 0)
-  end
+#     fill!(win, 0)
+#     fill!(sop_freq, 0)
+#   end
 
-  quantile_val = quantile(vals, p_quantile)
-  return_vec = (vals, quantile_val)
+#   quantile_val = quantile(vals, p_quantile)
+#   return_vec = (vals, quantile_val)
 
-  return return_vec
-end
+#   return return_vec
+# end
 
 
 
