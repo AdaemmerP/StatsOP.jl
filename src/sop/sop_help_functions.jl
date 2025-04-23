@@ -30,7 +30,9 @@ The type frequencies are based on the ranks of the sops, but we use sortperm to
 compute the order of the elements in the vector. 
 """
 # Function that returns SOP indices for sortperm values
-function create_index_sop(;refinement=0)
+function create_index_sop(; refinement=0)
+
+  @assert refinement in 0:3 "refinement must be in 0:3"
 
   if refinement == 0
 
@@ -39,7 +41,7 @@ function create_index_sop(;refinement=0)
     s_3 = [4, 6, 10, 12, 13, 15, 19, 21]
     return [s_1, s_2, s_3]
 
-  # See Equation (8) in Weiss and Kim (2025)  
+    # See Equation (8) in Weiss and Kim (2025)  
   elseif refinement == 1
 
     s_11 = [1, 11, 14, 24]
@@ -50,7 +52,7 @@ function create_index_sop(;refinement=0)
     s_32 = [6, 10, 13, 21]
     return [s_11, s_12, s_21, s_22, s_31, s_32]
 
-  # "Direction types" -> (9) in Weiss and Kim (2025)  
+    # "Direction types" -> (9) in Weiss and Kim (2025)  
   elseif refinement == 2
     s_11 = [1, 8, 17, 24]
     s_12 = [3, 11, 14, 22]
@@ -60,7 +62,7 @@ function create_index_sop(;refinement=0)
     s_32 = [13, 15, 19, 21]
     return [s_11, s_12, s_21, s_22, s_31, s_32]
 
-  # "Diagonal types -> (10) in Weiss and Kim (2025)  
+    # "Diagonal types -> (10) in Weiss and Kim (2025)  
   else # refinement == 3
     s_11 = [1, 3, 22, 24]
     s_12 = [8, 11, 14, 17]
@@ -248,25 +250,53 @@ end
 # Fill p_hat with the sum of frequencies and compute relative frequencies
 function fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
 
-  # Only needed to compute charts 1 and 4
-  if chart_choice in (1, 4)
+  # # Only needed to compute charts 1 and 4
+  # if chart_choice in (1, 4)
+  #   for i in s_1
+  #     p_hat[1] += sop_freq[i]
+  #   end
+  # end
+
+  # # Only needed to compute charts 2 and 4 
+  # if chart_choice in (2, 4)
+  #   for i in s_2
+  #     p_hat[2] += sop_freq[i]
+  #   end
+  # end
+
+  # # Only needed to compute charts 2 and 3
+  # if chart_choice in (2, 3)
+  #   for i in s_3
+  #     p_hat[3] += sop_freq[i]
+  #   end
+  # end
+
+  if chart_choice == 1
     for i in s_1
       p_hat[1] += sop_freq[i]
     end
-  end
 
-  # Only needed to compute charts 2 and 4 
-  if chart_choice in (2, 4)
+  elseif chart_choice == 2
     for i in s_2
       p_hat[2] += sop_freq[i]
     end
-  end
-
-  # Only needed to compute charts 2 and 3
-  if chart_choice in (2, 3)
     for i in s_3
       p_hat[3] += sop_freq[i]
     end
+
+  elseif chart_choice == 3
+    for i in s_3
+      p_hat[3] += sop_freq[i]
+    end
+
+  elseif chart_choice == 4
+    for i in s_1
+      p_hat[1] += sop_freq[i]
+    end
+    for i in s_2
+      p_hat[2] += sop_freq[i]
+    end
+
   end
 
   # Compute relative frequencies

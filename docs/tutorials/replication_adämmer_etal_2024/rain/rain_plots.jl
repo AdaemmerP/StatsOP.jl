@@ -1,13 +1,9 @@
 cd(@__DIR__)
 
 using Pkg
-Pkg.activate("../../.")
+Pkg.activate("../../../.")
 
-# Load module OrdinalPatterns only if not loaded already
-if !isdefined(Main, :OrdinalPatterns)
-    include("../../src/OrdinalPatterns.jl")
-    using .OrdinalPatterns
-end
+using OrdinalPatterns
 using CodecZlib
 using JLD2
 using Random
