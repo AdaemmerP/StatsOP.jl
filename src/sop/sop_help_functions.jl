@@ -61,7 +61,7 @@ function create_index_sop(;refinement=0)
     return [s_11, s_12, s_21, s_22, s_31, s_32]
 
   # "Diagonal types -> (10) in Weiss and Kim (2025)  
-  elseif refinement == 3
+  else # refinement == 3
     s_11 = [1, 3, 22, 24]
     s_12 = [8, 11, 14, 17]
     s_21 = [7, 9, 20, 23]
