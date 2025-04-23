@@ -21,7 +21,7 @@ function chart_stat_op(p, chart_choice)
     elseif chart_choice == 2
       # Hex-chart: Equation (3), page 342, Weiss and Testik (2023), Equation (15), page 6 in the paper      
       for i in axes(p, 1)
-        p[i] < 1 && (value -= (1 - p[i]) * log(1 - p[i])) # to avoid log(0)       
+        p[i] < 1 && (value -= (1 - p[i]) * log(1 - p[i])) # to avoid log of negative value     
       end
       return value
     elseif chart_choice == 3
