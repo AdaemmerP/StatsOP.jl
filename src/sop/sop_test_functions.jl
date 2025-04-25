@@ -119,7 +119,7 @@ function test_sop(data, alpha, d1::Int, d2::Int; chart_choice, add_noise::Bool=f
 
   # compute critical value
   crit_val = crit_val_sop(
-    M, N, alpha, d1, d2; chart_choice=chart_choice, approximate=approximate
+    M, N, alpha, d1, d2; chart_choice=chart_choice, refinement, approximate=approximate
   )
 
   # compute test statistic
