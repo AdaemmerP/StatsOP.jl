@@ -100,3 +100,7 @@ display(round.(arl_sacf_mat, digits=1))
 # Maximum ARL standard error
 findmax(round.(arlse_sop_mat, digits=2))
 findmax(round.(arlse_sacf_mat, digits=2))
+
+
+# Remove workers
+rmprocs(workers())

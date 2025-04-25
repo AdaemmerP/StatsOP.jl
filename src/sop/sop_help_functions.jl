@@ -34,6 +34,7 @@ function create_index_sop(; refinement=0)
 
   @assert refinement in 0:3 "refinement must be in 0:3"
 
+  # Classical approach as in Weiss and Kim (2024) and Adämmer et al. (2024)
   if refinement == 0
 
     s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
@@ -80,7 +81,15 @@ end
 
 Compute the matrix of p-hat values for a given 3D array of data when the delays are integers. These values are used for bootstrapping. 
 """
-function compute_p_array(data::Array{T,3}, d1::Int, d2::Int; chart_choice=3, add_noise=false) where {T<:Real}
+function compute_p_array(data::Array{T,3}, d1::Int, d2::Int; chart_choice=3, refinement=refinement, add_noise=false) where {T<:Real}
+
+  # Check input parameters
+  @assert 1 <= chart_choice <= 7 "chart_choice must be between 1 and 7"
+  if chart_choice in 1:4
+    @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
+  elseif chart_choice in 5:7
+    @assert 1 <= refinement <= 3 "refinement must be 1-3 for chart_choices 5-7"
+  end
 
   # pre-allocate  
   m = size(data, 1) - d1
@@ -89,10 +98,10 @@ function compute_p_array(data::Array{T,3}, d1::Int, d2::Int; chart_choice=3, add
   p_mat = zeros(size(data, 3), 3)
 
   # indices for sum of frequencies
-  index_sop = create_index_sop()
-  s_1 = index_sop[1]
-  s_2 = index_sop[2]
-  s_3 = index_sop[3]
+  index_sop = create_index_sop(refinement=refinement)
+  #s_1 = index_sop[1]
+  #s_2 = index_sop[2]
+  #s_3 = index_sop[3]
 
   # Add noise?
   if add_noise
@@ -101,7 +110,7 @@ function compute_p_array(data::Array{T,3}, d1::Int, d2::Int; chart_choice=3, add
 
   # Function to fill p_mat with p_hat values used in parallel computation with Threads.@threads
   function fill_p_mat!(
-    i, data_tmp, p_mat, lookup_array_sop, m, n, d1, d2, s_1, s_2, s_3, chart_choice
+    i, data_tmp, p_mat, lookup_array_sop, m, n, d1, d2, s_all, chart_choice
   )
 
     p_hat = zeros(1, 3)
@@ -113,7 +122,7 @@ function compute_p_array(data::Array{T,3}, d1::Int, d2::Int; chart_choice=3, add
     sop_frequencies!(m, n, d1, d2, lookup_array_sop, data_tmp, sop, win, sop_freq)
 
     # Compute sum of frequencies for each group
-    fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
+    fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_all)
 
     p_mat[i, :] = p_hat
 
@@ -130,7 +139,7 @@ function compute_p_array(data::Array{T,3}, d1::Int, d2::Int; chart_choice=3, add
     # Compute frequencies of sops
     @views data_tmp = data[:, :, i]
     fill_p_mat!(
-      i, data_tmp, p_mat, lookup_array_sop, m, n, d1, d2, s_1, s_2, s_3, chart_choice
+      i, data_tmp, p_mat, lookup_array_sop, m, n, d1, d2, index_sop, chart_choice
     )
 
   end
@@ -145,7 +154,8 @@ compute_p_array(data::Array{Float64,3})
 
 Compute the matrix of p-hat values for a given 3D array of data when the delays are vectors of integers. These values are used for bootstrapping to compute critcial limits for the BP-statistics. 
 """
-function compute_p_array_bp(data::Array{T,3}, w::Int; chart_choice=3, add_noise=false) where {T<:Real}
+function compute_p_array_bp(data::Array{T,3}, w::Int; chart_choice=3, 
+  refinement::Int=0, add_noise=false) where {T<:Real}
 
   # pre-allocate
   lookup_array_sop = compute_lookup_array_sop()
@@ -153,10 +163,10 @@ function compute_p_array_bp(data::Array{T,3}, w::Int; chart_choice=3, add_noise=
   p_array = zeros(size(data, 3), 3, length(d1_d2_combinations))
 
   # indices for sum of type frequencies  
-  index_sop = create_index_sop()
-  s_1 = index_sop[1]
-  s_2 = index_sop[2]
-  s_3 = index_sop[3]
+  index_sop = create_index_sop(refinement=refinement)
+  #s_1 = index_sop[1]
+  #s_2 = index_sop[2]
+  #s_3 = index_sop[3]
 
   # Add noise?
   if add_noise
@@ -166,7 +176,7 @@ function compute_p_array_bp(data::Array{T,3}, w::Int; chart_choice=3, add_noise=
   # Function to fill 'p_array' with 'p_hat' values. 
   # This function will be called in parallel via Threads.@threads below
   function fill_p_array_bp!(
-    i, data_tmp, p_array, d1_d2_combinations, lookup_array_sop, s_1, s_2, s_3, chart_choice
+    i, data_tmp, p_array, d1_d2_combinations, lookup_array_sop, s_all, chart_choice
   )
 
     # Initialize thread-local variables
@@ -186,7 +196,7 @@ function compute_p_array_bp(data::Array{T,3}, w::Int; chart_choice=3, add_noise=
       sop_frequencies!(m, n, d1, d2, lookup_array_sop, data_tmp, sop, win, sop_freq)
 
       # Compute sum of frequencies for each group
-      fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
+      fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_all)
 
       p_array[i, :, j] = p_hat
 
@@ -201,7 +211,7 @@ function compute_p_array_bp(data::Array{T,3}, w::Int; chart_choice=3, add_noise=
   Threads.@threads for i in axes(data, 3)
 
     @views fill_p_array_bp!(
-      i, data[:, :, i], p_array, d1_d2_combinations, lookup_array_sop, s_1, s_2, s_3, chart_choice
+      i, data[:, :, i], p_array, d1_d2_combinations, lookup_array_sop, index_sop, chart_choice
     )
 
   end
@@ -245,10 +255,11 @@ function sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_fr
   return sop_freq
 
 end
-
+#
 
 # Fill p_hat with the sum of frequencies and compute relative frequencies
-function fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
+function fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_all) #s_1, s_2, s_3)
+  #
 
   # # Only needed to compute charts 1 and 4
   # if chart_choice in (1, 4)
@@ -271,30 +282,40 @@ function fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
   #   end
   # end
 
+  # For classical appraoch
   if chart_choice == 1
-    for i in s_1
+    for i in s_all[1]
       p_hat[1] += sop_freq[i]
     end
 
   elseif chart_choice == 2
-    for i in s_2
+    for (i, j) in zip(s_all[2], s_all[3])
       p_hat[2] += sop_freq[i]
-    end
-    for i in s_3
-      p_hat[3] += sop_freq[i]
+      p_hat[3] += sop_freq[j]
     end
 
   elseif chart_choice == 3
-    for i in s_3
+    for i in s_all[3]
       p_hat[3] += sop_freq[i]
     end
 
   elseif chart_choice == 4
-    for i in s_1
+    for (i, j) in zip(s_all[1], s_all[2])
       p_hat[1] += sop_freq[i]
+      p_hat[2] += sop_freq[j]
     end
-    for i in s_2
-      p_hat[2] += sop_freq[i]
+
+    # For refined computations  
+  else
+    for (i, j, k, l, m, n) in zip(
+      s_all[1], s_all[2], s_all[3], s_all[4], s_all[5], s_all[6]
+    )
+      p_hat[1] += sop_freq[i]
+      p_hat[2] += sop_freq[j]
+      p_hat[3] += sop_freq[k]
+      p_hat[4] += sop_freq[l]
+      p_hat[5] += sop_freq[m]
+      p_hat[6] += sop_freq[n]
     end
 
   end
@@ -304,6 +325,21 @@ function fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
 
 end
 
+# function fill_p_hat_refined!(p_hat, sop_freq, m, n, s_11, s_12, s_21, s_22, s_31, s_32)
+
+#   for (i, j, k, l, m, n) in zip(s_11, s_12, s_21, s_22, s_31, s_32)
+#     p_hat[1] += sop_freq[i]
+#     p_hat[2] += sop_freq[j]
+#     p_hat[3] += sop_freq[k]
+#     p_hat[4] += sop_freq[l]
+#     p_hat[5] += sop_freq[m]
+#     p_hat[6] += sop_freq[n]
+#   end
+
+#   # Compute relative frequencies
+#   p_hat ./= m * n
+
+# end
 
 # # Function to get sensible starting values for the control limit
 # function init_vals_sop(lam, dist, runs; chart_choice, p_quantile)

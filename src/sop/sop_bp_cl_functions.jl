@@ -20,7 +20,7 @@ The function returns the control limit for a given average run. The input parame
 """
 function cl_sop_bp(
     sp_dgp::ICSTS, lam, L0, cl_init, w, reps=10_000;
-    chart_choice=3, jmin=4, jmax=6, verbose=false
+    chart_choice=3, refinement::Int=0, jmin=4, jmax=6, verbose=false
 )
 
     L1 = 0.0
@@ -28,7 +28,7 @@ function cl_sop_bp(
         for dh in 1:80
             cl_init = cl_init + (-1)^j * dh / 10^j
             L1 = arl_sop_bp_ic(
-                sp_dgp, lam, cl_init, w, reps; chart_choice=chart_choice
+                sp_dgp, lam, cl_init, w, reps; chart_choice=chart_choice, refinement=refinement
             )[1]
             if verbose
                 println("cl = ", cl_init, "\t", "ARL = ", L1)

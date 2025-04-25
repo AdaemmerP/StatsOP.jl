@@ -7,8 +7,7 @@ using Distributed
 # set the number of workers for parallel computing
 addprocs(10)
 
-@everywhere include("../../../src/OrdinalPatterns.jl")
-@everywhere using .OrdinalPatterns
+@everywhere using OrdinalPatterns
 @everywhere using LinearAlgebra
 @everywhere BLAS.set_num_threads(1)
 

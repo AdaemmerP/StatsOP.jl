@@ -64,7 +64,13 @@ of each d1-d2 (delay) combination. This matrix will be used for re-sampling.
 function rl_sop_bootstrap(p_mat::Array{Float64,2}, lam, cl, reps_range::UnitRange{Int}, chart_choice)
 
   # Pre-allocate  
-  p_hat = zeros(3)
+  if chart_choice in 1:4
+    # classical approach
+    p_hat = zeros(3)
+  else
+    # refined approach
+    p_hat = zeros(6)
+  end
   rls = zeros(Int, length(reps_range))
   p_vec_mean = vec(mean(p_mat, dims=1))
   p_ewma = similar(p_vec_mean)
@@ -83,7 +89,7 @@ function rl_sop_bootstrap(p_mat::Array{Float64,2}, lam, cl, reps_range::UnitRang
     stat = stat0
     rl = 0
 
-    while abs(stat-stat0) < cl
+    while abs(stat - stat0) < cl
       rl += 1
 
       # sample from p_vec

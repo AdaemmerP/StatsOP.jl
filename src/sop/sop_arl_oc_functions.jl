@@ -18,9 +18,17 @@ The input parameters are:
 The default value is 3.
 """
 function arl_sop_oc(
-  spatial_dgp::SpatialDGP, lam, cl, d1::Int, d2::Int, reps=10_000; chart_choice=3
+  spatial_dgp::SpatialDGP, lam, cl, d1::Int, d2::Int, reps=10_000; chart_choice=3, refinement::Int=0
 )
 
+  # Check input parameters
+  @assert 1 <= chart_choice <= 7 "chart_choice must be between 1 and 7"
+  if chart_choice in 1:4
+    @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
+  elseif chart_choice in 5:7
+    @assert 1 <= refinement <= 3 "refinement must be 1-3 for chart_choices 5-7"
+  end
+  
   # Compute m and n (final SOP matrix)
   m_rows = spatial_dgp.M_rows - d1
   n_cols = spatial_dgp.N_cols - d2
@@ -39,7 +47,7 @@ function arl_sop_oc(
     par_results = map(chunks) do i
 
       Threads.@spawn rl_sop_oc(
-        spatial_dgp, lam, cl, lookup_array_sop, i, dist_error, dist_ao, chart_choice,
+        spatial_dgp, lam, cl, lookup_array_sop, i, dist_error, dist_ao, chart_choice, refinement,
         m_rows, n_cols, d1, d2
       )
 
@@ -52,7 +60,7 @@ function arl_sop_oc(
     par_results = pmap(chunks) do i
 
       rl_sop_oc(
-        spatial_dgp, lam, cl, lookup_array_sop, i, dist_error, dist_ao, chart_choice,
+        spatial_dgp, lam, cl, lookup_array_sop, i, dist_error, dist_ao, chart_choice, refinement,
         m_rows, n_cols, d1, d2
       )
 
@@ -92,25 +100,32 @@ univariate distribution from the `Distributions.jl` package.
 """
 function rl_sop_oc(
   spatial_dgp::SpatialDGP, lam, cl, lookup_array_sop, p_reps::UnitRange{Int}, dist_error::UnivariateDistribution,
-  dist_ao::Union{Nothing,UnivariateDistribution}, chart_choice, m, n, d1::Int, d2::Int
+  dist_ao::Union{Nothing,UnivariateDistribution}, chart_choice, refinement, m, n, d1::Int, d2::Int
 )
 
   # pre-allocate
+  if refinement == 0
+    # classical approach
+    p_hat = zeros(3) 
+    p_ewma = zeros(3)
+  else
+    # refined approach
+    p_hat = zeros(6) 
+    p_ewma = zeros(6)
+  end
   M = spatial_dgp.M_rows
   N = spatial_dgp.N_cols
   sop_freq = zeros(Int, 24) # factorial(4)
   win = zeros(Int, 4)
   data = zeros(M, N)
-  p_ewma = zeros(3)
-  p_hat = zeros(3)
   rls = zeros(Int, length(p_reps))
   sop = zeros(4)
 
   # indices for sum of frequencies
-  index_sop = create_index_sop()
-  s_1 = index_sop[1]
-  s_2 = index_sop[2]
-  s_3 = index_sop[3]
+  index_sop = create_index_sop(refinement=refinement)
+  #s_1 = index_sop[1]
+  #s_2 = index_sop[2]
+  #s_3 = index_sop[3]
 
   # pre-allocate
   # mat:    matrix for the final values of the spatial DGP
@@ -186,7 +201,7 @@ function rl_sop_oc(
       sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
       # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-      fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
+      fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop) #s_1, s_2, s_3)
 
       # Apply EWMA to p-vectors
       @. p_ewma = (1 - lam) * p_ewma + lam * p_hat

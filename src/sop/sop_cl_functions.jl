@@ -20,7 +20,7 @@ Compute the control limit for a given in-control process. The input parameters a
 """
 function cl_sop(
     sop_dgp::ICSTS, lam, L0, cl_init, d1::Int, d2::Int, reps=10_000;
-    chart_choice=3, jmin=4, jmax=6, verbose=false
+    chart_choice=3, refinement::Int=0, jmin=4, jmax=6, verbose=false
 )
 
     L1 = 0.0
@@ -28,7 +28,10 @@ function cl_sop(
     for j in jmin:jmax
         for dh in 1:80
             cl_init = cl_init + (-1)^j * dh / 10^j
-            L1 = arl_sop_ic(sop_dgp, lam, cl_init, d1, d2, reps; chart_choice)[1]
+            L1 = arl_sop_ic(
+                sop_dgp, lam, cl_init, d1, d2, reps;
+                chart_choice=chart_choice, refinement=refinement
+            )[1]
             if verbose
                 println("cl = ", cl_init, "\t", "ARL = ", L1)
             end

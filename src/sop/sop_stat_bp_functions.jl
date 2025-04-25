@@ -1,14 +1,30 @@
 
 # Compute test SOP-BP-statistic for one picture
 function stat_sop_bp(
-  data::Union{SubArray,Array{T,2}}, w::Int; chart_choice=3, 
+  data::Union{SubArray,Array{T,2}}, w::Int; 
+  chart_choice::Int=3, 
+  refinement::Int=0,
   add_noise::Bool=false,
   noise_dist::UnivariateDistribution=Uniform(0, 1)
 ) where {T<:Real}
 
+  # Check input parameters
+  @assert 1 <= chart_choice <= 7 "chart_choice must be between 1 and 7"
+  if chart_choice in 1:4
+    @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
+  elseif chart_choice in 5:7
+    @assert 1 <= refinement <= 3 "refinement must be 1-3 for chart_choices 5-7"
+  end
+
   # Pre-allocate
+  if refinement == 0
+    # classical approach
+    p_hat = zeros(3)
+  else
+    # refined approach
+    p_hat = zeros(6)
+  end
   lookup_array_sop = compute_lookup_array_sop()
-  p_hat = zeros(3)
   sop = zeros(4)
   sop_freq = zeros(Int, 24) # factorial(4) = 24
   win = zeros(Int, 4)
@@ -20,9 +36,10 @@ function stat_sop_bp(
   d1_d2_combinations = Iterators.product(1:w, 1:w)
 
   # Pre-allocate indexes to compute sum of frequencies
-  s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
-  s_2 = [2, 5, 7, 9, 16, 18, 20, 23]
-  s_3 = [4, 6, 10, 12, 13, 15, 19, 21]
+  index_sop = create_index_sop(refinement=refinement)
+  #s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
+  #s_2 = [2, 5, 7, 9, 16, 18, 20, 23]
+  #s_3 = [4, 6, 10, 12, 13, 15, 19, 21]
 
   # Add noise?
   if add_noise
@@ -38,7 +55,7 @@ function stat_sop_bp(
     sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
     # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-    fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
+    fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop) # s_1, s_2, s_3)
 
     # Compute test statistic
     stat = chart_stat_sop(p_hat, chart_choice)
@@ -60,11 +77,20 @@ function stat_sop_bp(
   lam,
   w::Int;
   chart_choice=3,
+  refinement::Int=0,
   add_noise=false,
   noise_dist::UnivariateDistribution=Uniform(0, 1),
   stat_ic::Union{Float64,Vector{Float64}}=0.0,
   type_freq_init::Union{Float64,Array{Float64,3}}=1 / 3
 ) where {T<:Real}
+
+  # Check input parameters
+  @assert 1 <= chart_choice <= 7 "chart_choice must be between 1 and 7"
+  if chart_choice in 1:4
+    @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
+  elseif chart_choice in 5:7
+    @assert 1 <= refinement <= 3 "refinement must be 1-3 for chart_choices 5-7"
+  end
 
   # Number of d1-d2 combinations
   length_d1d2 = length(Iterators.product(1:w, 1:w))
@@ -88,8 +114,14 @@ function stat_sop_bp(
   end
 
   # Pre-allocate for BP-computations
+  if refinement == 0
+    # classical approach
+    p_ewma_all = zeros(3, 1, length_d1d2)
+  else
+    # refined approach
+    p_ewma_all = zeros(6, 1, length_d1d2)
+  end
   bp_stats_all = zeros(size(data, 3))
-  p_ewma_all = zeros(3, 1, length_d1d2)
   p_ewma_all .= type_freq_init
   stat_ic_vec = zeros(length_d1d2)
   stat_ic_vec .= stat_ic
@@ -103,7 +135,7 @@ function stat_sop_bp(
   # rows     -> images 
   # columns  -> type-frequencies 
   # 3rd dims -> d1-d2 combinations
-  p_array = compute_p_array_bp(data, w; chart_choice=chart_choice)
+  p_array = compute_p_array_bp(data, w; chart_choice=chart_choice, refinement=refinement)
 
   # Pre-allocate vector for each d1-d2 statistic
   stat = similar(stat_ic_vec)

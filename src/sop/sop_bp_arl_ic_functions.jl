@@ -17,8 +17,16 @@ The input parameters are:
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 """
 function arl_sop_bp_ic(
-  spatial_dgp::ICSTS, lam, cl, w::Int, reps=1_000; chart_choice=3
+  spatial_dgp::ICSTS, lam, cl, w::Int, reps=1_000; chart_choice=3, refinement::Int=0
 )
+
+  # Check input parameters
+  @assert 1 <= chart_choice <= 7 "chart_choice must be between 1 and 7"
+  if chart_choice in 1:4
+    @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
+  elseif chart_choice in 5:7
+    @assert 1 <= refinement <= 3 "refinement must be 1-3 for chart_choices 5-7"
+  end
 
   # Compute m and n  
   dist_error = spatial_dgp.dist
@@ -35,7 +43,7 @@ function arl_sop_bp_ic(
     par_results = map(chunks) do i
 
       Threads.@spawn rl_sop_bp_ic(
-        spatial_dgp, lam, cl, w, lookup_array_sop, i, dist_error, chart_choice,
+        spatial_dgp, lam, cl, w, lookup_array_sop, i, dist_error, chart_choice, refinement
       )
 
     end
@@ -46,7 +54,7 @@ function arl_sop_bp_ic(
     par_results = pmap(chunks) do i
 
       rl_sop_bp_ic(
-        spatial_dgp, lam, cl, w, lookup_array_sop, i, dist_error, chart_choice,
+        spatial_dgp, lam, cl, w, lookup_array_sop, i, dist_error, chart_choice, refinement
       )
 
     end
@@ -83,14 +91,20 @@ univariate distribution from the `Distributions.jl` package.
 """
 function rl_sop_bp_ic(
   spatial_dgp::ICSTS, lam, cl, w::Int, lookup_array_sop, reps_range::UnitRange,
-  dist_error, chart_choice,
+  dist_error, chart_choice, refinement
 )
 
   # Pre-allocate    
+  if refinement == 0
+    # classical approach
+    p_hat = zeros(3)
+  else
+    # refined approach
+    p_hat = zeros(6)
+  end
   sop = zeros(4)
   sop_freq = zeros(Int, 24) # factorial(4)
   win = zeros(Int, 4)
-  p_hat = zeros(3)
   rls = zeros(Int, length(reps_range))
 
   # Extract matrix sizes and pre-allocate data matrix
@@ -103,10 +117,10 @@ function rl_sop_bp_ic(
   p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
 
   # indices for sum of frequencies
-  index_sop = create_index_sop()
-  s_1 = index_sop[1]
-  s_2 = index_sop[2]
-  s_3 = index_sop[3]
+  index_sop = create_index_sop(refinement=refinement)
+  #s_1 = index_sop[1]
+  #s_2 = index_sop[2]
+  #s_3 = index_sop[3]
 
   for r in axes(reps_range, 1)
 
@@ -142,7 +156,7 @@ function rl_sop_bp_ic(
         sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
         # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-        fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
+        fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop) # s_1, s_2, s_3)
 
         # Apply EWMA to p-vectors
         @views @. p_ewma_all[:, :, i] = (1 - lam) * p_ewma_all[:, :, i] + lam * p_hat

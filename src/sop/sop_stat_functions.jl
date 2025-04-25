@@ -22,7 +22,7 @@ function chart_stat_sop(p_vec, chart_choice)
   elseif chart_choice == 4
     chart_val = p_vec[1] - p_vec[2]
 
-  # Test statistics for refined types  
+    # Test statistics for refined types  
   elseif chart_choice == 5
     # H-chart: Equation (7), Weiss and Kim
     for i in axes(p_vec, 1)
@@ -33,7 +33,7 @@ function chart_stat_sop(p_vec, chart_choice)
     # Hex-chart: Equation (7), Weiss and Kim
     for i in axes(p_vec, 1)
       p_vec[i] < 1 && (chart_val -= (1 - p_vec[i]) * log(1 - p_vec[i])) # to avoid log of negative value    
-    end  
+    end
 
   else # chart_choice == 7
     # Δ-chart: Equation (7), Weiss and Kim
@@ -45,7 +45,7 @@ function chart_stat_sop(p_vec, chart_choice)
   end
 
   return chart_val
-  
+
 end
 
 #===============================================
@@ -85,16 +85,28 @@ stat_sop(data, 2)
 ```
 """
 function stat_sop(
-  data::Union{SubArray,Array{T,2}}, 
+  data::Union{SubArray,Array{T,2}},
   d1::Int, d2::Int;
-  chart_choice=3, 
+  chart_choice=3,
+  refinement::Int=0,
   add_noise::Bool=false,
   noise_dist::UnivariateDistribution=Uniform(0, 1)
 ) where {T<:Real}
 
-  # Compute 4 dimensional cube to lookup sops
+  # Check input parameters
+  @assert 1 <= chart_choice <= 7 "chart_choice must be between 1 and 7"
+  if chart_choice in 1:4
+    @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
+  elseif chart_choice in 5:7
+    @assert 1 <= refinement <= 3 "refinement must be 1-3 for chart_choices 5-7"
+  end
+  # Pre-allocate
+  if refinement == 0
+    p_hat = zeros(3) # classical approach
+  else
+    p_hat = zeros(6) # refined approach
+  end
   lookup_array_sop = compute_lookup_array_sop()
-  p_hat = zeros(3)
   sop = zeros(4)
   win = zeros(Int, 4)
   sop_freq = zeros(Int, 24) # factorial(4)  
@@ -104,10 +116,10 @@ function stat_sop(
   n = size(data, 2) - d2
 
   # indices for sum of frequencies
-  index_sop = create_index_sop()
-  s_1 = index_sop[1] 
-  s_2 = index_sop[2] 
-  s_3 = index_sop[3]
+  index_sop = create_index_sop(refinement=refinement)
+  #s_1 = index_sop[1] 
+  #s_2 = index_sop[2] 
+  #s_3 = index_sop[3]
 
   # Add noise?
   if add_noise
@@ -118,7 +130,7 @@ function stat_sop(
   sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
   # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-  fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
+  fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop) # s_1, s_2, s_3)
 
   # Compute test statistic
   stat = chart_stat_sop(p_hat, chart_choice)
@@ -153,21 +165,34 @@ The input parameters are:
 - `type_freq_init::Union{Float64,Array{Float64,2}}`: The initial type frequencies.
 """
 function stat_sop(
-  data::Array{T,3}, 
-  lam, 
-  d1::Int, 
-  d2::Int; 
-  chart_choice=3, 
+  data::Array{T,3},
+  lam,
+  d1::Int,
+  d2::Int;
+  chart_choice=3,
+  refinement::Int=0,
   add_noise::Bool=false,
   noise_dist::UnivariateDistribution=Uniform(0, 1),
   type_freq_init::Union{Float64,Array{Float64,2}}=1 / 3
 ) where {T<:Real}
 
+  # Check input parameters
+  @assert 1 <= chart_choice <= 7 "chart_choice must be between 1 and 7"
+  if chart_choice in 1:4
+    @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
+  elseif chart_choice in 5:7
+    @assert 1 <= refinement <= 3 "refinement must be 1-3 for chart_choices 5-7"
+  end
+  
   # Compute lookup cube
   lookup_array_sop = compute_lookup_array_sop()
 
   # Pre-allocate
-  p_hat = zeros(3)
+  if refinement == 0
+    p_hat = zeros(3) # classical approach
+  else
+    p_hat = zeros(6) # refined approach
+  end
   sop = zeros(4)
   p_ewma = zeros(3)
   p_ewma .= type_freq_init
@@ -176,10 +201,10 @@ function stat_sop(
   win = zeros(Int, 4)
 
   # indices for sum of frequencies
-  index_sop = create_index_sop()
-  s_1 = index_sop[1] 
-  s_2 = index_sop[2] 
-  s_3 = index_sop[3]
+  index_sop = create_index_sop(refinement=refinement)
+  #s_1 = index_sop[1]
+  #s_2 = index_sop[2]
+  #s_3 = index_sop[3]
 
   # Compute m and n based on data
   data_tmp = similar(data[:, :, 1])
@@ -200,7 +225,7 @@ function stat_sop(
     sop_frequencies!(m, n, d1, d2, lookup_array_sop, data_tmp, sop, win, sop_freq)
 
     # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-    fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
+    fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop) #s_1, s_2, s_3)
 
     # Compute test statistic
     @. p_ewma = (1 - lam) * p_ewma + lam * p_hat

@@ -7,8 +7,7 @@ using Distributed
 # set the number of workers for parallel computing
 addprocs(10)
 
-@everywhere include("../../../src/OrdinalPatterns.jl")
-@everywhere using .OrdinalPatterns
+@everywhere using OrdinalPatterns
 @everywhere using JLD2
 @everywhere using LinearAlgebra
 @everywhere BLAS.set_num_threads(1)
@@ -21,7 +20,7 @@ d2 = 1
 reps = 10^3 # Increase the number of replications to 10^5 for reproduction of the results in the paper
 
 # Load critical values
-cl_sacf_mat = load_object("../../higher_order/climits/cl_sacf_delays.jld2")
+cl_sacf_mat = load_object("../higher_order/climits/cl_sacf_delays.jld2")
 
 # Pre-allocate matrices
 dist = [TDist(2), PoiBin(0.2, 5), Weibull(1, 1.5), Exponential(1), Poisson(0.5),

@@ -72,7 +72,13 @@ function rl_sop_bp_bootstrap(
 ) where {T<:Real}
 
     # Pre-allocate
-    p_hat = zeros(3)
+    if chart_choice in 1:4
+        # classical approach
+        p_hat = zeros(3)
+    else
+        # refined approach
+        p_hat = zeros(6)
+    end
     rls = zeros(Int, length(reps_range))
     p_array_mean = mean(p_array, dims=1)
     range_index = axes(p_array, 1) # Range for number of images

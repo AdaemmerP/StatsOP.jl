@@ -15,9 +15,17 @@ The input parameters are:
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4. 
 The default value is 3.
 """
-function arl_sop_ic(sop_dgp::ICSTS, lam, cl, d1::Int, d2::Int, reps=10_000; chart_choice=3)
+function arl_sop_ic(sop_dgp::ICSTS, lam, cl, d1::Int, d2::Int, reps=10_000; chart_choice=3, refinement::Int=0)
 
-  # Extract values  
+  # Check input parameters
+  @assert 1 <= chart_choice <= 7 "chart_choice must be between 1 and 7"
+  if chart_choice in 1:4
+    @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
+  elseif chart_choice in 5:7
+    @assert 1 <= refinement <= 3 "refinement must be 1-3 for chart_choices 5-7"
+  end
+
+  # Extract values    
   m = sop_dgp.M_rows - d1
   n = sop_dgp.N_cols - d2
   dist = sop_dgp.dist
@@ -33,7 +41,7 @@ function arl_sop_ic(sop_dgp::ICSTS, lam, cl, d1::Int, d2::Int, reps=10_000; char
 
     # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
     par_results = map(chunks) do i
-      Threads.@spawn rl_sop_ic(lam, cl, lookup_array_sop, i, dist, chart_choice, m, n, d1, d2)
+      Threads.@spawn rl_sop_ic(lam, cl, lookup_array_sop, i, dist, chart_choice, refinement, m, n, d1, d2)
     end
 
   elseif nprocs() > 1
@@ -42,7 +50,7 @@ function arl_sop_ic(sop_dgp::ICSTS, lam, cl, d1::Int, d2::Int, reps=10_000; char
     chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
 
     par_results = pmap(chunks) do i
-      rl_sop_ic(lam, cl, lookup_array_sop, i, dist, chart_choice, m, n, d1, d2)
+      rl_sop_ic(lam, cl, lookup_array_sop, i, dist, chart_choice, refinement, m, n, d1, d2)
     end
 
   end
@@ -75,23 +83,30 @@ univariate distribution from the `Distributions.jl` package.
 - `d2::Int`: An integer value for the second delay (d₂).
 """
 function rl_sop_ic(
-  lam, cl, lookup_array_sop, reps_range::UnitRange{Int}, dist, chart_choice, m, n, d1::Int, d2::Int
+  lam, cl, lookup_array_sop, reps_range::UnitRange{Int}, dist, chart_choice, refinement, m, n, d1::Int, d2::Int
 )
 
   # Pre-allocate
+  if refinement == 0
+    # classical approach
+    p_hat = zeros(3) 
+    p_ewma = zeros(3)
+  else
+    # refined approach
+    p_hat = zeros(6) 
+    p_ewma = zeros(6)
+  end
   sop_freq = zeros(Int, 24) # factorial(4)
   win = zeros(Int, 4)
   data_tmp = zeros(m + d1, n + d2)
-  p_ewma = zeros(3)
-  p_hat = zeros(3)
   rls = zeros(Int, length(reps_range))
   sop_vec = zeros(4)
 
   # indices for sum of frequencies
-  index_sop = create_index_sop()
-  s_1 = index_sop[1]
-  s_2 = index_sop[2]
-  s_3 = index_sop[3]
+  index_sop = create_index_sop(refinement=refinement)
+  #s_1 = index_sop[1]
+  #s_2 = index_sop[2]
+  #s_3 = index_sop[3]
 
   for r in 1:length(reps_range)
     fill!(p_ewma, 1.0 / 3.0)
@@ -118,7 +133,7 @@ function rl_sop_ic(
       sop_frequencies!(m, n, d1, d2, lookup_array_sop, data_tmp, sop_vec, win, sop_freq)
 
       # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-      fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
+      fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop) # s_1, s_2, s_3)
 
       # Apply EWMA to p-vectors
       @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
