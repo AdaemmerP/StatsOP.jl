@@ -25,15 +25,20 @@ function chart_stat_sop(p_vec, chart_choice)
     # Test statistics for refined types  
   elseif chart_choice == 5
     # H-chart: Equation (7), Weiss and Kim
+    q  = length(p_vec)
     for i in axes(p_vec, 1)
       p_vec[i] > 0 && (chart_val -= p_vec[i] * log(p_vec[i])) # to avoid log(0)          
     end
+    # Re-scale
+    chart_val = (-2)/q * (chart_val - log(q)) 
 
   elseif chart_choice == 6
     # Hex-chart: Equation (7), Weiss and Kim
     for i in axes(p_vec, 1)
       p_vec[i] < 1 && (chart_val -= (1 - p_vec[i]) * log(1 - p_vec[i])) # to avoid log of negative value    
     end
+    # Re-scale
+    chart_val = (-2)*(1-1/q) * (chart_val - (q-1)*log(q/(q-1)))
 
   else # chart_choice == 7
     # Δ-chart: Equation (7), Weiss and Kim
