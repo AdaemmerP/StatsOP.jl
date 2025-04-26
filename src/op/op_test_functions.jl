@@ -61,7 +61,7 @@ function crit_val_op(chart_choice, op_length, n_patterns; alpha=0.05)
     end
 end
 
-function test_op(ts; chart_choice, op_length=3, d=1, alpha=0.05)
+function test_op(ts, lam; chart_choice, op_length=3, d=1, alpha=0.05)
 
     # Check that the chart_choice is valid
     if op_length == 3
@@ -74,7 +74,7 @@ function test_op(ts; chart_choice, op_length=3, d=1, alpha=0.05)
     n_patterns = length(ts) - (op_length - 1) * d # length(dindex_ranges)
 
     # Compute p vectors
-    p_vec = stat_op(ts, 0.1; chart_choice=chart_choice, op_length=op_length, d=d)[2]
+    p_vec = stat_op(ts, lam; chart_choice=chart_choice, op_length=op_length, d=d)[2]
     # stat_op(ts, 0.1, chart_choice; op_length=op_length, d=d)[2]
 
     # Compute test statistic and critical value
