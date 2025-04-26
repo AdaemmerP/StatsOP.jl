@@ -196,7 +196,7 @@ function rl_sop_bp_oc(
                 sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
                 # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-                fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop)# s_1, s_2, s_3)
+                fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, index_sop)# s_1, s_2, s_3)
 
                 # Apply EWMA
                 @views @. p_ewma_all[:, :, i] = (1 - lam) * p_ewma_all[:, :, i] + lam * p_hat

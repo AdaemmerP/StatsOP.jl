@@ -34,6 +34,7 @@ function chart_stat_sop(p_vec, chart_choice)
 
   elseif chart_choice == 6
     # Hex-chart: Equation (7), Weiss and Kim
+    q  = length(p_vec)
     for i in axes(p_vec, 1)
       p_vec[i] < 1 && (chart_val -= (1 - p_vec[i]) * log(1 - p_vec[i])) # to avoid log of negative value    
     end
@@ -104,12 +105,13 @@ function stat_sop(
     @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
   end
 
-  # Pre-allocate
-  if refinement == 0
+  # Pre-allocate  
+  if refinement == 0 #&& chart_choice in 1:4
     p_hat = zeros(3) # classical approach
   else
     p_hat = zeros(6) # refined approach
   end
+
   lookup_array_sop = compute_lookup_array_sop()
   sop = zeros(4)
   win = zeros(Int, 4)
@@ -134,7 +136,7 @@ function stat_sop(
   sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
   # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-  fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop) # s_1, s_2, s_3)
+  fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, index_sop) # s_1, s_2, s_3)
 
   # Compute test statistic
   stat = chart_stat_sop(p_hat, chart_choice)
@@ -228,7 +230,7 @@ function stat_sop(
     sop_frequencies!(m, n, d1, d2, lookup_array_sop, data_tmp, sop, win, sop_freq)
 
     # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-    fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop) #s_1, s_2, s_3)
+    fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, index_sop) #s_1, s_2, s_3)
 
     # Compute test statistic
     @. p_ewma = (1 - lam) * p_ewma + lam * p_hat

@@ -53,7 +53,7 @@ function stat_sop_bp(
     sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
     # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-    fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop) # s_1, s_2, s_3)
+    fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, index_sop) # s_1, s_2, s_3)
 
     # Compute test statistic
     stat = chart_stat_sop(p_hat, chart_choice)

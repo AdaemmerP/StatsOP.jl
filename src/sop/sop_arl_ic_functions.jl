@@ -132,7 +132,7 @@ function rl_sop_ic(
       sop_frequencies!(m, n, d1, d2, lookup_array_sop, data_tmp, sop_vec, win, sop_freq)
 
       # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-      fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop) # s_1, s_2, s_3)
+      fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, index_sop) # s_1, s_2, s_3)
 
       # Apply EWMA to p-vectors
       @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
