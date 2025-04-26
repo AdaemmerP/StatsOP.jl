@@ -12,10 +12,8 @@ function stat_sop_bp(
   @assert 1 <= chart_choice <= 7 "chart_choice must be between 1 and 7"
   if chart_choice in 1:4
     @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
-  elseif chart_choice in 5:7
-    @assert 1 <= refinement <= 3 "refinement must be 1-3 for chart_choices 5-7"
   end
-
+  
   # Pre-allocate
   if refinement == 0
     # classical approach
