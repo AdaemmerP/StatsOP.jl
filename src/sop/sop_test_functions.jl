@@ -39,19 +39,19 @@ function crit_val_sop(
     # compute critical value based on approximation
     if approximate
       if chart_choice == 1
-        term = sqrt(4 / 15) # 2 / 9 + 1 / 45
+        term = sqrt(4 / 15) / sqrt(m*n) # 2 / 9 + 1 / 45
         return (quantile(Normal(0, 1), 1 - alpha / 2) * term)
 
       elseif chart_choice == 2
-        term = sqrt(7 / 9) # 2 / 3 + 1 / 9
+        term = sqrt(7 / 9) / sqrt(m*n) # 2 / 3 + 1 / 9
         return (quantile(Normal(0, 1), 1 - alpha / 2) * term)
 
       elseif chart_choice == 3
-        term = sqrt(4 / 15) # 2 / 9 + 2 / 45
+        term = sqrt(4 / 15) / sqrt(m*n) # 2 / 9 + 2 / 45
         return (quantile(Normal(0, 1), 1 - alpha / 2) * term)
 
       elseif chart_choice == 4
-        term = sqrt(32 / 45) # 2 / 3 + 2 / 45
+        term = sqrt(32 / 45) / sqrt(m*n) # 2 / 3 + 2 / 45
         return (quantile(Normal(0, 1), 1 - alpha / 2) * term)
 
       end
@@ -60,20 +60,23 @@ function crit_val_sop(
     else
 
       if chart_choice == 1
-        term = sqrt(2 / 9 + 1 / 45 * (1 - 1 / (2 * m) - 1 / (2 * n)))
+        term = sqrt(2 / 9 + 1 / 45 * (1 - 1 / (2 * m) - 1 / (2 * n))) / sqrt(m*n)
         return (quantile(Normal(0, 1), 1 - alpha / 2) * term)
 
       elseif chart_choice == 2
-        term = sqrt(2 / 3 + 1 / 9 * (1 - 1 / (2 * m) - 1 / (2 * n)))
+        term = sqrt(2 / 3 + 1 / 9 * (1 - 1 / (2 * m) - 1 / (2 * n))) / sqrt(m*n)
         return (quantile(Normal(0, 1), 1 - alpha / 2) * term)
 
       elseif chart_choice == 3
-        term = sqrt(2 / 9 + 2 / 45 * (1 - 1 / (2 * m) - 1 / (2 * n)))
+        term = sqrt(2 / 9 + 2 / 45 * (1 - 1 / (2 * m) - 1 / (2 * n))) / sqrt(m*n)
         return (quantile(Normal(0, 1), 1 - alpha / 2) * term)
 
       elseif chart_choice == 4
-        term = sqrt(2 / 3 + 2 / 45 * (1 - 1 / (2 * m) - 1 / (2 * n)))
+        term = sqrt(2 / 3 + 2 / 45 * (1 - 1 / (2 * m) - 1 / (2 * n))) / sqrt(m*n)
         return (quantile(Normal(0, 1), 1 - alpha / 2) * term)
+
+      elseif chart_choice in 5:7
+        return ifelse(alpha == 0.1, 3.487299 / (m * n), ifelse(alpha == 0.05, 2.265401 / (m * n), 1.740201 / (m * n)))
 
       end
     end
@@ -88,19 +91,15 @@ function crit_val_sop(
 
     @assert alpha in (0.1, 0.05, 0.01) "alpha must be 0.1, 0.05 or 0.01"
 
-    if chart_choice == 3
-
-      return ifelse(alpha == 0.1, 3.487299 / (m * n), ifelse(alpha == 0.05, 2.265401 / (m * n), 1.740201 / (m * n)))
-
-    elseif chart_choice == 4
+    if refinement == 1
 
       return ifelse(alpha == 0.1, 2.210104 / (m * n), ifelse(alpha == 0.05, 1.566739 / (m * n), 1.279915 / (m * n)))
 
-    elseif chart_choice == 5
+    elseif refinement == 2
 
       return ifelse(alpha == 0.1, 2.813519 / (m * n), ifelse(alpha == 0.05, 1.999264 / (m * n), 1.637740 / (m * n)))
 
-    elseif chart_choice == 6
+    elseif refinement == 3
 
       return ifelse(alpha == 0.1, 2.133017 / (m * n), ifelse(alpha == 0.05, 1.497222 / (m * n), 1.216170 / (m * n)))
     end
@@ -109,7 +108,7 @@ function crit_val_sop(
 end
 
 
-function test_sop(data, alpha, d1::Int, d2::Int; chart_choice, add_noise::Bool=false, approximate::Bool=false)
+function test_sop(data, alpha, d1::Int, d2::Int; chart_choice, refinement, add_noise::Bool=false, approximate::Bool=false)
 
   # sizes
   M = size(data, 1)

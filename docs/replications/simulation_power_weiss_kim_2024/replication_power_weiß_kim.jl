@@ -55,10 +55,10 @@ addprocs(5)
   sop_stat_4 = stat_sop(data, d1, d2; chart_choice=4, add_noise=false)
 
   # for sops
-  check_crit_sop_1 = (sqrt(m * n) * abs(sop_stat_1) > crit_sop_1)
-  check_crit_sop_2 = (sqrt(m * n) * abs(sop_stat_2) > crit_sop_2)
-  check_crit_sop_3 = (sqrt(m * n) * abs(sop_stat_3) > crit_sop_3)
-  check_crit_sop_4 = (sqrt(m * n) * abs(sop_stat_4) > crit_sop_4)
+  check_crit_sop_1 = (abs(sop_stat_1) > crit_sop_1)
+  check_crit_sop_2 = (abs(sop_stat_2) > crit_sop_2)
+  check_crit_sop_3 = (abs(sop_stat_3) > crit_sop_3)
+  check_crit_sop_4 = (abs(sop_stat_4) > crit_sop_4)
 
   return (check_crit_sop_1, check_crit_sop_2, check_crit_sop_3, check_crit_sop_4, check_crit_sacf)
 
@@ -114,10 +114,10 @@ end
   sop_stat_4 = stat_sop(data, d1, d2; chart_choice=4, add_noise=false)
 
   # for sops
-  check_crit_sop_1 = (sqrt(m * n) * abs(sop_stat_1) > crit_sop_1)
-  check_crit_sop_2 = (sqrt(m * n) * abs(sop_stat_2) > crit_sop_2)
-  check_crit_sop_3 = (sqrt(m * n) * abs(sop_stat_3) > crit_sop_3)
-  check_crit_sop_4 = (sqrt(m * n) * abs(sop_stat_4) > crit_sop_4)
+  check_crit_sop_1 = (abs(sop_stat_1) > crit_sop_1)
+  check_crit_sop_2 = (abs(sop_stat_2) > crit_sop_2)
+  check_crit_sop_3 = (abs(sop_stat_3) > crit_sop_3)
+  check_crit_sop_4 = (abs(sop_stat_4) > crit_sop_4)
 
   return (check_crit_sop_1, check_crit_sop_2, check_crit_sop_3, check_crit_sop_4, check_crit_sacf)
 
@@ -154,10 +154,10 @@ end
   sop_stat_4 = stat_sop(data, d1, d2; chart_choice=4, add_noise=false)
 
   # for sops
-  check_crit_sop_1 = (sqrt(m * n) * abs(sop_stat_1) > crit_sop_1)
-  check_crit_sop_2 = (sqrt(m * n) * abs(sop_stat_2) > crit_sop_2)
-  check_crit_sop_3 = (sqrt(m * n) * abs(sop_stat_3) > crit_sop_3)
-  check_crit_sop_4 = (sqrt(m * n) * abs(sop_stat_4) > crit_sop_4)
+  check_crit_sop_1 = (abs(sop_stat_1) > crit_sop_1)
+  check_crit_sop_2 = (abs(sop_stat_2) > crit_sop_2)
+  check_crit_sop_3 = (abs(sop_stat_3) > crit_sop_3)
+  check_crit_sop_4 = (abs(sop_stat_4) > crit_sop_4)
 
   # for sacf
   X_centered .= data .- mean(data)

@@ -18,7 +18,7 @@ PrecompileTools.@compile_workload begin
     data_sop, 3; chart_choice=1, add_noise=false
   )
   test_sop(
-    data_sop, 0.05, 1, 1; chart_choice=1, add_noise=false, approximate=false
+    data_sop, 0.05, 1, 1; chart_choice=1, refinement=0, add_noise=false, approximate=false
   )
 
   data_sop = rand(10, 10, 10)
