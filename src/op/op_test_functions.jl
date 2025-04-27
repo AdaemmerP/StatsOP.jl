@@ -61,7 +61,7 @@ function crit_val_op(chart_choice, op_length, n_patterns; alpha=0.05)
     end
 end
 
-function test_op(ts, lam; chart_choice, op_length=3, d=1, alpha=0.05)
+function test_op(ts, lam=1; chart_choice, op_length=3, d=1, alpha=0.05)
 
     # Check that the chart_choice is valid
     if op_length == 3

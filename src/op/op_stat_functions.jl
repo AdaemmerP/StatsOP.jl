@@ -1,45 +1,45 @@
-function chart_stat_op(p, chart_choice)
+function chart_stat_op(p_vec, chart_choice)
 
     # Verify that chart_choice is between 1 and 6
     @assert 1 <= chart_choice <= 6 "Wrong number for test statistic."
   
     value = 0
   
-    if length(p) == 2
+    if length(p_vec) == 2
       if chart_choice == 4
         # β-chart for op_length of 2 
-        return p[2] - p[1]
+        return p_vec[2] - p_vec[1]
       end
     end
   
     if chart_choice == 1
       # H-chart: Equation (3), page 342, Weiss and Testik (2023)
-      for i in axes(p, 1)
-        p[i] > 0 && (value -= p[i] * log(p[i])) # to avoid log(0)          
+      for i in axes(p_vec, 1)
+        p_vec[i] > 0 && (value -= p_vec[i] * log(p[i])) # to avoid log(0)          
       end
       return value
     elseif chart_choice == 2
       # Hex-chart: Equation (3), page 342, Weiss and Testik (2023), Equation (15), page 6 in the paper      
-      for i in axes(p, 1)
-        p[i] < 1 && (value -= (1 - p[i]) * log(1 - p[i])) # to avoid log of negative value     
+      for i in axes(p_vec, 1)
+        p_vec[i] < 1 && (value -= (1 - p_vec[i]) * log(1 - p_vec[i])) # to avoid log of negative value     
       end
       return value
     elseif chart_choice == 3
       # Δ-chart: Equation (3), page 342, Weiss and Testik (2023)
-      op_length = length(p)
+      op_length = length(p_vec)
       for i in axes(p, 1)
-        value += (p[i] - 1 / op_length)^2
+        value += (p_vec[i] - 1 / op_length)^2
       end
       return value
     elseif chart_choice == 4
       # β-chart: Equation (4), page 342, Weiss and Testik (2023), Equation (16), page 6 in the paper
-      return p[6] - p[1]
+      return p_vec[6] - p_vec[1]
     elseif chart_choice == 5
       # τ-chart: Equation (4), page 342, Weiss and Testik (2023), Equation (16), page 6 in the paper
-      return p[6] + p[1] - (1 / 3)
+      return p_vec[6] + p_vec[1] - (1 / 3)
     elseif chart_choice == 6
       # δ-chart: Equation (4), page 342, Weiss and Testik (2023)
-      return p[4] + p[5] - p[3] - p[2]
+      return p_vec[4] + p_vec[5] - p_vec[3] - p_vec[2]
     end
   
   end

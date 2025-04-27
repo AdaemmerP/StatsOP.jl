@@ -1,7 +1,8 @@
 
 # Compute test SOP-BP-statistic for one picture
 function stat_sop_bp(
-  data::Union{SubArray,Array{T,2}}, w::Int; 
+  data::Union{SubArray,Array{T,2}}, 
+  w::Int; 
   chart_choice::Int=3, 
   refinement::Int=0,
   add_noise::Bool=false,
