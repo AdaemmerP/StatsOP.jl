@@ -46,7 +46,7 @@ function chart_stat_op(p, chart_choice)
   
   
 # Function to compute chart statistic
-function stat_op(data, lam; chart_choice, op_length::Int=3, d=1)
+function stat_op(data, lam=1; chart_choice, op_length::Int=3, d=1)
   #stat_op(data, lam, chart_choice; op_length::Int=3, d=1)
          
 
