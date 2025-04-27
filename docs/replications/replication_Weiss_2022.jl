@@ -1,19 +1,30 @@
 
-using StaticArrays
-using ComplexityMeasures
-using RCall
-using Distributions
-using StatsBase
+# Packages to use
+# Change to current directory
+cd(@__DIR__)
+using Pkg
+Pkg.activate("../.")
 using Random
+using LinearAlgebra
+using Distributed
+using OrdinalPatterns
+using StatsBase
 
-include("op_dgp_structs.jl")
-include("op_dgp_functions.jl")
-include("op_help_functions.jl")
-include("op_stat_functions.jl")
-include("op_arl_functions.jl")
-include("op_acf_functions.jl")
-include("op_test_functions.jl")
-includet("op_dependence.jl")
+# using StaticArrays
+# using ComplexityMeasures
+# using RCall
+# using Distributions
+# using StatsBase
+# using Random
+
+# include("op_dgp_structs.jl")
+# include("op_dgp_functions.jl")
+# include("op_help_functions.jl")
+# include("op_stat_functions.jl")
+# include("op_arl_functions.jl")
+# include("op_acf_functions.jl")
+# include("op_test_functions.jl")
+# includet("op_dependence.jl")
 
 
 # -------------------------------------------------#
@@ -23,15 +34,15 @@ includet("op_dependence.jl")
 # Help function to replicate table 3 in Weiss (2022)
 function f_table3(dist, seq_long, eps_long, dist_error, d, xbiv)
   
-  init_dgp_op!(dist, seq_long, eps_long, dist_error, d, xbiv)
+  OrdinalPatterns.init_dgp_op!(dist, seq_long, eps_long, dist_error, d, xbiv)
 
-  test_1 = test_op(seq_long; chart_choice=1)[3]
-  test_2 = test_op(seq_long; chart_choice=2)[3]
-  test_3 = test_op(seq_long; chart_choice=3)[3]
-  test_4 = test_op(seq_long; chart_choice=4)[3]
-  test_5 = test_op(seq_long; chart_choice=5)[3]
-  test_6 = test_op(seq_long; chart_choice=6)[3]
-  test_7 = test_op(seq_long; chart_choice=1, op_length=2)[3]
+  test_1 = OrdinalPatterns.test_op(seq_long, 1; chart_choice=1)[3]
+  test_2 = OrdinalPatterns.test_op(seq_long, 1; chart_choice=2)[3]
+  test_3 = OrdinalPatterns.test_op(seq_long, 1; chart_choice=3)[3]
+  test_4 = OrdinalPatterns.test_op(seq_long, 1; chart_choice=4)[3]
+  test_5 = OrdinalPatterns.test_op(seq_long, 1; chart_choice=5)[3]
+  test_6 = OrdinalPatterns.test_op(seq_long, 1; chart_choice=6)[3]
+  test_7 = OrdinalPatterns.test_op(seq_long, 1; chart_choice=1, op_length=2)[3]
 
   return (test_1, test_2, test_3, test_4, test_5, test_6, test_7)
 
@@ -41,7 +52,7 @@ end
 N = 10_000
 T = [100, 250, 500, 1000, 1500, 2500]
 xbiv = Vector{Float64}(undef, 100)
-dist = IC(Normal(0, 1))
+dist = ICTS(Normal(0, 1))
 results = Array{Any}(undef, 6, 8, 5)
 results[:, 1, 1:5] .= [100, 250, 500, 1000, 1500, 2500]
 eps_long = Float64[]
@@ -67,14 +78,14 @@ vcat(results[:, :, 1], results[:, :, 2], results[:, :, 3], results[:, :, 4], res
 # Help function to replicate table IV in Weiss (2022)
 function f_table4(dist, seq_long, eps_long, dist_error, d, xbiv)
 
-  x_output = init_dgp_op!(dist, seq_long, eps_long, dist_error, d, xbiv)
+  x_output = OrdinalPatterns.init_dgp_op!(dist, seq_long, eps_long, dist_error, d, xbiv)
 
-  test_1 = test_op(x_output; chart_choice=1)[3]
-  test_2 = test_op(x_output; chart_choice=2)[3]
-  test_3 = test_op(x_output; chart_choice=3)[3]
-  test_4 = test_op(x_output; chart_choice=4)[3]
-  test_5 = test_op(x_output; chart_choice=5)[3]
-  test_6 = test_op(x_output; chart_choice=6)[3]
+  test_1 = test_op(x_output, 1; chart_choice=1)[3]
+  test_2 = test_op(x_output, 1; chart_choice=2)[3]
+  test_3 = test_op(x_output, 1; chart_choice=3)[3]
+  test_4 = test_op(x_output, 1; chart_choice=4)[3]
+  test_5 = test_op(x_output, 1; chart_choice=5)[3]
+  test_6 = test_op(x_output, 1; chart_choice=6)[3]
   test_7 = abs(StatsBase.autocor(x_output, [1], demean=true)[1]) > 1.959964 * sqrt(1 / length(seq_long))
 
 
@@ -85,14 +96,14 @@ end
 # Help function to replicate MA processes in table IV in Weiss (2022)
 function f_table4_ma(dist, x_long, eps_long, dist_error, d, xbiv)
 
-  x_output = init_dgp_op!(dist, x_long, eps_long, dist_error, d, xbiv)
+  x_output = OrdinalPatterns.init_dgp_op!(dist, x_long, eps_long, dist_error, d, xbiv)
 
-  test_1 = test_op(x_output; chart_choice=1)[3]
-  test_2 = test_op(x_output; chart_choice=2)[3]
-  test_3 = test_op(x_output; chart_choice=3)[3]
-  test_4 = test_op(x_output; chart_choice=4)[3]
-  test_5 = test_op(x_output; chart_choice=5)[3]
-  test_6 = test_op(x_output; chart_choice=6)[3]
+  test_1 = test_op(x_output, 1; chart_choice=1)[3]
+  test_2 = test_op(x_output, 1; chart_choice=2)[3]
+  test_3 = test_op(x_output, 1; chart_choice=3)[3]
+  test_4 = test_op(x_output, 1; chart_choice=4)[3]
+  test_5 = test_op(x_output, 1; chart_choice=5)[3]
+  test_6 = test_op(x_output, 1; chart_choice=6)[3]
   test_7 = abs(StatsBase.autocor(x_long, [d], demean=true)[1]) > 1.959964 * sqrt(1 / length(x_long))
 
 

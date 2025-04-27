@@ -57,9 +57,9 @@ function stat_op(data, lam; chart_choice, op_length::Int=3, d=1)
     lookup_array_op = compute_lookup_array_op(op_length=op_length)
     op_length_fact = factorial(op_length)
   
-    p = Vector{Float64}(undef, op_length_fact)
+    p_vec = Vector{Float64}(undef, op_length_fact)
     p_count = zeros(Int, op_length_fact)
-    fill!(p, 1 / op_length_fact)
+    fill!(p_vec, 1 / op_length_fact)
     bin = Vector{Int64}(undef, op_length_fact)
     win = Vector{Int64}(undef, op_length)
     stats_all = Vector{Float64}(undef, length(dindex_ranges))
@@ -76,7 +76,7 @@ function stat_op(data, lam; chart_choice, op_length::Int=3, d=1)
         bin[lookup_array_op[win[1], win[2], win[3]]] = 1
       end
       # Compute EWMA statistic for binarized ordinal pattern, Equation (5), page 342, Weiss and Testik (2023)
-      @. p = lam * bin + (1 - lam) * p
+      @. p_vec = lam * bin + (1 - lam) * p_vec
       @. p_count += bin
       # statistic based on smoothed p-estimate
       stat = chart_stat_op(p, chart_choice)

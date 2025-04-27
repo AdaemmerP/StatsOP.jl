@@ -94,7 +94,9 @@ export rl_acf,
 # OP Types to export (from 'op_dgp_structs.jl')  
 export ICTS,
   AR1,
-  TEAR1
+  TEAR1,
+  MA1,
+  MA2
 
 # OP functions to export
 export rl_op_ic,
@@ -102,6 +104,7 @@ export rl_op_ic,
   arl_op_ic,
   arl_op_oc,
   stat_op,
+  test_op,
   cl_op,
   count_uv_op,
   count_mv_op,
