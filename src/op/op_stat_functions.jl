@@ -91,7 +91,7 @@ function stat_op(data, lam=1; chart_choice, op_length::Int=3, d=1)
     @. p_vec = lam * bin + (1 - lam) * p_vec
     @. p_count += bin
     # statistic based on smoothed p-estimate
-    stat = chart_stat_op(p_vec; chart_choice)
+    stat = chart_stat_op(p_vec, chart_choice)
     # Save temporary test statistic
     stats_all[i] = stat
   end
