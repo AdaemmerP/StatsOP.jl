@@ -1,4 +1,4 @@
-function chart_stat_op(p_vec; chart_choice)
+function chart_stat_op(p_vec, chart_choice)
 
   # Verify that chart_choice is between 1 and 6
   @assert 1 <= chart_choice <= 7 "Wrong number for test statistic."
