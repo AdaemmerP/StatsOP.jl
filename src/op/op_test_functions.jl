@@ -79,7 +79,7 @@ function test_op(ts, lam=1; chart_choice, op_length=3, d=1, alpha=0.05)
     # stat_op(ts, 0.1, chart_choice; op_length=op_length, d=d)[2]
 
     # Compute test statistic and critical value
-    test_stat = chart_stat_op(p_vec; chart_choice)
+    test_stat = chart_stat_op(p_vec, chart_choice)
     crit_val = crit_val_op(chart_choice, op_length, n_patterns; alpha=alpha)
 
     # Return tuple with test statistic, critical value and test decision
