@@ -47,7 +47,7 @@ function get_ranks_op(; op_length=3)
   
     elseif op_length == 3
   
-      # Follows Equation (2), page 341, Weiss and Testik (2023)
+      # Lexicographical ordering as in Bandt 2019
       return [1 2 3;
         1 3 2;
         2 1 3;
