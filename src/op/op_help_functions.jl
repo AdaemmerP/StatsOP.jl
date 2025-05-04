@@ -48,12 +48,20 @@ function get_ranks_op(; op_length=3)
     elseif op_length == 3
   
       # Follows Equation (2), page 341, Weiss and Testik (2023)
-      return [3 2 1;
-        3 1 2;
-        2 3 1;
+      return [1 2 3;
         1 3 2;
         2 1 3;
-        1 2 3]
+        2 3 1;
+        3 1 2;
+        3 2 1]
+      
+      # Ordering as in in Weiss (2022), which was not lexicographical
+      # [3 2 1;
+      #   3 1 2;
+      #   2 3 1;
+      #   1 3 2;
+      #   2 1 3;
+      #   1 2 3]
   
     elseif op_length == 4
   

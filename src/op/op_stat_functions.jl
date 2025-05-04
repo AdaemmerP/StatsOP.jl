@@ -37,11 +37,11 @@ function chart_stat_op(p_vec; chart_choice)
     
   elseif chart_choice == 4
     # β-chart: Equation (4), page 342, Weiss and Testik (2023), Equation (16), page 6 in the paper
-    return p_vec[6] - p_vec[1]
+    return p_vec[1] - p_vec[6]
     
   elseif chart_choice == 5
     # τ-chart: Equation (4), page 342, Weiss and Testik (2023), Equation (16), page 6 in the paper
-    return p_vec[6] + p_vec[1] - (1 / 3)
+    return p_vec[1] + p_vec[6] - (1 / 3)
 
   elseif chart_choice == 6
     # γ-chart: Weiss (2022), equation (16)
@@ -49,7 +49,7 @@ function chart_stat_op(p_vec; chart_choice)
 
   elseif chart_choice == 7
     # δ-chart: Equation (4), page 342, Weiss and Testik (2023)
-    return p_vec[4] + p_vec[5] - p_vec[3] - p_vec[2]
+    return p_vec[2] + p_vec[3] - p_vec[4] - p_vec[5]
   end
 
 end
