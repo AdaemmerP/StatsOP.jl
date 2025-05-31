@@ -73,7 +73,7 @@ function test_op(ts; chart_choice, op_length=3, d=1, alpha=0.05)
     @assert 1 <= chart_choice <= 7 "Wrong number for test statistic."
   end
 
-  z2 = quantile(Normal(0, 1), 1 - alpha / 2)
+  #z2 = quantile(Normal(0, 1), 1 - alpha / 2)
 
   # Number of patterns when d is integer      
   n_patterns = length(ts) - (op_length - 1) * d 
