@@ -108,7 +108,9 @@ function crit_val_sop(
 end
 
 
-function test_sop(data, alpha, d1::Int, d2::Int; chart_choice, refinement, add_noise::Bool=false, approximate::Bool=false)
+function test_sop(
+  data, alpha, d1::Int, d2::Int; chart_choice, refinement, add_noise::Bool=false, approximate::Bool=false
+  )
 
   # sizes
   M = size(data, 1)
@@ -116,18 +118,22 @@ function test_sop(data, alpha, d1::Int, d2::Int; chart_choice, refinement, add_n
   m = M - d1
   n = N - d2
 
-  # compute critical value
+  # compute critical value 
   crit_val = crit_val_sop(
-    M, N, alpha, d1, d2; chart_choice=chart_choice, refinement, approximate=approximate
+    M, N, alpha, d1, d2; chart_choice=chart_choice, refinement=refinement, approximate=approximate
   )
 
   # compute test statistic
   test_stat = stat_sop(
-    data, d1, d2;
-    chart_choice=chart_choice, add_noise=add_noise
+    data, 
+    d1, 
+    d2;
+    chart_choice, 
+    refinement,
+    add_noise
   )
 
   # return test result
-  return (test_stat, crit_val, sqrt(m * n) * abs(test_stat) > crit_val)
+  return (test_stat, crit_val, abs(test_stat) > crit_val)
 
 end

@@ -22,7 +22,7 @@ function crit_val_op(chart_choice, op_length, n_patterns; alpha=0.05)
 
   elseif op_length == 3
 
-    @assert 1 <= chart_choice <= 6 "Wrong number for test statistic."
+    @assert 1 <= chart_choice <= 7 "Wrong number for test statistic."
     @assert alpha ∈ [0.01, 0.05, 0.1] "Wrong alpha level. Choose 0.01, 0.05 or 0.1."
 
     # Compute unit root for quantile function of Q₃ = 1/12(2 + √2) χ₁² + 2/15 χ₁² + 1/10 χ₁² + 1/12(2 - √2) χ₁²
@@ -52,11 +52,11 @@ function crit_val_op(chart_choice, op_length, n_patterns; alpha=0.05)
 
     elseif chart_choice == 5
       # τ-chart
-      return z2 * sqrt(8 / 45 / n_patterns) 
+      return z2 * sqrt(8 / 45 / n_patterns)
 
     elseif chart_choice == 6
       # γ-chart
-      return z2 * sqrt(2 / 5 / n_patterns) 
+      return z2 * sqrt(2 / 5 / n_patterns)
 
     elseif chart_choice == 7
       # δ-chart
@@ -76,10 +76,10 @@ function test_op(ts; chart_choice, op_length=3, d=1, alpha=0.05)
   #z2 = quantile(Normal(0, 1), 1 - alpha / 2)
 
   # Number of patterns when d is integer      
-  n_patterns = length(ts) - (op_length - 1) * d 
+  n_patterns = length(ts) - (op_length - 1) * d
 
   # Compute p vectors
-  p_vec = stat_op(ts, lam; chart_choice=chart_choice, op_length=op_length, d=d)[2]
+  p_vec = stat_op(ts; chart_choice=chart_choice, op_length=op_length, d=d)[2]
 
   # Compute test statistic and critical value
   test_stat = chart_stat_op(p_vec, chart_choice)
@@ -92,12 +92,16 @@ function test_op(ts; chart_choice, op_length=3, d=1, alpha=0.05)
     return (test_stat, crit_val, test_stat < crit_val)
   elseif chart_choice == 3
     return (test_stat, crit_val, test_stat > crit_val)
-  elseif chart_choice == 4
+  elseif chart_choice in 4:7
     return (test_stat, crit_val, abs(test_stat) > crit_val)
-  elseif chart_choice == 5
-    return (test_stat, crit_val, abs(test_stat) > crit_val)
-  elseif chart_choice == 6
-    return (test_stat, crit_val, abs(test_stat) > crit_val)
+  # elseif chart_choice == 4
+  #   return (test_stat, crit_val, abs(test_stat) > crit_val)
+  # elseif chart_choice == 5
+  #   return (test_stat, crit_val, abs(test_stat) > crit_val)
+  # elseif chart_choice == 6
+  #   return (test_stat, crit_val, abs(test_stat) > crit_val)
+  # elseif chart_choice == 7
+  #   return (test_stat, crit_val, abs(test_stat) > crit_val)
   end
 
 end

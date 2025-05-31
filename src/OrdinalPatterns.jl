@@ -57,6 +57,7 @@ export rl_sacf,
   sacf,
   cl_sacf,
   cl_sacf_bp,
+  test_sop,
   crit_val_sacf
 
 # Export functions to compute DGPs

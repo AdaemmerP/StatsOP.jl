@@ -29,7 +29,7 @@ include("op_acf_functions.jl")
 # --------------------------------------------------- #
 # --- Compute control limits for Table 1, p. 344  --- #
 # --------------------------------------------------- #
-op_dgp = IC(Normal(0, 1))
+op_dgp = ICST(Normal(0, 1))
 L0 = 370.0
 cl_init = 0.1
 reps = 10_000

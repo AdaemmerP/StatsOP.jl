@@ -74,7 +74,7 @@ function stat_op(data; chart_choice, op_length::Int=3, d::Int=1)
   bin = Vector{Int64}(undef, op_length_fact)
   win = Vector{Int64}(undef, op_length)
 
-  for range in 1:(length(data)-(op_length-1)*d) #for (i, j) in enumerate(dindex_ranges)
+  for range_start in 1:(length(data)-(op_length-1)*d) #for (i, j) in enumerate(dindex_ranges)
 
     # Reset binarization vector
     fill!(bin, 0)
@@ -100,7 +100,7 @@ function stat_op(data; chart_choice, op_length::Int=3, d::Int=1)
 
   end
 
-  p_rel = p_count ./ length(dindex_ranges)
+  p_rel = p_count ./ sum(p_count) #length(dindex_ranges)
   stat = chart_stat_op(p_rel, chart_choice)
   return [stat, p_rel]
 
@@ -150,7 +150,7 @@ function stat_op(data, lam; chart_choice, op_length::Int=3, d::Int=1)
     stats_all[i] = stat
   end
 
-  p_rel = p_count ./ length(dindex_ranges)
+  p_rel = p_count ./ sum(p_count) #length(dindex_ranges)
   return [stats_all, p_rel]
 
 end
