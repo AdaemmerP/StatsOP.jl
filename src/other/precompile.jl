@@ -6,8 +6,8 @@ PrecompileTools.@compile_workload begin
   data = rand(100)
   lam = 0.1
 
-  stat_op(data, lam; chart_choice=1, op_length=3, d=1)
-  test_op(data, 1; chart_choice=1, op_length=3, d=1, alpha=0.05)
+  # stat_op(data, lam; chart_choice=1, op_length=3, d=1)
+  # test_op(data, 1; chart_choice=1, op_length=3, d=1, alpha=0.05)
 
   # SOP functions
   data_sop = rand(10, 10)
