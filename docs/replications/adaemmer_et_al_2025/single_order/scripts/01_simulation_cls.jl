@@ -1,16 +1,15 @@
 # Change to current directory and activate environment
 cd(@__DIR__)
 using Pkg
-Pkg.activate("../../../.")
+Pkg.activate("../../../../.")
 
 using Distributed
 # set the number of workers for parallel computing
 addprocs(10)
 
-@everywhere include("../../../src/OrdinalPatterns.jl")
-@everywhere using .OrdinalPatterns
-@everywhere using JLD2
+@everywhere using OrdinalPatterns
 @everywhere using LinearAlgebra
+@everywhere using JLD2
 @everywhere BLAS.set_num_threads(1)
 
 # Vector and delay combinations
