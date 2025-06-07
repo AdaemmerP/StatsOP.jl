@@ -116,7 +116,7 @@ function rl_sacf_oc(
         mat_ma = zeros(M + 2, N + 2) # one extra row and column for "forward looking"
         mat_ao = similar(mat)
     end
-   
+
     for r in axes(p_reps, 1)
 
         rho_hat = 0.0
@@ -137,6 +137,12 @@ function rl_sacf_oc(
 
             # Compute ρ(d1,d2)-EWMA
             rho_hat = (1 - lam) * rho_hat + lam * sacf(X_centered, d1, d2)
+
+            # Re-initialize matrix 
+            fill!(mat, 0.0)
+            if typeof(spatial_dgp) ∈ (SAR11, SINAR11, SAR22)
+                init_mat!(spatial_dgp, dist_error, mat)
+            end
 
         end
 

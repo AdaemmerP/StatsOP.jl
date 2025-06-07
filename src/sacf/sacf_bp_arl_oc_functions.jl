@@ -161,6 +161,12 @@ function rl_sacf_bp(
 
             end
 
+            # Re-initialize matrix 
+            fill!(mat, 0.0)
+            if typeof(spatial_dgp) ∈ (SAR11, SINAR11, SAR22)
+                init_mat!(spatial_dgp, dist_error, mat)
+            end
+
         end
 
         rls[r] = rl

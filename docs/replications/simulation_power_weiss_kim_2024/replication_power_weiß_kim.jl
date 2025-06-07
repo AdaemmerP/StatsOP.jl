@@ -76,7 +76,9 @@ end
   mat,
   mat_ao,
   mat_ma,
-  X_centered
+  X_centered,
+  d1, 
+  d2
 )
 
   # extract m and n
@@ -139,7 +141,10 @@ end
   vec_ar,
   vec_ar2,
   mat2,
-  X_centered)
+  X_centered,
+  d1,
+  d2
+  )
 
   # extract m and n
   m = dgp.M_rows - 1
@@ -287,7 +292,10 @@ for (i, dgp_params) in enumerate(params_dgp)
         mat,
         mat_ao,
         mat_ma,
-        X_centered)
+        X_centered,
+        1,
+        1
+        )
     end
 
     # fill matrix
@@ -363,7 +371,10 @@ for (i, dgp_params) in enumerate(params_dgp)
           mat,
           mat_ao,
           mat_ma,
-          X_centered)
+          X_centered,
+          1,
+          1
+          )
       end
 
       # fill matrix
@@ -439,7 +450,9 @@ for (i, dgp_params) in enumerate(params_dgp)
         mat,
         mat_ao,
         mat_ma,
-        X_centered)
+        X_centered,
+        1,
+        1)
     end
 
     # fill matrix
@@ -735,7 +748,9 @@ for (i, eps_param) in enumerate(eps_params)
         mat,
         mat_ao,
         mat_ma,
-        X_centered)
+        X_centered,
+        1,
+        1)
     end
 
     # fill matrix

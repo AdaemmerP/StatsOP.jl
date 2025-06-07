@@ -26,7 +26,7 @@ function arl_sop_oc(
   if chart_choice in 1:4
     @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
   end
-    
+
   # Compute m and n (final SOP matrix)
   m_rows = spatial_dgp.M_rows - d1
   n_cols = spatial_dgp.N_cols - d2
@@ -104,11 +104,11 @@ function rl_sop_oc(
   # pre-allocate
   if refinement == 0
     # classical approach
-    p_hat = zeros(3) 
+    p_hat = zeros(3)
     p_ewma = zeros(3)
   else
     # refined approach
-    p_hat = zeros(6) 
+    p_hat = zeros(6)
     p_ewma = zeros(6)
   end
   M = spatial_dgp.M_rows
@@ -211,6 +211,13 @@ function rl_sop_oc(
       fill!(win, 0)
       fill!(sop_freq, 0)
       fill!(p_hat, 0)
+
+      # Re-initialize matrix 
+      fill!(mat, 0.0)
+      if typeof(spatial_dgp) ∈ (SAR11, SINAR11, SAR22)
+        init_mat!(spatial_dgp, dist_error, mat)
+      end
+      
     end
 
     rls[r] = rl

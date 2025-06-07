@@ -23,7 +23,7 @@ function arl_sop_bp_oc(
     # Check input parameters
     @assert 1 <= chart_choice <= 7 "chart_choice must be between 1 and 7"
     if chart_choice in 1:4
-      @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
+        @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
     end
 
     # Compute m and n
@@ -213,7 +213,12 @@ function rl_sop_bp_oc(
                 fill!(p_hat, 0)
             end
             # -------------------------------------------------------------------------------#
-            # -------------------------------------------------------------------------------#
+
+            # Re-initialize matrix 
+            fill!(mat, 0.0)
+            if typeof(spatial_dgp) ∈ (SAR11, SINAR11, SAR22)
+                init_mat!(spatial_dgp, dist_error, mat)
+            end
         end
 
         rls[r] = rl
