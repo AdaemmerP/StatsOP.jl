@@ -16,7 +16,7 @@ This can be one of the following: `SAR1`, `SAR11`, `SAR22`, `SINAR11`, `SQMA11`,
 - `d2::Int`: The second (column) delay for the spatial process.
 - `reps`: The number of repetitions to compute the ARL.
 """
-function arl_sacf_oc(sp_dgp::SpatialDGP, lam, cl, d1::Int, d2::Int, reps=10_000)
+function arl_sacf_oc(sp_dgp::SpatialDGP, lam, cl, d1::Int, d2::Int, reps = 10_000)
 
     # extract m and n from spatial_dgp
     dist_error = sp_dgp.dist
@@ -51,31 +51,18 @@ function arl_sacf_oc(sp_dgp::SpatialDGP, lam, cl, d1::Int, d2::Int, reps=10_000)
 end
 
 
-"""
-    rl_sacf_oc(
- spatial_dgp::SpatialDGP, lam, cl, d1::Int, d2::Int, p_reps::UnitRange, 
-  dist_error::UnivariateDistribution, dist_ao::Union{UnivariateDistribution,Nothing}
-)
-
-Compute the out-of-control run length using the spatial autocorrelation function (SACF). The function returns the run length for a given control limit `cl` and a given number of repetitions `reps`. 
-
-The input arguments are:
-
-- `spatial_dgp::SpatialDGP`: The spatial data generating process (DGP) to use for 
-the SACF function. This can be one of the following: `SAR1`, `SAR11`, `SAR22`, 
-  `SINAR11`, `SQMA11`, `SQINMA11`, or `BSQMA11`.
-- `lam`: The smoothing parameter for the exponentially weighted moving average (EWMA) 
-control chart.
-- `cl`: The control limit for the EWMA control chart.
-- `d1::Int`: The first (row) delay for the spatial process.
-- `d2::Int`: The second (column) delay for the spatial process.
-- `p_reps::UnitRange`: The number of repetitions to compute the run length. This 
-has to be a unit range of integers to allow for parallel processing, since the 
-function is called by `arl_sacf()`.
-"""
+# ------------------------------------------------------------------------------#
+# -------------------           Run length method for SAR1           -----------#
+# ------------------------------------------------------------------------------#
 function rl_sacf_oc(
-    spatial_dgp::SpatialDGP, lam, cl, d1::Int, d2::Int, p_reps::UnitRange{Int},
-    dist_error::UnivariateDistribution, dist_ao::Union{UnivariateDistribution,Nothing}
+    spatial_dgp::SAR1,
+    lam,
+    cl,
+    d1::Int,
+    d2::Int,
+    p_reps::UnitRange{Int},
+    dist_error::UnivariateDistribution,
+    dist_ao::Union{UnivariateDistribution,Nothing},
 )
 
     # pre-allocate  
@@ -91,31 +78,133 @@ function rl_sacf_oc(
     # mat_ma: matrix for moving averages
     # vec_ar: vector for SAR(1) model
     # vec_ar2: vector for in-place multiplication for SAR(1) model
-    if spatial_dgp isa SAR1
-        mat = build_sar1_matrix(spatial_dgp) # will be done only once
-        mat_ao = zeros((M + 2 * spatial_dgp.margin), (N + 2 * spatial_dgp.margin))
-        vec_ar = zeros((M + 2 * spatial_dgp.margin) * (N + 2 * spatial_dgp.margin))
-        vec_ar2 = similar(vec_ar)
-        mat2 = similar(mat_ao)
-    elseif typeof(spatial_dgp) ∈ (SAR11, SINAR11, SAR22)
-        mat = zeros(M + spatial_dgp.prerun, N + spatial_dgp.prerun)
-        mat_ma = similar(mat)
-        mat_ao = similar(mat)
-        # Function to initialize matrix only for SAR(1,1) and SINAR(1,1) and SAR(2,2) 
-        init_mat!(spatial_dgp, dist_error, mat)
-    elseif typeof(spatial_dgp) ∈ (SQMA11, SQINMA11)
-        mat = zeros(M + 1, N + 1)
-        mat_ma = similar(mat)
-        mat_ao = similar(mat)
-    elseif spatial_dgp isa SQMA22
-        mat = zeros(M + 2, N + 2)
-        mat_ma = similar(mat)
-        mat_ao = similar(mat)
-    elseif spatial_dgp isa BSQMA11
-        mat = zeros(M + 1, N + 1)
-        mat_ma = zeros(M + 2, N + 2) # one extra row and column for "forward looking"
-        mat_ao = similar(mat)
+    mat = build_sar1_matrix(spatial_dgp) # will be done only once
+    mat_ao = zeros((M + 2 * spatial_dgp.margin), (N + 2 * spatial_dgp.margin))
+    vec_ar = zeros((M + 2 * spatial_dgp.margin) * (N + 2 * spatial_dgp.margin))
+    vec_ar2 = similar(vec_ar)
+    mat2 = similar(mat_ao)
+
+
+    for r in axes(p_reps, 1)
+
+        rho_hat = 0.0
+        rl = 0
+
+        while abs(rho_hat) < cl
+            rl += 1
+
+            # Fill matrix with dgp
+            data .= fill_mat_dgp_sop!(
+                spatial_dgp,
+                dist_error,
+                dist_ao,
+                mat,
+                mat_ao,
+                vec_ar,
+                vec_ar2,
+                mat2,
+            )
+
+            # Demean data for SACF
+            X_centered .= data .- mean(data)
+
+            # Compute ρ(d1,d2)-EWMA
+            rho_hat = (1 - lam) * rho_hat + lam * sacf(X_centered, d1, d2)
+
+        end
+
+        rls[r] = rl
     end
+    return rls
+end
+
+# ------------------------------------------------------------------------------#
+# -----------   Run length method for SAR11, SAR22 and SINAR11        ----------#
+# ------------------------------------------------------------------------------#
+function rl_sacf_oc(
+    spatial_dgp::Union{SAR11,SINAR11,SAR22},
+    lam,
+    cl,
+    d1::Int,
+    d2::Int,
+    p_reps::UnitRange{Int},
+    dist_error::UnivariateDistribution,
+    dist_ao::Union{UnivariateDistribution,Nothing},
+)
+
+    # pre-allocate  
+    M = spatial_dgp.M_rows
+    N = spatial_dgp.N_cols
+    data = zeros(M, N)
+    X_centered = similar(data)
+    rls = zeros(Int, length(p_reps))
+
+    # pre-allocate
+    # mat:    matrix for the final values of the spatial DGP
+    # mat_ao: matrix for additive outlier 
+    # mat_ma: matrix for moving averages
+    mat = zeros(M + spatial_dgp.prerun, N + spatial_dgp.prerun)
+    mat_ma = similar(mat)
+    mat_ao = similar(mat)
+    init_mat!(spatial_dgp, dist_error, mat)
+
+    for r in axes(p_reps, 1)
+
+        rho_hat = 0.0
+        rl = 0
+
+        while abs(rho_hat) < cl
+            rl += 1
+
+            # Fill matrix with dgp
+            data .= fill_mat_dgp_sop!(spatial_dgp, dist_error, dist_ao, mat, mat_ao, mat_ma)
+
+            # Demean data for SACF
+            X_centered .= data .- mean(data)
+
+            # Compute ρ(d1,d2)-EWMA
+            rho_hat = (1 - lam) * rho_hat + lam * sacf(X_centered, d1, d2)
+
+            # Re-set matrix 
+            fill!(mat, 0.0)
+            init_mat!(spatial_dgp, dist_error, mat)
+
+        end
+
+        rls[r] = rl
+    end
+    return rls
+end
+
+
+# ------------------------------------------------------------------------------#
+# -----------   Run length method for SQMA11, SQINMA11                ----------#
+# ------------------------------------------------------------------------------#
+function rl_sacf_oc(
+    spatial_dgp::Union{SQMA11,SQINMA11},
+    lam,
+    cl,
+    d1::Int,
+    d2::Int,
+    p_reps::UnitRange{Int},
+    dist_error::UnivariateDistribution,
+    dist_ao::Union{UnivariateDistribution,Nothing},
+)
+
+    # pre-allocate  
+    M = spatial_dgp.M_rows
+    N = spatial_dgp.N_cols
+    data = zeros(M, N)
+    X_centered = similar(data)
+    rls = zeros(Int, length(p_reps))
+
+    # pre-allocate
+    # mat:    matrix for the final values of the spatial DGP
+    # mat_ao: matrix for additive outlier 
+    # mat_ma: matrix for moving averages
+    mat = zeros(M + 1, N + 1)
+    mat_ma = similar(mat)
+    mat_ao = similar(mat)
 
     for r in axes(p_reps, 1)
 
@@ -127,9 +216,19 @@ function rl_sacf_oc(
 
             # Fill matrix with dgp
             if spatial_dgp isa SAR1
-                data .= fill_mat_dgp_sop!(spatial_dgp, dist_error, dist_ao, mat, mat_ao, vec_ar, vec_ar2, mat2)
+                data .= fill_mat_dgp_sop!(
+                    spatial_dgp,
+                    dist_error,
+                    dist_ao,
+                    mat,
+                    mat_ao,
+                    vec_ar,
+                    vec_ar2,
+                    mat2,
+                )
             else
-                data .= fill_mat_dgp_sop!(spatial_dgp, dist_error, dist_ao, mat, mat_ao, mat_ma)
+                data .=
+                    fill_mat_dgp_sop!(spatial_dgp, dist_error, dist_ao, mat, mat_ao, mat_ma)
             end
 
             # Demean data for SACF
@@ -138,11 +237,8 @@ function rl_sacf_oc(
             # Compute ρ(d1,d2)-EWMA
             rho_hat = (1 - lam) * rho_hat + lam * sacf(X_centered, d1, d2)
 
-            # Re-initialize matrix 
+            # Re-set matrix 
             fill!(mat, 0.0)
-            if typeof(spatial_dgp) ∈ (SAR11, SINAR11, SAR22)
-                init_mat!(spatial_dgp, dist_error, mat)
-            end
 
         end
 
@@ -151,3 +247,115 @@ function rl_sacf_oc(
     return rls
 end
 
+
+# ------------------------------------------------------------------------------#
+# -----------        Run length method for SQMA22                     ----------#
+# ------------------------------------------------------------------------------#
+function rl_sacf_oc(
+    spatial_dgp::SQMA22,
+    lam,
+    cl,
+    d1::Int,
+    d2::Int,
+    p_reps::UnitRange{Int},
+    dist_error::UnivariateDistribution,
+    dist_ao::Union{UnivariateDistribution,Nothing},
+)
+
+    # pre-allocate  
+    M = spatial_dgp.M_rows
+    N = spatial_dgp.N_cols
+    data = zeros(M, N)
+    X_centered = similar(data)
+    rls = zeros(Int, length(p_reps))
+
+    # pre-allocate
+    # mat:    matrix for the final values of the spatial DGP
+    # mat_ao: matrix for additive outlier 
+    # mat_ma: matrix for moving averages
+    mat = zeros(M + 2, N + 2)
+    mat_ma = similar(mat)
+    mat_ao = similar(mat)
+
+    for r in axes(p_reps, 1)
+
+        rho_hat = 0.0
+        rl = 0
+
+        while abs(rho_hat) < cl
+            rl += 1
+
+            # Fill matrix with dgp
+            data .= fill_mat_dgp_sop!(spatial_dgp, dist_error, dist_ao, mat, mat_ao, mat_ma)
+
+            # Demean data for SACF
+            X_centered .= data .- mean(data)
+
+            # Compute ρ(d1,d2)-EWMA
+            rho_hat = (1 - lam) * rho_hat + lam * sacf(X_centered, d1, d2)
+
+            # Re-set matrix 
+            fill!(mat, 0.0)
+
+        end
+
+        rls[r] = rl
+    end
+    return rls
+end
+
+#------------------------------------------------------------------------------#
+# -----------        Run length method for BSQMA11                   ----------#
+#------------------------------------------------------------------------------#
+function rl_sacf_oc(
+    spatial_dgp::BSQMA11,
+    lam,
+    cl,
+    d1::Int,
+    d2::Int,
+    p_reps::UnitRange{Int},
+    dist_error::UnivariateDistribution,
+    dist_ao::Union{UnivariateDistribution,Nothing},
+)
+
+    # pre-allocate  
+    M = spatial_dgp.M_rows
+    N = spatial_dgp.N_cols
+    data = zeros(M, N)
+    X_centered = similar(data)
+    rls = zeros(Int, length(p_reps))
+
+    # pre-allocate
+    # mat:    matrix for the final values of the spatial DGP
+    # mat_ao: matrix for additive outlier 
+    # mat_ma: matrix for moving averages
+    mat = zeros(M + 1, N + 1)
+    mat_ma = zeros(M + 2, N + 2) # one extra row and column for "forward looking"
+    mat_ao = similar(mat)
+
+    for r in axes(p_reps, 1)
+
+        rho_hat = 0.0
+        rl = 0
+
+        while abs(rho_hat) < cl
+            rl += 1
+
+            # Fill matrix with dgp
+            data .= fill_mat_dgp_sop!(spatial_dgp, dist_error, dist_ao, mat, mat_ao, mat_ma)
+
+            # Demean data for SACF
+            X_centered .= data .- mean(data)
+
+            # Compute ρ(d1,d2)-EWMA
+            rho_hat = (1 - lam) * rho_hat + lam * sacf(X_centered, d1, d2)
+
+            # Re-set matrix 
+            fill!(mat, 0.0)
+
+        end
+
+        rls[r] = rl
+    end
+    return rls
+end
