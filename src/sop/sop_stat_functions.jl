@@ -38,7 +38,7 @@ function stat_sop(
   data::Union{SubArray,Array{T,2}},
   d1::Int, d2::Int;
   chart_choice=3,
-  refinement::Int=0,
+  refinement::Union{Nothing,RefinedType}=nothing,
   add_noise::Bool=false,
   noise_dist::UnivariateDistribution=Uniform(0, 1)
 ) where {T<:Real}
@@ -120,7 +120,7 @@ function stat_sop(
   d1::Int,
   d2::Int;
   chart_choice=3,
-  refinement::Int=0,
+  refinement::Union{Nothing,RefinedType}=nothing,
   add_noise::Bool=false,
   noise_dist::UnivariateDistribution=Uniform(0, 1),
   type_freq_init::Union{Float64,Array{Float64,2}}=1 / 3
@@ -132,12 +132,11 @@ function stat_sop(
     @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
   end
 
-
   # Compute lookup cube
   lookup_array_sop = compute_lookup_array_sop()
 
   # Pre-allocate
-  if refinement == 0
+  if refinement == nothing
     p_hat = zeros(3) # classical approach
   else
     p_hat = zeros(6) # refined approach
@@ -151,9 +150,6 @@ function stat_sop(
 
   # indices for sum of frequencies
   index_sop = create_index_sop(refinement=refinement)
-  #s_1 = index_sop[1]
-  #s_2 = index_sop[2]
-  #s_3 = index_sop[3]
 
   # Compute m and n based on data
   data_tmp = similar(data[:, :, 1])

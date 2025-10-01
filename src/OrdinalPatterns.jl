@@ -135,6 +135,7 @@ include("acf/acf_cl_functions.jl")
 # SOP related functions and structs to include #  
 # ---------------------------------------------#
 # ---
+include("sop/information_measures.jl")
 include("sop/sop_dgp_structs.jl")
 # ---
 include("sop/sop_arl_ic_functions.jl")
@@ -168,6 +169,6 @@ include("sacf/sacf_stat_functions.jl")
 include("sacf/sacf_stat_bp_functions.jl")
 
 # Precompile
-include("other/precompile.jl")
+#include("other/precompile.jl")
 
 end
