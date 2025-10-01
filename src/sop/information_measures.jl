@@ -1,3 +1,5 @@
+export chart_stat_sop, TauHat, KappaHat, TauTilde, KappaTilde
+
 # Build concrete types for information measures for SOPs
 struct TauHat <: InformationMeasure end
 struct KappaHat <: InformationMeasure end
