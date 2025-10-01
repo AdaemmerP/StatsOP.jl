@@ -10,6 +10,7 @@ using Distributed
 using StaticArrays
 using StatsBase
 using Reexport
+using ComplexityMeasures: InformationMeasure, Shannon, ShannonExtropy
 import PrecompileTools
 
 # Reexport
@@ -27,7 +28,7 @@ export order_vec!,
 # SOP functions to export
 export arl_sop_ic,
   arl_sop_oc,
-  arl_sop_bootstrap,  
+  arl_sop_bootstrap,
   arl_sop_bp_ic,
   arl_sop_bp_oc,
   arl_sop_bp_bootstrap,
@@ -52,7 +53,7 @@ export rl_sacf,
   arl_sacf_oc,
   arl_sacf_bp_ic,
   arl_sacf_bp_oc,
-  stat_sacf,  
+  stat_sacf,
   stat_sacf_bp,
   sacf,
   cl_sacf,
