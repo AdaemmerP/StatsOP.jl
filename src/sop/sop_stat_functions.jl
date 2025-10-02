@@ -6,7 +6,7 @@ Multiple Dispatch for 'stat_sop()':
 
 ================================================#
 
-# 1. Method to compute test statistic for one picture
+# 1. Method to compute test statistic for one picture without refinement
 """
   function stat_sop(
     data::Union{SubArray,Array{T,2}}, d1::Int, d2::Int;    
@@ -44,10 +44,11 @@ function stat_sop(
 ) where {T<:Real}
 
   # Check input parameters
-  @assert 1 <= chart_choice <= 7 "chart_choice must be between 1 and 7"
-  if chart_choice in 1:4
-    @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
-  end
+  @assert chart_choice in (Shannon, ShannonExtropy, DistanceToWhiteNoise, TauHat, KappaHat, TauTilde, KappaTilde) "chart_choice must be one of the defined chart types from type InformationMeasure"
+  # @assert 1 <= chart_choice <= 7 "chart_choice must be between 1 and 7"
+  # if chart_choice in 1:4
+  #   @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
+  # end
 
   # Pre-allocate  
   if refinement == 0 #&& chart_choice in 1:4
@@ -67,9 +68,6 @@ function stat_sop(
 
   # indices for sum of frequencies
   index_sop = create_index_sop(refinement=refinement)
-  #s_1 = index_sop[1] 
-  #s_2 = index_sop[2] 
-  #s_3 = index_sop[3]
 
   # Add noise?
   if add_noise
@@ -101,7 +99,7 @@ end
       type_freq_init::Union{Float64,Array{Float64,2}}=1 / 3
 ) 
 
-Computes the test statistic for a 3D array of data, a given lambda value, and a given chart choice. 
+Computes the test statistics for a 3D array of data, a given lambda value, and a given chart choice. 
 
 The input parameters are:
 
@@ -127,10 +125,11 @@ function stat_sop(
 ) where {T<:Real}
 
   # Check input parameters
-  @assert 1 <= chart_choice <= 7 "chart_choice must be between 1 and 7"
-  if chart_choice in 1:4
-    @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
-  end
+  @assert chart_choice in (Shannon, ShannonExtropy, DistanceToWhiteNoise, TauHat, KappaHat, TauTilde, KappaTilde) "chart_choice must be one of the defined chart types from type InformationMeasure"
+  # @assert 1 <= chart_choice <= 7 "chart_choice must be between 1 and 7"
+  # if chart_choice in 1:4
+  #   @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
+  # end
 
   # Compute lookup cube
   lookup_array_sop = compute_lookup_array_sop()

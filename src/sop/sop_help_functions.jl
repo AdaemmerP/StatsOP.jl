@@ -257,23 +257,23 @@ function fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, s_all) #s_
 
   # For classical appraoch
   if refinement == nothing
-    if chart_choice == TauHat
+    if chart_choice == TauHat # previously chart_choice == 1
       for i in s_all[1]
         p_hat[1] += sop_freq[i]
       end
 
-    elseif chart_choice == KappaHat
+    elseif chart_choice == KappaHat # previously chart_choice == 2
       for (i, j) in zip(s_all[2], s_all[3])
         p_hat[2] += sop_freq[i]
         p_hat[3] += sop_freq[j]
       end
 
-    elseif chart_choice == TauTilde
+    elseif chart_choice == TauTilde # previously chart_choice == 3
       for i in s_all[3]
         p_hat[3] += sop_freq[i]
       end
 
-    elseif chart_choice == KappaTilde
+    elseif chart_choice == KappaTilde # previously chart_choice == 4
       for (i, j) in zip(s_all[1], s_all[2])
         p_hat[1] += sop_freq[i]
         p_hat[2] += sop_freq[j]
