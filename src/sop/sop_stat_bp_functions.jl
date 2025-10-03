@@ -1,10 +1,10 @@
 
 # Compute test SOP-BP-statistic for one picture
 function stat_sop_bp(
-  data::Union{SubArray,Array{T,2}}, 
-  w::Int; 
-  chart_choice::Int=3, 
-  refinement::Int=0,
+  data::Union{SubArray,Array{T,2}},
+  w::Int;
+  chart_choice::InformationMeasure=TauTilde(),
+  refinement::Union{Nothing,RefinedType}=nothing,
   add_noise::Bool=false,
   noise_dist::UnivariateDistribution=Uniform(0, 1)
 ) where {T<:Real}
@@ -14,7 +14,7 @@ function stat_sop_bp(
   if chart_choice in 1:4
     @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
   end
-  
+
   # Pre-allocate
   if refinement == 0
     # classical approach
@@ -36,9 +36,6 @@ function stat_sop_bp(
 
   # Pre-allocate indexes to compute sum of frequencies
   index_sop = create_index_sop(refinement=refinement)
-  #s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
-  #s_2 = [2, 5, 7, 9, 16, 18, 20, 23]
-  #s_3 = [4, 6, 10, 12, 13, 15, 19, 21]
 
   # Add noise?
   if add_noise
@@ -61,7 +58,7 @@ function stat_sop_bp(
     bp_stat += stat^2
 
     # Reset win, sop_freq and p_hat
-    # fill!(win, 0)
+    fill!(win, 0)
     fill!(sop_freq, 0)
     fill!(p_hat, 0)
   end
@@ -75,8 +72,8 @@ function stat_sop_bp(
   data::Array{T,3},
   lam,
   w::Int;
-  chart_choice=3,
-  refinement::Int=0,
+  chart_choice::InformationMeasure=TauTilde(),
+  refinement::Union{Nothing,RefinedType}=nothing,
   add_noise=false,
   noise_dist::UnivariateDistribution=Uniform(0, 1),
   stat_ic::Union{Float64,Vector{Float64}}=0.0,

@@ -37,7 +37,7 @@ stat_sop(data, 2)
 function stat_sop(
   data::Union{SubArray,Array{T,2}},
   d1::Int, d2::Int;
-  chart_choice=3,
+  chart_choice::InformationMeasure=TauTilde(),
   refinement::Union{Nothing,RefinedType}=nothing,
   add_noise::Bool=false,
   noise_dist::UnivariateDistribution=Uniform(0, 1)
@@ -117,7 +117,7 @@ function stat_sop(
   lam,
   d1::Int,
   d2::Int;
-  chart_choice=3,
+  chart_choice::InformationMeasure=TauTilde(),
   refinement::Union{Nothing,RefinedType}=nothing,
   add_noise::Bool=false,
   noise_dist::UnivariateDistribution=Uniform(0, 1),

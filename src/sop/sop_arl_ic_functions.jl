@@ -15,15 +15,12 @@ The input parameters are:
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4. 
 The default value is 3.
 """
-function arl_sop_ic(sop_dgp::ICSTS, lam, cl, d1::Int, d2::Int, reps=10_000; chart_choice=3, refinement::Int=0)
+function arl_sop_ic(
+  sop_dgp::ICSTS, lam, cl, d1::Int, d2::Int, reps=10_000; chart_choice::InformationMeasure=TauTilde(), refinement::Union{Nothing,RefinedType}=nothing
+)
 
   # Check input parameters
-  @assert 1 <= chart_choice <= 7 "chart_choice must be between 1 and 7"
-  if chart_choice in 1:4
-    @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
-  end
-  
-
+  @assert chart_choice in (Shannon, ShannonExtropy, DistanceToWhiteNoise, TauHat, KappaHat, TauTilde, KappaTilde) "chart_choice must be one of the defined chart types from type InformationMeasure"
   # Extract values    
   m = sop_dgp.M_rows - d1
   n = sop_dgp.N_cols - d2
@@ -86,13 +83,12 @@ function rl_sop_ic(
 )
 
   # Pre-allocate
-  if refinement == 0
-    # classical approach
-    p_hat = zeros(3) 
+  if isnothing(refinement)    # classical approach
+    p_hat = zeros(3)
     p_ewma = zeros(3)
-  else
+  elseif refinement isa RefinedType
     # refined approach
-    p_hat = zeros(6) 
+    p_hat = zeros(6)
     p_ewma = zeros(6)
   end
   sop_freq = zeros(Int, 24) # factorial(4)
@@ -103,9 +99,6 @@ function rl_sop_ic(
 
   # indices for sum of frequencies
   index_sop = create_index_sop(refinement=refinement)
-  #s_1 = index_sop[1]
-  #s_2 = index_sop[2]
-  #s_3 = index_sop[3]
 
   for r in 1:length(reps_range)
     fill!(p_ewma, 1.0 / 3.0)
@@ -132,7 +125,7 @@ function rl_sop_ic(
       sop_frequencies!(m, n, d1, d2, lookup_array_sop, data_tmp, sop_vec, win, sop_freq)
 
       # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-      fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, index_sop) # s_1, s_2, s_3)
+      fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, index_sop)
 
       # Apply EWMA to p-vectors
       @. p_ewma = (1 - lam) * p_ewma + lam * p_hat

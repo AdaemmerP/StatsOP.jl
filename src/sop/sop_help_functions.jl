@@ -82,7 +82,7 @@ end
 
 Compute the matrix of p-hat values for a given 3D array of data when the delays are integers. These values are used for bootstrapping. 
 """
-function compute_p_array(data::Array{T,3}, d1::Int, d2::Int; chart_choice=3, refinement=refinement, add_noise=false) where {T<:Real}
+function compute_p_array(data::Array{T,3}, d1::Int, d2::Int; chart_choice::InformationMeasure=TauTilde(), refinement::Union{Nothing,RefinedType}=nothing, add_noise=false) where {T<:Real}
 
   # Check input parameters
   @assert 1 <= chart_choice <= 7 "chart_choice must be between 1 and 7"
@@ -253,10 +253,10 @@ end
 #
 
 # Fill p_hat with the sum of frequencies and compute relative frequencies
-function fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, s_all) #s_1, s_2, s_3)
+function fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, s_all)
 
   # For classical appraoch
-  if refinement == nothing
+  if isnothing(refinement)
     if chart_choice == TauHat # previously chart_choice == 1
       for i in s_all[1]
         p_hat[1] += sop_freq[i]
@@ -299,6 +299,7 @@ function fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, s_all) #s_
       p_hat[5] += sop_freq[m]
       p_hat[6] += sop_freq[n]
     end
+
 
   end
 
