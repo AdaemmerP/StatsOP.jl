@@ -1,7 +1,7 @@
 """
     cl_sop_bootstrap(
    data::Array{T,3}, lam, L0, cl_init, d1, d2, reps=10_000;
-  chart_choice=3, jmin=3, jmax=7, verbose=false
+  chart_choice::InformationMeasure=TauTilde(), jmin=3, jmax=7, verbose=false
 )
 
 Compute the SOP control limit for the EWMA-chart based on bootstraping. The function returns the control limit for a given average run.
@@ -22,7 +22,7 @@ The input parameters are:
 """
 function cl_sop_bootstrap(
     data::Array{T,3}, lam, L0, cl_init, d1, d2, reps=10_000;
-    chart_choice=3, jmin=3, jmax=7, verbose=false
+    chart_choice::InformationMeasure=TauTilde(), jmin=3, jmax=7, verbose=false
 ) where {T<:Real}
 
     p_array = compute_p_array(data, d1, d2; chart_choice=chart_choice)
