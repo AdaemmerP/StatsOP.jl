@@ -32,10 +32,10 @@ compute the order of the elements in the vector.
 # Function that returns SOP indices for sortperm values
 function create_index_sop(; refinement)
 
-  @assert refinement in 0:3 "refinement must be in 0:3"
+  # @assert refinement in 0:3 "refinement must be in 0:3"
 
   # Classical approach as in Weiss and Kim (2024) and Adämmer et al. (2024)
-  if refinement == nothing
+  if isnothing(refinement)
 
     s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
     s_2 = [2, 5, 7, 9, 16, 18, 20, 23]
@@ -43,7 +43,7 @@ function create_index_sop(; refinement)
     return [s_1, s_2, s_3]
 
     # RotationType -> Equation (8) in Weiss and Kim (2025)  
-  elseif refinement == RotationType
+  elseif typeof(refinement) == RotationType
 
     s_11 = [1, 11, 14, 24]
     s_12 = [3, 8, 17, 22]
@@ -54,7 +54,7 @@ function create_index_sop(; refinement)
     return [s_11, s_12, s_21, s_22, s_31, s_32]
 
     # "Direction types" -> Equation (9) in Weiss and Kim (2025)  
-  elseif refinement == DirectionType
+  elseif typeof(refinement) == DirectionType
     s_11 = [1, 8, 17, 24]
     s_12 = [3, 11, 14, 22]
     s_21 = [2, 7, 18, 23]
@@ -65,7 +65,7 @@ function create_index_sop(; refinement)
 
     # "Diagonal types -> Equation (10) in Weiss and Kim (2025)  
   else
-    refinement == DiagonalType
+    typeof(refinement) == DiagonalType
     s_11 = [1, 3, 22, 24]
     s_12 = [8, 11, 14, 17]
     s_21 = [7, 9, 20, 23]
@@ -257,29 +257,29 @@ function fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, s_all)
 
   # For classical appraoch
   if isnothing(refinement)
-    if chart_choice == TauHat # previously chart_choice == 1
+    if typeof(chart_choice) == TauHat # previously chart_choice == 1
       for i in s_all[1]
         p_hat[1] += sop_freq[i]
       end
 
-    elseif chart_choice == KappaHat # previously chart_choice == 2
+    elseif typeof(chart_choice) == KappaHat # previously chart_choice == 2
       for (i, j) in zip(s_all[2], s_all[3])
         p_hat[2] += sop_freq[i]
         p_hat[3] += sop_freq[j]
       end
 
-    elseif chart_choice == TauTilde # previously chart_choice == 3
+    elseif typeof(chart_choice) == TauTilde # previously chart_choice == 3
       for i in s_all[3]
         p_hat[3] += sop_freq[i]
       end
 
-    elseif chart_choice == KappaTilde # previously chart_choice == 4
+    elseif typeof(chart_choice) == KappaTilde # previously chart_choice == 4
       for (i, j) in zip(s_all[1], s_all[2])
         p_hat[1] += sop_freq[i]
         p_hat[2] += sop_freq[j]
       end
 
-    elseif chart_choice in (Shannon, ShannonExtropy, DistanceToWhiteNoise)
+    elseif typeof(chart_choice) in (Shannon, ShannonExtropy, DistanceToWhiteNoise)
       for (i, j, k) in zip(s_all[1], s_all[2], s_all[3])
         p_hat[1] += sop_freq[i]
         p_hat[2] += sop_freq[j]
@@ -288,7 +288,7 @@ function fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, s_all)
     end
 
     # For refined computations  
-  elseif refinement == RefinedType
+  elseif typeof(refinement) == RefinedType
     for (i, j, k, l, m, n) in zip(
       s_all[1], s_all[2], s_all[3], s_all[4], s_all[5], s_all[6]
     )
