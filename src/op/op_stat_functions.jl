@@ -6,9 +6,6 @@
 # Function to chart statistic and relative frequencies of ordinal patterns
 function stat_op(data; chart_choice, op_length::Int=3, d::Int=1)
 
-  # create vector with unit range for indexing 
-  #dindex_ranges = compute_dindex_op(data; op_length=op_length, d=d)
-
   # Compute lookup array and number of ops
   lookup_array_op = compute_lookup_array_op(op_length=op_length)
   op_length_fact = factorial(op_length)
@@ -28,11 +25,9 @@ function stat_op(data; chart_choice, op_length::Int=3, d::Int=1)
     unit_range = range(range_start; step=d, length=op_length)
 
     x_long = view(data, unit_range)
-    #x_long = view(data, j) 
 
     # compute ordinal pattern based on permutations    
     sortperm!(win, x_long)
-    #order_vec!(x_long, win)
 
     # Binarization of ordinal pattern
     if op_length == 2

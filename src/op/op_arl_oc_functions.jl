@@ -45,7 +45,7 @@ arl_op(0.1, cl_init, IC(Normal(0, 1)), 10_000; chart_choice=1, d=1, ced=false, a
 """
 function arl_op_oc(
   op_dgp, lam, cl, reps=10_000; chart_choice, d::Union{Int,Vector{Int}}=1, ced=false, ad=100
-  ) 
+)
 
   # Compute lookup array and number of ops
   lookup_array_op = compute_lookup_array_op()
@@ -106,7 +106,7 @@ rl_op(0.1, 3.0, lookup_array_op, 1:10_000, IC(Normal(0, 1)), Normal(0, 1), 1; d=
 function rl_op_oc(
   op_dgp, lam, cl, lookup_array_op, p_reps,
   op_dgp_dist, chart_choice; d::Union{Int,Vector{Int}}=1, ced=false, ad=100
-  )
+)
 
   # value of patterns (can become variable in future versions)
   op_length = 3
@@ -190,7 +190,10 @@ function rl_op_oc(
 
           bin .= 0 # zeros(6)
           # compute ordinal pattern based on permutations
-          order_vec!(seq, win)
+          sortperm!(win, seq)
+          # order_vec!(seq, win)
+          # order_vec!(x, ix)
+
           # binarization of ordinal pattern
           bin[lookup_array_op[win[1], win[2], win[3]]] = 1
           # compute EWMA statistic

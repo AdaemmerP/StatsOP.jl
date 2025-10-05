@@ -215,14 +215,14 @@ function compute_p_array_bp(data::Array{T,3}, w::Int; chart_choice=3,
 
 end
 
-# In-place function to sort vector with sops
-function order_vec!(x, ix)
+# # In-place function to sort vector with sops
+# function order_vec!(x, ix)
 
-  sortperm!(ix, x)
+#   sortperm!(ix, x)
 
-  return ix
+#   return ix
 
-end
+# end
 
 #--- Compute absolute frequencies of sops
 function sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
