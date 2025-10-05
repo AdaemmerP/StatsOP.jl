@@ -10,7 +10,7 @@ using Distributed
 using StaticArrays
 using StatsBase
 using Reexport
-using ComplexityMeasures: InformationMeasure, Shannon, ShannonExtropy
+using ComplexityMeasures: InformationMeasure, ComplexityEstimator, Shannon, ShannonExtropy
 import PrecompileTools
 
 # Reexport

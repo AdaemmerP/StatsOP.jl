@@ -1,11 +1,11 @@
 export chart_stat_sop, TauHat, KappaHat, TauTilde, KappaTilde, Shannon, ShannonExtropy, DistanceToWhiteNoise
 
 # Build concrete types for information measures for SOPs
-struct TauHat <: InformationMeasure end
-struct KappaHat <: InformationMeasure end
-struct TauTilde <: InformationMeasure end
-struct KappaTilde <: InformationMeasure end
-struct DistanceToWhiteNoise <: InformationMeasure end
+struct TauHat <: ComplexityEstimator end
+struct KappaHat <: ComplexityEstimator end
+struct TauTilde <: ComplexityEstimator end
+struct KappaTilde <: ComplexityEstimator end
+struct DistanceToWhiteNoise <: ComplexityEstimator end
 
 
 # Build Refinement Types
