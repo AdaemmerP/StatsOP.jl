@@ -44,14 +44,14 @@ function stat_sop(
 ) where {T<:Real}
 
   # Check input parameters
- # @assert chart_choice isa (Shannon, ShannonExtropy, DistanceToWhiteNoise, TauHat, KappaHat, TauTilde, KappaTilde) "chart_choice must be one of the defined chart types from type InformationMeasure"
+  #  @assert chart_choice in (Shannon, ShannonExtropy, DistanceToWhiteNoise, TauHat, KappaHat, TauTilde, KappaTilde) "chart_choice must be one of the defined chart types from type InformationMeasure"
   # @assert 1 <= chart_choice <= 7 "chart_choice must be between 1 and 7"
   # if chart_choice in 1:4
   #   @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
   # end
 
   # Pre-allocate  
-  if refinement == 0 #&& chart_choice in 1:4
+  if isnothing(refinement) #&& chart_choice in 1:4
     p_hat = zeros(3) # classical approach
   else
     p_hat = zeros(6) # refined approach
@@ -78,7 +78,7 @@ function stat_sop(
   sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
   # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-  fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, index_sop) # s_1, s_2, s_3)
+  fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, index_sop)
 
   # Compute test statistic
   stat = chart_stat_sop(p_hat, chart_choice)
