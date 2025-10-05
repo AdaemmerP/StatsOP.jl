@@ -10,7 +10,7 @@ using Distributed
 using StaticArrays
 using StatsBase
 using Reexport
-using ComplexityMeasures: InformationMeasure, ComplexityEstimator, Shannon, ShannonExtropy
+using ComplexityMeasures: InformationMeasure, ComplexityEstimator, Entropy, Shannon, ShannonExtropy
 import PrecompileTools
 
 # Reexport
@@ -117,6 +117,7 @@ export rl_op_ic,
 #  OP related functions and structs to include #  
 # ---------------------------------------------#
 # OP files
+include("op/information_measures.jl")
 include("op/op_dgp_structs.jl")
 include("op/op_arl_ic_functions.jl")
 include("op/op_arl_oc_functions.jl")
