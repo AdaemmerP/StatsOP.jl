@@ -15,8 +15,8 @@ addprocs(10)
 
 reps = 10^3 # Increase the number of replications to 10^6 for reproduction of the results in the paper
 L0 = 370
-M=27
-N=12
+M = 27
+N = 12
 sp_dgp = ICSTS(M, N, Normal(0, 1))
 d1 = 1
 d2 = 1
