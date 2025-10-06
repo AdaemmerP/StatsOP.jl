@@ -2,14 +2,13 @@
 # TODO: Write one function for sequential charts, using λ, 
 # TODO: Write one function for one chart, without λ,    
 
+
+# Function to convert vector win to static Array
+function win_to_stat(win, ::Val(m)) where {m}
+  return @SVector [win[i] for i = 1:Val(m)]
+end
 # Function to chart statistic and relative frequencies of ordinal patterns
-function stat_op(data; chart_choice::InformationMeasure, ::Val(m), d::Int=1) where {m}
-
-
-  # Function to convert vector win to static Array
-  function win_to_stat(win, m)
-    return @SVector [win[i] for i = 1:m]
-  end
+function stat_op(data; chart_choice::InformationMeasure, m::Int=3, d::Int=1)
 
   # Compute lookup array and number of ops
   lookup_array_op = compute_lookup_array_op(m=m)
