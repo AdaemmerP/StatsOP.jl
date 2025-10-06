@@ -5,8 +5,6 @@ struct TauHat <: ComplexityEstimator end
 struct KappaHat <: ComplexityEstimator end
 struct TauTilde <: ComplexityEstimator end
 struct KappaTilde <: ComplexityEstimator end
-struct DistanceToWhiteNoise <: ComplexityEstimator end
-
 
 # Build Refinement Types
 abstract type RefinedType end
