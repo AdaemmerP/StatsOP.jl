@@ -5,7 +5,7 @@
 
 # Function to convert vector win to static Array
 function win_to_stat(win::AbstractVector{T}, ::Val{M}) where {T,M}
-  return return @SVector [win[i] for i = 1:m]
+  return @SVector [win[i] for i = 1:m]
 end
 
 # Function to chart statistic and relative frequencies of ordinal patterns
