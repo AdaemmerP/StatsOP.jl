@@ -4,7 +4,7 @@
 
 
 # Function to convert vector win to static Array
-function win_to_stat(win, m::Val(m))
+function win_to_stat(win, ::Val(m)) where {m}
   return @SVector [win[i] for i = 1:m]
 end
 # Function to chart statistic and relative frequencies of ordinal patterns
