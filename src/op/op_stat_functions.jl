@@ -36,7 +36,7 @@ function stat_op(data; chart_choice::InformationMeasure, m::Int=3, d::Int=1)
     # Convert 'win' to static array for indexing without allocations
     # This makes the code generalizable for any m
     #win_static = @SVector [win[i] for i = 1:m]
-    win_static = win_to_stat(win, m::Val(m))
+    win_static = win_to_stat(win, m)
     # Binarization of ordinal pattern
     bin[lookup_array_op[win_static]] = 1
     # if m == 2
