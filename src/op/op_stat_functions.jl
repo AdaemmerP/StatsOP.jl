@@ -70,12 +70,16 @@ function stat_op(data, lam; chart_choice::InformationMeasure, m::Int=3, d::Int=1
   win = Vector{Int64}(undef, m)
   stats_all = Vector{Float64}(undef, length(dindex_ranges))
 
-  for (i, j) in enumerate(dindex_ranges)
+  for range_start in 1:(length(data)-(m-1)*d) # (i, j) in enumerate(dindex_ranges)
 
     # Reset binarization vector
     fill!(bin, 0)
 
-    x_long = view(data, j)
+    # create unit range for indexing data
+    unit_range = range(range_start; step=d, length=m)
+
+    x_long = view(data, unit_range)
+    #x_long = view(data, j)
 
     # compute ordinal pattern based on permutations
     order_vec!(x_long, win)
