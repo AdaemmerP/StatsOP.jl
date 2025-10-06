@@ -4,7 +4,7 @@
 
 
 # Function to chart statistic and relative frequencies of ordinal patterns
-function stat_op(data; chart_choice, m::Int=3, d::Int=1)
+function stat_op(data; chart_choice::InformationMeasure, m::Int=3, d::Int=1)
 
   # Compute lookup array and number of ops
   lookup_array_op = compute_lookup_array_op(m=m)
@@ -34,6 +34,10 @@ function stat_op(data; chart_choice, m::Int=3, d::Int=1)
       bin[lookup_array_op[win[1], win[2]]] = 1
     elseif m == 3
       bin[lookup_array_op[win[1], win[2], win[3]]] = 1
+    elseif m == 4
+      bin[lookup_array_op[win[1], win[2], win[3], win[4]]] = 1
+    elseif m == 5
+      bin[lookup_array_op[win[1], win[2], win[3], win[4], win[5]]] = 1
     end
 
     @. p_count += bin
@@ -49,7 +53,7 @@ end
 
 
 # Function to compute EWMA chart statistic
-function stat_op(data, lam; chart_choice, m::Int=3, d::Int=1)
+function stat_op(data, lam; chart_choice::InformationMeasure, m::Int=3, d::Int=1)
   #stat_op(data, lam, chart_choice; m::Int=3, d=1)
 
   # create vector with unit range for indexing 
@@ -75,17 +79,25 @@ function stat_op(data, lam; chart_choice, m::Int=3, d::Int=1)
 
     # compute ordinal pattern based on permutations
     order_vec!(x_long, win)
+
     # Binarization of ordinal pattern
     if m == 2
       bin[lookup_array_op[win[1], win[2]]] = 1
     elseif m == 3
       bin[lookup_array_op[win[1], win[2], win[3]]] = 1
+    elseif m == 4
+      bin[lookup_array_op[win[1], win[2], win[3], win[4]]] = 1
+    elseif m == 5
+      bin[lookup_array_op[win[1], win[2], win[3], win[4], win[5]]] = 1
     end
+
     # Compute EWMA statistic for binarized ordinal pattern, Equation (5), page 342, Weiss and Testik (2023)
     @. p_vec = lam * bin + (1 - lam) * p_vec
     @. p_count += bin
+
     # statistic based on smoothed p-estimate
     stat = chart_stat_op(p_vec, chart_choice)
+
     # Save temporary test statistic
     stats_all[i] = stat
   end
