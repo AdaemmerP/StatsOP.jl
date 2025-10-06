@@ -4,9 +4,10 @@
 
 
 # Function to convert vector win to static Array
-function win_to_stat(win, ::Val(m)) where {m}
-  return @SVector [win[i] for i = 1:Val(m)]
+function win_to_stat(win::AbstractVector{T}, ::Val{M}) where {T,M}
+  return return @SVector [win[i] for i = 1:m]
 end
+
 # Function to chart statistic and relative frequencies of ordinal patterns
 function stat_op(data; chart_choice::InformationMeasure, m::Int=3, d::Int=1)
 
@@ -36,7 +37,7 @@ function stat_op(data; chart_choice::InformationMeasure, m::Int=3, d::Int=1)
     # Convert 'win' to static array for indexing without allocations
     # This makes the code generalizable for any m
     #win_static = @SVector [win[i] for i = 1:m]
-    win_static = win_to_stat(win, m)
+    win_static = win_to_stat(win, Val(m))
     # Binarization of ordinal pattern
     bin[lookup_array_op[win_static]] = 1
     # if m == 2
