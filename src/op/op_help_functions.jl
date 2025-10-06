@@ -91,7 +91,7 @@ function compute_lookup_array_op(; op_length=3)
   # Check for op length
   if op_length == 2
 
-    p_ops = @MArray zeros(Int, 2, 2)
+    p_ops = @MArray zeros(Int, 2, 2) # Array{Int}(undef, m)
     sort_tmp = MVector{2,Int}(undef) # Vector{Int}(undef, 2)
 
     for (i, j) in enumerate(eachrow(ranks_op))
