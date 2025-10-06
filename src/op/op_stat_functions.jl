@@ -6,6 +6,11 @@
 # Function to chart statistic and relative frequencies of ordinal patterns
 function stat_op(data; chart_choice::InformationMeasure, m::Int=3, d::Int=1)
 
+  # Function to convert vector win to static Array
+  function win_to_stat(win, m::Val(m))
+    return @SVector [win[i] for i = 1:m]
+  end
+
   # Compute lookup array and number of ops
   lookup_array_op = compute_lookup_array_op(m=m)
   m_fact = factorial(m)
@@ -32,18 +37,18 @@ function stat_op(data; chart_choice::InformationMeasure, m::Int=3, d::Int=1)
     # Convert 'win' to static array for indexing without allocations
     # This makes the code generalizable for any m
     #win_static = @SVector [win[i] for i = 1:m]
-
+    win_static = win_to_stat(win, m::Val(m))
     # Binarization of ordinal pattern
-    #bin[lookup_array_op[win_static]] = 1
-    if m == 2
-      bin[lookup_array_op[win[1], win[2]]] = 1
-    elseif m == 3
-      bin[lookup_array_op[win[1], win[2], win[3]]] = 1
-    elseif m == 4
-      bin[lookup_array_op[win[1], win[2], win[3], win[4]]] = 1
-    elseif m == 5
-      bin[lookup_array_op[win[1], win[2], win[3], win[4], win[5]]] = 1
-    end
+    bin[lookup_array_op[win_static]] = 1
+    # if m == 2
+    #   bin[lookup_array_op[win[1], win[2]]] = 1
+    # elseif m == 3
+    #   bin[lookup_array_op[win[1], win[2], win[3]]] = 1
+    # elseif m == 4
+    #   bin[lookup_array_op[win[1], win[2], win[3], win[4]]] = 1
+    # elseif m == 5
+    #   bin[lookup_array_op[win[1], win[2], win[3], win[4], win[5]]] = 1
+    # end
 
     @. p_count += bin
 
