@@ -4,25 +4,25 @@
 
 
 # Function to chart statistic and relative frequencies of ordinal patterns
-function stat_op(data; chart_choice, op_length::Int=3, d::Int=1)
+function stat_op(data; chart_choice, m::Int=3, d::Int=1)
 
   # Compute lookup array and number of ops
-  lookup_array_op = compute_lookup_array_op(op_length=op_length)
-  op_length_fact = factorial(op_length)
+  lookup_array_op = compute_lookup_array_op(m=m)
+  m! = factorial(m)
 
-  p_vec = Vector{Float64}(undef, op_length_fact)
-  p_count = zeros(Int, op_length_fact)
-  fill!(p_vec, 1 / op_length_fact)
-  bin = Vector{Int64}(undef, op_length_fact)
-  win = Vector{Int64}(undef, op_length)
+  p_vec = Vector{Float64}(undef, m!)
+  p_count = zeros(Int, m!)
+  fill!(p_vec, 1 / m!)
+  bin = Vector{Int64}(undef, m!)
+  win = Vector{Int64}(undef, m)
 
-  for range_start in 1:(length(data)-(op_length-1)*d) #for (i, j) in enumerate(dindex_ranges)
+  for range_start in 1:(length(data)-(m-1)*d) #for (i, j) in enumerate(dindex_ranges)
 
     # Reset binarization vector
     fill!(bin, 0)
 
     # create unit range for indexing data
-    unit_range = range(range_start; step=d, length=op_length)
+    unit_range = range(range_start; step=d, length=m)
 
     x_long = view(data, unit_range)
 
@@ -30,9 +30,9 @@ function stat_op(data; chart_choice, op_length::Int=3, d::Int=1)
     sortperm!(win, x_long)
 
     # Binarization of ordinal pattern
-    if op_length == 2
+    if m == 2
       bin[lookup_array_op[win[1], win[2]]] = 1
-    elseif op_length == 3
+    elseif m == 3
       bin[lookup_array_op[win[1], win[2], win[3]]] = 1
     end
 
@@ -49,21 +49,21 @@ end
 
 
 # Function to compute EWMA chart statistic
-function stat_op(data, lam; chart_choice, op_length::Int=3, d::Int=1)
-  #stat_op(data, lam, chart_choice; op_length::Int=3, d=1)
+function stat_op(data, lam; chart_choice, m::Int=3, d::Int=1)
+  #stat_op(data, lam, chart_choice; m::Int=3, d=1)
 
   # create vector with unit range for indexing 
-  dindex_ranges = compute_dindex_op(data; op_length=op_length, d=d)
+  dindex_ranges = compute_dindex_op(data; m=m, d=d)
 
   # Compute lookup array and number of ops
-  lookup_array_op = compute_lookup_array_op(op_length=op_length)
-  op_length_fact = factorial(op_length)
+  lookup_array_op = compute_lookup_array_op(m=m)
+  m! = factorial(m)
 
-  p_vec = Vector{Float64}(undef, op_length_fact)
-  p_count = zeros(Int, op_length_fact)
-  fill!(p_vec, 1 / op_length_fact)
-  bin = Vector{Int64}(undef, op_length_fact)
-  win = Vector{Int64}(undef, op_length)
+  p_vec = Vector{Float64}(undef, m!)
+  p_count = zeros(Int, m!)
+  fill!(p_vec, 1 / m!)
+  bin = Vector{Int64}(undef, m!)
+  win = Vector{Int64}(undef, m)
   stats_all = Vector{Float64}(undef, length(dindex_ranges))
 
   for (i, j) in enumerate(dindex_ranges)
@@ -76,9 +76,9 @@ function stat_op(data, lam; chart_choice, op_length::Int=3, d::Int=1)
     # compute ordinal pattern based on permutations
     order_vec!(x_long, win)
     # Binarization of ordinal pattern
-    if op_length == 2
+    if m == 2
       bin[lookup_array_op[win[1], win[2]]] = 1
-    elseif op_length == 3
+    elseif m == 3
       bin[lookup_array_op[win[1], win[2], win[3]]] = 1
     end
     # Compute EWMA statistic for binarized ordinal pattern, Equation (5), page 342, Weiss and Testik (2023)
