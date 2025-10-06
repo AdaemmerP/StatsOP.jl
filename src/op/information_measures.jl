@@ -7,8 +7,6 @@ export Shannon,
   UpDownScaling,
   chart_stat_op
 
-struct Shannon <: Entropy end
-struct ShannonExtropy <: Entropy end
 struct DistanceToWhiteNoise <: Entropy end
 struct UpDownBalance <: ComplexityEstimator end
 struct Persistence <: ComplexityEstimator end
