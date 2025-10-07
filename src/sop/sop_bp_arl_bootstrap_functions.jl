@@ -20,7 +20,7 @@ denotes each d₁-d₂ combination. This matrix will be used for re-sampling.
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 """
 function arl_sop_bp_bootstrap(
-    p_array::Array{T,3}, lam, cl, w, reps; chart_choice::InformationMeasure=TauTilde()
+    p_array::Array{T,3}, lam, cl, w, reps; chart_choice=TauTilde()
 ) where {T<:Real}
 
     # Check whether to use threading or multi processing --> only one process threading, else distributed

@@ -22,7 +22,7 @@ function arl_sop_bp_oc(
     cl,
     w::Int,
     reps=1_000;
-    chart_choice::InformationMeasure=TauTilde(),
+    chart_choice=TauTilde(),
     refinement::Union{Nothing,RefinedType}=nothing,
 )
 

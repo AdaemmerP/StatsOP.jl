@@ -16,7 +16,7 @@ The input parameters are:
 The default value is 3.
 """
 function arl_sop_ic(
-  sop_dgp::ICSTS, lam, cl, d1::Int, d2::Int, reps=10_000; chart_choice::InformationMeasure=TauTilde(), refinement::Union{Nothing,RefinedType}=nothing
+  sop_dgp::ICSTS, lam, cl, d1::Int, d2::Int, reps=10_000; chart_choice=TauTilde(), refinement::Union{Nothing,RefinedType}=nothing
 )
 
   # Check input parameters

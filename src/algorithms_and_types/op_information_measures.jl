@@ -1,6 +1,4 @@
-export Shannon,
-  ShannonExtropy,
-  DistanceToWhiteNoise,
+export DistanceToWhiteNoise,
   UpDownBalance,
   Persistence,
   RotationalAsymmetry,
@@ -58,10 +56,10 @@ end
 
 # γ-chart: Bandt (2019), equation (5)
 function chart_stat_op(p_vec, ::RotationalAsymmetry)
-  return p_vec[3] + p_vec[4] - p_vec[2] - p_vec[5]
+  return p_vec[3] + p_vec[5] - p_vec[2] - p_vec[4]
 end
 
 # δ-chart: Bandt (2019), equation (6)
 function chart_stat_op(p_vec, ::UpDownScaling)
-  return p_vec[2] + p_vec[3] - p_vec[4] - p_vec[5]
+  return p_vec[2] + p_vec[3] - p_vec[5] - p_vec[4]
 end

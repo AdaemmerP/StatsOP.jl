@@ -22,7 +22,7 @@ The input parameters are:
 """
 function cl_sop_bootstrap(
     data::Array{T,3}, lam, L0, cl_init, d1, d2, reps=10_000;
-    chart_choice::InformationMeasure=TauTilde(), jmin=3, jmax=7, verbose=false
+    chart_choice=TauTilde(), jmin=3, jmax=7, verbose=false
 ) where {T<:Real}
 
     p_array = compute_p_array(data, d1, d2; chart_choice=chart_choice)

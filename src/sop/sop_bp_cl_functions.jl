@@ -20,7 +20,7 @@ The function returns the control limit for a given average run. The input parame
 """
 function cl_sop_bp(
     sp_dgp::ICSTS, lam, L0, cl_init, w, reps=10_000;
-    chart_choice::InformationMeasure=TauTilde(), refinement::Int=0, jmin=4, jmax=6, verbose=false
+    chart_choice=TauTilde(), refinement::Int=0, jmin=4, jmax=6, verbose=false
 )
 
     L1 = 0.0

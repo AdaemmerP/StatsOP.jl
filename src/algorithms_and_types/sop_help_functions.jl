@@ -24,6 +24,7 @@ function compute_lookup_array_sop()
 end
 
 
+
 """
 Create and return the index of the sops for sortperm values. 
 The type frequencies are based on the ranks of the sops, but we use sortperm to 
@@ -40,6 +41,7 @@ function create_index_sop(; refinement)
     s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
     s_2 = [2, 5, 7, 9, 16, 18, 20, 23]
     s_3 = [4, 6, 10, 12, 13, 15, 19, 21]
+
     return [s_1, s_2, s_3]
 
     # RotationType -> Equation (8) in Weiss and Kim (2025)  
@@ -215,14 +217,6 @@ function compute_p_array_bp(data::Array{T,3}, w::Int; chart_choice=3,
 
 end
 
-# # In-place function to sort vector with sops
-# function order_vec!(x, ix)
-
-#   sortperm!(ix, x)
-
-#   return ix
-
-# end
 
 #--- Compute absolute frequencies of sops
 function sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
@@ -250,7 +244,36 @@ function sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_fr
   return sop_freq
 
 end
-#
+
+#--- Compute absolute frequencies of sops
+function sop_frequencies_lehmer!(
+  m, n, d1, d2, data, sop, win, sop_freq, used
+)
+
+  # Loop through data to fill sop vector
+  for j in 1:n
+    for i in 1:m
+
+      sop[1] = data[i, j]
+      sop[2] = data[i, j+d2]
+      sop[3] = data[i+d1, j]
+      sop[4] = data[i+d1, j+d2]
+
+      # Order 'sop' in-place and save results in 'win'
+      sortperm!(win, sop)
+
+      # Convert permutation to lehmer index
+      index = perm_to_lehm_idx!(win, used)
+      fill!(used, 0) # reset used
+
+      # Add 1 to index position
+      sop_freq[index] += 1
+    end
+  end
+
+  return sop_freq
+
+end
 
 # Fill p_hat with the sum of frequencies and compute relative frequencies
 function fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, s_all)
@@ -281,6 +304,79 @@ function fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, s_all)
 
     elseif typeof(chart_choice) in (Shannon, ShannonExtropy, DistanceToWhiteNoise)
       for (i, j, k) in zip(s_all[1], s_all[2], s_all[3])
+        p_hat[1] += sop_freq[i]
+        p_hat[2] += sop_freq[j]
+        p_hat[3] += sop_freq[k]
+      end
+    end
+
+    # For refined computations  
+  elseif typeof(refinement) == RefinedType
+    for (i, j, k, l, m, n) in zip(
+      s_all[1], s_all[2], s_all[3], s_all[4], s_all[5], s_all[6]
+    )
+      p_hat[1] += sop_freq[i]
+      p_hat[2] += sop_freq[j]
+      p_hat[3] += sop_freq[k]
+      p_hat[4] += sop_freq[l]
+      p_hat[5] += sop_freq[m]
+      p_hat[6] += sop_freq[n]
+    end
+
+
+  end
+
+  # Compute relative frequencies
+  p_hat ./= m * n
+
+end
+
+
+# Fill p_hat with the sum of frequencies and compute relative frequencies
+function fill_p_hat_lehmer!(
+  p_hat, chart_choice, refinement, sop_freq, m, n
+)
+
+  # For classical appraoch
+  if isnothing(refinement)
+    if typeof(chart_choice) == TauHat # previously chart_choice == 1
+      # Relevant lehmer indices for TauHat
+      s_1 = (1, 3, 8, 11, 14, 17, 22, 24)
+      for i in s_1
+        p_hat[1] += sop_freq[i]
+      end
+
+    elseif typeof(chart_choice) == KappaHat # previously chart_choice == 2
+      # Relevant lehmer indices for KappaHat
+      s_2 = (2, 4, 7, 12, 13, 18, 21, 23)
+      s_3 = (5, 6, 9, 10, 15, 16, 19, 20)
+      for (i, j) in zip(s_2, s_3)
+        p_hat[2] += sop_freq[i]
+        p_hat[3] += sop_freq[j]
+      end
+
+    elseif typeof(chart_choice) == TauTilde # previously chart_choice == 3
+      # Relevant lehmer indices for TauTilde
+      s_3 = (5, 6, 9, 10, 15, 16, 19, 20)
+      for i in s_3
+        p_hat[3] += sop_freq[i]
+      end
+
+    elseif typeof(chart_choice) == KappaTilde # previously chart_choice == 4
+      # Relevant lehmer indices for indices 
+      s_1 = (1, 3, 8, 11, 14, 17, 22, 24)
+      s_2 = (2, 4, 7, 12, 13, 18, 21, 23)
+      for (i, j) in zip(s_1, s_2)
+        p_hat[1] += sop_freq[i]
+        p_hat[2] += sop_freq[j]
+      end
+
+    elseif typeof(chart_choice) in (Shannon, ShannonExtropy, DistanceToWhiteNoise)
+      # Relevant lehmer indices for Shannon, ShannonExtropy, DistanceToWhiteNoise
+      s_1 = (1, 3, 8, 11, 14, 17, 22, 24)
+      s_2 = (2, 4, 7, 12, 13, 18, 21, 23)
+      s_3 = (5, 6, 9, 10, 15, 16, 19, 20)
+      for (i, j, k) in zip(s_1, s_2, s_3)
         p_hat[1] += sop_freq[i]
         p_hat[2] += sop_freq[j]
         p_hat[3] += sop_freq[k]

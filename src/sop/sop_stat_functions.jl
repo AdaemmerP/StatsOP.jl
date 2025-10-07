@@ -37,18 +37,14 @@ stat_sop(data, 2)
 function stat_sop(
   data::Union{SubArray,Array{T,2}},
   d1::Int, d2::Int;
-  chart_choice::InformationMeasure=TauTilde(),
+  chart_choice,
   refinement::Union{Nothing,RefinedType}=nothing,
   add_noise::Bool=false,
   noise_dist::UnivariateDistribution=Uniform(0, 1)
 ) where {T<:Real}
 
-  # Check input parameters
-  #  @assert chart_choice in (Shannon, ShannonExtropy, DistanceToWhiteNoise, TauHat, KappaHat, TauTilde, KappaTilde) "chart_choice must be one of the defined chart types from type InformationMeasure"
-  # @assert 1 <= chart_choice <= 7 "chart_choice must be between 1 and 7"
-  # if chart_choice in 1:4
-  #   @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
-  # end
+  # TODO Check input parameters
+
 
   # Pre-allocate  
   if isnothing(refinement) #&& chart_choice in 1:4
@@ -117,19 +113,15 @@ function stat_sop(
   lam,
   d1::Int,
   d2::Int;
-  chart_choice::InformationMeasure=TauTilde(),
+  chart_choice=TauTilde(),
   refinement::Union{Nothing,RefinedType}=nothing,
   add_noise::Bool=false,
   noise_dist::UnivariateDistribution=Uniform(0, 1),
   type_freq_init::Union{Float64,Array{Float64,2}}=1 / 3
 ) where {T<:Real}
 
-  # Check input parameters
-  @assert typeof(chart_choice) in (Shannon, ShannonExtropy, DistanceToWhiteNoise, TauHat, KappaHat, TauTilde, KappaTilde) "chart_choice must be one of the defined chart types from type InformationMeasure"
-  # @assert 1 <= chart_choice <= 7 "chart_choice must be between 1 and 7"
-  # if chart_choice in 1:4
-  #   @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
-  # end
+  # TODO Check input parameters
+
 
   # Compute lookup cube
   lookup_array_sop = compute_lookup_array_sop()
@@ -140,6 +132,7 @@ function stat_sop(
   else
     p_hat = zeros(6) # refined approach
   end
+
   sop = zeros(4)
   p_ewma = zeros(3)
   p_ewma .= type_freq_init
@@ -169,7 +162,7 @@ function stat_sop(
     sop_frequencies!(m, n, d1, d2, lookup_array_sop, data_tmp, sop, win, sop_freq)
 
     # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-    fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, index_sop) #s_1, s_2, s_3)
+    fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, index_sop)
 
     # Compute test statistic
     @. p_ewma = (1 - lam) * p_ewma + lam * p_hat

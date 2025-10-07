@@ -17,7 +17,7 @@ The input parameters are:
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 """
 function arl_sop_bp_ic(
-  spatial_dgp::ICSTS, lam, cl, w::Int, reps=1_000; chart_choice::InformationMeasure=TauTilde(), refinement::Union{Nothing,RefinedType}=nothing,
+  spatial_dgp::ICSTS, lam, cl, w::Int, reps=1_000; chart_choice=TauTilde(), refinement::Union{Nothing,RefinedType}=nothing,
 )
 
   # Check input parameters

@@ -3,7 +3,7 @@
 function stat_sop_bp(
   data::Union{SubArray,Array{T,2}},
   w::Int;
-  chart_choice::InformationMeasure=TauTilde(),
+  chart_choice=TauTilde(),
   refinement::Union{Nothing,RefinedType}=nothing,
   add_noise::Bool=false,
   noise_dist::UnivariateDistribution=Uniform(0, 1)
@@ -72,7 +72,7 @@ function stat_sop_bp(
   data::Array{T,3},
   lam,
   w::Int;
-  chart_choice::InformationMeasure=TauTilde(),
+  chart_choice=TauTilde(),
   refinement::Union{Nothing,RefinedType}=nothing,
   add_noise=false,
   noise_dist::UnivariateDistribution=Uniform(0, 1),

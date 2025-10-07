@@ -1,4 +1,11 @@
-export chart_stat_sop, TauHat, KappaHat, TauTilde, KappaTilde, Shannon, ShannonExtropy, DistanceToWhiteNoise
+export chart_stat_sop,
+  TauHat,
+  KappaHat,
+  TauTilde,
+  KappaTilde,
+  Shannon,
+  ShannonExtropy,
+  DistanceToWhiteNoise
 
 # Build concrete types for information measures for SOPs
 struct TauHat <: ComplexityEstimator end
@@ -60,3 +67,6 @@ function chart_stat_sop(p_vec, ::DistanceToWhiteNoise)
   end
   return chart_val
 end
+
+
+
