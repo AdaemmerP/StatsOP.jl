@@ -118,10 +118,10 @@ export rl_op_ic,
 #  General helper functions and structs to include #
 # ---------------------------------------------#  
 include("algorithms_and_types/lehmer_function.jl")
-include("algorithms_and_types/op_information_measures.jl")
 include("algorithms_and_types/op_dgp_structs.jl")
 include("algorithms_and_types/op_help_functions.jl")
 include("algorithms_and_types/op_dgp_functions.jl")
+include("algorithms_and_types/op_information_measures.jl")
 
 include("algorithms_and_types/sop_information_measures.jl")
 include("algorithms_and_types/sop_dgp_structs.jl")
@@ -164,8 +164,6 @@ include("sop/sop_bp_cl_functions.jl")
 include("sop/sop_bp_cl_bootstrap_functions.jl")
 # ---
 include("sop/sop_stat_functions.jl")
-include("sop/sop_stat_functions_lehmer.jl")
-
 include("sop/sop_stat_bp_functions.jl")
 include("sop/sop_test_functions.jl")
 
