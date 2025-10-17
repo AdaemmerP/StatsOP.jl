@@ -20,115 +20,143 @@ If `false`, the exact critical value is computed.
 crit_val_sop(10, 10, 0.05, 1, true)
 ```
 """
+# Checks alpha validity for refinement cases, common to all refined methods.
+function _check_alpha(alpha)
+  @assert alpha in (0.1, 0.05, 0.01) "alpha must be 0.1, 0.05 or 0.01 for refined types."
+end
+
+# --- 3. Multiple Dispatch Implementation of crit_val_sop() ---
+
+# ==========================================================================
+# PART A: NO REFINEMENT (chart::ChartMetric, ::NoRefinement)
+# The dispatch logic is split based on the calculation method:
+# 1. Tau/Kappa metrics (need the 'approximate' flag)
+# 2. Information metrics (fixed critical values, ignore 'approximate')
+# ==========================================================================
+
+# Dispatch on no refinement
 function crit_val_sop(
-  M, N, alpha, d1::Int, d2::Int; chart_choice, refinement=0, approximate::Bool=false
+  M, N, alpha, d1::Int, d2::Int,
+  chart_choice::Union{TauHat,KappaHat,TauTilde,KappaTilde},
+  refinement::Bool=false;
+  approximate::Bool=false
 )
 
-  # sizes
   m = M - d1
   n = N - d2
 
-  # check whether chart_choice is between 1 and 4
-  @assert 1 <= chart_choice <= 7 "Wrong number for test statistic."
+  if approximate
+    # --- Approximate calculation ---
+    if typeof(chart_choice) == TauHat
+      term = sqrt(4 / 15) / sqrt(m * n)
+    elseif typeof(chart_choice) == KappaHat
+      term = sqrt(7 / 9) / sqrt(m * n)
+    elseif typeof(chart_choice) == TauTilde
+      term = sqrt(4 / 15) / sqrt(m * n)
+    elseif typeof(chart_choice) == KappaTilde
+      term = sqrt(32 / 45) / sqrt(m * n)
+    end
+  else
 
-
-  # -------------------------------------------------------------------------#
-  # ---------------------- No refinement ------------------------------------#
-  # -------------------------------------------------------------------------#
-  if refinement == 0
-    # compute critical value based on approximation
-    if approximate
-      if chart_choice == 1
-        term = sqrt(4 / 15) / sqrt(m*n) # 2 / 9 + 1 / 45
-        return (quantile(Normal(0, 1), 1 - alpha / 2) * term)
-
-      elseif chart_choice == 2
-        term = sqrt(7 / 9) / sqrt(m*n) # 2 / 3 + 1 / 9
-        return (quantile(Normal(0, 1), 1 - alpha / 2) * term)
-
-      elseif chart_choice == 3
-        term = sqrt(4 / 15) / sqrt(m*n) # 2 / 9 + 2 / 45
-        return (quantile(Normal(0, 1), 1 - alpha / 2) * term)
-
-      elseif chart_choice == 4
-        term = sqrt(32 / 45) / sqrt(m*n) # 2 / 3 + 2 / 45
-        return (quantile(Normal(0, 1), 1 - alpha / 2) * term)
-
-      end
-
-      # no approximation  
-    else
-
-      if chart_choice == 1
-        term = sqrt(2 / 9 + 1 / 45 * (1 - 1 / (2 * m) - 1 / (2 * n))) / sqrt(m*n)
-        return (quantile(Normal(0, 1), 1 - alpha / 2) * term)
-
-      elseif chart_choice == 2
-        term = sqrt(2 / 3 + 1 / 9 * (1 - 1 / (2 * m) - 1 / (2 * n))) / sqrt(m*n)
-        return (quantile(Normal(0, 1), 1 - alpha / 2) * term)
-
-      elseif chart_choice == 3
-        term = sqrt(2 / 9 + 2 / 45 * (1 - 1 / (2 * m) - 1 / (2 * n))) / sqrt(m*n)
-        return (quantile(Normal(0, 1), 1 - alpha / 2) * term)
-
-      elseif chart_choice == 4
-        term = sqrt(2 / 3 + 2 / 45 * (1 - 1 / (2 * m) - 1 / (2 * n))) / sqrt(m*n)
-        return (quantile(Normal(0, 1), 1 - alpha / 2) * term)
-
-      elseif chart_choice in 5:7
-        return ifelse(alpha == 0.1, 3.487299 / (m * n), ifelse(alpha == 0.05, 2.265401 / (m * n), 1.740201 / (m * n)))
-
-      end
+    # --- No approximation (exact formula with correction term) ---
+    correction = 1 - 1 / (2 * m) - 1 / (2 * n)
+    if typeof(chart_choice) == TauHat
+      term = sqrt(2 / 9 + 1 / 45 * correction) / sqrt(m * n)
+    elseif typeof(chart_choice) == KappaHat
+      term = sqrt(2 / 3 + 1 / 9 * correction) / sqrt(m * n)
+    elseif typeof(chart_choice) == TauTilde
+      term = sqrt(2 / 9 + 2 / 45 * correction) / sqrt(m * n)
+    elseif typeof(chart_choice) == KappaTilde
+      term = sqrt(2 / 3 + 2 / 45 * correction) / sqrt(m * n)
     end
   end
-  # --------------------------------------------------------------------------
 
-  # -------------------------------------------------------------------------#
-  # ---------------------- With refinement ----------------------------------#
-  # -------------------------------------------------------------------------#
+  return quantile(Normal(0, 1), 1 - alpha / 2) * term
+end
 
-  if refinement in 1:3
+# A2. Dispatch for Entropy metrics
+function crit_val_sop(
+  M, N, alpha, d1::Int, d2::Int,
+  chart_choice::Union{Shannon,ShannonExtropy,DistanceToWhiteNoise},
+  refinement::Bool=false;
+  approximate::Bool=false # Note: approximate is ignored here but kept for signature consistency
+)
 
-    @assert alpha in (0.1, 0.05, 0.01) "alpha must be 0.1, 0.05 or 0.01"
+  m = M - d1
+  n = N - d2
 
-    if refinement == 1
+  # Note: Original logic simplified to use the ternary operator structure
+  crit_const = ifelse(alpha == 0.1, 3.487299,
+    ifelse(alpha == 0.05, 2.265401,
+      1.740201)) # alpha == 0.01
 
-      return ifelse(alpha == 0.1, 2.210104 / (m * n), ifelse(alpha == 0.05, 1.566739 / (m * n), 1.279915 / (m * n)))
+  return crit_const / (m * n)
+end
 
-    elseif refinement == 2
+# A2. Dispatch for Refined metrics
+function crit_val_sop(
+  M, N, alpha, d1::Int, d2::Int,
+  chart_choice::Union{Shannon,ShannonExtropy,DistanceToWhiteNoise},
+  refinement::RotationType;
+  approximate::Bool=false
+)
 
-      return ifelse(alpha == 0.1, 2.813519 / (m * n), ifelse(alpha == 0.05, 1.999264 / (m * n), 1.637740 / (m * n)))
+  m = M - d1
+  n = N - d2
 
-    elseif refinement == 3
+  return ifelse(alpha == 0.1, 2.210104 / (m * n), ifelse(alpha == 0.05, 1.566739 / (m * n), 1.279915 / (m * n)))
+end
 
-      return ifelse(alpha == 0.1, 2.133017 / (m * n), ifelse(alpha == 0.05, 1.497222 / (m * n), 1.216170 / (m * n)))
-    end
+# A2. Dispatch for DirectionType refinement
+function crit_val_sop(
+  M, N, alpha, d1::Int, d2::Int,
+  chart_choice::Union{Shannon,ShannonExtropy,DistanceToWhiteNoise},
+  refinement::DirectionType;
+  approximate::Bool=false
+)
 
-  end
+  m = M - d1
+  n = N - d2
+
+  return ifelse(alpha == 0.1, 2.813519 / (m * n), ifelse(alpha == 0.05, 1.999264 / (m * n), 1.637740 / (m * n)))
+end
+
+# A2. Dispatch for DiagonalType refinement
+function crit_val_sop(
+  M, N, alpha, d1::Int, d2::Int,
+  chart_choice::Union{Shannon,ShannonExtropy,DistanceToWhiteNoise},
+  refinement::DiagonalType;
+  approximate::Bool=false
+)
+
+  m = M - d1
+  n = N - d2
+
+  return ifelse(alpha == 0.1, 2.133017 / (m * n), ifelse(alpha == 0.05, 1.497222 / (m * n), 1.216170 / (m * n)))
 end
 
 
+
+# Function for hypothesis testing
 function test_sop(
-  data, alpha, d1::Int, d2::Int; chart_choice, refinement, add_noise::Bool=false, approximate::Bool=false
-  )
+  data, alpha, d1::Int, d2::Int; chart_choice, refinement::Bool=false, add_noise::Bool=false, approximate::Bool=false
+)
 
   # sizes
   M = size(data, 1)
   N = size(data, 2)
-  m = M - d1
-  n = N - d2
 
   # compute critical value 
   crit_val = crit_val_sop(
-    M, N, alpha, d1, d2; chart_choice=chart_choice, refinement=refinement, approximate=approximate
+    M, N, alpha, d1, d2, chart_choice, refinement; approximate=approximate
   )
 
   # compute test statistic
   test_stat = stat_sop(
-    data, 
-    d1, 
+    data,
+    d1,
     d2;
-    chart_choice, 
+    chart_choice,
     refinement,
     add_noise
   )

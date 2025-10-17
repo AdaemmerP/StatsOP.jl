@@ -111,7 +111,7 @@ function stat_op(data; chart_choice, m::Int=3, d::Int=1)
 
   p_rel = p_count ./ sum(p_count) #length(dindex_ranges)
   stat = chart_stat_op(p_rel, chart_choice)
-  return stat # [stat, p_rel]
+  return [stat, p_rel]
 
 end
 

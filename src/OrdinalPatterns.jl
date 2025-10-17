@@ -15,6 +15,7 @@ import PrecompileTools
 
 # Reexport
 @reexport using Distributions
+@reexport using ComplexityMeasures: Shannon, ShannonExtropy
 
 # ---------------------------------------------#
 # SOP related functions and structs  to export #
@@ -119,7 +120,6 @@ export rl_op_ic,
 # ---------------------------------------------#  
 include("algorithms_and_types/lehmer_function.jl")
 include("algorithms_and_types/op_dgp_structs.jl")
-include("algorithms_and_types/op_help_functions.jl")
 include("algorithms_and_types/op_dgp_functions.jl")
 include("algorithms_and_types/op_information_measures.jl")
 
@@ -127,7 +127,6 @@ include("algorithms_and_types/sop_information_measures.jl")
 include("algorithms_and_types/sop_dgp_structs.jl")
 include("algorithms_and_types/sop_dgp_functions.jl")
 include("algorithms_and_types/sop_distributions.jl")
-include("algorithms_and_types/sop_help_functions.jl")
 
 
 # ---------------------------------------------#
@@ -140,7 +139,7 @@ include("op/op_cl_functions.jl")
 include("op/op_dependence.jl")
 include("op/op_stat_functions.jl")
 include("op/op_test_functions.jl")
-
+include("op/op_help_functions.jl")
 
 # ACF files 
 include("acf/acf_functions.jl")
@@ -153,6 +152,7 @@ include("acf/acf_cl_functions.jl")
 include("sop/sop_arl_ic_functions.jl")
 include("sop/sop_arl_oc_functions.jl")
 include("sop/sop_arl_bootstrap_functions.jl")
+include("sop/sop_help_functions.jl")
 # ---
 include("sop/sop_bp_arl_ic_functions.jl")
 include("sop/sop_bp_arl_oc_functions.jl")

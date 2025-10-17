@@ -5,7 +5,11 @@ export chart_stat_sop,
   KappaTilde,
   Shannon,
   ShannonExtropy,
-  DistanceToWhiteNoise
+  DistanceToWhiteNoise,
+  RefinedType,
+  RotationType,
+  DirectionType,
+  DiagonalType
 
 # Build concrete types for information measures for SOPs
 struct TauHat <: ComplexityEstimator end

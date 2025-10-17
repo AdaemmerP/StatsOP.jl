@@ -38,7 +38,7 @@ function stat_sop(
   data::Union{SubArray,Array{T,2}},
   d1::Int, d2::Int;
   chart_choice,
-  refinement::Union{Nothing,RefinedType}=nothing,
+  refinement::Union{Bool,RefinedType}=false,
   add_noise::Bool=false,
   noise_dist::UnivariateDistribution=Uniform(0, 1)
 ) where {T<:Real}
@@ -47,7 +47,7 @@ function stat_sop(
 
 
   # Pre-allocate  
-  if isnothing(refinement) #&& chart_choice in 1:4
+  if refinement == false #&& chart_choice in 1:4
     p_hat = zeros(3) # classical approach
   else
     p_hat = zeros(6) # refined approach
@@ -63,7 +63,7 @@ function stat_sop(
   n = size(data, 2) - d2
 
   # indices for sum of frequencies
-  index_sop = create_index_sop(refinement=refinement)
+  index_sop = create_index_sop(refinement)
 
   # Add noise?
   if add_noise
@@ -114,7 +114,7 @@ function stat_sop(
   d1::Int,
   d2::Int;
   chart_choice=TauTilde(),
-  refinement::Union{Nothing,RefinedType}=nothing,
+  refinement::Union{Bool,RefinedType}=false,
   add_noise::Bool=false,
   noise_dist::UnivariateDistribution=Uniform(0, 1),
   type_freq_init::Union{Float64,Array{Float64,2}}=1 / 3
