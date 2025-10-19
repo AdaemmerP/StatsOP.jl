@@ -1,4 +1,4 @@
-module OrdinalPatterns
+module StatsOP
 
 # Packages to use
 using Random
