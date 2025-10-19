@@ -1,0 +1,638 @@
+{
+    "cells": [
+        {
+            "id": "1",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "---\n",
+                "engine: julia\n",
+                "julia:\n",
+                "  exeflags: \n",
+                "   - --project=../.\n",
+                "   - --threads=10\n",
+                "eval: false  \n",
+                "---\n",
+                "\n",
+                "# Replication of Adaemmer et al. (2024)"
+            ]
+        },
+        {
+            "id": "2",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "#| output: false\n",
+                "\n",
+                "# Load packages\n",
+                "using OrdinalPatterns\n",
+                "using LinearAlgebra\n",
+                "using Cthulhu\n",
+                "BLAS.set_num_threads(1); # Set BLAS threads to 1 when using multithreading\n",
+                "\n",
+                "# Parameters\n",
+                "reps = 1_000;\n",
+                "lam = 0.1\n",
+                "cl = 0.03049\n",
+                "\n",
+                "# In-control limits SOPs\n",
+                "ic_sop = [\n",
+                "    0.03049 0.05426 0.03174 0.05209;\n",
+                "    0.02036 0.03626 0.02122 0.03476;\n",
+                "    0.01223 0.0218 0.01276 0.02087;\n",
+                "    0.00967 0.01724 0.01009 0.01650\n",
+                "]\n",
+                "\n",
+                "ic_sacf_cont = [0.05313, 0.03701, 0.02310, 0.01847]\n",
+                "ic_sacf_count = [0.05305, 0.03698, 0.02309, 0.01847]\n",
+                ""
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "3",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "## Table 1"
+            ]
+        },
+        {
+            "id": "4",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "# Build struct\n",
+                "sop_dgp = ICSP(\n",
+                "    11,\n",
+                "    11,\n",
+                "    Normal(0, 1)\n",
+                ")\n",
+                "\n",
+                "# Limits SOPs\n",
+                "L0 = 370\n",
+                "cl_init = 0.01\n",
+                "cl_sop(sop_dgp, 0.1, L0, cl_init, 1, 1, 10_000; chart_choice=1, jmin=4, jmax=7, verbose=true)\n",
+                "\n",
+                "# Verify ARL\n",
+                "lam = 0.1\n",
+                "cl = 0.03049\n",
+                "arl_sop(sop_dgp, lam, cl, 1, 1, 10_000; chart_choice=1)"
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "5",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "## Table A.1"
+            ]
+        },
+        {
+            "id": "6",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "MN_vec = [(11, 11), (16, 16), (26, 26), (41, 26)];\n",
+                "dgp_vals = [\n",
+                "    (0.1, 0.1, 0.1);\n",
+                "    (0.2, 0.2, 0.2);\n",
+                "    (0.2, 0.2, 0.5);\n",
+                "    (0.4, 0.3, 0.1)\n",
+                "]\n",
+                "results_mat = zeros(4 * 4, 5)"
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "7",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+            ]
+        },
+        {
+            "id": "8",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "i = 1\n",
+                "for alphas in dgp_vals\n",
+                "    for (j, mn_tup) in enumerate(MN_vec)\n",
+                "        M = mn_tup[1]\n",
+                "        N = mn_tup[2]\n",
+                "        for chart in 1:4\n",
+                "            cl_sop = ic_sop[j, chart]\n",
+                "            cl_sacf = ic_sacf_cont[j]\n",
+                "            sop_dgp = SAR11(alphas, M, N, Normal(0, 1), nothing, 100)\n",
+                "            res_sop = arl_sop(sop_dgp, lam, cl_sop, 1, 1, reps; chart_choice=chart)\n",
+                "            res_sacf = arl_sacf(sop_dgp, lam, cl_sacf, 1, 1, reps)\n",
+                "            results_mat[i, chart] = res_sop[1]\n",
+                "            results_mat[i, 5] = res_sacf[1]\n",
+                "        end\n",
+                "        i = i + 1\n",
+                "        println(i)\n",
+                "    end\n",
+                "end\n",
+                "round.(results_mat, digits=2)"
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "9",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "## Table A.2"
+            ]
+        },
+        {
+            "id": "10",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "i = 1\n",
+                "for alphas in dgp_vals\n",
+                "    for (j, mn_tup) in enumerate(MN_vec)\n",
+                "        M = mn_tup[1]\n",
+                "        N = mn_tup[2]\n",
+                "        for chart in 1:4\n",
+                "            cl_sop = ic_sop[j, chart]\n",
+                "            cl_sacf = ic_sacf_count[j]\n",
+                "            sop_dgp = SINAR11(alphas, M, N, Poisson(5), nothing, 100)\n",
+                "            res_sop = arl_sop(sop_dgp, lam, cl_sop, 1, 1, reps; chart_choice=chart)\n",
+                "            res_sacf = arl_sacf(sop_dgp, lam, cl_sacf, 1, 1, reps)\n",
+                "            results_mat[i, chart] = res_sop[1]\n",
+                "            results_mat[i, 5] = res_sacf[1]\n",
+                "        end\n",
+                "        i = i + 1\n",
+                "        println(i)\n",
+                "    end\n",
+                "end\n",
+                "round.(results_mat, digits=2)\n",
+                "\n",
+                "spatial_dgp = SAR11((0.1, 0.1, 0.1), 11, 11, Normal(0,1), nothing, 100)\n",
+                "@descend rl_sacf(\n",
+                "  spatial_dgp, 0.1, 0.05305, 1, 1, 1:10, \n",
+                "  Poisson(5), nothing\n",
+                ")"
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "11",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "## Try BP-Statistic"
+            ]
+        },
+        {
+            "id": "12",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "data_all = randn(50, 50, 1000)\n",
+                "data = data_all[:, :, 1]\n",
+                "d1 = 1\n",
+                "d2 = 1\n",
+                "d1_vec = [1, 2]\n",
+                "d2_vec = [1, 2]\n",
+                "\n",
+                "stat_sop(data, d1, d2)\n",
+                "stat_sop(0.1, data_all, d1, d2; add_noise = true)\n",
+                "@btime stat_sop(0.1, $data_all, $d1, $d2; add_noise = true)\n",
+                "\n",
+                "stat_sop(data, d1_vec, d2_vec; add_noise = true)\n",
+                "stat_sop(0.1, data_all, d1_vec, d2_vec; add_noise = true)\n",
+                "@btime stat_sop(0.1, $data_all, $d1_vec, $d2_vec; add_noise = true)"
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "13",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                ""
+            ]
+        },
+        {
+            "id": "14",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "data = randn(41, 26, 370);\n",
+                "spatial_dgp = ICSP(41, 26, Normal(0, 1))\n",
+                "lam = 0.1\n",
+                "L0 = 370\n",
+                "d1_vec = [1, 2]\n",
+                "d2_vec = [1, 2]\n",
+                "\n",
+                "lookup_array_sop = compute_lookup_array_sop()\n",
+                "cl_init = stat_sop(lam, data, d1_vec, d2_vec; chart_choice=3, add_noise=false) |> x -> last(x)\n",
+                "@btime rl_sop(lam, cl_init, lookup_array_sop, spatial_dgp, 1:5_00, Normal(0, 1), 3, d1_vec, d2_vec)\n",
+                "\n",
+                "cl_sop(lam, L0, spatial_dgp, cl_init, 2, 2, 1_000; chart_choice=3, jmin=4, jmax=6, verbose=true)\n",
+                "arl_sop(lam, 0.0269, spatial_dgp, d1_vec, d2_vec, 100; chart_choice=3)\n",
+                "spatial_dgp = SAR11((0.1, 0.1, 0.1), 41, 26, Normal(0, 1), nothing, 100)\n",
+                "arl_sop(lam, 0.0269, spatial_dgp, d1_vec, d2_vec, 1_000; chart_choice=3)\n",
+                "\n",
+                "BLAS.set_num_threads(1);\n",
+                "spatial_sar1 = SAR1((0.1, 0.1, 0.1, 0.1), 11, 11, Normal(0, 1), nothing, 20)\n",
+                "arl_sop(0.1, 0.01037, spatial_sar1, 2, 2, 1_000; chart_choice=3)\n",
+                "arl_sop(0.1, 0.03174, spatial_sar1, 1, 1, 1_000; chart_choice=3)\n",
+                "\n",
+                "spatial_sar11 = SAR11((0.1, 0.1, 0.1), 41, 26, Normal(0, 1), nothing, 100)\n",
+                "arl_sop(0.1, 0.0214, spatial_sar11, d1_vec, d2_vec, 1_000; chart_choice=3)"
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "15",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                ""
+            ]
+        },
+        {
+            "id": "16",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "stat_sacf(rand(10, 10), 1, 1)\n",
+                "x = rand(10, 10, 1000)\n",
+                "@btime stat_sacf(0.1, $x, 2, 2)\n",
+                "\n",
+                "@btime stat_sacf(0.1, x, [1, 2, 3], [1, 2, 3]) \n",
+                "\n",
+                "cl_sacf(0.1, 370, ICSP(11, 11, Normal(0, 1)), 0.04 , 1, 1, 1000; jmin=4, jmax=6, verbose=true)"
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "17",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                ""
+            ]
+        },
+        {
+            "id": "18",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "x = rand(41, 26, 370);\n",
+                "\n",
+                "# Starting values\n",
+                "map(i -> stat_sacf(0.1, rand(41, 26, 370), [1, 2], [1, 2]) |> last, 1:100) |> x -> quantile(x, 0.01)\n",
+                "\n",
+                "cl_sacf(0.1, 370, ICSP(41, 26, Normal(0, 1)), 0.11, [1, 2], [1, 2], 1_000; jmin=4, jmax=7, verbose=true)\n",
+                "@btime rl_sacf(0.1, 0.088, ICSP(40, 40, Normal(0, 1)), [1, 2], [1, 2], 1:100, Normal(0, 1))\n",
+                "\n",
+                "stat_sacf(0.1, rand(41, 26, 370), 2, 2) |> x -> quantile(x, 0.99)\n",
+                "cl_sacf(0.1, 370, ICSP(41, 26, Normal(0, 1)), 0.013, 2, 2, 1_000; jmin=4, jmax=7, verbose=true)\n",
+                "\n",
+                "spatial_sar11 = SAR11((0.1, 0.1, 0.1), 41, 26, Normal(0, 1), nothing, 100)\n",
+                "arl_sacf(0.1, 0.1341, spatial_sar11, [1, 2],  [1, 2], 100)\n",
+                "arl_sacf(0.1, 0.013, spatial_sar11, 2,  2, 1000)\n",
+                "\n",
+                " arl_sacf(lam, cl, spatial_dgp::SpatialDGP, d1_vec::Vector{Int}, d2_vec::Vector{Int}, reps=10_000)"
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "19",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                ""
+            ]
+        },
+        {
+            "id": "20",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "SAR22(\n",
+                "    (0.0, 0.0, 0.0, 0.4, 0.3, 0.0, 0.0, 0.1), \n",
+                "    41, 26, \n",
+                "    Normal(0, 1), \n",
+                "    nothing, \n",
+                "    100\n",
+                "    )\n",
+                " \n",
+                " SQMA22(\n",
+                "    (0.0, 0.0, 0.0, 0.8, 0.8, 0.0, 0.0, 0.8), \n",
+                "    (0.0, 0.0, 0.0, 2,     2, 0.0, 0.0, 2),\n",
+                "    41, 26, \n",
+                "    Normal(0, 1), \n",
+                "    nothing, \n",
+                "    100\n",
+                "    )\n",
+                ""
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "21",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "\n",
+                "## Botstraping"
+            ]
+        },
+        {
+            "id": "22",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "data = rand(250, 250, 94)\n",
+                "arl_sop(lam, cl, data, 1000; chart_choice=1, d1=3, d2=3)\n",
+                "stat_sop(0.1, data; chart_choice=3, add_noise=false) |> x -> quantile(x, 0.99)\n",
+                "cl_sop(0.1, L0, data, 0.0005, 1_000; chart_choice=3, verbose=true, d1=1, d2=1)\n",
+                "\n",
+                "\n",
+                "pmat = compute_p_mat(data)\n",
+                "p_ewma = vec(mean(pmat, dims=1))\n",
+                "abs(chart_stat_sop(p_ewma, 3) - -0.14843259957606353)\n",
+                "stat_sop(0.1, images; chart_choice=3, add_noise=false) |> x -> quantile(x, 0.01)\n",
+                "\n",
+                "arl_sop(0.1, 0.003, pmat, 10; chart_choice=3)\n",
+                "\n",
+                "arl_sop\n",
+                "cl_sop(0.1, L0, data, 0.003, 1_000; chart_choice=3, verbose=true, d1=1, d2=1)\n",
+                "\n",
+                "cl_sop(0.1, L0, pmat, 0.003, 10_000; chart_choice=3, jmin=4, jmax=6, verbose=true, d1=1, d2=1)"
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "23",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "## Image example with APley"
+            ]
+        },
+        {
+            "id": "24",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "using Makie\n",
+                "using CairoMakie\n",
+                "using RCall\n",
+                "using OrdinalPatterns\n",
+                "R\"\"\"\n",
+                "library(textile)\n",
+                "library(spc4sts)\n",
+                "images = textile::icImgs\n",
+                "model = readRDS(\"/home/adaemmerp/Downloads/model.rds\")\n",
+                "\n",
+                "# In-control\n",
+                "resid_ic_mat = array(NA, c(235, 220, 94))\n",
+                "for (i in 1:94) {\n",
+                "\n",
+                "  dat <- dataPrep(textile::icImgs[, , i], model$nb)\n",
+                "  r0j <- dat[, 1] - predict(model$fit, dat)\n",
+                "  res <- matrix(r0j, nrow(textile::icImgs[, , i]) - model$nb[1],\n",
+                "               ncol(textile::icImgs[, , i]) - sum(model$nb[2:3]), byrow=TRUE)\n",
+                "  resid_ic_mat[, , i] = res\n",
+                "}\n",
+                "\n",
+                "# Out-of control\n",
+                "resid_oc_mat = array(NA, c(235, 220, 6))\n",
+                "for (i in 1:6) {\n",
+                "  \n",
+                "  dat <- dataPrep(textile::ocImgs[, , i], model$nb)\n",
+                "  r0j <- dat[, 1] - predict(model$fit, dat)\n",
+                "  res <- matrix(r0j, nrow(textile::ocImgs[, , i]) - model$nb[1],\n",
+                "                ncol(textile::ocImgs[, , i]) - sum(model$nb[2:3]), byrow=TRUE)\n",
+                "  resid_oc_mat[, , i] = res\n",
+                "}\n",
+                "\n",
+                "\"\"\"\n",
+                "@rget resid_ic_mat resid_oc_mat\n",
+                "\n",
+                "lam = 0.1\n",
+                "reps_range = 1:100\n",
+                "chart_choice = 3\n",
+                "w = 3\n",
+                "\n",
+                "# Compute critical limits for BP-statistic\n",
+                "cl = cl_sop_bp(\n",
+                "  resid_ic_mat, lam, 20, 0.000013, w, 1_000;\n",
+                "  chart_choice=3, jmin=4, jmax=6, verbose=true\n",
+                ")\n",
+                "\n",
+                "# Compute in-control values    \n",
+                "p_array = compute_p_array_bp(resid_ic_mat, w; chart_choice=chart_choice) # Compute relative frequencies for p-vectors\n",
+                "p_array_mean = mean(p_array, dims=1)\n",
+                "# Make column vectors to be compatible with p_ewma_all\n",
+                "p_array_mean = permutedims(p_array_mean, (2, 1, 3)) \n",
+                "\n",
+                "# Compute in-control values for test statitic\n",
+                "stat_ic = zeros(size(p_array_mean, 3)) # third dimension is number of d1-d2 combinations\n",
+                "\n",
+                "for i in axes(p_array_mean, 3)\n",
+                "  @views stat_ic[i] = chart_stat_sop(p_array_mean[:, :, i], chart_choice)\n",
+                "end\n",
+                "\n",
+                "stats_bp = stat_sop_bp(\n",
+                "  resid_oc_mat,\n",
+                "  lam,\n",
+                "  w,  \n",
+                "  chart_choice=3,\n",
+                "  add_noise=false,\n",
+                "  stat_ic=stat_ic,\n",
+                "  type_freq_init=p_array_mean\n",
+                ")\n",
+                "\n",
+                "# Use Makie to plots stats_bp. Draw in red the critical limits\n",
+                "fig = Figure()\n",
+                "ax = Axis(fig[1, 1])\n",
+                "lines!(ax, stats_bp, color=:blue)\n",
+                "hlines!(ax, [cl], color=:red)\n",
+                "fig"
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "25",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "\n",
+                "## Images"
+            ]
+        },
+        {
+            "id": "26",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "using OrdinalPatterns\n",
+                "using RCall\n",
+                "R\"\"\"\n",
+                "library(textile)\n",
+                "library(spc4sts)\n",
+                "images_ic = textile::icImgs\n",
+                "images_oc = textile::ocImgs\n",
+                "\"\"\"\n",
+                "\n",
+                "@rget images_ic images_oc;\n",
+                "\n",
+                "# Compute sequence of pictures\n",
+                "x = rand(100, 100, 370)\n",
+                "stat_sop(0.1, x, [1, 2, 3], [1, 2, 3])\n",
+                "\n",
+                "\n",
+                "# Compute critical limits for BP-statistic\n",
+                "cl_sop(\n",
+                "  0.1, 370, ICSP(100, 100, Normal(0, 1)), 0.005,  [1, 2, 3], [1, 2, 3], 100;\n",
+                "  chart_choice=3, jmin=4, jmax=6, verbose=true\n",
+                ")\n",
+                "\n",
+                "# Get values for BP statistic\n",
+                "stat_sop(images_ic[:, :, 2], [1, 2, 3], [1, 2, 3])\n",
+                "stat_sop(1, images_ic[:, :, 2:3], [1, 2, 3], [1, 2, 3])\n",
+                "\n",
+                "p_array = compute_p_array(images_ic, [1, 2, 3], [1, 2, 3])\n",
+                "\n",
+                "cl_sop(\n",
+                " 1, 80, p_array, 0.1, 100;\n",
+                "  chart_choice=3, jmin=1, jmax=6, verbose=false\n",
+                ")\n",
+                "\n",
+                "stat_sop(0.1, images_oc, [1, 2, 3], [1, 2, 3])"
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "27",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "## Compute test statictis based on series of pictures"
+            ]
+        },
+        {
+            "id": "28",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "data = rand(50, 50)\n",
+                "\n",
+                "stat_sop(data; chart_choice=1)\n",
+                "data = rand(100, 100, 200)\n",
+                "stat_sop(0.1, data; chart_choice=1, add_noise=false)"
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "29",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                ""
+            ]
+        },
+        {
+            "id": "30",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "@btime rand(Normal(0, 1));\n",
+                "@btime rand(TDist(5));\n",
+                "\n",
+                "@btime rand(Binomial(10, 0.5));\n",
+                "@btime rand(Poisson(5));"
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "31",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+            ]
+        }
+    ],
+    "timestamp": "2025-10-19T15:22:12.786",
+    "file": "/home/adaemmerp/Dropbox/Greifswald/Forschung/Mit_PWitten_CWeiss/StatsOP/docs/replications/00_old/replication_tm.qmd",
+    "qnr_schema_version": "1.0.0"
+}

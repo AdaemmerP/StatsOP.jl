@@ -2,6 +2,7 @@
 engine: julia
 julia:
   exeflags: ["--project=../."]
+eval: false
 ---
 
 
@@ -20,7 +21,7 @@ tsx = rand(100)
 tsy = rand(100)
 
 # R
-@rput tsx tsy 
+@rput tsx tsy
 R"""
 library(ordinalpattern)
 result_dep = patterndependence(tsx, tsy)

@@ -1,0 +1,49 @@
+{
+    "cells": [
+        {
+            "id": "1",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "---\n",
+                "engine: julia\n",
+                "julia:\n",
+                "  exeflags: \n",
+                "   - --project=../.\n",
+                "   - --threads=10\n",
+                "eval: false\n",
+                "---"
+            ]
+        },
+        {
+            "id": "2",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "using DataFrames\n",
+                "using DataFramesMeta\n",
+                "using OrdinalPatterns\n",
+                "using Dates\n",
+                "using CSV\n",
+                "using CategoricalArrays\n",
+                "using Plots"
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "3",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+            ]
+        }
+    ],
+    "timestamp": "2025-10-19T15:25:27.485",
+    "file": "/home/adaemmerp/Dropbox/Greifswald/Forschung/Mit_PWitten_CWeiss/StatsOP/docs/replications/00_old/replication_ukraine.qmd",
+    "qnr_schema_version": "1.0.0"
+}

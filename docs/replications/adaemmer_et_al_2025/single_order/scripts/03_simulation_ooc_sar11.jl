@@ -7,7 +7,7 @@ using Distributed
 # set the number of workers for parallel computing
 addprocs(10)
 
-@everywhere using OrdinalPatterns
+@everywhere using StatsOP
 @everywhere using LinearAlgebra
 @everywhere using JLD2
 @everywhere BLAS.set_num_threads(1)
@@ -46,16 +46,16 @@ for alphas in dgp_vals
         N = mn_tup[2]
         # Set up DGP SAR(1, 1)
         sop_dgp = SAR11(alphas, M, N, Normal(0, 1), nothing, 100)
-        for chart in 1:4
+        for (k, chart) in enumerate((TauHat(), KappaHat(), TauTilde(), KappaTilde()))
             # Compute ARL for SOP for SAR(1, 1)
-            cl_sop = ic_sop[j, chart]
-            sop_results = arl_sop_oc(sop_dgp, lam, cl_sop, d1, d2, reps; chart_choice=chart)
-            arl_mat[i, chart] = sop_results[1]
-            arlse_mat[i, chart] = sop_results[2]
+            cl_sop = ic_sop[j, k]
+            sop_results = arl_sop_oc(sop_dgp, lam, cl_sop, d1, d2, reps; chart_choice=chart, refinement=false)
+            arl_mat[i, k] = sop_results[1]
+            arlse_mat[i, k] = sop_results[2]
         end
         # Compute ARL for SACF for SAR(1, 1)
         cl_sacf = ic_sacf_cont[j]
-        sacf_results = arl_sacf_oc(sop_dgp, lam, cl_sacf, d1, d2, reps)            
+        sacf_results = arl_sacf_oc(sop_dgp, lam, cl_sacf, d1, d2, reps)
         arl_mat[i, 5] = sacf_results[1]
         arlse_mat[i, 5] = sacf_results[2]
         println("Progress -> SAR(1, 1): grid: $j, alphas: $alphas")

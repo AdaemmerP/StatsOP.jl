@@ -1,0 +1,86 @@
+{
+    "cells": [
+        {
+            "id": "1",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "---\n",
+                "engine: julia\n",
+                "---\n",
+                "\n",
+                "# SAR1 {#sec-doc}\n",
+                "    \n",
+                "\n",
+                "::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n",
+                ""
+            ]
+        },
+        {
+            "id": "2",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "#| eval: false\n",
+                "SAR1(dgp_params, M_rows, N_cols, dist, dist_ao, margin)\n",
+                ""
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "3",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "A struct to define a first-order simultaneous autoregressive (SAR(1)) model:    \n",
+                " \n",
+                "$\\qquad Y_{t_1, t_2}=a_1 \\cdot Y_{t_1-1, t_2}+a_2 \\cdot Y_{t_1, t_2-1}+a_3 \\cdot Y_{t_1, t_2+1}+a_4 \\cdot Y_{t_1+1, t_2}+\\varepsilon_{t_1, t_2}.$\n",
+                " \n",
+                "Yₜ₁,ₜ₂ = a₁ ⋅ Yₜ₁₋₁,ₜ₂ +           a₂ ⋅ Yₜ₁,ₜ₂₋₁ +           a₃ ⋅ Yₜ₁,ₜ₂₊₁ +           a₄ ⋅ Yₜ₁₊₁,ₜ₂ +           εₜ₁,ₜ₂\n",
+                " \n",
+                "  * `dgp_params::Tuple{a₁::Float64, a₂::Float64, Float64, Float64}`: A tuple of the parameters of the DGP. The first element is the parameter a₁, the second element is the parameter a₂, and the third element is the parameter a₃. a₄.\n",
+                "  * `M_rows::Int`: The number of rows for the final \"SOP\" matrix. Note that the final spatial matrix (\"picture\") equals m + 1.\n",
+                "  * `N_cols::Int`: The number of columns for the final \"SOP\" matrix. Note that the final spatial matrix (\"picture\") equals n + 1.\n",
+                "  * `dist::Distribution`: A distribution for \\varepsilon*{t*1, t_2}. You can use any univariate distribution from the `Distributions.jl` package.\n",
+                "  * `dist_ao::Union{Nothing, Distribution}`: Nothing or a distribution for additive outliers. For additive outliers you can use any univariate distribution from the `Distributions.jl` package.\n",
+                "  * `margin::Int`: The margin for the spatial matrix used for initialization."
+            ]
+        },
+        {
+            "id": "4",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "#| eval: false\n",
+                "sar1 = SAR1((0.5, 0.3, 0.2, 0.1), 10, 10, Normal(0, 1), nothing, 20) \n",
+                ""
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "5",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "\n",
+                "\n",
+                ":::\n",
+                ""
+            ]
+        }
+    ],
+    "timestamp": "2025-10-19T15:29:41.121",
+    "file": "/home/adaemmerp/Dropbox/Greifswald/Forschung/Mit_PWitten_CWeiss/StatsOP/docs/reference/SAR1.qmd",
+    "qnr_schema_version": "1.0.0"
+}

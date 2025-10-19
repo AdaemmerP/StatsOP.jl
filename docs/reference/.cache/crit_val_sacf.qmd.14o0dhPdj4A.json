@@ -1,0 +1,46 @@
+{
+    "cells": [
+        {
+            "id": "1",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "---\n",
+                "engine: julia\n",
+                "---\n",
+                "\n",
+                "# crit_val_sacf {#sec-doc}\n",
+                "    \n",
+                "\n",
+                "::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n",
+                "\n",
+                "crit*val*sacf(M, N, alpha)\n",
+                " \n",
+                "Computes the critical value for the SACF of lag 1. The input parameters are:\n",
+                " \n",
+                "  * `M::Int64`: The number of rows in the data matrix.\n",
+                "  * `N::Int64`: The number of columns in the data matrix.\n",
+                "  * `alpha::Float64`: The significance level.\n",
+                "\n",
+                "### Examples\n",
+                "    \n",
+                "\n",
+                "```{julia-repl}\n",
+                "#| eval: false\n",
+                "# compute critical value\n",
+                "crit_val_sacf(11, 11, 0.05)\n",
+                "\n",
+                "```\n",
+                "\n",
+                "\n",
+                "\n",
+                ":::\n",
+                ""
+            ]
+        }
+    ],
+    "timestamp": "2025-10-19T15:27:24.408",
+    "file": "/home/adaemmerp/Dropbox/Greifswald/Forschung/Mit_PWitten_CWeiss/StatsOP/docs/reference/crit_val_sacf.qmd",
+    "qnr_schema_version": "1.0.0"
+}

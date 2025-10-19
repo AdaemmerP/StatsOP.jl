@@ -1,0 +1,40 @@
+{
+    "cells": [
+        {
+            "id": "1",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "---\n",
+                "engine: julia\n",
+                "---\n",
+                "\n",
+                "# arl_sacf_ic {#sec-doc}\n",
+                "    \n",
+                "\n",
+                "::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n",
+                "\n",
+                "arl*sacf*ic(lam, cl, spatial*dgp::ICSTS, d1::Int, d2::Int, reps=10*000)\n",
+                " \n",
+                "Compute the in-control average run length (ARL), using the spatial autocorrelation  function (SACF) for a delay (d1, d2) combination. The function returns the ARL  for a given control limit `cl` and a given number of repetitions `reps`. \n",
+                " \n",
+                "The input arguments are:\n",
+                " \n",
+                "  * `spatial_dgp`: The in-control spatial data generating process (DGP) to use for the SACF function.\n",
+                "  * `lam`: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\n",
+                "  * `cl`: The control limit for the EWMA control chart.\n",
+                "  * `d1::Int`: The first (row) delay for the spatial process.\n",
+                "  * `d2::Int`: The second (column) delay for the spatial process.\n",
+                "  * `reps`: The number of repetitions to compute the ARL.\n",
+                "\n",
+                "\n",
+                ":::\n",
+                ""
+            ]
+        }
+    ],
+    "timestamp": "2025-10-19T15:31:15.431",
+    "file": "/home/adaemmerp/Dropbox/Greifswald/Forschung/Mit_PWitten_CWeiss/StatsOP/docs/reference/arl_sacf_ic.qmd",
+    "qnr_schema_version": "1.0.0"
+}

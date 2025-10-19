@@ -25,7 +25,7 @@ function arl_sop_oc(
     d2::Int,
     reps=10_000;
     chart_choice=TauTilde(),
-    refinement::Union{Nothing,RefinedType}=nothing
+    refinement::Union{Bool,RefinedType}=false
 )
 
     # Compute m and n (final SOP matrix)
@@ -120,7 +120,7 @@ function rl_sop_oc(
     sop_freq = zeros(Int, 24) # factorial(4)
     win = zeros(Int, 4)
     data = zeros(M, N)
-    if isnothing(refinement)
+    if refinement == false
         # classical approach
         p_hat = zeros(3)
         p_ewma = zeros(3)
@@ -133,7 +133,7 @@ function rl_sop_oc(
     sop = zeros(4)
 
     # indices for sum of frequencies
-    index_sop = create_index_sop(refinement=refinement)
+    index_sop = create_index_sop(refinement)
 
     # pre-allocate
     # mat:    matrix for the final values of the spatial DGP
@@ -228,7 +228,7 @@ function rl_sop_oc(
     sop_freq = zeros(Int, 24) # factorial(4)
     win = zeros(Int, 4)
     data = zeros(M, N)
-    if isnothing(refinement)
+    if refinement == false
         # classical approach
         p_hat = zeros(3)
         p_ewma = zeros(3)
@@ -241,7 +241,7 @@ function rl_sop_oc(
     sop = zeros(4)
 
     # indices for sum of frequencies
-    index_sop = create_index_sop(refinement=refinement)
+    index_sop = create_index_sop(refinement)
 
     # pre-allocate
     # mat:    matrix for the final values of the spatial DGP
@@ -278,7 +278,7 @@ function rl_sop_oc(
             sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
             # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-            fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop)
+            fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, index_sop)
 
             # Apply EWMA to p-vectors
             @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
@@ -376,7 +376,7 @@ function rl_sop_oc(
             sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
             # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-            fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop)
+            fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, index_sop)
 
             # Apply EWMA to p-vectors
             @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
@@ -473,7 +473,7 @@ function rl_sop_oc(
             sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
             # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-            fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop)
+            fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, index_sop)
 
             # Apply EWMA to p-vectors
             @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
@@ -571,7 +571,7 @@ function rl_sop_oc(
             sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
             # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-            fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop)
+            fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, index_sop)
 
             # Apply EWMA to p-vectors
             @. p_ewma = (1 - lam) * p_ewma + lam * p_hat

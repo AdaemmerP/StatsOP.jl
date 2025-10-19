@@ -1,0 +1,93 @@
+{
+    "cells": [
+        {
+            "id": "1",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "---\n",
+                "engine: julia\n",
+                "---\n",
+                "\n",
+                "# stat_sacf {#sec-doc}\n",
+                "    \n",
+                "\n",
+                "::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n",
+                ""
+            ]
+        },
+        {
+            "id": "2",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "#| eval: false\n",
+                "stat_sacf(data::Union{SubArray,Matrix{T}}, d1::Int, d2::Int) where {T<:Real}\n",
+                ""
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "3",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "Compute the spatial autocorrelation for a delay combination (d1, d2) for a single picture.\n",
+                " \n",
+                "  * `data`: The data matrix.\n",
+                "  * `d1::Int`: The first (row) delay for the spatial process.\n",
+                "  * `d2::Int`: The second (column) delay for the spatial process.\n",
+                "\n",
+                "\n",
+                ":::\n",
+                "    \n",
+                "\n",
+                " --- \n",
+                " \n",
+                "::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n",
+                ""
+            ]
+        },
+        {
+            "id": "4",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "#| eval: false\n",
+                "stat_sacf(lam, data::Array{T,3}, d1::Int, d2::Int) where {T<:Real}\n",
+                ""
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "5",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "Compute the spatial autocorrelation function (SACF) for a delay combination (d1, d2) for multiple images.\n",
+                " \n",
+                "  * `lam`: The smoothing parameter for the SACF.\n",
+                "  * `data`: The data matrix.\n",
+                "  * `d1::Int`: The first (row) delay for the spatial process.\n",
+                "\n",
+                "\n",
+                ":::\n",
+                ""
+            ]
+        }
+    ],
+    "timestamp": "2025-10-19T15:30:38.732",
+    "file": "/home/adaemmerp/Dropbox/Greifswald/Forschung/Mit_PWitten_CWeiss/StatsOP/docs/reference/stat_sacf.qmd",
+    "qnr_schema_version": "1.0.0"
+}
