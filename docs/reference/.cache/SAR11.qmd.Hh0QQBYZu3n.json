@@ -1,0 +1,108 @@
+{
+    "cells": [
+        {
+            "id": "1",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "---\n",
+                "engine: julia\n",
+                "---\n",
+                "\n",
+                "# SAR11 {#sec-doc}\n",
+                "    \n",
+                "\n",
+                "::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n",
+                ""
+            ]
+        },
+        {
+            "id": "2",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "#| eval: false\n",
+                "SAR11(dgp_params, M_rows, N_cols, dist, dist_ao, prerun)\n",
+                ""
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "3",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "A struct to define a first-order spatial autoregressive (SAR(1, 1)) process:\n",
+                " \n",
+                "$\\qquad \\qquad Y_{t_1, t_2}=\\alpha_1 \\cdot Y_{t_1-1, t_2}+\\alpha_2 \\cdot Y_{t_1, t_2-1}+\\alpha_3 \\cdot Y_{t_1-1, t_2-1}+\\varepsilon_{t_1, t_2}$  \n",
+                ""
+            ]
+        },
+        {
+            "id": "4",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "#| eval: false\n",
+                "Yₜ₁,ₜ₂ = α₁ ⋅ Yₜ₁₋₁,ₜ₂ + α₂ ⋅ Yₜ₁,ₜ₂₋₁ + α₃ ⋅ Yₜ₁₋₁,ₜ₂₋₁ + εₜ₁,ₜ₂\n",
+                ""
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "5",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "  * `dgp_params::Tuple(α₁::Float64, α₂::Float64, α₃::Float64)` The requirements to guarantee stationarity for the process are |α₁| < 1, |α₂| < 1, |α₁ + α₂| < 1 - α₃, and |α₁ - α₂| < 1 + α₃.\n",
+                "  * `m::Int`: The number of rows for the final \"SOP\" matrix. Note that the final spatial matrix (\"picture\") equals m + 1.\n",
+                "  * `n::Int`: The number of columns for the final \"SOP\" matrix. Note that the final spatial matrix (\"picture\") equals n + 1.\n",
+                "  * `prerun::Int`: A value to initialize the DGP to achieve stationarity. These number of rows and columns will be discarded after the initialization.\n",
+                "  * `dist::Distribution`: A distribution for \\varepsilon*{t*1, t_2}. You can use any univariate distribution from the `Distributions.jl` package.\n",
+                "  * `dist_ao::Union{Nothing, Distribution}`: Nothing or a distribution for additive outliers. For additive outliers you can use any univariate distribution from the `Distributions.jl` package.\n",
+                "  * `prerun::Int`: A value to initialize the DGP to guarantee stationarity. These number of rows and columns will be discarded for the final spatial matrix."
+            ]
+        },
+        {
+            "id": "6",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "#| eval: false\n",
+                "sar11 = SAR11((0.5, 0.3, 0.2), 11, 11, Normal(0, 1), nothing, 100)\n",
+                ""
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "7",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "\n",
+                "\n",
+                ":::\n",
+                ""
+            ]
+        }
+    ],
+    "timestamp": "2025-10-19T15:26:10.783",
+    "file": "/home/adaemmerp/Dropbox/Greifswald/Forschung/Mit_PWitten_CWeiss/StatsOP/docs/reference/SAR11.qmd",
+    "qnr_schema_version": "1.0.0"
+}

@@ -1,0 +1,67 @@
+{
+    "cells": [
+        {
+            "id": "1",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "---\n",
+                "engine: julia\n",
+                "---\n",
+                "\n",
+                "# SQMA22 {#sec-doc}\n",
+                "    \n",
+                "\n",
+                "::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n",
+                ""
+            ]
+        },
+        {
+            "id": "2",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "#| eval: false\n",
+                "SQMA22(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao, prerun)\n",
+                ""
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "3",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "A struct to define a Spatial quadratic moving-average (SQMA(1, 1)):\n",
+                " \n",
+                "``   \\quad \\quad Y*{t*1, t*2} =    \\beta*1 \\cdot \\varepsilon*{t*1-1, t_2}^a \n",
+                " \n",
+                "  * \\beta*2 \\cdot \\varepsilon*{t*1, t*2-1}^b\n",
+                "  * \\beta*3 \\cdot \\varepsilon*{t*1-1, t*2-1}^c\n",
+                "  * \\beta*4 \\cdot \\varepsilon*{t*1-2, t*2}^d\n",
+                "  * \\beta*5 \\cdot \\varepsilon*{t*1, t*2-2}^e\n",
+                "  * \\beta*6 \\cdot \\varepsilon*{t*1-2, t*2-1}^f\n",
+                "  * \\beta*7 \\cdot \\varepsilon*{t*1-1, t*2-2}^g\n",
+                "  * \\beta*8 \\cdot \\varepsilon*{t*1-2, t*2-2}^h\n",
+                "  * \\varepsilon*{t*1, t_2}.\n",
+                "``\n",
+                " \n",
+                "Yₜ₁,ₜ₂ = β₁ ⋅ εₜ₁₋₁,ₜ₂ᵃ +            β₂ ⋅ εₜ₁,ₜ₂₋₁ᵇ +            β₃ ⋅ εₜ₁₋₁,ₜ₂₋₁ᶜ +            β₄ ⋅ εₜ₁₋₂,ₜ₂ᵈ +            β₅ ⋅ εₜ₁,ₜ₂₋₂ᵉ +            β₆ ⋅ εₜ₁₋₂,ₜ₂₋₁ᶠ +            β₇ ⋅ εₜ₁₋₁,ₜ₂₋₂ᵍ +            β₈ ⋅ εₜ₁₋₂,ₜ₂₋₂ʰ +            εₜ₁,ₜ₂\n",
+                " \n",
+                "\n",
+                "\n",
+                ":::\n",
+                ""
+            ]
+        }
+    ],
+    "timestamp": "2025-10-19T15:27:40.262",
+    "file": "/home/adaemmerp/Dropbox/Greifswald/Forschung/Mit_PWitten_CWeiss/StatsOP/docs/reference/SQMA22.qmd",
+    "qnr_schema_version": "1.0.0"
+}

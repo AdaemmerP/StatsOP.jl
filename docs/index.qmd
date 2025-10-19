@@ -2,10 +2,10 @@
 bibliography: references.bib
 ---
 
-#  OrdinalPatterns.jl 
+#  StatsOP.jl 
 
 
-`OrdinalPatterns.jl` is a Julia package that provides functions to conduct (sequential) tests for time series data, using ordinal patterns. The package builds on the seminal work of @bandt2002. The package is highly optimized and fast. The package is designed to be easy to use and provides a simple interface to compute ordinal patterns from time series data.
+`StatsOP.jl` is a Julia package that provides functions to conduct (sequential) tests for time series data, using ordinal patterns. The package builds on the seminal work of @bandt2002. The package is highly optimized and fast. The package is designed to be easy to use and provides a simple interface to compute ordinal patterns from time series data.
 
 ## Installation
 

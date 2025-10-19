@@ -1,0 +1,62 @@
+{
+    "cells": [
+        {
+            "id": "1",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "---\n",
+                "engine: julia\n",
+                "---\n",
+                "\n",
+                "# rl_sop_bp_bootstrap {#sec-doc}\n",
+                "    \n",
+                "\n",
+                "::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n",
+                ""
+            ]
+        },
+        {
+            "id": "2",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "#| eval: false\n",
+                "rl_sop_bp_bootstrap(p_array::Array{T,3}, lam, cl, reps_range, chart_choice, ) where {T<:Real}\n",
+                ""
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "3",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "Compute the EWMA-BP-SOP run length for a given control limit using bootstraping.\n",
+                " \n",
+                "The input parameters are:\n",
+                " \n",
+                "  * `p_array::Array{Float64,3}`: A 3D array with the with the relative frequencies for\n",
+                "each d1-d2 (delay) combination. The first dimension (rows) is the picture, the second dimension refers to the patterns group (s₁, s₂, or s₃) and the third dimension denotes each d₁-d₂ combination. This array will be used for re-sampling.\n",
+                " \n",
+                "  * `lam::Float64`: A scalar value for lambda for the EWMA chart.\n",
+                "  * `cl::Float64`: A scalar value for the control limit.\n",
+                "  * `reps_range::UnitRange{Int}`: A range of integers for the number of repetitions.\n",
+                "  * `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.\n",
+                "\n",
+                "\n",
+                ":::\n",
+                ""
+            ]
+        }
+    ],
+    "timestamp": "2025-10-19T15:32:07.847",
+    "file": "/home/adaemmerp/Dropbox/Greifswald/Forschung/Mit_PWitten_CWeiss/StatsOP/docs/reference/rl_sop_bp_bootstrap.qmd",
+    "qnr_schema_version": "1.0.0"
+}

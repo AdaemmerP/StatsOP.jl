@@ -1,6 +1,6 @@
-using OrdinalPatterns
+using StatsOP
 using Documenter
 using QuartoDocBuilder
 
-quarto_build_site(OrdinalPatterns, repo = "https://github.com/AdaemmerP/OrdinalPatterns.jl")
+quarto_build_site(StatsOP, repo="https://github.com/AdaemmerP/StatsOP.jl")
 

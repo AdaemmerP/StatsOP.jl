@@ -1,0 +1,63 @@
+{
+    "cells": [
+        {
+            "id": "1",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "---\n",
+                "engine: julia\n",
+                "---\n",
+                "\n",
+                "# arl_sop_bp_ic {#sec-doc}\n",
+                "    \n",
+                "\n",
+                "::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n",
+                ""
+            ]
+        },
+        {
+            "id": "2",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "#| eval: false\n",
+                "arl_sop_bp_ic(\n",
+                ""
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "3",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "spatial*dgp::ICSP, lam, cl, w::Int, reps=10*000; chart_choice=3 )\n",
+                " \n",
+                "Computes the average run length (ARL) for a given in-control spatial DGP, using  EWMA-BP-SOP statistics.\n",
+                " \n",
+                "The input parameters are:\n",
+                " \n",
+                "  * `spatial_dgp::ICSP`: A struct for the in-control spatial DGP.\n",
+                "  * `lam::Float64`: A scalar value for lambda for the EWMA chart.\n",
+                "  * `cl::Float64`: A scalar value for the control limit.\n",
+                "  * `w::Int`: An integer value for the window size for the BP-statistic.\n",
+                "  * `reps::Int`: An integer value for the number of repetitions. The default value is 10,000.\n",
+                "  * `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.\n",
+                "\n",
+                "\n",
+                ":::\n",
+                ""
+            ]
+        }
+    ],
+    "timestamp": "2025-10-19T15:28:06.925",
+    "file": "/home/adaemmerp/Dropbox/Greifswald/Forschung/Mit_PWitten_CWeiss/StatsOP/docs/reference/arl_sop_bp_ic.qmd",
+    "qnr_schema_version": "1.0.0"
+}

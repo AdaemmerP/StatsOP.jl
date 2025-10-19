@@ -1,0 +1,85 @@
+{
+    "cells": [
+        {
+            "id": "1",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "---\n",
+                "engine: julia\n",
+                "---\n",
+                "\n",
+                "# SINAR11 {#sec-doc}\n",
+                "    \n",
+                "\n",
+                "::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n",
+                ""
+            ]
+        },
+        {
+            "id": "2",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "#| eval: false\n",
+                "SINAR11(dgp_params, M_rows, N_cols, dist, dist_ao, prerun)\n",
+                ""
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "3",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "A struct to define a first-order integer spatial autoregressive (SINAR(1, 1)) model:\n",
+                " \n",
+                "$\\qquad X_{t_1, t_2}=\\alpha_1 \\circ X_{t_1-1, t_2}+\\alpha_2 \\circ X_{t_1, t_2-1}+\\alpha_3 \\circ X_{t_1-1, t_2-1}+\\varepsilon_{t_1, t_2}.$ \n",
+                " \n",
+                "  * `dgp_params::Tuple(α₁::Float64, α₂::Float64, α₃::Float64)` Note that α₁, α₂, and α₃ ∈ [0, 1) and α₁ + α₂ + α₃ < 1 to guarantee stationarity.\n",
+                "  * `m::Int` The number of rows for the final \"SOP\" matrix. Note that the final spatial matrix (\"picture\") equals m + 1.\n",
+                "  * `n::Int` The number of columns for the final \"SOP\" matrix. Note that the final spatial matrix (\"picture\") equals n + 1.\n",
+                "  * `prerun::Int` A value to initialize the DGP to guarantee stationarity. These number of rows and columns will be discarded for the final spatial matrix.\n",
+                "  * `dist::Distribution` A distribution for \\varepsilon*{t*1, t_2}. You can use any univariate distribution from the `Distributions.jl` package.\n",
+                "  * `dist_ao::Union{Nothing, Distribution}` Nothing or a distribution for additive outliers. For additive outliers you can use any univariate distribution from the `Distributions.jl` package.\n",
+                "  * `prerun::Int` A value to initialize the DGP to achieve stationarity. These number of rows and columns will be discarded after the initialization."
+            ]
+        },
+        {
+            "id": "4",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "#| eval: false\n",
+                "sar11 = SINAR((0.5, 0.3, 0.2), 11, 11, 100)\n",
+                ""
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "5",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "\n",
+                "\n",
+                ":::\n",
+                ""
+            ]
+        }
+    ],
+    "timestamp": "2025-10-19T15:26:32.21",
+    "file": "/home/adaemmerp/Dropbox/Greifswald/Forschung/Mit_PWitten_CWeiss/StatsOP/docs/reference/SINAR11.qmd",
+    "qnr_schema_version": "1.0.0"
+}

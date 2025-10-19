@@ -1,0 +1,106 @@
+{
+    "cells": [
+        {
+            "id": "1",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "---\n",
+                "engine: julia\n",
+                "julia:\n",
+                "  exeflags: [\"--project=../.\"]\n",
+                "eval: false\n",
+                "---\n",
+                "\n",
+                "\n",
+                "# Dependency test\n",
+                "\n",
+                "`OrdinalPatterns.jl` allows to compute the dependency statistic based on @schnurr2017.\n",
+                ""
+            ]
+        },
+        {
+            "id": "2",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "#| warning: false\n",
+                "using RCall\n",
+                "using OrdinalPatterns\n",
+                "using BenchmarkTools\n",
+                "\n",
+                "tsx = rand(100)\n",
+                "tsy = rand(100)\n",
+                "\n",
+                "# R\n",
+                "@rput tsx tsy\n",
+                "R\"\"\"\n",
+                "library(ordinalpattern)\n",
+                "result_dep = patterndependence(tsx, tsy)\n",
+                "result_dep$patterncoef |> print()\n",
+                "\n",
+                "microbenchmark::microbenchmark(\n",
+                "  timing = patterndependence(tsx, tsy, tiesmethod=\"first\"), times = 100\n",
+                "  )\n",
+                "\"\"\""
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "3",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+            ]
+        },
+        {
+            "id": "4",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "dependence_op(tsx, tsy; op_length=3, d=1)\n",
+                "@btime dependence_op(tsx, tsy; op_length=3, d=1)"
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "5",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+            ]
+        },
+        {
+            "id": "6",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "changepoint_op(tsx, tsy, op_length=3)"
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "7",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+            ]
+        }
+    ],
+    "timestamp": "2025-10-19T15:25:05.638",
+    "file": "/home/adaemmerp/Dropbox/Greifswald/Forschung/Mit_PWitten_CWeiss/StatsOP/docs/page_files/op_dependence.qmd",
+    "qnr_schema_version": "1.0.0"
+}

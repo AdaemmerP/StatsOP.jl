@@ -1,0 +1,68 @@
+{
+    "cells": [
+        {
+            "id": "1",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "---\n",
+                "engine: julia\n",
+                "---\n",
+                "\n",
+                "# cl_sop_bootstrap {#sec-doc}\n",
+                "    \n",
+                "\n",
+                "::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n",
+                ""
+            ]
+        },
+        {
+            "id": "2",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "#| eval: false\n",
+                "cl_sop_bootstrap(\n",
+                ""
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "3",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "data::Array{T,3}, lam, L0, cl*init, d1, d2, reps=10*000;   chart_choice=3, jmin=3, jmax=7, verbose=false )\n",
+                " \n",
+                "Compute the SOP control limit for the EWMA-chart based on bootstraping. The function returns the control limit for a given average run.\n",
+                " \n",
+                "The input parameters are:\n",
+                " \n",
+                "  * `data::Array{T,3}`: A 3D-array containing the data for the EWMA-chart.\n",
+                "  * `lam::Real`: The smoothing parameter for the EWMA-chart.\n",
+                "  * `L0::Real`: The average run length for the EWMA-chart.\n",
+                "  * `cl_init::Real`: The initial value for the control limit.\n",
+                "  * `d1::Int`: The first dimension of the data array.\n",
+                "  * `d2::Int`: The second dimension of the data array.\n",
+                "  * `reps::Int=10_000`: The number of bootstrap replications.\n",
+                "  * `chart_choice::Int`: The choice of the chart for the EWMA-chart. The default is 3.\n",
+                "  * `jmin`: The minimum number of values to change after the decimal point in the control limit.\n",
+                "  * `jmax`: The maximum number of values to change after the decimal point in the control limit.\n",
+                "  * `verbose::Bool`: A boolean to indicate whether to print the control limit and ARL for each iteration.\n",
+                "\n",
+                "\n",
+                ":::\n",
+                ""
+            ]
+        }
+    ],
+    "timestamp": "2025-10-19T15:30:22.676",
+    "file": "/home/adaemmerp/Dropbox/Greifswald/Forschung/Mit_PWitten_CWeiss/StatsOP/docs/reference/cl_sop_bootstrap.qmd",
+    "qnr_schema_version": "1.0.0"
+}

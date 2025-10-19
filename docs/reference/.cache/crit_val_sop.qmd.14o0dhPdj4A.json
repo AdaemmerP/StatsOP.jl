@@ -1,0 +1,54 @@
+{
+    "cells": [
+        {
+            "id": "1",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "---\n",
+                "engine: julia\n",
+                "---\n",
+                "\n",
+                "# crit_val_sop {#sec-doc}\n",
+                "    \n",
+                "\n",
+                "::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n",
+                "\n",
+                "crit*val*sop(m, n, alpha, chart_choice, approximate::Bool)\n",
+                " \n",
+                "Computes the critical value for the SOP test. Also allows the approximation of    the critical value. The input parameters are:\n",
+                " \n",
+                "  * `m::Int64`: The number of rows in the sop-matrix. Note that the data matrix has\n",
+                "dimensions `M = m + d₁`, where `d₁` denotes the row delay.\n",
+                " \n",
+                "  * `n::Int64`: The number of columns in the sop-matrix. Note that the data matrix\n",
+                "has dimensions `N = n + d₂`, where `d₂` denotes the column delay.\n",
+                " \n",
+                "  * `alpha::Float64`: The significance level.\n",
+                "  * `chart_choice::Int64`: The choice of chart.\n",
+                "  * `approximate::Bool`: If `true`, the approximate critical value is computed.\n",
+                "If `false`, the exact critical value is computed.\n",
+                " \n",
+                "\n",
+                "### Examples\n",
+                "    \n",
+                "\n",
+                "```{julia-repl}\n",
+                "#| eval: false\n",
+                "# compute approximate critical value for chart 1 \n",
+                "crit_val_sop(10, 10, 0.05, 1, true)\n",
+                "\n",
+                "```\n",
+                "\n",
+                "\n",
+                "\n",
+                ":::\n",
+                ""
+            ]
+        }
+    ],
+    "timestamp": "2025-10-19T15:25:59.81",
+    "file": "/home/adaemmerp/Dropbox/Greifswald/Forschung/Mit_PWitten_CWeiss/StatsOP/docs/reference/crit_val_sop.qmd",
+    "qnr_schema_version": "1.0.0"
+}

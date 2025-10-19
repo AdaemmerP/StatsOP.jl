@@ -1,0 +1,86 @@
+{
+    "cells": [
+        {
+            "id": "1",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "---\n",
+                "engine: julia\n",
+                "---\n",
+                "\n",
+                "# BSQMA11 {#sec-doc}\n",
+                "    \n",
+                "\n",
+                "::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n",
+                ""
+            ]
+        },
+        {
+            "id": "2",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "#| eval: false\n",
+                "BSQMA11(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao)\n",
+                ""
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "3",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "A struct to define a bilateral spatial quadratic moving-average (BSQMA(1, 1)) process:\n",
+                " \n",
+                "Y*{t*1, t*2}=b*1 \\cdot \\varepsilon*{t*1-1, t*2-1}^a+b*2 \\cdot \\varepsilon*{t*1+1, t*2-1}^b+b*3 \\cdot \\varepsilon*{t*1+1, t*2+1}^c+b*4 \\cdot \\varepsilon*{t*1-1, t*2+1}^d+\\varepsilon*{t*1, t*2},\n",
+                " \n",
+                "Yₜ₁,ₜ₂ = b₁ ⋅ εₜ₁₋₁,ₜ₂₋₁ᵃ +           b₂ ⋅ εₜ₁₊₁,ₜ₂₋₁ᵇ +           b₃ ⋅ εₜ₁₊₁,ₜ₂₊₁ᶜ +           b₄ ⋅ εₜ₁₋₁,ₜ₂₊₁ᵈ +           εₜ₁,ₜ₂\n",
+                " \n",
+                "  * `dgp_params::Tuple{Float64, Float64, Float64, Float64}`: A tuple of the parameters of the DGP. The parameters correspond to b₁, b₂, b₃ and b₄, respectively.\n",
+                "  * `eps_params::Tuple{Int, Int, Int, Int}`: A tuple of the parameters of the DGP, indicating which error terms shall be squared. Note that `eps_params` ∈ {1, 2}.\n",
+                "  * `M_rows::Int`: The number of rows for the final \"SOP\" matrix. Note that the final spatial matrix (\"picture\") equals m + 1.\n",
+                "  * `N_cols::Int`: The number of columns for the final \"SOP\" matrix. Note that the final spatial matrix (\"picture\") equals n + 1.\n",
+                "  * `dist::Distribution`: A distribution for \\varepsilon*{t*1, t_2}. You can use any univariate distribution from the `Distributions.jl` package.\n",
+                "  * `dist_ao::Nothing`: Nothing."
+            ]
+        },
+        {
+            "id": "4",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "#| eval: false\n",
+                "bsqma11 = BSQMA11((0.5, 0.3, 0.2, 0.1), (1, 1, 2, 2), 10, 10, Normal(0, 1), nothing)\n",
+                ""
+            ],
+            "outputs": [
+            ],
+            "execution_count": 0
+        },
+        {
+            "id": "5",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "\n",
+                "\n",
+                ":::\n",
+                ""
+            ]
+        }
+    ],
+    "timestamp": "2025-10-19T15:31:36.148",
+    "file": "/home/adaemmerp/Dropbox/Greifswald/Forschung/Mit_PWitten_CWeiss/StatsOP/docs/reference/BSQMA11.qmd",
+    "qnr_schema_version": "1.0.0"
+}

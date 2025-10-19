@@ -19,7 +19,7 @@ website:
     logo: op_logo.svg
 
     left:
-      - text: "OrdinalPatterns.jl"
+      - text: "StatsOP.jl"
         href: index.qmd      
       - text: "OPs"
         href: page_files/op.qmd
@@ -32,8 +32,8 @@ website:
 
     tools:
     - icon: github
-      href: https://github.com/AdaemmerP/OrdinalPatterns.jl
-      text: "OrdinalPatterns.jl"
+      href: https://github.com/AdaemmerP/StatsOP.jl
+      text: "StatsOP.jl"
 
   sidebar:
     - title: "API"    
@@ -74,16 +74,15 @@ website:
         - page_files/sop.qmd
         - page_files/sop_tutorial.qmd
         - page_files/sop_replication.qmd   
-        - replications/replication_tm.qmd
     - title: "OPs"
       style: "docked"
       background: light
       contents:
         - page_files/op.qmd
-        - page_files/op_dependence.qmd
-        - page_files/op_changepoint.qmd
-        - page_files/op_tutorial.qmd
-        - page_files/op_replication.qmd                 
+        #- page_files/op_dependence.qmd
+        #- page_files/op_changepoint.qmd
+        #- page_files/op_tutorial.qmd
+        #- page_files/op_replication.qmd                 
 
   page-footer: "Website generated with [Quarto](https://quarto.org/) and [QuartoDocBuilder.jl](https://github.com/vituri/QuartoDocBuilder.jl)"
 
