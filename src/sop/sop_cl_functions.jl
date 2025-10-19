@@ -1,7 +1,7 @@
 """
     cl_sop(
   sop_dgp::ICSTS, lam, L0, cl_init, d1::Int, d2::Int, reps=10_000;
-  chart_choice=3, jmin=4, jmax=6, verbose=false
+  chart_choice::InformationMeasure=TauTilde(), jmin=4, jmax=6, verbose=false
 )
 
 Compute the control limit for a given in-control process. The input parameters are:
@@ -20,7 +20,7 @@ Compute the control limit for a given in-control process. The input parameters a
 """
 function cl_sop(
     sop_dgp::ICSTS, lam, L0, cl_init, d1::Int, d2::Int, reps=10_000;
-    chart_choice=3, refinement::Int=0, jmin=4, jmax=6, verbose=false
+    chart_choice=TauTilde(), refinement::Int=0, jmin=4, jmax=6, verbose=false
 )
 
     L1 = 0.0

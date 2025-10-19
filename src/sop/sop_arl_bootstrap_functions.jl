@@ -14,7 +14,9 @@ The input parameters are:
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 The default value is 3.
 """
-function arl_sop_bootstrap(p_mat::Array{Float64,2}, lam, cl, reps=10_000; chart_choice=3)
+function arl_sop_bootstrap(
+  p_mat::Array{Float64,2}, lam, cl, reps=10_000; chart_choice::InformationMeasure=TauTilde()
+)
 
   # Check whether to use threading or multi processing --> only one process threading, else distributed
   if nprocs() == 1
@@ -64,10 +66,10 @@ of each d1-d2 (delay) combination. This matrix will be used for re-sampling.
 function rl_sop_bootstrap(p_mat::Array{Float64,2}, lam, cl, reps_range::UnitRange{Int}, chart_choice)
 
   # Pre-allocate  
-  if chart_choice in 1:4
+  if chart_choice in (TauHat, KappaHat, TauTilde, KappaTilde)
     # classical approach
     p_hat = zeros(3)
-  else
+  elseif chart_choice in (Shannon, ShannonExtropy, DistanceToWhiteNoise)
     # refined approach
     p_hat = zeros(6)
   end

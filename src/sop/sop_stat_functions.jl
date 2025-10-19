@@ -1,59 +1,3 @@
-"""
-    chart_stat_sop(p_ewma, chart_choice)
-
-Compute the the test statistic for spatial ordinal patterns. The first input is 
-a vector with three values, based on SOP counts. The second input is the chart.     
-
-"""
-function chart_stat_sop(p_vec, chart_choice)
-
-  @assert 1 <= chart_choice <= 7 "chart_choice must be between 1 and 7"
-
-  # Initialize test statistic
-  chart_val = 0
-
-  # Test statistics on unrefined types
-  if chart_choice == 1
-    chart_val = p_vec[1] - 1.0 / 3.0
-  elseif chart_choice == 2
-    chart_val = p_vec[2] - p_vec[3]
-  elseif chart_choice == 3
-    chart_val = p_vec[3] - 1.0 / 3.0
-  elseif chart_choice == 4
-    chart_val = p_vec[1] - p_vec[2]
-
-    # Test statistics for refined types  
-  elseif chart_choice == 5
-    # H-chart: Equation (7), Weiss and Kim
-    q  = length(p_vec)
-    for i in axes(p_vec, 1)
-      p_vec[i] > 0 && (chart_val -= p_vec[i] * log(p_vec[i])) # to avoid log(0)          
-    end
-    # Re-scale
-    chart_val = (-2)/q * (chart_val - log(q)) 
-
-  elseif chart_choice == 6
-    # Hex-chart: Equation (7), Weiss and Kim
-    q  = length(p_vec)
-    for i in axes(p_vec, 1)
-      p_vec[i] < 1 && (chart_val -= (1 - p_vec[i]) * log(1 - p_vec[i])) # to avoid log of negative value    
-    end
-    # Re-scale
-    chart_val = (-2)*(1-1/q) * (chart_val - (q-1)*log(q/(q-1)))
-
-  else # chart_choice == 7
-    # Δ-chart: Equation (7), Weiss and Kim
-    q = length(p_vec)
-    for i in axes(p_vec, 1)
-      chart_val += (p_vec[i] - 1 / q)^2
-    end
-
-  end
-
-  return chart_val
-
-end
-
 #===============================================
 
 Multiple Dispatch for 'stat_sop()':
@@ -62,7 +6,7 @@ Multiple Dispatch for 'stat_sop()':
 
 ================================================#
 
-# 1. Method to compute test statistic for one picture
+# 1. Method to compute test statistic for one picture without refinement
 """
   function stat_sop(
     data::Union{SubArray,Array{T,2}}, d1::Int, d2::Int;    
@@ -93,20 +37,17 @@ stat_sop(data, 2)
 function stat_sop(
   data::Union{SubArray,Array{T,2}},
   d1::Int, d2::Int;
-  chart_choice=3,
-  refinement::Int=0,
+  chart_choice,
+  refinement::Union{Bool,RefinedType}=false,
   add_noise::Bool=false,
   noise_dist::UnivariateDistribution=Uniform(0, 1)
 ) where {T<:Real}
 
-  # Check input parameters
-  @assert 1 <= chart_choice <= 7 "chart_choice must be between 1 and 7"
-  if chart_choice in 1:4
-    @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
-  end
+  # TODO Check input parameters
+
 
   # Pre-allocate  
-  if refinement == 0 #&& chart_choice in 1:4
+  if refinement == false #&& chart_choice in 1:4
     p_hat = zeros(3) # classical approach
   else
     p_hat = zeros(6) # refined approach
@@ -122,10 +63,7 @@ function stat_sop(
   n = size(data, 2) - d2
 
   # indices for sum of frequencies
-  index_sop = create_index_sop(refinement=refinement)
-  #s_1 = index_sop[1] 
-  #s_2 = index_sop[2] 
-  #s_3 = index_sop[3]
+  index_sop = create_index_sop(refinement)
 
   # Add noise?
   if add_noise
@@ -136,7 +74,7 @@ function stat_sop(
   sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
   # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-  fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, index_sop) # s_1, s_2, s_3)
+  fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, index_sop)
 
   # Compute test statistic
   stat = chart_stat_sop(p_hat, chart_choice)
@@ -157,7 +95,7 @@ end
       type_freq_init::Union{Float64,Array{Float64,2}}=1 / 3
 ) 
 
-Computes the test statistic for a 3D array of data, a given lambda value, and a given chart choice. 
+Computes the test statistics for a 3D array of data, a given lambda value, and a given chart choice. 
 
 The input parameters are:
 
@@ -175,29 +113,26 @@ function stat_sop(
   lam,
   d1::Int,
   d2::Int;
-  chart_choice=3,
-  refinement::Int=0,
+  chart_choice=TauTilde(),
+  refinement::Union{Bool,RefinedType}=false,
   add_noise::Bool=false,
   noise_dist::UnivariateDistribution=Uniform(0, 1),
   type_freq_init::Union{Float64,Array{Float64,2}}=1 / 3
 ) where {T<:Real}
 
-  # Check input parameters
-  @assert 1 <= chart_choice <= 7 "chart_choice must be between 1 and 7"
-  if chart_choice in 1:4
-    @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
-  end
-  
-  
+  # TODO Check input parameters
+
+
   # Compute lookup cube
   lookup_array_sop = compute_lookup_array_sop()
 
   # Pre-allocate
-  if refinement == 0
+  if refinement == nothing
     p_hat = zeros(3) # classical approach
   else
     p_hat = zeros(6) # refined approach
   end
+
   sop = zeros(4)
   p_ewma = zeros(3)
   p_ewma .= type_freq_init
@@ -207,9 +142,6 @@ function stat_sop(
 
   # indices for sum of frequencies
   index_sop = create_index_sop(refinement=refinement)
-  #s_1 = index_sop[1]
-  #s_2 = index_sop[2]
-  #s_3 = index_sop[3]
 
   # Compute m and n based on data
   data_tmp = similar(data[:, :, 1])
@@ -230,7 +162,7 @@ function stat_sop(
     sop_frequencies!(m, n, d1, d2, lookup_array_sop, data_tmp, sop, win, sop_freq)
 
     # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-    fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, index_sop) #s_1, s_2, s_3)
+    fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, index_sop)
 
     # Compute test statistic
     @. p_ewma = (1 - lam) * p_ewma + lam * p_hat

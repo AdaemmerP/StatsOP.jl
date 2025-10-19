@@ -1,7 +1,7 @@
 """
     function cl_sop_bp_bootstrap(
         data::Array{T,3}, lam, L0, cl_init, w, reps;
-        chart_choice=3, jmin=4, jmax=6, verbose=false
+        chart_choice::InformationMeasure=TauTilde(),, jmin=4, jmax=6, verbose=false
     ) where {T<:Real}
 
 Computes the control limit for the bootstrap version of the BP-SOP chart.
@@ -22,7 +22,7 @@ Computes the control limit for the bootstrap version of the BP-SOP chart.
 
 function cl_sop_bp_bootstrap(
     data::Array{T,3}, lam, L0, cl_init, w, reps;
-    chart_choice=3, jmin=4, jmax=6, verbose=false
+    chart_choice=TauTilde(), jmin=4, jmax=6, verbose=false
 ) where {T<:Real}
 
     # Compute a 3D-array, which contains relative frequencies of p-hat values for 

@@ -17,7 +17,7 @@ The input parameters are:
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 """
 function arl_sop_bp_ic(
-  spatial_dgp::ICSTS, lam, cl, w::Int, reps=1_000; chart_choice=3, refinement::Int=0
+  spatial_dgp::ICSTS, lam, cl, w::Int, reps=1_000; chart_choice=TauTilde(), refinement::Union{Nothing,RefinedType}=nothing,
 )
 
   # Check input parameters
@@ -25,7 +25,7 @@ function arl_sop_bp_ic(
   if chart_choice in 1:4
     @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
   end
-  
+
   # Compute m and n  
   dist_error = spatial_dgp.dist
 
@@ -93,10 +93,10 @@ function rl_sop_bp_ic(
 )
 
   # Pre-allocate    
-  if refinement == 0
+  if isnothing(refinement)
     # classical approach
     p_hat = zeros(3)
-  else
+  elseif refinement isa RefinedType
     # refined approach
     p_hat = zeros(6)
   end
@@ -112,13 +112,14 @@ function rl_sop_bp_ic(
 
   # Compute all possible combinations of d1 and d2
   d1_d2_combinations = Iterators.product(1:w, 1:w)
-  p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
+  if isnothing(refinement)
+    p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
+  elseif refinement isa RefinedType
+    p_ewma_all = zeros(6, 1, length(d1_d2_combinations))
+  end
 
   # indices for sum of frequencies
   index_sop = create_index_sop(refinement=refinement)
-  #s_1 = index_sop[1]
-  #s_2 = index_sop[2]
-  #s_3 = index_sop[3]
 
   for r in axes(reps_range, 1)
 
@@ -154,7 +155,7 @@ function rl_sop_bp_ic(
         sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
         # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-        fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, index_sop) # s_1, s_2, s_3)
+        fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, index_sop)
 
         # Apply EWMA to p-vectors
         @views @. p_ewma_all[:, :, i] = (1 - lam) * p_ewma_all[:, :, i] + lam * p_hat

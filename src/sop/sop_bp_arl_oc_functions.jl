@@ -21,8 +21,9 @@ function arl_sop_bp_oc(
     lam,
     cl,
     w::Int,
-    reps = 1_000;
-    chart_choice = 3,
+    reps=1_000;
+    chart_choice=TauTilde(),
+    refinement::Union{Nothing,RefinedType}=nothing,
 )
 
     # Compute m and n
@@ -50,6 +51,7 @@ function arl_sop_bp_oc(
                 dist_error,
                 dist_ao,
                 chart_choice,
+                refinement
             )
 
         end
@@ -69,6 +71,7 @@ function arl_sop_bp_oc(
                 dist_error,
                 dist_ao,
                 chart_choice,
+                refinement
             )
 
         end
@@ -94,6 +97,7 @@ function rl_sop_bp_oc(
     dist_error::UnivariateDistribution,
     dist_ao::Union{Nothing,UnivariateDistribution},
     chart_choice,
+    refinement
 )
 
     # find maximum values of d1 and d2 for construction of matrices
@@ -113,10 +117,7 @@ function rl_sop_bp_oc(
     p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
 
     # indices for sum of frequencies
-    index_sop = create_index_sop()
-    s_1 = index_sop[1]
-    s_2 = index_sop[2]
-    s_3 = index_sop[3]
+    index_sop = create_index_sop(refinement=refinement)
 
     # pre-allocate
     # mat:    matrix for the final values of the spatial DGP
@@ -174,7 +175,7 @@ function rl_sop_bp_oc(
                 sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
                 # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-                fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
+                fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop)
 
                 # Apply EWMA
                 @views @. p_ewma_all[:, :, i] =
@@ -227,16 +228,20 @@ function rl_sop_bp_oc(
     sop_freq = zeros(Int, 24)
     win = zeros(Int, 4)
     data = zeros(M, N)
-    p_hat = zeros(3)
     rls = zeros(Int, length(p_reps))
     sop = zeros(4)
-    p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
+    if isnothing(refinement)
+        # classical approach
+        p_hat = zeros(3)
+        p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
+    elseif refinement isa RefinedType
+        # refined approach
+        p_hat = zeros(6)
+        p_ewma_all = zeros(6, 1, length(d1_d2_combinations))
+    end
 
     # indices for sum of frequencies
-    index_sop = create_index_sop()
-    s_1 = index_sop[1]
-    s_2 = index_sop[2]
-    s_3 = index_sop[3]
+    index_sop = create_index_sop(refinement=refinement)
 
     # pre-allocate
     # mat:    matrix for the final values of the spatial DGP
@@ -282,7 +287,7 @@ function rl_sop_bp_oc(
                 sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
                 # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-                fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
+                fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop)
 
                 # Apply EWMA
                 @views @. p_ewma_all[:, :, i] =
@@ -340,16 +345,20 @@ function rl_sop_bp_oc(
     sop_freq = zeros(Int, 24)
     win = zeros(Int, 4)
     data = zeros(M, N)
-    p_hat = zeros(3)
     rls = zeros(Int, length(p_reps))
     sop = zeros(4)
-    p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
+    if isnothing(refinement)
+        # classical approach
+        p_hat = zeros(3)
+        p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
+    elseif refinement isa RefinedType
+        # refined approach
+        p_hat = zeros(6)
+        p_ewma_all = zeros(6, 1, length(d1_d2_combinations))
+    end
 
     # indices for sum of frequencies
-    index_sop = create_index_sop()
-    s_1 = index_sop[1]
-    s_2 = index_sop[2]
-    s_3 = index_sop[3]
+    index_sop = create_index_sop(refinement=refinement)
 
     # pre-allocate
     # mat:    matrix for the final values of the spatial DGP
@@ -394,7 +403,7 @@ function rl_sop_bp_oc(
                 sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
                 # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-                fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
+                fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop)
 
                 # Apply EWMA
                 @views @. p_ewma_all[:, :, i] =
@@ -450,16 +459,20 @@ function rl_sop_bp_oc(
     sop_freq = zeros(Int, 24)
     win = zeros(Int, 4)
     data = zeros(M, N)
-    p_hat = zeros(3)
     rls = zeros(Int, length(p_reps))
     sop = zeros(4)
-    p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
+    if isnothing(refinement)
+        # classical approach
+        p_hat = zeros(3)
+        p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
+    elseif refinement isa RefinedType
+        # refined approach
+        p_hat = zeros(6)
+        p_ewma_all = zeros(6, 1, length(d1_d2_combinations))
+    end
 
     # indices for sum of frequencies
-    index_sop = create_index_sop()
-    s_1 = index_sop[1]
-    s_2 = index_sop[2]
-    s_3 = index_sop[3]
+    index_sop = create_index_sop(refinement=refinement)
 
     # pre-allocate
     # mat:    matrix for the final values of the spatial DGP
@@ -504,11 +517,10 @@ function rl_sop_bp_oc(
                 sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
                 # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-                fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
+                fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop)
 
                 # Apply EWMA
-                @views @. p_ewma_all[:, :, i] =
-                    (1 - lam) * p_ewma_all[:, :, i] + lam * p_hat
+                @views @. p_ewma_all[:, :, i] = (1 - lam) * p_ewma_all[:, :, i] + lam * p_hat
 
                 # Compute test statistic for one d1-d2 combination
                 @views stat = chart_stat_sop(p_ewma_all[:, :, i], chart_choice)
@@ -560,16 +572,20 @@ function rl_sop_bp_oc(
     sop_freq = zeros(Int, 24)
     win = zeros(Int, 4)
     data = zeros(M, N)
-    p_hat = zeros(3)
     rls = zeros(Int, length(p_reps))
     sop = zeros(4)
-    p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
+    if isnothing(refinement)
+        # classical approach
+        p_hat = zeros(3)
+        p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
+    elseif refinement isa RefinedType
+        # refined approach
+        p_hat = zeros(6)
+        p_ewma_all = zeros(6, 1, length(d1_d2_combinations))
+    end
 
     # indices for sum of frequencies
-    index_sop = create_index_sop()
-    s_1 = index_sop[1]
-    s_2 = index_sop[2]
-    s_3 = index_sop[3]
+    index_sop = create_index_sop(refinement=refinement)
 
     # pre-allocate
     # mat:    matrix for the final values of the spatial DGP
@@ -614,11 +630,10 @@ function rl_sop_bp_oc(
                 sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
                 # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-                fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
+                fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop)
 
                 # Apply EWMA
-                @views @. p_ewma_all[:, :, i] =
-                    (1 - lam) * p_ewma_all[:, :, i] + lam * p_hat
+                @views @. p_ewma_all[:, :, i] = (1 - lam) * p_ewma_all[:, :, i] + lam * p_hat
 
                 # Compute test statistic for one d1-d2 combination
                 @views stat = chart_stat_sop(p_ewma_all[:, :, i], chart_choice)

@@ -23,8 +23,9 @@ function arl_sop_oc(
     cl,
     d1::Int,
     d2::Int,
-    reps = 10_000;
-    chart_choice = 3,
+    reps=10_000;
+    chart_choice=TauTilde(),
+    refinement::Union{Nothing,RefinedType}=nothing
 )
 
     # Compute m and n (final SOP matrix)
@@ -53,6 +54,7 @@ function arl_sop_oc(
                 dist_error,
                 dist_ao,
                 chart_choice,
+                refinement,
                 m_rows,
                 n_cols,
                 d1,
@@ -76,6 +78,7 @@ function arl_sop_oc(
                 dist_error,
                 dist_ao,
                 chart_choice,
+                refinement,
                 m_rows,
                 n_cols,
                 d1,
@@ -104,6 +107,7 @@ function rl_sop_oc(
     dist_error::UnivariateDistribution,
     dist_ao::Union{Nothing,UnivariateDistribution},
     chart_choice,
+    refinement,
     m,
     n,
     d1::Int,
@@ -116,16 +120,20 @@ function rl_sop_oc(
     sop_freq = zeros(Int, 24) # factorial(4)
     win = zeros(Int, 4)
     data = zeros(M, N)
-    p_ewma = zeros(3)
-    p_hat = zeros(3)
+    if isnothing(refinement)
+        # classical approach
+        p_hat = zeros(3)
+        p_ewma = zeros(3)
+    elseif refinement isa RefinedType
+        # refined approach
+        p_hat = zeros(6)
+        p_ewma = zeros(6)
+    end
     rls = zeros(Int, length(p_reps))
     sop = zeros(4)
 
     # indices for sum of frequencies
-    index_sop = create_index_sop()
-    s_1 = index_sop[1]
-    s_2 = index_sop[2]
-    s_3 = index_sop[3]
+    index_sop = create_index_sop(refinement=refinement)
 
     # pre-allocate
     # mat:    matrix for the final values of the spatial DGP
@@ -175,7 +183,7 @@ function rl_sop_oc(
             sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
             # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-            fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
+            fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop)
 
             # Apply EWMA to p-vectors
             @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
@@ -207,6 +215,7 @@ function rl_sop_oc(
     dist_error::UnivariateDistribution,
     dist_ao::Union{Nothing,UnivariateDistribution},
     chart_choice,
+    refinement,
     m,
     n,
     d1::Int,
@@ -219,16 +228,20 @@ function rl_sop_oc(
     sop_freq = zeros(Int, 24) # factorial(4)
     win = zeros(Int, 4)
     data = zeros(M, N)
-    p_ewma = zeros(3)
-    p_hat = zeros(3)
+    if isnothing(refinement)
+        # classical approach
+        p_hat = zeros(3)
+        p_ewma = zeros(3)
+    elseif refinement isa RefinedType
+        # refined approach
+        p_hat = zeros(6)
+        p_ewma = zeros(6)
+    end
     rls = zeros(Int, length(p_reps))
     sop = zeros(4)
 
     # indices for sum of frequencies
-    index_sop = create_index_sop()
-    s_1 = index_sop[1]
-    s_2 = index_sop[2]
-    s_3 = index_sop[3]
+    index_sop = create_index_sop(refinement=refinement)
 
     # pre-allocate
     # mat:    matrix for the final values of the spatial DGP
@@ -265,7 +278,7 @@ function rl_sop_oc(
             sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
             # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-            fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
+            fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop)
 
             # Apply EWMA to p-vectors
             @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
@@ -301,6 +314,7 @@ function rl_sop_oc(
     dist_error::UnivariateDistribution,
     dist_ao::Union{Nothing,UnivariateDistribution},
     chart_choice,
+    refinement,
     m,
     n,
     d1::Int,
@@ -313,16 +327,20 @@ function rl_sop_oc(
     sop_freq = zeros(Int, 24) # factorial(4)
     win = zeros(Int, 4)
     data = zeros(M, N)
-    p_ewma = zeros(3)
-    p_hat = zeros(3)
+    if isnothing(refinement)
+        # classical approach
+        p_hat = zeros(3)
+        p_ewma = zeros(3)
+    elseif refinement isa RefinedType
+        # refined approach
+        p_hat = zeros(6)
+        p_ewma = zeros(6)
+    end
     rls = zeros(Int, length(p_reps))
     sop = zeros(4)
 
     # indices for sum of frequencies
-    index_sop = create_index_sop()
-    s_1 = index_sop[1]
-    s_2 = index_sop[2]
-    s_3 = index_sop[3]
+    index_sop = create_index_sop(refinement=refinement)
 
     # pre-allocate
     # mat:    matrix for the final values of the spatial DGP
@@ -358,7 +376,7 @@ function rl_sop_oc(
             sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
             # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-            fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
+            fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop)
 
             # Apply EWMA to p-vectors
             @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
@@ -393,6 +411,7 @@ function rl_sop_oc(
     dist_error::UnivariateDistribution,
     dist_ao::Union{Nothing,UnivariateDistribution},
     chart_choice,
+    refinement,
     m,
     n,
     d1::Int,
@@ -405,16 +424,20 @@ function rl_sop_oc(
     sop_freq = zeros(Int, 24) # factorial(4)
     win = zeros(Int, 4)
     data = zeros(M, N)
-    p_ewma = zeros(3)
-    p_hat = zeros(3)
+    if isnothing(refinement)
+        # classical approach
+        p_hat = zeros(3)
+        p_ewma = zeros(3)
+    elseif refinement isa RefinedType
+        # refined approach
+        p_hat = zeros(6)
+        p_ewma = zeros(6)
+    end
     rls = zeros(Int, length(p_reps))
     sop = zeros(4)
 
     # indices for sum of frequencies
-    index_sop = create_index_sop()
-    s_1 = index_sop[1]
-    s_2 = index_sop[2]
-    s_3 = index_sop[3]
+    index_sop = create_index_sop(refinement=refinement)
 
     # pre-allocate
     # mat:    matrix for the final values of the spatial DGP
@@ -450,7 +473,7 @@ function rl_sop_oc(
             sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
             # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-            fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
+            fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop)
 
             # Apply EWMA to p-vectors
             @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
@@ -485,6 +508,7 @@ function rl_sop_oc(
     dist_error::UnivariateDistribution,
     dist_ao::Union{Nothing,UnivariateDistribution},
     chart_choice,
+    refinement,
     m,
     n,
     d1::Int,
@@ -497,16 +521,20 @@ function rl_sop_oc(
     sop_freq = zeros(Int, 24) # factorial(4)
     win = zeros(Int, 4)
     data = zeros(M, N)
-    p_ewma = zeros(3)
-    p_hat = zeros(3)
+    if isnothing(refinement)
+        # classical approach
+        p_hat = zeros(3)
+        p_ewma = zeros(3)
+    elseif refinement isa RefinedType
+        # refined approach
+        p_hat = zeros(6)
+        p_ewma = zeros(6)
+    end
     rls = zeros(Int, length(p_reps))
     sop = zeros(4)
 
     # indices for sum of frequencies
-    index_sop = create_index_sop()
-    s_1 = index_sop[1]
-    s_2 = index_sop[2]
-    s_3 = index_sop[3]
+    index_sop = create_index_sop(refinement=refinement)
 
     # pre-allocate
     # mat:    matrix for the final values of the spatial DGP
@@ -543,7 +571,7 @@ function rl_sop_oc(
             sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
             # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-            fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, s_1, s_2, s_3)
+            fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop)
 
             # Apply EWMA to p-vectors
             @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
