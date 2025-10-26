@@ -122,6 +122,8 @@ function rl_op_ic(
   p = Vector{Float64}(undef, m_fact)
   bin = Vector{Int64}(undef, m_fact)
   win = Vector{Int64}(undef, m)
+  idx_used = zeros(Int, m)
+
 
   # Compute vectors accordingly
   if d isa Int && d == 1
@@ -166,9 +168,9 @@ function rl_op_ic(
 
           # binarization of ordinal pattern
           #bin[lookup_array_op[win[1], win[2], win[3]]] = 1
-          index = perm_to_lehm_idx!(win, used)
+          index = perm_to_lehm_idx!(win, idx_used)
           bin[index] = 1
-          fill!(used, 0)
+          fill!(idx_used, 0)
 
           # compute EWMA statistic
           @. p = lam * bin .+ (1 - lam) * p
@@ -202,7 +204,7 @@ function rl_op_ic(
       #seq = init_dgp_op!(op_dgp, x_long, op_dgp_dist, d, xbiv)
       seq = init_dgp_op!(op_dgp, x_long, eps_long, op_dgp_dist, d, xbiv)
       # in-control OP-distribution            
-      fill!(p, 1 / 6)
+      fill!(p, 1 / m_fact)
       stat = chart_stat_op(p, chart_choice)
     end
 
@@ -211,11 +213,13 @@ function rl_op_ic(
       rl += 1
       bin .= 0
       # compute ordinal pattern based on permutations        
-      order_vec!(seq, win)
+      # order_vec!(seq, win)
+
+      sortperm!(win, seq)
       # Binarization of ordinal pattern
-      index = perm_to_lehm_idx!(win, used)
+      index = perm_to_lehm_idx!(win, idx_used)
       bin[index] = 1
-      fill!(used, 0)
+      fill!(idx_used, 0)
       #bin[lookup_array_op[win[1], win[2], win[3]]] = 1
       # Compute EWMA statistic for binarized ordinal pattern, Equation (5), page 342, Weiss and Testik (2023)
       @. p = lam * bin .+ (1 - lam) * p

@@ -33,21 +33,23 @@ Function to compute the control limit using in-control processes using ordinal p
 - `ad::Int=100`: Number of iterations for ced.
 """
 function cl_op(
-  op_dgp, lam, L0, cl_init, reps=10_000; 
-  chart_choice, jmin=4, jmax=6, verbose=false, d=1, ced=false, ad=100
-  )
-         
+  op_dgp, lam, L0, cl_init, reps=10_000;
+  chart_choice, jmin=4, jmax=6, verbose=false, d=1, m=3, ced=false, ad=100
+)
+
   L1 = zeros(2)
-  
+
   for j in jmin:jmax
     for dh in 1:80
 
-      if (chart_choice == 1 || chart_choice == 2)
+      if (chart_choice isa Shannon || chart_choice isa ShannonExtropy)
         cl_init = cl_init - (-1)^j * dh / 10^j
       else
         cl_init = cl_init + (-1)^j * dh / 10^j
       end
-      L1 = arl_op(lam, cl_init, op_dgp, reps; chart_choice=chart_choice, d=d, ced=ced, ad=ad) 
+      L1 = arl_op_ic(
+        op_dgp, lam, cl_init, reps; chart_choice=chart_choice, d=d, m=m, ced=ced, ad=ad
+      )
 
       if verbose
         println("cl = ", cl_init, "\t", "ARL = ", L1[1])
