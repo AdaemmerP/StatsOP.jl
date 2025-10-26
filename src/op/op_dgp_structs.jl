@@ -62,9 +62,9 @@ ma2 = MA2(0.5, 0.3, Normal(0, 1))
 ```
 """
 struct MA2
-  α₁::Float64
-  α₂::Float64
-  dist::UnivariateDistribution
+    α₁::Float64
+    α₂::Float64
+    dist::UnivariateDistribution
 end
 
 """
@@ -123,3 +123,36 @@ struct QAR1
     dist::UnivariateDistribution
 end
 
+
+# First-Order Integer Valued Autoregressive Process
+struct INAR1
+    α::Float64
+    dist::DiscreteUnivariateDistribution
+end
+
+
+# Binomial AutoRegressive process of order 1
+struct BAR1
+    n::Int64
+    ρ::Float64
+    μ::Float64
+    α::Float64
+    β::Float64
+    parpi::Float64
+    dist::Nothing
+end
+
+# Build constructor
+function BAR1(n, rho, mu)
+    parpi = mu / n
+    beta = (1 - rho) * parpi
+    alpha = beta + rho
+    return BAR1(n, rho, mu, alpha, beta, parpi, nothing)
+end
+
+
+# Discrete AutoRegressive process of order 1
+struct DAR1
+    α::Float64
+    dist::DiscreteUnivariateDistribution
+end
