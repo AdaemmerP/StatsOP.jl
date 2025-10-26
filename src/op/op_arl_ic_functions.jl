@@ -149,16 +149,22 @@ function rl_op_ic(
         fill!(p, 1 / m_fact)
         seq = init_dgp_op_ced!(op_dgp, x_long, d)
 
+        # Add noise in case of discrete distribution
+        if op_dgp_dist isa DiscreteDistribution
+          for i in axes(seq, 1)
+            seq[i] += rand()
+          end
+        end
+
         falarm = false
 
         for _ in 1:ad
 
           bin .= 0
           # compute ordinal pattern based on permutations          
-          #order_vec!(seq, win)
           sortperm!(win, seq)
-          # binarization of ordinal pattern
 
+          # binarization of ordinal pattern
           #bin[lookup_array_op[win[1], win[2], win[3]]] = 1
           index = perm_to_lehm_idx!(win, used)
           bin[index] = 1
