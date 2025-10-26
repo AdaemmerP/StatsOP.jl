@@ -99,7 +99,12 @@ export ICTS,
   AR1,
   TEAR1,
   MA1,
-  MA2
+  MA2,
+  QAR1,
+  INAR1,
+  BAR1,
+  DAR1
+
 
 # OP functions to export
 export rl_op_ic,
