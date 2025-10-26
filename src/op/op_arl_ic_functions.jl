@@ -9,9 +9,9 @@ Function to compute the average run length (ARL) for ordinal patterns using the 
 * `cl::Float64` Control limit for the EWMA statistic.
 * `reps::Int64` Number of replications.
 * `chart_choice::Int` 
-  1. ``\\widehat{H}^{(d)}=-\\sum_{k=1}^{m!} \\hat{p}_k{ }^{(d)} \\ln \\hat{p}_k{ }^{(d)}``
-  2. ``\\widehat{H}_{\\mathrm{ex}}^{(d)}=-\\sum_{k=1}^{m!}\\left(1-\\hat{p}_k{ }^{(d)}\\right) \\ln \\left(1-\\hat{p}_k{ }^{(d)}\\right)``
-  3. ``\\widehat{\\Delta}^{(d)}=\\sum_{k=1}^{m!}\\left(\\hat{p}_k^{(d)}-1 / m!\\right)^2``
+  1. ``\\widehat{H}^{(d)}=-\\sum_{k=1}^{m_fact} \\hat{p}_k{ }^{(d)} \\ln \\hat{p}_k{ }^{(d)}``
+  2. ``\\widehat{H}_{\\mathrm{ex}}^{(d)}=-\\sum_{k=1}^{m_fact}\\left(1-\\hat{p}_k{ }^{(d)}\\right) \\ln \\left(1-\\hat{p}_k{ }^{(d)}\\right)``
+  3. ``\\widehat{\\Delta}^{(d)}=\\sum_{k=1}^{m_fact}\\left(\\hat{p}_k^{(d)}-1 / m_fact\\right)^2``
   4. ``\\hat{\\beta}^{(d)}=\\hat{p}_6^{(d)}-\\hat{p}_1^{(d)}``
   5. ``\\hat{\\tau}^{(d)}=\\hat{p}_6^{(d)}+\\hat{p}_1^{(d)}-\\frac{1}{3}``
   6. ``\\hat{\\delta}^{(d)}=\\hat{p}_4^{(d)}+\\hat{p}_5^{(d)}-\\hat{p}_3^{(d)}-\\hat{p}_2^{(d)}``
@@ -43,7 +43,9 @@ end
 arl_op(0.1, cl_init, IC(Normal(0, 1)), 10_000; chart_choice=1, d=1, ced=false, ad=100)
 ```
 """
-function arl_op_ic(op_dgp::ICTS, lam, cl, reps=10_000; chart_choice, d::Union{Int,Vector{Int}}=1, ced=false, ad=100) 
+function arl_op_ic(
+  op_dgp::ICTS, lam, cl, reps=10_000; chart_choice, d::Int=1, m=3, ced=false, ad=100
+)
 
   # Compute lookup array and number of ops
   lookup_array_op = compute_lookup_array_op()
@@ -57,7 +59,7 @@ function arl_op_ic(op_dgp::ICTS, lam, cl, reps=10_000; chart_choice, d::Union{In
     # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
     par_results = map(chunks) do i
 
-      Threads.@spawn rl_op_ic(op_dgp, lam, cl, lookup_array_op, i, op_dgp.dist, chart_choice; d=d, ced=ced, ad=ad)
+      Threads.@spawn rl_op_ic(op_dgp, lam, cl, lookup_array_op, i, op_dgp.dist, chart_choice; d=d, m=m, ced=ced, ad=ad)
 
     end
 
@@ -67,7 +69,9 @@ function arl_op_ic(op_dgp::ICTS, lam, cl, reps=10_000; chart_choice, d::Union{In
     chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
 
     par_results = pmap(chunks) do i
-      rl_op_ic(op_dgp, lam, cl, lookup_array_op, i,op_dgp.dist, chart_choice; d=d, ced=ced, ad=ad)
+      rl_op_ic(
+        op_dgp, lam, cl, lookup_array_op, i, op_dgp.dist, chart_choice; d=d, m=m, ced=ced, ad=ad)
+
     end
 
   end
@@ -101,40 +105,35 @@ rl_op(0.1, 3.0, lookup_array_op, 1:10_000, IC(Normal(0, 1)), Normal(0, 1), 1; d=
 ```
 """
 function rl_op_ic(
-  op_dgp::ICTS, lam, cl, lookup_array_op, p_reps, 
-  op_dgp_dist, chart_choice; d::Union{Int,Vector{Int}}=1, ced=false, ad=100
-  )
-
-  # value of patterns (can become variable in future versions)
-  op_length = 3
+  op_dgp::ICTS, lam, cl, lookup_array_op, p_reps,
+  op_dgp_dist, chart_choice; d::Int=1, m::Int, ced=false, ad=100
+)
 
   # if d is a vector of integer, check whether its length equals "m" (3 by default)
   if d isa Vector{Int}
-    if length(d) != op_length
-      throw(ArgumentError("Length of delay vector must be equal to op_length (3 by default)."))
+    if length(d) != m
+      throw(ArgumentError("Length of delay vector must be equal to m (3 by default)."))
     end
   end
 
   # Pre-allocate variables
-  m! = factorial(op_length)
-  rls = Vector{Int64}(undef, length(p_reps)) 
-  p = Vector{Float64}(undef, m!)
-  bin = Vector{Int64}(undef, m!) 
-  win = Vector{Int64}(undef, op_length) 
+  m_fact = factorial(m)
+  rls = Vector{Int64}(undef, length(p_reps))
+  p = Vector{Float64}(undef, m_fact)
+  bin = Vector{Int64}(undef, m_fact)
+  win = Vector{Int64}(undef, m)
 
   # Compute vectors accordingly
-    if d isa Int && d == 1
-      x_long = Vector{Float64}(undef, op_length)
-      eps_long = similar(x_long)
-    elseif d isa Int && d > 1
-      x_long = Vector{Float64}(undef, op_length + d)
-      eps_long = similar(x_long)
-    elseif d isa Vector{Int}
-      x_long = Vector{Float64}(undef, last(d))
-      eps_long = similar(x_long)
-    end
+  if d isa Int && d == 1
+    x_long = Vector{Float64}(undef, m)
+    eps_long = similar(x_long)
+  elseif d isa Int && d > 1
+    x_long = Vector{Float64}(undef, m + d)
+    eps_long = similar(x_long)
+  end
 
-  xbiv = Vector{Float64}(undef, ad) # burn-in vector for AAR(1) and QAR(1) DGPs
+  # burn-in vector for AAR(1) and QAR(1) DGPs
+  xbiv = Vector{Float64}(undef, ad)
 
   for r in axes(p_reps, 1) # p_reps is a range
 
@@ -147,18 +146,24 @@ function rl_op_ic(
 
       while icrun
 
-        fill!(p, 1 / 6)
+        fill!(p, 1 / m_fact)
         seq = init_dgp_op_ced!(op_dgp, x_long, d)
 
         falarm = false
 
-        for t in 1:ad
+        for _ in 1:ad
 
-          bin .= 0 # zeros(6)
-          # compute ordinal pattern based on permutations
-          order_vec!(seq, win)
+          bin .= 0
+          # compute ordinal pattern based on permutations          
+          #order_vec!(seq, win)
+          sortperm!(win, seq)
           # binarization of ordinal pattern
-          bin[lookup_array_op[win[1], win[2], win[3]]] = 1
+
+          #bin[lookup_array_op[win[1], win[2], win[3]]] = 1
+          index = perm_to_lehm_idx!(win, used)
+          bin[index] = 1
+          fill!(used, 0)
+
           # compute EWMA statistic
           @. p = lam * bin .+ (1 - lam) * p
           # test statistic

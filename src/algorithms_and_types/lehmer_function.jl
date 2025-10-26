@@ -5,7 +5,7 @@ export perm_to_lehm_idx!,
     perm_to_lehm_idx(P::Vector{<:Integer}) -> Int
 
 Converts a permutation vector `P` into its 0-based lexicographical index. This is the in-place
-version.
+version. 
 
 # Arguments
 - `P`: A permutation vector (e.g., [3, 1, 2]).
@@ -93,6 +93,5 @@ function perm_to_lehm_idx!(
 
   return index + 1  # 1-based indexing
 end
-
 
 
