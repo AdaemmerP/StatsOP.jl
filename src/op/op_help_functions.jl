@@ -3,29 +3,47 @@ export compute_lookup_array_op
 
 # --- Function to select abort criterium --- #
 # see Equation (6), page 342, Weiss and Testik (2023)
-function abort_criterium_op(stat, cl, chart_choice)
-  if chart_choice == 1
-    # Permutation Entropy-H chart: Equation (3), page 342, Weiss and Testik (2023)
-    return stat > cl
-  elseif chart_choice == 2
-    # Permutation Extropy-hex chart: Equation (3), page 342, Weiss and Testik (2023), Equation (15), page 6 in the paper      
-    return stat > cl
-  elseif chart_choice == 3
-    # Delta3 chart: Equation (3), page 342, Weiss and Testik (2023)
-    return stat < cl
-  elseif chart_choice == 4
-    # beta chart: Equation (4), page 342, Weiss and Testik (2023), Equation (16), page 6 in the paper
-    return abs(stat) < cl
-  elseif chart_choice == 5
-    #  tau chart: Equation (4), page 342, Weiss and Testik (2023), Equation (16), page 6 in the paper
-    return abs(stat) < cl
-  elseif chart_choice == 6
-    # delta chart: Equation (4), page 342, Weiss and Testik (2023)
-    return abs(stat) < cl
-  else
-    println("Wrong number for test statistic.")
-  end
+function abort_criterium_op(stat, cl, ::Union{Shannon,ShannonExtropy})
+  # Permutation Entropy-H chart: Equation (3), page 342, Weiss and Testik (2023)
+  return stat < cl
+
 end
+
+function abort_criterium_op(stat, cl, ::DistanceToWhiteNoise)
+  # Permutation Entropy-H chart: Equation (3), page 342, Weiss and Testik (2023)
+  return stat > cl
+
+end
+
+function abort_criterium_op(stat, cl, ::Union{UpDownBalance,Persistence,RotationalAsymmetry,UpDownScaling})
+  # Permutation Entropy-H chart: Equation (3), page 342, Weiss and Testik (2023)
+  return abs(stat) > cl
+
+end
+
+# function abort_criterium_op(stat, cl, chart_choice)
+#   if chart_choice == 1
+#     # Permutation Entropy-H chart: Equation (3), page 342, Weiss and Testik (2023)
+#     return stat > cl
+#   elseif chart_choice == 2
+#     # Permutation Extropy-hex chart: Equation (3), page 342, Weiss and Testik (2023), Equation (15), page 6 in the paper      
+#     return stat > cl
+#   elseif chart_choice == 3
+#     # Delta3 chart: Equation (3), page 342, Weiss and Testik (2023)
+#     return stat < cl
+#   elseif chart_choice == 4
+#     # beta chart: Equation (4), page 342, Weiss and Testik (2023), Equation (16), page 6 in the paper
+#     return abs(stat) < cl
+#   elseif chart_choice == 5
+#     #  tau chart: Equation (4), page 342, Weiss and Testik (2023), Equation (16), page 6 in the paper
+#     return abs(stat) < cl
+#   elseif chart_choice == 6
+#     # delta chart: Equation (4), page 342, Weiss and Testik (2023)
+#     return abs(stat) < cl
+#   else
+#     println("Wrong number for test statistic.")
+#   end
+# end
 
 # # Function that returns possible ranks of ordinal patterns
 # function get_ranks_op(; m=3)

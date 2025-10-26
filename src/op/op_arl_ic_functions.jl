@@ -48,7 +48,7 @@ function arl_op_ic(
 )
 
   # Compute lookup array and number of ops
-  lookup_array_op = compute_lookup_array_op()
+  #lookup_array_op = compute_lookup_array_op()
 
   # Check whether to use threading or multi processing -
   if nprocs() == 1
@@ -59,7 +59,7 @@ function arl_op_ic(
     # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
     par_results = map(chunks) do i
 
-      Threads.@spawn rl_op_ic(op_dgp, lam, cl, lookup_array_op, i, op_dgp.dist, chart_choice; d=d, m=m, ced=ced, ad=ad)
+      Threads.@spawn rl_op_ic(op_dgp, lam, cl, i, op_dgp.dist, chart_choice; d=d, m=m, ced=ced, ad=ad)
 
     end
 
@@ -70,7 +70,7 @@ function arl_op_ic(
 
     par_results = pmap(chunks) do i
       rl_op_ic(
-        op_dgp, lam, cl, lookup_array_op, i, op_dgp.dist, chart_choice; d=d, m=m, ced=ced, ad=ad)
+        op_dgp, lam, cl, i, op_dgp.dist, chart_choice; d=d, m=m, ced=ced, ad=ad)
 
     end
 
@@ -105,7 +105,7 @@ rl_op(0.1, 3.0, lookup_array_op, 1:10_000, IC(Normal(0, 1)), Normal(0, 1), 1; d=
 ```
 """
 function rl_op_ic(
-  op_dgp::ICTS, lam, cl, lookup_array_op, p_reps,
+  op_dgp::ICTS, lam, cl, p_reps,
   op_dgp_dist, chart_choice; d::Int=1, m::Int, ced=false, ad=100
 )
 
@@ -200,14 +200,17 @@ function rl_op_ic(
       stat = chart_stat_op(p, chart_choice)
     end
 
-    while abort_criterium_op(stat, cl, chart_choice)
+    while !abort_criterium_op(stat, cl, chart_choice)
       # increase run length
       rl += 1
       bin .= 0
       # compute ordinal pattern based on permutations        
       order_vec!(seq, win)
       # Binarization of ordinal pattern
-      bin[lookup_array_op[win[1], win[2], win[3]]] = 1
+      index = perm_to_lehm_idx!(win, used)
+      bin[index] = 1
+      fill!(used, 0)
+      #bin[lookup_array_op[win[1], win[2], win[3]]] = 1
       # Compute EWMA statistic for binarized ordinal pattern, Equation (5), page 342, Weiss and Testik (2023)
       @. p = lam * bin .+ (1 - lam) * p
       # statistic based on smoothed p-estimate
