@@ -1,4 +1,4 @@
-export compute_lookup_array_op
+export add_noise!
 
 
 # --- Function to select abort criterium --- #
@@ -19,6 +19,18 @@ function abort_criterium_op(stat, cl, ::Union{UpDownBalance,Persistence,Rotation
   # Permutation Entropy-H chart: Equation (3), page 342, Weiss and Testik (2023)
   return abs(stat) > cl
 
+end
+
+# Function to add noise for discrete distributions
+function add_noise!(vec, ::DiscreteDistribution)
+  for i in axes(vec, 1)
+    vec[i] += rand()
+  end
+end
+
+# Method for continous distribution -> do nothing
+function add_noise!(vec, ::ContinuousDistribution)
+  return vec
 end
 
 # function abort_criterium_op(stat, cl, chart_choice)
@@ -213,24 +225,24 @@ end
 # end
 
 
-# Function to compute delay indices for ordinal patterns
-function compute_dindex_op(data; m::Int=3, d::Union{Int,Vector{Int}}=1)
+# # Function to compute delay indices for ordinal patterns
+# function compute_dindex_op(data; m::Int=3, d::Union{Int,Vector{Int}}=1)
 
-  # compute indices for equidistant step sizes 
-  if d isa Int
-    #@assert (length(data) < (m - 1) * d) "You either chose a too large delay or a too large order of OPs. "
-    index_range = [range(x; step=d, length=m) for x in 1:(length(data)-(m-1)*d)]
+#   # compute indices for equidistant step sizes 
+#   if d isa Int
+#     #@assert (length(data) < (m - 1) * d) "You either chose a too large delay or a too large order of OPs. "
+#     index_range = [range(x; step=d, length=m) for x in 1:(length(data)-(m-1)*d)]
 
-    # compute indices for non-equidistant step sizes        
-  elseif d isa Vector{Int}
-    index_range = Vector{Vector{Int}}(undef, length(last(d):length(data)))
-    index_range[1] = d
-    for i in 2:length(index_range)
-      index_range[i] = index_range[i-1] .+ 1
-    end
+#     # compute indices for non-equidistant step sizes        
+#   elseif d isa Vector{Int}
+#     index_range = Vector{Vector{Int}}(undef, length(last(d):length(data)))
+#     index_range[1] = d
+#     for i in 2:length(index_range)
+#       index_range[i] = index_range[i-1] .+ 1
+#     end
 
-  end
+#   end
 
-  return index_range
+#   return index_range
 
-end
+# end

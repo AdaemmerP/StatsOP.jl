@@ -44,7 +44,7 @@ arl_op(0.1, cl_init, IC(Normal(0, 1)), 10_000; chart_choice=1, d=1, ced=false, a
 ```
 """
 function arl_op_ic(
-  op_dgp::ICTS, lam, cl, reps=10_000; chart_choice, d::Int=1, m=3, ced=false, ad=100
+  op_dgp::ICTS, lam, cl, reps=10_000; chart_choice, d::Int=1, m::Int=3, ced=false, ad=100
 )
 
   # Compute lookup array and number of ops
@@ -109,33 +109,23 @@ function rl_op_ic(
   op_dgp_dist, chart_choice; d::Int=1, m::Int, ced=false, ad=100
 )
 
-  # if d is a vector of integer, check whether its length equals "m" (3 by default)
-  if d isa Vector{Int}
-    if length(d) != m
-      throw(ArgumentError("Length of delay vector must be equal to m (3 by default)."))
-    end
-  end
-
   # Pre-allocate variables
   m_fact = factorial(m)
-  rls = Vector{Int64}(undef, length(p_reps))
-  p = Vector{Float64}(undef, m_fact)
-  bin = Vector{Int64}(undef, m_fact)
-  win = Vector{Int64}(undef, m)
-  idx_used = zeros(Int, m)
-
+  rls = zeros(Int, length(p_reps)) # Vector{Int64}(undef, length(p_reps))
+  p = zeros(Float64, m_fact) # Vector{Float64}(undef, m_fact)
+  bin = zeros(Int, m_fact) # Vector{Int64}(undef, m_fact)
+  win = zeros(Int, m) # Vector{Int64}(undef, m)
+  idx_used = similar(win)
 
   # Compute vectors accordingly
   if d isa Int && d == 1
     x_long = Vector{Float64}(undef, m)
-    eps_long = similar(x_long)
   elseif d isa Int && d > 1
     x_long = Vector{Float64}(undef, m + d)
-    eps_long = similar(x_long)
   end
 
   # burn-in vector for AAR(1) and QAR(1) DGPs
-  xbiv = Vector{Float64}(undef, ad)
+  # xbiv = zeros(Float64, ad)
 
   for r in axes(p_reps, 1) # p_reps is a range
 
@@ -151,12 +141,8 @@ function rl_op_ic(
         fill!(p, 1 / m_fact)
         seq = init_dgp_op_ced!(op_dgp, x_long, d)
 
-        # Add noise in case of discrete distribution
-        if op_dgp_dist isa DiscreteDistribution
-          for i in axes(seq, 1)
-            seq[i] += rand()
-          end
-        end
+        # Add noise when using discrete distribution
+        add_noise!(vec, op_dgp_dist)
 
         falarm = false
 
@@ -167,7 +153,6 @@ function rl_op_ic(
           sortperm!(win, seq)
 
           # binarization of ordinal pattern
-          #bin[lookup_array_op[win[1], win[2], win[3]]] = 1
           index = perm_to_lehm_idx!(win, idx_used)
           bin[index] = 1
           fill!(idx_used, 0)
@@ -179,7 +164,7 @@ function rl_op_ic(
           # update sequence depending on DGP
           seq = update_dgp_op_ced!(op_dgp, x_long, d)
           # check whether false alarm 
-          if !abort_criterium_op(stat, cl, chart_choice)
+          if abort_criterium_op(stat, cl, chart_choice)
             falarm = true
           end
 
@@ -198,12 +183,9 @@ function rl_op_ic(
 
     # check whether to use ced. If ced is used, update observations. Otherwise, initialize observations
     if ced
-      #seq = update_dgp_op!(op_dgp, x_long, op_dgp_dist, d)
-      seq = update_dgp_op!(op_dgp, x_long, eps_long, op_dgp_dist, d)
+      seq = update_dgp_op!(op_dgp, x_long, op_dgp_dist, d)
     else
-      #seq = init_dgp_op!(op_dgp, x_long, op_dgp_dist, d, xbiv)
-      seq = init_dgp_op!(op_dgp, x_long, eps_long, op_dgp_dist, d, xbiv)
-      # in-control OP-distribution            
+      seq = init_dgp_op!(op_dgp, x_long, op_dgp_dist, d)
       fill!(p, 1 / m_fact)
       stat = chart_stat_op(p, chart_choice)
     end
@@ -212,22 +194,19 @@ function rl_op_ic(
       # increase run length
       rl += 1
       bin .= 0
-      # compute ordinal pattern based on permutations        
-      # order_vec!(seq, win)
 
+      # binarization of ordinal pattern
       sortperm!(win, seq)
-      # Binarization of ordinal pattern
       index = perm_to_lehm_idx!(win, idx_used)
       bin[index] = 1
       fill!(idx_used, 0)
-      #bin[lookup_array_op[win[1], win[2], win[3]]] = 1
+
       # Compute EWMA statistic for binarized ordinal pattern, Equation (5), page 342, Weiss and Testik (2023)
       @. p = lam * bin .+ (1 - lam) * p
       # statistic based on smoothed p-estimate
       stat = chart_stat_op(p, chart_choice)
       # update sequence depending on DGP
-      #seq = update_dgp_op!(op_dgp, x_long, op_dgp_dist, d)
-      seq = update_dgp_op!(op_dgp, x_long, eps_long, op_dgp_dist, d)
+      seq = update_dgp_op!(op_dgp, x_long, op_dgp_dist, d)
     end
 
     rls[r] = rl

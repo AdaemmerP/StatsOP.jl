@@ -124,14 +124,48 @@ struct QAR1
 end
 
 
-# First-Order Integer Valued Autoregressive Process
+"""
+    INAR1(α, dist, add_noise)
+
+First-Order **I**nteger **N**umerated **A**uto**R**egressive Process.
+
+The INAR(1) model for a time series \$X\_t\$ is defined by:
+\$\$X_t = \\alpha \\circ X\_{t-1} + \\epsilon\_t\$\$
+where:
+* \$\\alpha \\circ X\_{t-1}\$ is a **thinning operator** (e.g., binomial thinning).
+* \$\\epsilon\_t\$ is an independent sequence of random variables (the innovation).
+
+# Fields
+- `α::Float64`: The autoregressive parameter (thinning probability). Must be in \$(0, 1)\$.
+- `dist::DiscreteUnivariateDistribution`: The distribution of the innovation term \$\\epsilon\_t\$.
+- `add_noise::Bool`: Flag indicating whether a small amount of uniform noise should be added to the process (usually for simulating continuous-like observations from a discrete process).
+"""
 struct INAR1
     α::Float64
     dist::DiscreteUnivariateDistribution
+    add_noise::Bool
 end
 
+# -----------------------------------------------------------------------------
 
-# Binomial AutoRegressive process of order 1
+"""
+    BAR1(n, ρ, μ, α, β, parpi, dist, add_noise)
+
+**B**inomial **A**uto**R**egressive process of order 1.
+
+The BAR(1) model is a two-state process (0 and 1) that can be extended to model counts up to `n`.
+The process maintains a stationary mean `μ` through its construction.
+
+# Fields
+- `n::Int64`: The maximum count (the 'n' parameter of the underlying Binomial distribution).
+- `ρ::Float64`: The persistence/correlation parameter of the process.
+- `μ::Float64`: The stationary mean of the process.
+- `α::Float64`: Calculated internal parameter related to \$\\rho\$ and \$\\mu\$.
+- `β::Float64`: Calculated internal parameter related to \$\\rho\$ and \$\\mu\$.
+- `parpi::Float64`: The probability \$\\pi = \\mu/n\$.
+- `dist::Nothing`: Placeholder, as the innovation distribution is implicitly Binomial/Bernoulli via the structure.
+- `add_noise::Bool`: Flag to add small noise.
+"""
 struct BAR1
     n::Int64
     ρ::Float64
@@ -140,19 +174,43 @@ struct BAR1
     β::Float64
     parpi::Float64
     dist::Nothing
+    add_noise::Bool
 end
 
-# Build constructor
-function BAR1(n, rho, mu)
+"""
+    BAR1(n, rho, mu, add_noise)
+
+Convenience constructor for a `BAR1` process.
+
+Calculates the internal parameters `α` and `β` from the provided parameters `n`, `rho`, and `mu`.
+"""
+function BAR1(n, rho, mu, add_noise)
     parpi = mu / n
     beta = (1 - rho) * parpi
     alpha = beta + rho
-    return BAR1(n, rho, mu, alpha, beta, parpi, nothing)
+    return BAR1(n, rho, mu, alpha, beta, parpi, nothing, add_noise)
 end
 
+# -----------------------------------------------------------------------------
 
-# Discrete AutoRegressive process of order 1
+"""
+    DAR1(α, dist, add_noise)
+
+**D**iscrete **A**uto**R**egressive process of order 1.
+
+The DAR(1) model is a simple discrete-valued time series model defined by:
+\$\$X\_t = (1 - B\_t) X\_{t-1} + B\_t \\epsilon\_t\$\$
+where:
+* \$B\_t\$ is an i.i.d. Bernoulli random variable with parameter \$\\alpha\$.
+* \$\\epsilon\_t\$ is an independent sequence of random variables (the innovation).
+
+# Fields
+- `α::Float64`: The autoregressive parameter (probability of selecting the previous value). Must be in \$(0, 1)\$.
+- `dist::DiscreteUnivariateDistribution`: The distribution of the innovation term \$\\epsilon\_t\$.
+- `add_noise::Bool`: Flag to add small noise.
+"""
 struct DAR1
     α::Float64
     dist::DiscreteUnivariateDistribution
+    add_noise::Bool
 end

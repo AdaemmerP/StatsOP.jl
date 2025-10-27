@@ -9,9 +9,9 @@ Function to compute the average run length (ARL) for ordinal patterns using the 
 * `cl::Float64` Control limit for the EWMA statistic.
 * `reps::Int64` Number of replications.
 * `chart_choice::Int` 
-  1. ``\\widehat{H}^{(d)}=-\\sum_{k=1}^{m!} \\hat{p}_k{ }^{(d)} \\ln \\hat{p}_k{ }^{(d)}``
-  2. ``\\widehat{H}_{\\mathrm{ex}}^{(d)}=-\\sum_{k=1}^{m!}\\left(1-\\hat{p}_k{ }^{(d)}\\right) \\ln \\left(1-\\hat{p}_k{ }^{(d)}\\right)``
-  3. ``\\widehat{\\Delta}^{(d)}=\\sum_{k=1}^{m!}\\left(\\hat{p}_k^{(d)}-1 / m!\\right)^2``
+  1. ``\\widehat{H}^{(d)}=-\\sum_{k=1}^{m_fact} \\hat{p}_k{ }^{(d)} \\ln \\hat{p}_k{ }^{(d)}``
+  2. ``\\widehat{H}_{\\mathrm{ex}}^{(d)}=-\\sum_{k=1}^{m_fact}\\left(1-\\hat{p}_k{ }^{(d)}\\right) \\ln \\left(1-\\hat{p}_k{ }^{(d)}\\right)``
+  3. ``\\widehat{\\Delta}^{(d)}=\\sum_{k=1}^{m_fact}\\left(\\hat{p}_k^{(d)}-1 / m_fact\\right)^2``
   4. ``\\hat{\\beta}^{(d)}=\\hat{p}_6^{(d)}-\\hat{p}_1^{(d)}``
   5. ``\\hat{\\tau}^{(d)}=\\hat{p}_6^{(d)}+\\hat{p}_1^{(d)}-\\frac{1}{3}``
   6. ``\\hat{\\delta}^{(d)}=\\hat{p}_4^{(d)}+\\hat{p}_5^{(d)}-\\hat{p}_3^{(d)}-\\hat{p}_2^{(d)}``
@@ -44,7 +44,7 @@ arl_op(0.1, cl_init, IC(Normal(0, 1)), 10_000; chart_choice=1, d=1, ced=false, a
 ```
 """
 function arl_op_oc(
-  op_dgp, lam, cl, reps=10_000; chart_choice, d::Union{Int,Vector{Int}}=1, ced=false, ad=100
+  op_dgp, lam, cl, reps=10_000; chart_choice, d::Int=1, m::Int=3, ced=false, ad=100
 )
 
   # Compute lookup array and number of ops
@@ -59,7 +59,10 @@ function arl_op_oc(
     # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
     par_results = map(chunks) do i
 
-      Threads.@spawn rl_op_oc(op_dgp, lam, cl, lookup_array_op, i, op_dgp.dist, chart_choice; d=d, ced=ced, ad=ad)
+      Threads.@spawn rl_op_oc(
+        op_dgp, lam, cl, lookup_array_op, i, op_dgp.dist, chart_choice,
+        d, m, ced, ad
+      )
 
     end
 
@@ -69,7 +72,10 @@ function arl_op_oc(
     chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
 
     par_results = pmap(chunks) do i
-      rl_op_oc(op_dgp, lam, cl, lookup_array_op, i, op_dgp.dist, chart_choice; d=d, ced=ced, ad=ad)
+      rl_op_oc(
+        op_dgp, lam, cl, lookup_array_op, i, op_dgp.dist, chart_choice,
+        d, m, ced, ad
+      )
     end
 
   end
@@ -104,26 +110,15 @@ rl_op(0.1, 3.0, lookup_array_op, 1:10_000, IC(Normal(0, 1)), Normal(0, 1), 1; d=
 ```
 """
 function rl_op_oc(
-  op_dgp, lam, cl, lookup_array_op, p_reps,
-  op_dgp_dist, chart_choice; d::Union{Int,Vector{Int}}=1, ced=false, ad=100
+  op_dgp, lam, cl, lookup_array_op, p_reps, op_dgp_dist, chart_choice, d, m, ced, ad
 )
 
-  # value of patterns (can become variable in future versions)
-  op_length = 3
-
-  # if d is a vector of integer, check whether its length equals "m" (3 by default)
-  if d isa Vector{Int}
-    if length(d) != op_length
-      throw(ArgumentError("Length of delay vector must be equal toop_length (3 by default)."))
-    end
-  end
-
   # Pre-allocate variables
-  m! = factorial(op_length)
-  rls = Vector{Int64}(undef, length(p_reps)) # Vector{Int64}(undef, length(p_reps)) # 
-  p = Vector{Float64}(undef, m!) # MVector{6,Float64}(undef) # 
-  bin = Vector{Int64}(undef, m!) # MVector{6,Int}(undef)  # 
-  win = Vector{Int64}(undef, op_length) # MVector{3,Int}(undef)  # 
+  m_fact = factorial(m)
+  rls = zeros(Int, length(p_reps))
+  p = zeros(Float64, m_fact)
+  bin = zeros(Int, m_fact)
+  win = zeros(Int, m)
 
   # Check for MA1 and MA2 and compute length of the vectors accordingly
   if op_dgp isa MA1
@@ -133,9 +128,6 @@ function rl_op_oc(
       eps_long = similar(x_long)
     elseif d isa Int && d > 1
       x_long = Vector{Float64}(undef, op_length + d + 1)
-      eps_long = similar(x_long)
-    elseif d isa Vector{Int}
-      x_long = Vector{Float64}(undef, last(d) + 1)
       eps_long = similar(x_long)
     end
 
@@ -147,9 +139,6 @@ function rl_op_oc(
     elseif d isa Int && d > 1
       x_long = Vector{Float64}(undef, op_length + d + 2)
       eps_long = similar(x_long)
-    elseif d isa Vector{Int}
-      x_long = Vector{Float64}(undef, last(d) + 2)
-      eps_long = similar(x_long)
     end
 
     # Anything other than MA1 or MA2
@@ -160,9 +149,6 @@ function rl_op_oc(
       eps_long = similar(x_long)
     elseif d isa Int && d > 1
       x_long = Vector{Float64}(undef, op_length + d)
-      eps_long = similar(x_long)
-    elseif d isa Vector{Int}
-      x_long = Vector{Float64}(undef, last(d))
       eps_long = similar(x_long)
     end
 
@@ -186,16 +172,17 @@ function rl_op_oc(
 
         falarm = false
 
-        for t in 1:ad
+        for _ in 1:ad
 
-          bin .= 0 # zeros(6)
+          bin .= 0
           # compute ordinal pattern based on permutations
           sortperm!(win, seq)
-          # order_vec!(seq, win)
-          # order_vec!(x, ix)
 
           # binarization of ordinal pattern
-          bin[lookup_array_op[win[1], win[2], win[3]]] = 1
+          index = perm_to_lehm_idx!(win, idx_used)
+          bin[index] = 1
+          fill!(idx_used, 0)
+
           # compute EWMA statistic
           @. p = lam * bin .+ (1 - lam) * p
           # test statistic
@@ -203,7 +190,7 @@ function rl_op_oc(
           # update sequence depending on DGP
           seq = update_dgp_op_ced!(op_dgp, x_long, d)
           # check whether false alarm 
-          if !abort_criterium_op(stat, cl, chart_choice)
+          if abort_criterium_op(stat, cl, chart_choice)
             falarm = true
           end
 
@@ -222,13 +209,10 @@ function rl_op_oc(
 
     # check whether to use ced. If ced is used, update observations. Otherwise, initialize observations
     if ced
-      #seq = update_dgp_op!(op_dgp, x_long, op_dgp_dist, d)
       seq = update_dgp_op!(op_dgp, x_long, eps_long, op_dgp_dist, d)
     else
-      #seq = init_dgp_op!(op_dgp, x_long, op_dgp_dist, d, xbiv)
       seq = init_dgp_op!(op_dgp, x_long, eps_long, op_dgp_dist, d, xbiv)
-      # in-control OP-distribution            
-      fill!(p, 1 / 6)
+      fill!(p, 1 / m_fact)
       stat = chart_stat_op(p, chart_choice)
     end
 
@@ -236,16 +220,18 @@ function rl_op_oc(
       # increase run length
       rl += 1
       bin .= 0
-      # compute ordinal pattern based on permutations        
-      order_vec!(seq, win)
-      # Binarization of ordinal pattern
-      bin[lookup_array_op[win[1], win[2], win[3]]] = 1
+
+      # binarization of ordinal pattern
+      sortperm!(win, seq)
+      index = perm_to_lehm_idx!(win, idx_used)
+      bin[index] = 1
+      fill!(idx_used, 0)
+
       # Compute EWMA statistic for binarized ordinal pattern, Equation (5), page 342, Weiss and Testik (2023)
       @. p = lam * bin .+ (1 - lam) * p
       # statistic based on smoothed p-estimate
       stat = chart_stat_op(p, chart_choice)
       # update sequence depending on DGP
-      #seq = update_dgp_op!(op_dgp, x_long, op_dgp_dist, d)
       seq = update_dgp_op!(op_dgp, x_long, eps_long, op_dgp_dist, d)
     end
 

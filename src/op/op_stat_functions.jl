@@ -71,21 +71,24 @@
 # end
 
 # Function that uses the lehmer code to compute the ordinal pattern
-function stat_op(data; chart_choice, m::Int=3, d::Int=1)
+function stat_op(data; chart_choice, m::Int=3, d::Int=1, add_noise::Bool=false)
 
-  # Compute lookup array and number of ops
-  #lookup_array_op = compute_lookup_array_op(m=m)
+  # pre-allocate
   m_fact = factorial(m)
-
   p_vec = Vector{Float64}(undef, m_fact)
   p_count = zeros(Int, m_fact)
   fill!(p_vec, 1 / m_fact)
-  bin = Vector{Int}(undef, m_fact)
-  win = zeros(Int, m) # build_win(Val(m))
+  bin = zeros(Int, m_fact)
+  win = zeros(Int, m)
   idx_used = zeros(Int, m)
+  number_of_patterns = length(data) - (m - 1) * d
+
+  if add_noise
+    data = data .+ rand(length(data))
+  end
 
   # Loop over all possible ordinal patterns
-  for i in 1:(length(data)-(m-1)*d) #for (i, j) in enumerate(dindex_ranges)
+  for i in 1:number_of_patterns #for (i, j) in enumerate(dindex_ranges)
 
     # Reset binarization vector
     fill!(bin, 0)
@@ -118,14 +121,9 @@ end
 
 # Function to compute EWMA chart statistic
 function stat_op(
-  data, lam; chart_choice, m::Int=3, d::Int=1
+  data, lam; chart_choice, m::Int=3, d::Int=1, add_noise::Bool=false
 )
-  #stat_op(data, lam, chart_choice; m::Int=3, d=1)
 
-  # create vector with unit range for indexing 
-  dindex_ranges = compute_dindex_op(data; m=m, d=d)
-
-  # Compute lookup array and number of ops
   # lookup_array_op = compute_lookup_array_op(m=m)
   m_fact = factorial(m)
 
@@ -135,9 +133,14 @@ function stat_op(
   bin = Vector{Int64}(undef, m_fact)
   win = Vector{Int64}(undef, m)
   idx_used = zeros(Int, m)
-  stats_all = Vector{Float64}(undef, length(dindex_ranges))
+  number_of_patterns = length(data) - (m - 1) * d
+  stats_all = zeros(Float64, number_of_patterns)
 
-  for i in 1:(length(data)-(m-1)*d) # (i, j) in enumerate(dindex_ranges)
+  if add_noise
+    data = data .+ rand(length(data))
+  end
+
+  for i in 1:number_of_patterns # (i, j) in enumerate(dindex_ranges)
 
     # Reset binarization vector
     fill!(bin, 0)
