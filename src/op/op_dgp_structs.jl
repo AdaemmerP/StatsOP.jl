@@ -129,15 +129,15 @@ end
 
 First-Order **I**nteger **N**umerated **A**uto**R**egressive Process.
 
-The INAR(1) model for a time series \$X\_t\$ is defined by:
-\$\$X_t = \\alpha \\circ X\_{t-1} + \\epsilon\_t\$\$
+The INAR(1) model for a time series \$X_t\$ is defined by:
+\$\$X_t = \\alpha \\circ X_{t-1} + \\epsilon_t\$\$
 where:
-* \$\\alpha \\circ X\_{t-1}\$ is a **thinning operator** (e.g., binomial thinning).
-* \$\\epsilon\_t\$ is an independent sequence of random variables (the innovation).
+* \$\\alpha \\circ X_{t-1}\$ is a **thinning operator** (e.g., binomial thinning).
+* \$\\epsilon_t\$ is an independent sequence of random variables (the innovation).
 
 # Fields
 - `α::Float64`: The autoregressive parameter (thinning probability). Must be in \$(0, 1)\$.
-- `dist::DiscreteUnivariateDistribution`: The distribution of the innovation term \$\\epsilon\_t\$.
+- `dist::DiscreteUnivariateDistribution`: The distribution of the innovation term \$\\epsilon_t\$.
 - `add_noise::Bool`: Flag indicating whether a small amount of uniform noise should be added to the process (usually for simulating continuous-like observations from a discrete process).
 """
 struct INAR1
@@ -199,14 +199,14 @@ end
 **D**iscrete **A**uto**R**egressive process of order 1.
 
 The DAR(1) model is a simple discrete-valued time series model defined by:
-\$\$X\_t = (1 - B\_t) X\_{t-1} + B\_t \\epsilon\_t\$\$
+\$\$X_t = (1 - B_t) X_{t-1} + B_t \\epsilon_t\$\$
 where:
-* \$B\_t\$ is an i.i.d. Bernoulli random variable with parameter \$\\alpha\$.
-* \$\\epsilon\_t\$ is an independent sequence of random variables (the innovation).
+* \$B_t\$ is an i.i.d. Bernoulli random variable with parameter \$\\alpha\$.
+* \$\\epsilon_t\$ is an independent sequence of random variables (the innovation).
 
 # Fields
 - `α::Float64`: The autoregressive parameter (probability of selecting the previous value). Must be in \$(0, 1)\$.
-- `dist::DiscreteUnivariateDistribution`: The distribution of the innovation term \$\\epsilon\_t\$.
+- `dist::DiscreteUnivariateDistribution`: The distribution of the innovation term \$\\epsilon_t\$.
 - `add_noise::Bool`: Flag to add small noise.
 """
 struct DAR1
