@@ -9,6 +9,7 @@ ic = IC(Normal(0, 1))
 """
 struct ICTS
     dist::UnivariateDistribution
+    add_noise::Bool
 end
 
 """

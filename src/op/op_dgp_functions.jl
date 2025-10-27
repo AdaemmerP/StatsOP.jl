@@ -2,13 +2,13 @@
 # --------------- In-control methods---------------#
 # -------------------------------------------------#
 # Method to initialize in-control for Continous Distribution
-function init_dgp_op!(::ICTS, x_long, dist_error::ContinuousDistribution, d::Int)
+function init_dgp_op!(::ICTS, x_long, dist_error::ContinuousUnivariateDistribution, d::Int)
     rand!(dist_error, x_long)
     return @views x_long[1:d:end]
 end
 
 # Method to update in-control for Continous Distribution
-function update_dgp_op!(::ICTS, x_long, dist_error::ContinuousDistribution, d::Int)
+function update_dgp_op!(::ICTS, x_long, dist_error::ContinuousUnivariateDistribution, d::Int)
     for i in 1:(lastindex(x_long)-1)
         x_long[i] = x_long[i+1]
     end
@@ -17,7 +17,7 @@ function update_dgp_op!(::ICTS, x_long, dist_error::ContinuousDistribution, d::I
 end
 
 # Method to initialize in-control for Discrete Distribution
-function init_dgp_op!(dgp::ICTS, x_long, dist_error::DiscreteDistribution, d::Int)
+function init_dgp_op!(dgp::ICTS, x_long, dist_error::DiscreteUnivariateDistribution, d::Int)
     rand!(dist_error, x_long)
     # add noise ?
     if dgp.add_noise
@@ -29,13 +29,15 @@ function init_dgp_op!(dgp::ICTS, x_long, dist_error::DiscreteDistribution, d::In
 end
 
 # Method to update in-control for Discrete Distribution
-function update_dgp_op!(dgp::ICTS, x_long, dist_error::DiscreteDistribution, d::Int)
+function update_dgp_op!(dgp::ICTS, x_long, dist_error::DiscreteUnivariateDistribution, d::Int)
     for i in 1:(lastindex(x_long)-1)
         x_long[i] = x_long[i+1]
     end
     # add noise?
     if dgp.add_noise
         x_long[end] = rand(dist_error) + rand()
+    else
+        x_long[end] = rand(dist_error)
     end
     return @views x_long[1:d:end]
 end
@@ -43,7 +45,6 @@ end
 # -------------------------------------------------#
 # ---------------  AR(1) methods    ---------------#
 # -------------------------------------------------#
-
 # Initialize AR(1) when d is Int 
 function init_dgp_op!(dgp::AR1, x_long, eps_long, dist_error, d::Int, xbiv)
     x = rand(Normal(0, sqrt(1 / (1 - dgp.α^2))))
@@ -265,7 +266,6 @@ function update_dgp_op!(dgp::INAR1, x_long, dist_error::Poisson, d::Int)
         x_long[i] = x_long[i+1]
     end
     x = floor(x_long[end-1])
-
     # add noise?
     if dgp.add_noise
         x_long[end] = rand(Binomial(x, dgp.α)) + rand(dist_error) + rand()
