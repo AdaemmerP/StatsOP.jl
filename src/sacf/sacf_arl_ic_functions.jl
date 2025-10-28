@@ -15,7 +15,9 @@ The input arguments are:
 - `d2::Int`: The second (column) delay for the spatial process.
 - `reps`: The number of repetitions to compute the ARL.
 """
-function arl_sacf_ic(spatial_dgp::ICSTS, lam, cl, d1::Int, d2::Int, reps=10_000)
+function arl_sacf_ic(
+    spatial_dgp::ICSTS, lam, cl, d1::Int, d2::Int, reps=10_000
+)
 
     # Extract        
     dist_error = spatial_dgp.dist
@@ -32,7 +34,7 @@ function arl_sacf_ic(spatial_dgp::ICSTS, lam, cl, d1::Int, d2::Int, reps=10_000)
         end
 
     elseif nprocs() > 1 # Multi Processing
-        
+
         # Make chunks for separate tasks (based on number of workers)
         chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
 
