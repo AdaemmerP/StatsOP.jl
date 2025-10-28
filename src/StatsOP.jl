@@ -151,7 +151,7 @@ include("gop/gop_information_measures.jl")
 include("gop/gop_arl_functions.jl")
 include("gop/gop_cl_functions.jl")
 include("gop/gop_help_functions.jl")
-
+include("gop/gop_stat_functions.jl")
 
 # ---------------------------------------------#
 # SOP related functions and structs to include #  
