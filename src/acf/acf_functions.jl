@@ -115,7 +115,7 @@ Function to compute the average run length (ARL) for a specified DGP using the A
 arl_acf(0.1, 3.0, IC(Normal(0, 1)), 10000)
 ```
 """
-function arl_acf(lam, cl, acf_dgp, reps=10_000)
+function arl_acf(lam, cl, acf_dgp, reps, acf_version)
 
   # Check whether to use threading or multi processing --> only one process threading, else distributed
   if nprocs() == 1
@@ -125,7 +125,7 @@ function arl_acf(lam, cl, acf_dgp, reps=10_000)
 
     # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
     par_results = map(chunks) do i
-      Threads.@spawn rl_acf(lam, cl, i, acf_dgp)
+      Threads.@spawn rl_acf(lam, cl, i, acf_dgp, acf_version)
 
     end
 
@@ -135,7 +135,7 @@ function arl_acf(lam, cl, acf_dgp, reps=10_000)
     chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
 
     par_results = pmap(chunks) do i
-      rl_acf(lam, cl, i, acf_dgp)
+      rl_acf(lam, cl, i, acf_dgp, acf_version)
     end
 
   end
