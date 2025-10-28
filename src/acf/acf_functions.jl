@@ -12,7 +12,7 @@ Function to compute the run length (RL) for a specified DGP using the ACF statis
 rl_acf(0.1, 3.0, 10_000, IC(Normal(0, 1)))
 ```
 """
-function rl_acf(lam, cl, p_reps, acf_dgp, acf_version)
+function rl_acf(lam, cl, p_reps, acf_dgp, acf_dgp_dist, acf_version)
 
   # Pre-allocate 
   rls = Vector{Int64}(undef, length(p_reps))
@@ -25,16 +25,20 @@ function rl_acf(lam, cl, p_reps, acf_dgp, acf_version)
     if acf_version == 1
       rl = 0
       c_0 = 0.0
-      s_0 = convert(Float64, acf_dgp.sig^2)
-      m_0 = convert(Float64, acf_dgp.mu)
+      s_0 = var(acf_dgp_dist)
+      m_0 = mean(acf_dgp_dist)
       acf_stat = 0.0
+      μ_dgp = mean(acf_dgp_dist)
+      σ_dgp = std(acf_dgp_dist)
 
     elseif acf_version == 2
       rl = 0
-      c_0 = convert(Float64, acf_dgp.mu^2)
-      s_0 = convert(Float64, acf_dgp.sig^2) + convert(Float64, acf_dgp.mu^2)
-      m_0 = convert(Float64, acf_dgp.mu)
+      c_0 = mean(acf_dgp_dist)^2
+      s_0 = var(acf_dgp_dist) + mean(acf_dgp_dist)^2
+      m_0 = mean(acf_dgp_dist)
       acf_stat = 0.0
+      μ_dgp = mean(acf_dgp_dist)
+      σ_dgp = std(acf_dgp_dist)
 
     elseif acf_version == 3
       rl = 0
@@ -43,17 +47,21 @@ function rl_acf(lam, cl, p_reps, acf_dgp, acf_version)
       s_0 = 0.0
       m_0 = 0.0
       acf_stat = 0.0
+      μ_dgp = mean(acf_dgp_dist)
+      σ_dgp = std(acf_dgp_dist)
 
     elseif acf_version == 4
       rl = 0
       c_0 = 0.0
       s_0 = 1.0
       acf_stat = 0.0
+      μ_dgp = mean(acf_dgp_dist)
+      σ_dgp = std(acf_dgp_dist)
 
     end
 
     # initialize sequence depending on DGP
-    init_dgp_op!(acf_dgp, x_vec, acf_dgp.dist, 1)
+    init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
 
     # set ACF statistic to zero
     acf_stat = 0
@@ -67,8 +75,8 @@ function rl_acf(lam, cl, p_reps, acf_dgp, acf_version)
       if acf_version == 1
 
         # Equation (3), page 3 in the paper
-        c_0 = lam * (x_vec[1] - acf_dgp.mu) * (x_vec[2] - acf_dgp.mu) + (1.0 - lam) * c_0
-        s_0 = lam * (x_vec[1] - acf_dgp.mu)^2 + (1.0 - lam) * s_0
+        c_0 = lam * (x_vec[1] - μ_dgp) * (x_vec[2] - μ_dgp) + (1.0 - lam) * c_0
+        s_0 = lam * (x_vec[1] - μ_dgp)^2 + (1.0 - lam) * s_0
         acf_stat = c_0 / s_0
 
       elseif acf_version == 2
@@ -80,8 +88,8 @@ function rl_acf(lam, cl, p_reps, acf_dgp, acf_version)
 
       elseif acf_version == 3
         # Equation (5), page 3 in the paper
-        c_0 = lam * (x_vec[1] - acf_dgp.mu) * (x_vec[2] - acf_dgp.mu) + (1 - lam) * c_0
-        acf_stat = c_0 / acf_dgp.sig^2
+        c_0 = lam * (x_vec[1] - μ_dgp) * (x_vec[2] - μ_dgp) + (1 - lam) * c_0
+        acf_stat = c_0 / σ_dgp^2
 
       elseif acf_version == 4
 
@@ -115,7 +123,7 @@ Function to compute the average run length (ARL) for a specified DGP using the A
 arl_acf(0.1, 3.0, IC(Normal(0, 1)), 10000)
 ```
 """
-function arl_acf(lam, cl, acf_dgp, reps, acf_version)
+function arl_acf(lam, cl, acf_dgp, acf_dgp_dist, reps, acf_version)
 
   # Check whether to use threading or multi processing --> only one process threading, else distributed
   if nprocs() == 1
@@ -125,7 +133,7 @@ function arl_acf(lam, cl, acf_dgp, reps, acf_version)
 
     # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
     par_results = map(chunks) do i
-      Threads.@spawn rl_acf(lam, cl, i, acf_dgp, acf_version)
+      Threads.@spawn rl_acf(lam, cl, i, acf_dgp, acf_dgp_dist, acf_version)
 
     end
 
@@ -135,7 +143,7 @@ function arl_acf(lam, cl, acf_dgp, reps, acf_version)
     chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
 
     par_results = pmap(chunks) do i
-      rl_acf(lam, cl, i, acf_dgp, acf_version)
+      rl_acf(lam, cl, i, acf_dgp, acf_dgp_dist, acf_version)
     end
 
   end
