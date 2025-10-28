@@ -98,7 +98,7 @@ end
 # ---------------      Methods for sequential testing     -------------------- #
 # ---------------------------------------------------------------------------- #
 # Function to compute chart statistic
-function stat_gop(data, lam, chart_choice::Union{D_Chart,Persistence}; m::Int=3, d=1)
+function stat_gop(data, null_dist::Union{Binomial,Poisson}, lam, chart_choice::Union{D_Chart,Persistence}; m::Int=3, d=1)
 
   # Compute lookup array and number of ops
   lookup_array_gop = compute_lookup_array_gop()
@@ -109,7 +109,7 @@ function stat_gop(data, lam, chart_choice::Union{D_Chart,Persistence}; m::Int=3,
   p_p0 = zeros(13)
   p0 = zeros(13)
 
-  fill_p0!(p0, gop_dgp_dist)
+  fill_p0!(p0, null_dist)
   number_of_patterns = length(data) - (m - 1) * d
   stats_all = zeros(number_of_patterns)
 
@@ -147,7 +147,7 @@ function stat_gop(data, lam, chart_choice::Union{D_Chart,Persistence}; m::Int=3,
 end
 
 # Function to compute chart statistic
-function stat_gop(data, lam, chart_choice::G_Chart; m::Int=3, d=1)
+function stat_gop(data, null_dist::Union{Binomial,Poisson}, lam, chart_choice::G_Chart; m::Int=3, d=1)
 
   # Compute lookup array and number of ops
   lookup_array_gop = compute_lookup_array_gop()
@@ -163,7 +163,7 @@ function stat_gop(data, lam, chart_choice::G_Chart; m::Int=3, d=1)
     0 1 1 1 1 0 0 1 0 0 1 0 1
   ]
   G1G = G' * G
-  fill_p0!(p0, gop_dgp_dist)
+  fill_p0!(p0, null_dist)
   number_of_patterns = length(data) - (m - 1) * d
   stats_all = zeros(number_of_patterns)
 
