@@ -1,3 +1,5 @@
+export cl_acf
+
 
 """
   cl_acf(acf_dgp, lam, L0, cl_init, p_reps=10_000; jmin=4, jmax=6, verbose=false)
