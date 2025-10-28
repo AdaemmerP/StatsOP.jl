@@ -140,10 +140,17 @@ include("op/op_stat_functions.jl")
 include("op/op_test_functions.jl")
 include("op/op_help_functions.jl")
 
-
 # ACF files 
 include("acf/acf_functions.jl")
 include("acf/acf_cl_functions.jl")
+
+# ----------------------------------------------#
+#  GOP related functions and structs to include #  
+# ----------------------------------------------#
+include("gop/gop_arl_functions.jl")
+include("gop/gop_cl_functions.jl")
+include("gop/gop_help_functions.jl")
+include("gop/gop_information_measures.jl")
 
 # ---------------------------------------------#
 # SOP related functions and structs to include #  
