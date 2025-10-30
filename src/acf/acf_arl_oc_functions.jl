@@ -1,3 +1,5 @@
+export arl_acf_oc
+
 """
     arl_acf(lam, cl, acf_dgp, reps=10000)
 
