@@ -29,7 +29,7 @@ function cl_acf(
   for j in jmin:jmax
     for dh in 1:80
       cl_init = cl_init + (-1)^j * dh / 10^j
-      L1 = arl_acf(lam, cl_init, acf_dgp, reps, acf_version)
+      L1 = arl_acf_ic(lam, cl_init, acf_dgp, reps, acf_version)
       if verbose
         println("cl = ", cl_init, "\t", "ARL = ", L1[1])
       end
