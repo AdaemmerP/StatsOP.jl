@@ -76,7 +76,7 @@ function rl_acf_ic(lam, cl, p_reps, acf_dgp, acf_dgp_dist, acf_version)
         c_0 = lam * x_vec[2] * x_vec[1] + (1.0 - lam) * c_0
         s_0 = lam * x_vec[2]^2 + (1.0 - lam) * s_0
         m_0 = lam * x_vec[2] + (1.0 - lam) * m_0
-        acf_stat = (c_0 - m_0 * m_0) / (s_0 - m_0 * m_0)
+        acf_stat = (c_0 - m_0^2) / (s_0 - m_0^2)
 
       elseif acf_version == 3
         # Equation (5), page 3 in the paper

@@ -75,18 +75,18 @@ function rl_acf_oc(lam, cl, p_reps, acf_dgp, acf_dgp_dist, dist_null, acf_versio
       c_0 = 0.0
       s_0 = var(dist_null)
       m_0 = mean(dist_null)
+      acf_stat = 0.0
       μ0 = mean(dist_null)
       σ0 = std(dist_null)
-      acf_stat = 0.0
 
     elseif acf_version == 2
       rl = 0
       c_0 = mean(dist_null)^2
       s_0 = var(dist_null) + mean(dist_null)^2
-      m_0 = mean(dist_null)
+      m_0 = mean(acf_dgp_dist)
+      acf_stat = 0.0
       μ0 = mean(dist_null)
       σ0 = std(dist_null)
-      acf_stat = 0.0
 
     elseif acf_version == 3
       rl = 0
@@ -94,9 +94,9 @@ function rl_acf_oc(lam, cl, p_reps, acf_dgp, acf_dgp_dist, dist_null, acf_versio
       # --- not necessary but still ensure type stability
       s_0 = 0.0
       m_0 = 0.0
+      acf_stat = 0.0
       μ0 = mean(dist_null)
       σ0 = std(dist_null)
-      acf_stat = 0.0
 
     end
 
@@ -124,7 +124,7 @@ function rl_acf_oc(lam, cl, p_reps, acf_dgp, acf_dgp_dist, dist_null, acf_versio
         c_0 = lam * x_vec[2] * x_vec[1] + (1.0 - lam) * c_0
         s_0 = lam * x_vec[2]^2 + (1.0 - lam) * s_0
         m_0 = lam * x_vec[2] + (1.0 - lam) * m_0
-        acf_stat = (c_0 - m_0 * m_0) / (s_0 - m_0 * m_0)
+        acf_stat = (c_0 - m_0^2) / (s_0 - m_0^2)
 
       elseif acf_version == 3
         # Equation (5), page 3 in the paper
@@ -132,6 +132,7 @@ function rl_acf_oc(lam, cl, p_reps, acf_dgp, acf_dgp_dist, dist_null, acf_versio
         acf_stat = c_0 / σ0^2
 
       end
+
 
       # update x_vec depending on DGP
       update_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
