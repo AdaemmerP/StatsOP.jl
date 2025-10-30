@@ -115,20 +115,20 @@ function rl_acf_oc(lam, cl, p_reps, acf_dgp, acf_dgp_dist, dist_null, acf_versio
       if acf_version == 1
 
         # Equation (3), page 3 in the paper
-        c_0 = lam * (x_vec[1] - μ0) * (x_vec[2] - μ0) + (1.0 - lam) * c_0
-        s_0 = lam * (x_vec[1] - μ0)^2 + (1.0 - lam) * s_0
+        c_0 = lam * (x_vec[2] - μ0) * (x_vec[1] - μ0) + (1.0 - lam) * c_0
+        s_0 = lam * (x_vec[2] - μ0)^2 + (1.0 - lam) * s_0
         acf_stat = c_0 / s_0
 
       elseif acf_version == 2
         # Equation (4), page 3 in the paper
-        c_0 = lam * x_vec[1] * x_vec[2] + (1.0 - lam) * c_0
-        s_0 = lam * x_vec[1]^2 + (1.0 - lam) * s_0
-        m_0 = lam * x_vec[1] + (1.0 - lam) * m_0
+        c_0 = lam * x_vec[2] * x_vec[1] + (1.0 - lam) * c_0
+        s_0 = lam * x_vec[2]^2 + (1.0 - lam) * s_0
+        m_0 = lam * x_vec[2] + (1.0 - lam) * m_0
         acf_stat = (c_0 - m_0 * m_0) / (s_0 - m_0 * m_0)
 
       elseif acf_version == 3
         # Equation (5), page 3 in the paper
-        c_0 = lam * (x_vec[1] - μ0) * (x_vec[2] - μ0) + (1 - lam) * c_0
+        c_0 = lam * (x_vec[2] - μ0) * (x_vec[1] - μ0) + (1 - lam) * c_0
         acf_stat = c_0 / σ0^2
 
       end
