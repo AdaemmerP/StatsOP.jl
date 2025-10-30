@@ -141,7 +141,8 @@ include("op/op_test_functions.jl")
 include("op/op_help_functions.jl")
 
 # ACF files 
-include("acf/acf_functions.jl")
+include("acf/acf_arl_ic_functions.jl")
+include("acf/acf_arl_oc_functions.jl")
 include("acf/acf_cl_functions.jl")
 
 # ----------------------------------------------#
