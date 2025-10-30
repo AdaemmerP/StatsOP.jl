@@ -150,7 +150,8 @@ include("acf/acf_cl_functions.jl")
 #  GOP related functions and structs to include #  
 # ----------------------------------------------#
 include("gop/gop_information_measures.jl")
-include("gop/gop_arl_functions.jl")
+include("gop/gop_arl_ic_functions.jl")
+include("gop/gop_arl_oc_functions.jl")
 include("gop/gop_cl_functions.jl")
 include("gop/gop_help_functions.jl")
 include("gop/gop_stat_functions.jl")
