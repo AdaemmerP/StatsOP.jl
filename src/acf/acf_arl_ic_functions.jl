@@ -125,7 +125,7 @@ function arl_acf_ic(lam, cl, acf_dgp, reps, acf_version)
 
     # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
     par_results = map(chunks) do i
-      Threads.@spawn rl_acf(lam, cl, i, acf_dgp, acf_dgp.dist, acf_version)
+      Threads.@spawn rl_acf_ic(lam, cl, i, acf_dgp, acf_dgp.dist, acf_version)
 
     end
 
@@ -135,7 +135,7 @@ function arl_acf_ic(lam, cl, acf_dgp, reps, acf_version)
     chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
 
     par_results = pmap(chunks) do i
-      rl_acf(lam, cl, i, acf_dgp, acf_dgp.dist, acf_version)
+      rl_acf_ic(lam, cl, i, acf_dgp, acf_dgp.dist, acf_version)
     end
 
   end
