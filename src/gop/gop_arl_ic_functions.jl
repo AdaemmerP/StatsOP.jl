@@ -45,7 +45,7 @@ function arl_gop_ic(gop_dgp, lam, cl, reps; chart_choice, d=1)
     # Collect results from tasks
     rls = fetch.(par_results)
     rlvec = Iterators.flatten(rls) |> collect
-    return (mean(rlvec), std(rlvec) / sqrt(reps), median(rlvec))
+    return (mean(rlvec), std(rlvec) / sqrt(reps))
 end
 
 #--- Run-length method for D-Chart

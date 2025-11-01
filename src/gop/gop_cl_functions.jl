@@ -15,7 +15,7 @@ function cl_gop(
         gop_dgp, lam, cl_init, reps; chart_choice=chart_choice, d=d
       )
       if verbose
-        println("cl = ", cl_init, "\t", "ARL = ", round(L1[1], digits=2), " ARM = ", L1[3])
+        println("cl = ", cl_init, "\t", "ARL = ", round(L1[1], digits=2))
       end
       if (j % 2 == 1 && L1[1] < L0) || (j % 2 == 0 && L1[1] > L0)
         break
