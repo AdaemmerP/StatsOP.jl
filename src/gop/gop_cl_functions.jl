@@ -3,7 +3,7 @@ export cl_gop
 
 # --- Function to compute control limit for OPs --- #
 function cl_gop(
-  lam, L0, reps, gop_dgp, chart_choice, cl_init, jmin, jmax, verbose; d=1
+  gop_dgp, lam, L0, cl_init, reps=10_000; chart_choice, jmin, jmax, verbose=false, d=1
 )
   L1 = zeros(3)
 
