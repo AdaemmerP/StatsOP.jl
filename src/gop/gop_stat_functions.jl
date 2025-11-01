@@ -6,7 +6,7 @@ export stat_gop
 # ---------------------------------------------------------------------------- #
 # Function to compute D-chart and Persistence 
 function stat_gop(
-  data, null_dist::Union{Binomial,Poisson}; chart_choice::Union{D_Chart,Persistence}, m::Int=3, d=1
+  data, null_dist::Union{Binomial,Poisson}, chart_choice::Union{D_Chart,Persistence}, m::Int=3, d=1
 )
 
   # Compute lookup array and number of ops
@@ -47,7 +47,7 @@ end
 
 # Function to compute D-chart statistic
 function stat_gop(
-  data, null_dist::Union{Binomial,Poisson}; chart_choice::G_Chart, m::Int=3, d=1
+  data, null_dist::Union{Binomial,Poisson}, chart_choice::G_Chart, m::Int=3, d=1
 )
 
   # Compute lookup array and number of ops
@@ -98,7 +98,7 @@ end
 # ---------------      Methods for sequential testing     -------------------- #
 # ---------------------------------------------------------------------------- #
 # Function to compute chart statistic
-function stat_gop(data, null_dist::Union{Binomial,Poisson}, lam; chart_choice::Union{D_Chart,Persistence}, m::Int=3, d=1)
+function stat_gop(data, null_dist::Union{Binomial,Poisson}, lam, chart_choice::Union{D_Chart,Persistence}, m::Int=3, d=1)
 
   # Compute lookup array and number of ops
   lookup_array_gop = compute_lookup_array_gop()
@@ -147,7 +147,7 @@ function stat_gop(data, null_dist::Union{Binomial,Poisson}, lam; chart_choice::U
 end
 
 # Function to compute chart statistic
-function stat_gop(data, null_dist::Union{Binomial,Poisson}, lam; chart_choice::G_Chart, m::Int=3, d=1)
+function stat_gop(data, null_dist::Union{Binomial,Poisson}, lam, chart_choice::G_Chart, m::Int=3, d=1)
 
   # Compute lookup array and number of ops
   lookup_array_gop = compute_lookup_array_gop()
