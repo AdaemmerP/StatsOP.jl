@@ -4,7 +4,7 @@ export arl_gop_oc,
 
 
 # Function to compute average run length for ordinal patterns
-function arl_gop_oc(lam, cl, reps, gop_dgp, null_dist, chart_choice; d=1)
+function arl_gop_oc(gop_dgp, null_dist, lam, cl, reps; chart_choice, d=1)
 
   # Compute lookup array and number of ops
   lookup_array_gop = compute_lookup_array_gop()
