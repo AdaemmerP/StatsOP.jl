@@ -29,7 +29,6 @@ function rl_acf_ic(lam, cl, p_reps, acf_dgp, acf_dgp_dist, acf_version)
       m_0 = mean(acf_dgp_dist)
       acf_stat = 0.0
       μ0 = mean(acf_dgp_dist)
-      σ0 = std(acf_dgp_dist)
 
     elseif acf_version == 2
       rl = 0
@@ -38,17 +37,15 @@ function rl_acf_ic(lam, cl, p_reps, acf_dgp, acf_dgp_dist, acf_version)
       m_0 = mean(acf_dgp_dist)
       acf_stat = 0.0
       μ0 = mean(acf_dgp_dist)
-      σ0 = std(acf_dgp_dist)
 
     elseif acf_version == 3
       rl = 0
       c_0 = 0.0
+      s_0 = var(acf_dgp_dist)
       # --- not necessary but still ensure type stability
-      s_0 = 0.0
       m_0 = 0.0
       acf_stat = 0.0
       μ0 = mean(acf_dgp_dist)
-      σ0 = std(acf_dgp_dist)
 
     end
 
@@ -81,7 +78,7 @@ function rl_acf_ic(lam, cl, p_reps, acf_dgp, acf_dgp_dist, acf_version)
       elseif acf_version == 3
         # Equation (5), page 3 in the paper
         c_0 = lam * (x_vec[2] - μ0) * (x_vec[1] - μ0) + (1 - lam) * c_0
-        acf_stat = c_0 / σ0^2
+        acf_stat = c_0 / s_0
 
       end
 
