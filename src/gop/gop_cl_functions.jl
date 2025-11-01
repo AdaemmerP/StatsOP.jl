@@ -11,7 +11,9 @@ function cl_gop(
     #println("Iteration j: $j")
     for dh in 1:80
       cl_init = cl_init + (-1)^j * dh / 10^j
-      L1 = arl_gop(lam, cl_init, reps, gop_dgp, chart_choice; d=d)
+      L1 = arl_gop_ic(
+        gop_dgp, lam, cl, reps; chart_choice=chart_choice, d=d
+      )
       if verbose
         println("cl = ", cl_init, "\t", "ARL = ", round(L1[1], digits=2), " ARM = ", L1[3])
       end
