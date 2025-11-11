@@ -107,7 +107,7 @@ rl_op(0.1, 3.0, lookup_array_op, 1:10_000, IC(Normal(0, 1)), Normal(0, 1), 1; d=
 ```
 """
 function rl_op_oc(
-  op_dgp, lam, cl, p_reps, op_dgp_dist::ContinuousUnivariateDistribution, chart_choice, d, m, ced, ad
+  op_dgp, lam, cl, p_reps, op_dgp_dist::Union{ContinuousUnivariateDistribution,Nothing}, chart_choice, d, m, ced, ad
 )
 
   # Pre-allocate variables
@@ -280,6 +280,130 @@ function rl_op_oc(
     elseif d isa Int && d > 1
       x_long = Vector{Float64}(undef, m + d)
       eps_long = similar(x_long)
+    end
+  end
+
+  for r in axes(p_reps, 1) # p_reps is a range
+
+    # ------------------------------------------------------------------------------
+    # ---------------------      check whether to use ced     ----------------------
+    # ------------------------------------------------------------------------------
+    if ced
+
+      icrun = true
+
+      while icrun
+
+        fill!(p, 1 / 6)
+        seq = init_dgp_op_ced!(op_dgp, x_long, d)
+
+        falarm = false
+
+        for _ in 1:ad
+
+          bin .= 0
+          # compute ordinal pattern based on permutations
+          sortperm!(win, seq)
+
+          # binarization of ordinal pattern
+          index = perm_to_lehm_idx!(win, idx_used)
+          bin[index] = 1
+          fill!(idx_used, 0)
+
+          # compute EWMA statistic
+          @. p = lam * bin .+ (1 - lam) * p
+          # test statistic
+          stat = chart_stat_op(p, chart_choice)
+          # update sequence depending on DGP
+          seq = update_dgp_op_ced!(op_dgp, x_long, d)
+          # check whether false alarm 
+          if abort_criterium_op(stat, cl, chart_choice)
+            falarm = true
+          end
+
+        end # for ad run
+        # in case of no false alarm, set icrun to false and step out of while loop
+        if falarm == false
+          icrun = false
+        end
+      end
+
+    end
+    # ------------------------------------------------------------------------------
+
+    # initialize run length at zero
+    rl = 0
+
+    # check whether to use ced. If ced is used, update observations. Otherwise, initialize observations
+    if ced
+      seq = update_dgp_op!(op_dgp, x_long, op_dgp_dist, d)
+    else
+      seq = init_dgp_op!(op_dgp, x_long, op_dgp_dist, d)
+      fill!(p, 1 / m_fact)
+      stat = chart_stat_op(p, chart_choice)
+    end
+
+    while !abort_criterium_op(stat, cl, chart_choice)
+      # increase run length
+      rl += 1
+      bin .= 0
+
+      # binarization of ordinal pattern
+      sortperm!(win, seq)
+      index = perm_to_lehm_idx!(win, idx_used)
+      bin[index] = 1
+      fill!(idx_used, 0)
+
+      # Compute EWMA statistic for binarized ordinal pattern, Equation (5), page 342, Weiss and Testik (2023)
+      @. p = lam * bin .+ (1 - lam) * p
+      # statistic based on smoothed p-estimate
+      stat = chart_stat_op(p, chart_choice)
+      # update sequence depending on DGP
+      seq = update_dgp_op!(op_dgp, x_long, op_dgp_dist, d)
+    end
+
+    rls[r] = rl
+  end
+  return rls
+end
+
+
+function rl_op_oc(
+  op_dgp, lam, cl, p_reps, op_dgp_dist::Nothing, chart_choice, d, m, ced, ad
+)
+
+  # Pre-allocate variables
+  m_fact = factorial(m)
+  rls = zeros(Int, length(p_reps))
+  p = zeros(Float64, m_fact)
+  bin = zeros(Int, m_fact)
+  win = zeros(Int, m)
+  idx_used = similar(win)
+
+  # Check for MA1 and MA2 and compute length of the vectors accordingly
+  if op_dgp isa MA1
+
+    if d isa Int && d == 1
+      x_long = Vector{Float64}(undef, m + 1)
+    elseif d isa Int && d > 1
+      x_long = Vector{Float64}(undef, m + d + 1)
+    end
+
+  elseif op_dgp isa MA2
+
+    if d isa Int && d == 1
+      x_long = Vector{Float64}(undef, m + 2)
+    elseif d isa Int && d > 1
+      x_long = Vector{Float64}(undef, m + d + 2)
+    end
+
+    # Anything other than MA1 or MA2
+  else
+
+    if d isa Int && d == 1
+      x_long = Vector{Float64}(undef, m)
+    elseif d isa Int && d > 1
+      x_long = Vector{Float64}(undef, m + d)
     end
   end
 
