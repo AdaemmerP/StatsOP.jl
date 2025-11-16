@@ -83,7 +83,7 @@ function rl_acf_oc(lam, cl, p_reps, acf_dgp, acf_dgp_dist, dist_null, acf_versio
       rl = 0
       c_0 = mean(dist_null)^2
       s_0 = var(dist_null) + mean(dist_null)^2
-      m_0 = mean(acf_dgp_dist)
+      m_0 = mean(dist_null)
       acf_stat = 0.0
       μ0 = mean(dist_null)
       σ0 = std(dist_null)
