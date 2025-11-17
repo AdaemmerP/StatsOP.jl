@@ -70,41 +70,41 @@ end
 
 
 # Function to fill p0 vector for GOPs
-function fill_p0!(p0, gop_dgp_dist)
+function fill_p0!(p0, dist_null)
     # in-control GOP-distribution depends on the specified in-control model for (Xt) 
     # see Weiss and Schnurr (2023), page 577 proposition 2.3 for details how to fill the vector p0
     # compute upper limit for the approximation
     # only two distributions implemented so far
-    if gop_dgp_dist isa Poisson
-        q = quantile(gop_dgp_dist, 1 - (1 * 10^-12))
-    elseif gop_dgp_dist isa Binomial
-        q = gop_dgp_dist.n
+    if dist_null isa Poisson
+        q = quantile(dist_null, 1 - (1 * 10^-12))
+    elseif dist_null isa Binomial
+        q = dist_null.n
     elseif println("Distribution not impleneted.")
     end
 
     # p(1,1,1)
     for x in 0:q
-        p0[7] += pdf(gop_dgp_dist, x)^3
+        p0[7] += pdf(dist_null, x)^3
     end
 
     # p(1,2,2)=p(2,1,2)=p(2,2,1)
     val_tmp = 0.0
     for x in 0:q
-        val_tmp += cdf(gop_dgp_dist, max(0, x - 1)) * pdf(gop_dgp_dist, x)^2
+        val_tmp += cdf(dist_null, max(0, x - 1)) * pdf(dist_null, x)^2
     end
     p0[[10, 12, 13]] .= val_tmp
 
     # p(1,1,2)=p(1,2,1)=p(2,1,1)
     val_tmp = 0.0
     for x in 0:q
-        val_tmp += pdf(gop_dgp_dist, x)^2 * (1 - cdf(gop_dgp_dist, x))
+        val_tmp += pdf(dist_null, x)^2 * (1 - cdf(dist_null, x))
     end
     p0[[8, 9, 11]] .= val_tmp
 
     # p(1,2,3)=p(3,2,1)=p(3,1,2)=p(2,3,1)=p(1,3,2)=p(2,1,3)
     val_tmp = 0.0
     for x in 1:q
-        val_tmp += cdf(gop_dgp_dist, max(0, x - 1)) * pdf(gop_dgp_dist, x) * (1 - cdf(gop_dgp_dist, x))
+        val_tmp += cdf(dist_null, max(0, x - 1)) * pdf(dist_null, x) * (1 - cdf(dist_null, x))
     end
     p0[1:6] .= val_tmp
 end
