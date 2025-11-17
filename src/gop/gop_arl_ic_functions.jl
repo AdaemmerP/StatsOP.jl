@@ -149,7 +149,6 @@ function rl_gop_ic(
         # initial statistic
         @. p_p0 = p - p0
         stat = chart_stat_gop(p_p0, G1G, chart_choice)
-        @assert all(isfinite, p_p0)
 
 
         while !abort_criterium_gop(stat, cl, chart_choice)
@@ -159,8 +158,6 @@ function rl_gop_ic(
 
             # compute ordinal pattern based on permutations    
             competerank!(win, seq, ix)
-
-            @assert isfinite(stat)
 
             # Binarization of ordinal pattern
             j, k, l = win

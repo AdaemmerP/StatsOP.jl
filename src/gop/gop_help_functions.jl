@@ -13,7 +13,7 @@ function competerank!(
 
     # Check input
     @assert length(rks) == length(x) "Rank vector and data vector must have the same length."
-    @assert length(ix) == length(x) "Index vector and data vector must have the"
+    @assert length(ix) == length(x) "Index vector and data vector must have the same length."
 
     n = length(x)
     sortperm!(ix, x)
