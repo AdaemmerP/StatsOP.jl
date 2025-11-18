@@ -76,7 +76,7 @@ function rl_gop_ic(
         # initialze EWMA statistic, Equation (17), in the paper
         p .= p0
         # Initialize observations
-        seq = StatsOP.init_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
+        seq = init_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
 
         # initial statistic
         @. p_p0 = p - p0
@@ -109,7 +109,6 @@ function rl_gop_ic(
     end
     return rls
 end
-
 
 #--- Run-length method for G-Chart
 function rl_gop_ic(

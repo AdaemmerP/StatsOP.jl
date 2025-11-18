@@ -7,6 +7,7 @@ export D_Chart,
 struct D_Chart <: InformationMeasure end
 struct G_Chart <: ComplexityEstimator end
 
+
 # Define functions for Information Measures
 function chart_stat_gop(p_p0, ::D_Chart)
   # D-chart: Equation (18), page 7 in the paper
