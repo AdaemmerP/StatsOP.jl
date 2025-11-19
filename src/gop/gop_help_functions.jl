@@ -139,7 +139,7 @@ function fill_p0!(p0, dist_null)
 
     # p(1,2,2)=p(2,1,2)=p(2,2,1)
     val_tmp = 0.0
-    for x in 0:q
+    for x in 1:q
         val_tmp += cdf_dict[x-1] * pdf_dict[x]^2
     end
     p0[[10, 12, 13]] .= val_tmp
