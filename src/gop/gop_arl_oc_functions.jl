@@ -4,7 +4,9 @@ export arl_gop_oc,
 
 
 # Function to compute average run length for ordinal patterns
-function arl_gop_oc(gop_dgp, null_dist, lam, cl, reps; chart_choice, d=1)
+function arl_gop_oc(
+  gop_dgp, null_dist, lam, cl, reps; chart_choice, d=1
+)
 
   # Compute lookup array and number of ops
   lookup_array_gop = compute_lookup_array_gop()
@@ -26,7 +28,9 @@ function arl_gop_oc(gop_dgp, null_dist, lam, cl, reps; chart_choice, d=1)
     # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
     par_results = map(chunks) do i
 
-      Threads.@spawn rl_gop_oc(lam, cl, lookup_array_gop, i, gop_dgp, gop_dgp.dist, null_dist, chart_choice, d)
+      Threads.@spawn rl_gop_oc(
+        lam, cl, lookup_array_gop, i, gop_dgp, gop_dgp.dist, null_dist, chart_choice, d
+      )
 
     end
 
@@ -37,7 +41,9 @@ function arl_gop_oc(gop_dgp, null_dist, lam, cl, reps; chart_choice, d=1)
     chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
 
     par_results = pmap(chunks) do i
-      rl_gop_oc(lam, cl, lookup_array_gop, i, gop_dgp, gop_dgp.dist, null_dist, chart_choice, d)
+      rl_gop_oc(
+        lam, cl, lookup_array_gop, i, gop_dgp, gop_dgp.dist, null_dist, chart_choice, d
+      )
     end
 
   end

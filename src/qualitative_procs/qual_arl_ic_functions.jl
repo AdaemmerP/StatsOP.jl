@@ -4,7 +4,9 @@ export arl_qual_ic,
 
 
 # Function to compute average run length for ordinal patterns
-function arl_qual_ic(qual_dgp, lam, cl, reps; chart_choice, d=1)
+function arl_qual_ic(
+  qual_dgp, lam, cl, reps; chart_choice, d=1
+)
 
   # No threading or multiprocessing
   if nprocs() == 1 && reps <= Threads.nthreads()
@@ -45,20 +47,20 @@ function arl_qual_ic(qual_dgp, lam, cl, reps; chart_choice, d=1)
   return (mean(rlvec), std(rlvec) / sqrt(reps))
 end
 
-#--- Run-length method for D-Chart
+#--- Run-length method for KNominal
 function rl_qual_ic(
-  lam, cl, p_reps, qual_dgp, qual_dgp_dist, chart_choice::KNominal
+  lam, cl, p_reps, qual_dgp, qual_dgp_dist, chart_choice::KappaN1
 )
-
-  # value of patterns (can become variable in future versions)
-  m = 3
 
   # Pre-allocate variables
   rls = zeros(Int64, length(p_reps))
-  bt = zeros(Int, length(pdf(qual_dgp_dist)))
-  bt1 = similar(bt)
-  q0 = pdf(qual_dgp_dist)
-  Q0 = sum(q0 .^ 2)
+  Bₜ = zeros(Int, length(pdf(qual_dgp_dist)))
+  Bₜ₋₁ = similar(Bt)
+
+  # Initialize at t = 0
+  qₜ = pdf(qual_dgp_dist)
+  Qₜ = sum(qₜ .^ 2)
+
   # compute length of 'x_vec', containing the time series observations
   x_vec = zeros(2)
 
@@ -71,38 +73,101 @@ function rl_qual_ic(
     seq = init_dgp_op!(qual_dgp, x_vec, qual_dgp_dist, 1) # d=1 -> use dgp from ops to reduce redundancy
 
     # Set match counts
-    bt[seq[2]] += 1
-    bt1[seq[1]] += 1
-    @. q0 = lam * bt + (1 - lam) * q0
-    dot_bt_bt1 = dot(bt, bt1)
+    Bₜ[seq[2]] += 1
+    Bₜ₋₁[seq[1]] += 1
+    # Update
+    @. qₜ = lam * Bₜ + (1 - lam) * qₜ
+    dot_Bₜ_Bₜ₋₁ = dot(Bₜ, Bₜ₋₁)
 
     # Compute EWMA statistic
-    Q0 = lam * dot_bt_bt1 + (1 - lam) * Q0
-    stat = chart_stat_qual(q0, Q0, chart_choice)
+    Qₜ = lam * dot_Bₜ_Bₜ₋₁ + (1 - lam) * Qₜ
+    stat = chart_stat_qual(qₜ, Qₜ, chart_choice)
 
-    while stat < cl
+    while stat < cl # 'stat' can only be positive
       # increase run length
       rl += 1
-      fill!(bt, 0.0)
-      fill!(bt1, 0.0)
+      fill!(Bₜ, 0)
+      fill!(Bₜ₋₁, 0)
 
       # update sequence depending on DGP
       seq = update_dgp_op!(qual_dgp, x_vec, qual_dgp_dist, 1) # d=1 -> use dgp from ops to reduce redundancy
 
       # update match counts
-      bt[seq[2]] += 1
-      bt1[seq[1]] += 1
+      Bₜ[seq[2]] += 1
+      Bₜ₋₁[seq[1]] += 1
 
-      @. q0 = lam * bt + (1 - lam) * q0
-      dot_bt_bt1 = dot(bt, bt1)
+      @. qₜ = lam * Bₜ + (1 - lam) * qₜ
+      dot_Bₜ_Bₜ₋₁ = dot(Bₜ, Bₜ₋₁)
 
-      # Compute EWMA statistic 
-      Q0 = lam * dot_bt_bt1 + (1 - lam) * Q0
-      stat = chart_stat_qual(q0, Q0, chart_choice)
+      # Compute EWMA statistic
+      Qₜ = lam * dot_Bₜ_Bₜ₋₁ + (1 - lam) * Qₜ
+      stat = chart_stat_qual(qₜ, Qₜ, chart_choice)
 
     end
 
     rls[r] = rl
+  end
+  return rls
+end
+
+
+#--- Run-length method for KNominal
+function rl_qual_ic(
+  lam, cl, p_reps, qual_dgp, qual_dgp_dist, chart_choice::KappaN2
+)
+
+  # Pre-allocate variables
+  rls = zeros(Int64, length(p_reps))
+  Bₜ = zeros(Int, length(pdf(qual_dgp_dist)))
+  Bₜ₋₁ = similar(Bt)
+
+  # Initialize at t = 0
+  p₀ = pdf(qual_dgp_dist)
+  Qₜ = sum(p₀ .^ 2)
+
+  # compute length of 'x_vec', containing the time series observations
+  x_vec = zeros(2)
+
+  for r in axes(p_reps, 1) # p_reps is a range
+
+    # initialize run length at zero
+    rl = 0
+
+    # Initialize observations
+    seq = init_dgp_op!(qual_dgp, x_vec, qual_dgp_dist, 1) # d=1 -> use dgp from ops to reduce redundancy
+
+    # Set match counts
+    Bₜ[seq[2]] += 1
+    Bₜ₋₁[seq[1]] += 1
+    dot_Bₜ_Bₜ₋₁ = dot(Bₜ, Bₜ₋₁)
+
+    # Compute EWMA statistic
+    Qₜ = lam * dot_Bₜ_Bₜ₋₁ + (1 - lam) * Qₜ
+    stat = chart_stat_qual(qₜ, Qₜ, chart_choice)
+
+    while stat < cl # 'stat' can only be positive
+      # increase run length
+      rl += 1
+      fill!(Bₜ, 0)
+      fill!(Bₜ₋₁, 0)
+
+      # update sequence depending on DGP
+      seq = update_dgp_op!(qual_dgp, x_vec, qual_dgp_dist, 1) # d=1 -> use dgp from ops to reduce redundancy
+
+      # update match counts
+      Bₜ[seq[2]] += 1
+      Bₜ₋₁[seq[1]] += 1
+
+      dot_Bₜ_Bₜ₋₁ = dot(Bₜ, Bₜ₋₁)
+
+      # Compute EWMA statistic
+      Qₜ = lam * dot_Bₜ_Bₜ₋₁ + (1 - lam) * Qₜ
+      stat = chart_stat_qual(qₜ, Qₜ, chart_choice)
+
+    end
+
+    rls[r] = rl
+
   end
   return rls
 end

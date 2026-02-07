@@ -1,4 +1,6 @@
-function stat_acf(data, lam, cl, p_reps, acf_dgp, acf_dgp_dist, acf_version)
+function stat_acf(
+  data, lam, cl, p_reps, acf_dgp, acf_dgp_dist, acf_version
+)
 
   # Pre-allocate 
   rls = Vector{Int64}(undef, length(p_reps))
