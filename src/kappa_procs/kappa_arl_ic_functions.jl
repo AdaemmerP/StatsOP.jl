@@ -1,10 +1,10 @@
-export arl_qual_ic,
-  rl_qual_ic
+export arl_kappa_ic,
+  rl_kappa_ic
 
 
 
 # Function to compute average run length for ordinal patterns
-function arl_qual_ic(
+function arl_kappa_ic(
   qual_dgp, lam, cl, reps; chart_choice, d=1
 )
 
@@ -48,7 +48,7 @@ function arl_qual_ic(
 end
 
 #--- Run-length method for KNominal
-function rl_qual_ic(
+function rl_kappa_ic(
   lam, cl, p_reps, qual_dgp, qual_dgp_dist, chart_choice::KappaN1
 )
 
@@ -112,7 +112,7 @@ end
 
 
 #--- Run-length method for KNominal
-function rl_qual_ic(
+function rl_kappa_ic(
   lam, cl, p_reps, qual_dgp, qual_dgp_dist, chart_choice::KappaN2
 )
 
