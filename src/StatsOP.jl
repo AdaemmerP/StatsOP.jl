@@ -192,6 +192,13 @@ include("sacf/sacf_cl_bp_functions.jl")
 include("sacf/sacf_stat_functions.jl")
 include("sacf/sacf_stat_bp_functions.jl")
 
+# Kappa scripts
+include("kappa_procs/kappa_information_measures.jl")
+include("kappa_procs/kappa_arl_ic_functions.jl")
+include("kappa_procs/kappa_arl_oc_functions.jl")
+include("kappa_procs/kappa_cl_functions.jl")
+include("kappa_procs/kappa_stat_functions.jl")
+
 
 
 # Precompile

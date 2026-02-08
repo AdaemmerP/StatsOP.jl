@@ -1,23 +1,21 @@
 export chart_stat_qual,
-  KNominal,
-  KOrdinal
+  KappaN1,
+  KappaN2,
+  KappaN1,
+  KappaO2
 
 struct KappaN1 <: InformationMeasure end
 struct KappaN2 <: InformationMeasure end
-struct KOrdinal1 <: InformationMeasure end
-struct KOrdinal2 <: InformationMeasure end
+struct KappaO1 <: InformationMeasure end
+struct KappaO2 <: InformationMeasure end
 
-function chart_stat_qual(q, Q, ::KappaN1)
+function chart_stat_qual(q, Q, ::{KappaN1,KappaO1})
 
-  # Sum for numerator part
+  # Sum for numerator and denominator part
   numerator_sum = 0.0
-  for i in axes(q, 1)
-    numerator_sum += q[i]^2
-  end
-
-  # Sum for denominator part
   denominator_sum = 0.0
   for i in axes(q, 1)
+    numerator_sum += q[i]^2
     denominator_sum += q[i] * (1 - q[i])
   end
 
@@ -25,18 +23,14 @@ function chart_stat_qual(q, Q, ::KappaN1)
 
 end
 
-function chart_stat_qual(p, Q, ::KappaN2)
+function chart_stat_qual(p_or_f, Q, ::{KappaN2,KappaO2})
 
-  # Sum for numerator part
+  # Sum for numerator and denominator part
   numerator_sum = 0.0
-  for i in axes(p, 1)
-    numerator_sum += p[i]^2
-  end
-
-  # Sum for denominator part
   denominator_sum = 0.0
-  for i in axes(p, 1)
-    denominator_sum += p[i] * (1 - p[i])
+  for i in axes(p_or_f, 1)
+    numerator_sum += p_or_f[i]^2
+    denominator_sum += p_or_f[i] * (1 - p_or_f[i])
   end
 
   return (Q - numerator_sum) / denominator_sum
