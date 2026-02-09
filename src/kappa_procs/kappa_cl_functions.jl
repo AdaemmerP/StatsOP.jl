@@ -3,7 +3,7 @@ export cl_kappa
 
 # --- Function to compute control limit for OPs --- #
 function cl_kappa(
-  gop_dgp, lam, L0, cl_init, reps=10_000; chart_choice, jmin, jmax, verbose=false, d=1
+  dgp, lam, L0, cl_init, reps=10_000; chart_choice, jmin, jmax, verbose=false
 )
   L1 = zeros(3)
 
@@ -12,7 +12,7 @@ function cl_kappa(
     for dh in 1:80
       cl_init = cl_init + (-1)^j * dh / 10^j
       L1 = arl_kappa_ic(
-        gop_dgp, lam, cl_init, reps; chart_choice=chart_choice, d=d
+        dgp, lam, cl_init, reps; chart_choice=chart_choice
       )
       if verbose
         println("cl = ", cl_init, "\t", "ARL = ", round(L1[1], digits=2))

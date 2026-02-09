@@ -1,17 +1,24 @@
 export stat_kappa
 
 function stat_kappa(
-  data::Vector{Real}, lam, null_dist, chart_choice::KappaN1
-)
+  data::Vector{T}, lam, null_dist, chart_choice::KappaN1
+) where T<:Real
 
   # Pre-allocate variables
+  # Compute support
   stat_all = zeros(length(data) - 1)
-  sup = support(null_dist)
+  p_low = 1e-12
+  p_high = 1 - 1e-12
+  sup_lb = isfinite(minimum(null_dist)) ?
+           minimum(null_dist) : quantile(null_dist, p_low)
+  sup_ub = isfinite(maximum(null_dist)) ?
+           maximum(null_dist) : quantile(null_dist, p_high)
+  sup = collect(sup_lb:sup_ub)
   Bₜ = zeros(Int, length(sup))
   Bₜ₋₁ = similar(Bₜ)
 
   # Initialize at t = 0
-  qₜ = pdf(null_dist)
+  qₜ = pdf(null_dist, sup)
   Qₜ = sum(qₜ .^ 2)
 
   for r in 2:length(data)-1
@@ -19,11 +26,10 @@ function stat_kappa(
     # Set match counts
     @. Bₜ = (sup == data[r])
     @. Bₜ₋₁ = (sup == data[r-1])
-    # Update
-    @. qₜ = lam * Bₜ + (1 - lam) * qₜ
     dot_Bₜ_Bₜ₋₁ = dot(Bₜ, Bₜ₋₁)
 
     # Compute EWMA statistic
+    @. qₜ = lam * Bₜ + (1 - lam) * qₜ
     Qₜ = lam * dot_Bₜ_Bₜ₋₁ + (1 - lam) * Qₜ
     stat_all[r-1] = chart_stat_qual(qₜ, Qₜ, chart_choice)
 
@@ -38,17 +44,24 @@ end
 
 # Function to compute D-chart and Persistence 
 function stat_kappa(
-  data::Vector{Real}, lam, null_dist, chart_choice::KappaN2
-)
+  data::Vector{T}, lam, null_dist, chart_choice::KappaN2
+) where T<:Real
 
   # Pre-allocate variables
+  # Compute support
   stat_all = zeros(length(data) - 1)
-  sup = support(null_dist)
+  p_low = 1e-12
+  p_high = 1 - 1e-12
+  sup_lb = isfinite(minimum(null_dist)) ?
+           minimum(null_dist) : quantile(null_dist, p_low)
+  sup_ub = isfinite(maximum(null_dist)) ?
+           maximum(null_dist) : quantile(null_dist, p_high)
+  sup = collect(sup_lb:sup_ub)
   Bₜ = zeros(Int, length(sup))
   Bₜ₋₁ = similar(Bₜ)
 
   # Initialize at t = 0
-  p₀ = pdf(qual_dgp_dist)
+  p₀ = pdf(null_dist, sup)
   Qₜ = sum(p₀ .^ 2)
 
   for r in 2:length(data)-1
@@ -56,7 +69,6 @@ function stat_kappa(
     # Set match counts
     @. Bₜ = (sup == data[r])
     @. Bₜ₋₁ = (sup == data[r-1])
-    # Update
     dot_Bₜ_Bₜ₋₁ = dot(Bₜ, Bₜ₋₁)
 
     # Compute EWMA statistic
@@ -74,12 +86,19 @@ end
 
 
 function stat_kappa(
-  data::Vector{Real}, lam, null_dist, chart_choice::KappaO1
-)
+  data::Vector{T}, lam, null_dist, chart_choice::KappaO1
+) where T<:Real
 
   # Pre-allocate variables
+  # Compute support
   stat_all = zeros(length(data) - 1)
-  sup = support(null_dist)
+  p_low = 1e-12
+  p_high = 1 - 1e-12
+  sup_lb = isfinite(minimum(null_dist)) ?
+           minimum(null_dist) : quantile(null_dist, p_low)
+  sup_ub = isfinite(maximum(null_dist)) ?
+           maximum(null_dist) : quantile(null_dist, p_high)
+  sup = collect(sup_lb:sup_ub)
   Bₜ = zeros(Int, length(sup))
   Bₜ₋₁ = similar(Bₜ)
 
@@ -92,11 +111,10 @@ function stat_kappa(
     # Set match counts
     @. Bₜ = (sup == data[r])
     @. Bₜ₋₁ = (sup == data[r-1])
-    # Update
-    @. qₜ = lam * Bₜ + (1 - lam) * qₜ
     dot_Bₜ_Bₜ₋₁ = dot(Bₜ, Bₜ₋₁)
 
     # Compute EWMA statistic
+    @. qₜ = lam * Bₜ + (1 - lam) * qₜ
     Qₜ = lam * dot_Bₜ_Bₜ₋₁ + (1 - lam) * Qₜ
     stat_all[r-1] = chart_stat_qual(qₜ, Qₜ, chart_choice)
 
@@ -111,12 +129,19 @@ end
 
 # Function to compute D-chart and Persistence 
 function stat_kappa(
-  data::Vector{Real}, lam, null_dist, chart_choice::KappaO2
-)
+  data::Vector{T}, lam, null_dist, chart_choice::KappaO2
+) where T<:Real
 
   # Pre-allocate variables
+  # Compute support
   stat_all = zeros(length(data) - 1)
-  sup = support(null_dist)
+  p_low = 1e-12
+  p_high = 1 - 1e-12
+  sup_lb = isfinite(minimum(null_dist)) ?
+           minimum(null_dist) : quantile(null_dist, p_low)
+  sup_ub = isfinite(maximum(null_dist)) ?
+           maximum(null_dist) : quantile(null_dist, p_high)
+  sup = collect(sup_lb:sup_ub)
   Bₜ = zeros(Int, length(sup))
   Bₜ₋₁ = similar(Bₜ)
 
@@ -129,7 +154,6 @@ function stat_kappa(
     # Set match counts
     @. Bₜ = (sup == data[r])
     @. Bₜ₋₁ = (sup == data[r-1])
-    # Update
     dot_Bₜ_Bₜ₋₁ = dot(Bₜ, Bₜ₋₁)
 
     # Compute EWMA statistic
