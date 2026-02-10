@@ -56,21 +56,17 @@ function rl_kappa_oc(
   rls = zeros(Int64, length(p_reps))
   p_low = 1e-12
   p_high = 1 - 1e-12
-  sup_lb = isfinite(minimum(qual_dgp_dist)) ?
-           minimum(qual_dgp_dist) : quantile(qual_dgp_dist, p_low)
-  sup_ub = isfinite(maximum(qual_dgp_dist)) ?
-           maximum(qual_dgp_dist) : quantile(qual_dgp_dist, p_high)
+  sup_lb = isfinite(minimum(qual_null_dist)) ?
+           minimum(qual_null_dist) : quantile(qual_null_dist, p_low)
+  sup_ub = isfinite(maximum(qual_null_dist)) ?
+           maximum(qual_null_dist) : quantile(qual_null_dist, p_high)
   sup = collect(sup_lb:sup_ub)
   Bₜ = zeros(Int, length(sup))
   Bₜ₋₁ = similar(Bₜ)
 
   # Initialize at t = 0
   # Compute support of null distribution
-  sup_null_lb = isfinite(minimum(qual_null_dist)) ?
-                minimum(qual_null_dist) : quantile(qual_null_dist, p_low)
-  sup_null_ub = isfinite(maximum(qual_null_dist)) ?
-                maximum(qual_null_dist) : quantile(qual_null_dist, p_high)
-  qₜ = pdf(qual_null_dist, sup_null_lb:sup_null_ub)
+  qₜ = pdf(qual_null_dist, sup)
   Qₜ = sum(qₜ .^ 2)
 
   # compute length of 'x_vec', containing the time series observations
@@ -134,21 +130,17 @@ function rl_kappa_oc(
   rls = zeros(Int64, length(p_reps))
   p_low = 1e-12
   p_high = 1 - 1e-12
-  sup_lb = isfinite(minimum(qual_dgp_dist)) ?
-           minimum(qual_dgp_dist) : quantile(qual_dgp_dist, p_low)
-  sup_ub = isfinite(maximum(qual_dgp_dist)) ?
-           maximum(qual_dgp_dist) : quantile(qual_dgp_dist, p_high)
+  sup_lb = isfinite(minimum(qual_null_dist)) ?
+           minimum(qual_null_dist) : quantile(qual_null_dist, p_low)
+  sup_ub = isfinite(maximum(qual_null_dist)) ?
+           maximum(qual_null_dist) : quantile(qual_null_dist, p_high)
   sup = collect(sup_lb:sup_ub)
   Bₜ = zeros(Int, length(sup))
   Bₜ₋₁ = similar(Bₜ)
 
   # Initialize at t = 0
   # Compute support of null distribution
-  sup_null_lb = isfinite(minimum(qual_null_dist)) ?
-                minimum(qual_null_dist) : quantile(qual_null_dist, p_low)
-  sup_null_ub = isfinite(maximum(qual_null_dist)) ?
-                maximum(qual_null_dist) : quantile(qual_null_dist, p_high)
-  p₀ = pdf(qual_null_dist, sup_null_lb:sup_null_ub)
+  p₀ = pdf(qual_null_dist, sup)
   Qₜ = sum(p₀ .^ 2)
 
   # compute length of 'x_vec', containing the time series observations
@@ -209,21 +201,17 @@ function rl_kappa_oc(
   rls = zeros(Int64, length(p_reps))
   p_low = 1e-12
   p_high = 1 - 1e-12
-  sup_lb = isfinite(minimum(qual_dgp_dist)) ?
-           minimum(qual_dgp_dist) : quantile(qual_dgp_dist, p_low)
-  sup_ub = isfinite(maximum(qual_dgp_dist)) ?
-           maximum(qual_dgp_dist) : quantile(qual_dgp_dist, p_high)
+  sup_lb = isfinite(minimum(qual_null_dist)) ?
+           minimum(qual_null_dist) : quantile(qual_null_dist, p_low)
+  sup_ub = isfinite(maximum(qual_null_dist)) ?
+           maximum(qual_null_dist) : quantile(qual_null_dist, p_high)
   sup = collect(sup_lb:sup_ub)
   Bₜ = zeros(Int, length(sup))
   Bₜ₋₁ = similar(Bₜ)
 
   # Initialize at t = 0
   # Compute support of null distribution
-  sup_null_lb = isfinite(minimum(qual_null_dist)) ?
-                minimum(qual_null_dist) : quantile(qual_null_dist, p_low)
-  sup_null_ub = isfinite(maximum(qual_null_dist)) ?
-                maximum(qual_null_dist) : quantile(qual_null_dist, p_high)
-  qₜ = cdf(qual_null_dist, sup_null_lb:sup_null_ub)
+  qₜ = cdf(qual_null_dist, sup)
   Qₜ = sum(qₜ .^ 2)
 
   # compute length of 'x_vec', containing the time series observations
@@ -287,21 +275,17 @@ function rl_kappa_oc(
   rls = zeros(Int64, length(p_reps))
   p_low = 1e-12
   p_high = 1 - 1e-12
-  sup_lb = isfinite(minimum(qual_dgp_dist)) ?
-           minimum(qual_dgp_dist) : quantile(qual_dgp_dist, p_low)
-  sup_ub = isfinite(maximum(qual_dgp_dist)) ?
-           maximum(qual_dgp_dist) : quantile(qual_dgp_dist, p_high)
+  sup_lb = isfinite(minimum(qual_null_dist)) ?
+           minimum(qual_null_dist) : quantile(qual_null_dist, p_low)
+  sup_ub = isfinite(maximum(qual_null_dist)) ?
+           maximum(qual_null_dist) : quantile(qual_null_dist, p_high)
   sup = collect(sup_lb:sup_ub)
   Bₜ = zeros(Int, length(sup))
   Bₜ₋₁ = similar(Bₜ)
 
   # Initialize at t = 0
   # Compute support of null distribution
-  sup_null_lb = isfinite(minimum(qual_null_dist)) ?
-                minimum(qual_null_dist) : quantile(qual_null_dist, p_low)
-  sup_null_ub = isfinite(maximum(qual_null_dist)) ?
-                maximum(qual_null_dist) : quantile(qual_null_dist, p_high)
-  f₀ = cdf(qual_null_dist, sup_null_lb:sup_null_ub)
+  f₀ = cdf(qual_null_dist, sup)
   Qₜ = sum(f₀ .^ 2)
 
   # compute length of 'x_vec', containing the time series observations
