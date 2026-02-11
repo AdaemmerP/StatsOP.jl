@@ -148,6 +148,33 @@ struct INAR1
 end
 
 # -----------------------------------------------------------------------------
+"""    
+    TobitINAR1(α, dist_error, L, add_noise, burn_in)
+
+A struct to define a Tobit-INAR(1) process, which is a censored version of the INAR(1) process. The observed values are censored at a specified lower bound (L).
+
+    The process is defined by:
+
+`` \\qquad X_t = \\max(0, \\alpha \\circ X_{t-1} + \\epsilon_t)``
+where:
+* \$\\alpha \\circ X_{t-1}\$ is a thinning operator (e.g., binomial thinning).
+* \$\\epsilon_t\$ is an independent sequence of random variables (the innovation) with distribution specified by `dist_error`.
+* The observed value is censored at a lower bound `L`, meaning that if the generated value is below `L`, it is recorded as `L`.
+# Fields
+- `α::Float64`: The autoregressive parameter (thinning probability). Must be in \$(0, 1)\$.
+- `dist_error::DiscreteUnivariateDistribution`: The distribution of the innovation term \$\\epsilon_t\$.
+- `L::Int`: The lower bound for censoring (the "Tobit" threshold).
+- `add_noise::Bool`: Flag indicating whether a small amount of uniform noise should be added to the process (usually for simulating continuous-like observations from a discrete process).
+- `burn_in::Int`: The number of initial observations to discard to allow the process to reach its stationary distribution before collecting data for analysis.
+"""
+
+struct TobitINAR1{T<:DiscreteUnivariateDistribution}
+    α::Float64
+    dist_error::T
+    L::Int
+    add_noise::Bool
+    burn_in::Int
+end
 
 """
     BAR1(n, ρ, μ, α, β, parpi, dist, add_noise)

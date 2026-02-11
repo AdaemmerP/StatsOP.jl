@@ -277,6 +277,86 @@ function update_dgp_op!(dgp::INAR1, x_long, dist_error::Poisson, d::Int)
 end
 
 # -------------------------------------------------#
+# ---------------  Tobit-INAR(1) methods  ---------#
+# -------------------------------------------------#
+
+
+# Method to initialize with Burn-in phase
+function init_dgp_op!(dgp::TobitINAR1, x_long::Vector{Float64}, dist, d::Int)
+
+    α = dgp.α
+    abs_α = abs(α)
+    sign_α = sign(α)
+    lower_bound = dgp.L
+
+    # 1. Burn-in Phase
+    μ_ε = mean(dist)
+    # Start heuristically near steady state
+    # Convert to Float64 to avoid type issues when adding noise 
+    xₜ₋₁ = rand(Poisson(μ_ε / (1 - min(0.99, abs_α)))) |> Float64
+
+    for _ in 1:dgp.burn_in
+        εₜ = rand(dist)
+
+        # Signed binomial thinning operator: α ⊙ xₜ₋₁
+        # -> sgn(α) * sgn(xₜ₋₁) * (|α| ∘ |xₜ₋₁|)
+        operator_result = sign_α * sign(xₜ₋₁) * rand(Binomial(Int(abs(xₜ₋₁)), abs_α))
+
+        # Get observed value with Tobit censoring
+        yₜ = operator_result + εₜ
+        xₜ = Float64(max(yₜ, lower_bound))
+        xₜ₋₁ = xₜ
+    end
+
+    # 2. Fill vector and start with last burn-in value
+    x_long[1] = xₜ₋₁
+    for t in 2:lastindex(x_long)
+        εₜ = rand(dist)
+        xₜ₋₁ = x_long[t-1]
+
+        # Get observed value with Tobit censoring
+        operator_result = sign(α) * sign(xₜ₋₁) * rand(Binomial(Int(abs(xₜ₋₁)), abs_α))
+        yₜ = operator_result + εₜ
+        x_long[t] = max(yₜ, lower_bound)
+    end
+
+    # 3. Add noise
+    if dgp.add_noise
+        for i in axes(x_long, 1)
+            x_long[i] += rand()
+        end
+    end
+
+    return @views x_long[1:d:end]
+end
+
+# Method to update the process
+function update_dgp_op!(dgp::TobitINAR1, x_long::Vector{Float64}, dist, d::Int)
+
+    α = dgp.α
+
+    # Shift window left
+    for t in 1:(lastindex(x_long)-1)
+        x_long[t] = x_long[t+1]
+    end
+
+    # Get previous state xₜ₋₁
+    xₜ₋₁ = floor(x_long[end-1])
+    εₜ = rand(dist)
+
+    # Apply signed operator: α ⊙ xₜ₋₁
+    operator_result = sign(α) * sign(xₜ₋₁) * rand(Binomial(Int(abs(xₜ₋₁)), abs(α)))
+
+    yₜ = operator_result + εₜ
+    x_new = Float64(max(yₜ, dgp.L))
+
+    x_long[end] = dgp.add_noise ? x_new + rand() : x_new
+
+    return @views x_long[1:d:end]
+end
+
+
+# -------------------------------------------------#
 # ---------------  BAR(1) methods  ----------------#
 # -------------------------------------------------#
 
@@ -357,8 +437,6 @@ function update_dgp_op!(dgp::DAR1, x_long, dist_error, d::Int)
     end
     return @views x_long[1:d:end]
 end
-
-
 
 
 # -------------------------------------------------#
