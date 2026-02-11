@@ -1,3 +1,14 @@
+export ICSTS,
+  SAR11,
+  SAR22,
+  SINAR11,
+  SQMA11,
+  SQMA22,
+  SQINMA11,
+  SAR1,
+  BSQMA11
+
+
 # Abstract type for all DGPS
 abstract type SpatialDGP end
 
@@ -44,17 +55,17 @@ sar11 = SAR11((0.5, 0.3, 0.2), 11, 11, Normal(0, 1), nothing, 100)
 ```
 """
 struct SAR11 <: SpatialDGP
-  dgp_params::Tuple{Float64, Float64, Float64}
+  dgp_params::Tuple{Float64,Float64,Float64}
   M_rows::Int
   N_cols::Int
   dist::UnivariateDistribution
-  dist_ao::Union{Nothing, UnivariateDistribution}
-  prerun::Int  
+  dist_ao::Union{Nothing,UnivariateDistribution}
+  prerun::Int
   SAR11(dgp_params, M_rows, N_cols, dist, dist_ao, prerun) =
-    abs(dgp_params[1]) < 1 && 
-    abs(dgp_params[2]) < 1 && 
-    abs(dgp_params[1] + dgp_params[2] ) < 1 - dgp_params[3] &&
-    abs(dgp_params[1] - dgp_params[2] ) < 1 + dgp_params[3]  ?
+    abs(dgp_params[1]) < 1 &&
+    abs(dgp_params[2]) < 1 &&
+    abs(dgp_params[1] + dgp_params[2]) < 1 - dgp_params[3] &&
+    abs(dgp_params[1] - dgp_params[2]) < 1 + dgp_params[3] ?
     new(dgp_params, M_rows, N_cols, dist, dist_ao, prerun) :
     @warn "
     Note that the parameters provided do not guarantee stationarity.
@@ -90,12 +101,12 @@ A struct to define a first-order spatial autoregressive (SAR(1, 1)) process:
 
 """
 struct SAR22 <: SpatialDGP
-  dgp_params::Tuple{Float64, Float64, Float64, Float64, Float64, Float64, Float64, Float64}
+  dgp_params::Tuple{Float64,Float64,Float64,Float64,Float64,Float64,Float64,Float64}
   M_rows::Int
   N_cols::Int
   dist::UnivariateDistribution
-  dist_ao::Union{Nothing, UnivariateDistribution}
-  prerun::Int  
+  dist_ao::Union{Nothing,UnivariateDistribution}
+  prerun::Int
 end
 
 
@@ -119,16 +130,16 @@ sar11 = SINAR((0.5, 0.3, 0.2), 11, 11, 100)
 ```
 """
 struct SINAR11 <: SpatialDGP
-  dgp_params::Tuple{Float64, Float64, Float64}
+  dgp_params::Tuple{Float64,Float64,Float64}
   M_rows::Int
   N_cols::Int
   dist::UnivariateDistribution
-  dist_ao::Union{Nothing, UnivariateDistribution}
+  dist_ao::Union{Nothing,UnivariateDistribution}
   prerun::Int
   SINAR11(dgp_params, m, n, dist, dist_ao, prerun) =
-    0.00 <= dgp_params[1] < 1 && 
-    0.00 <= dgp_params[2] < 1 && 
-    0.00 <= dgp_params[3] < 1 &&  
+    0.00 <= dgp_params[1] < 1 &&
+    0.00 <= dgp_params[2] < 1 &&
+    0.00 <= dgp_params[3] < 1 &&
     dgp_params[1] + dgp_params[2] + dgp_params[3] < 1 ?
     new(dgp_params, m, n, dist, dist_ao, prerun) :
     @warn "
@@ -156,12 +167,12 @@ sqma11 = SQMA11((0.5, 0.3, 0.2), (1, 1, 2), 10, 10, Normal(0,1), nothing, 1)
 ```
 """
 struct SQMA11 <: SpatialDGP
-  dgp_params::Tuple{Float64, Float64, Float64}
-  eps_params::Tuple{Int, Int, Int}
+  dgp_params::Tuple{Float64,Float64,Float64}
+  eps_params::Tuple{Int,Int,Int}
   M_rows::Int
   N_cols::Int
   dist::UnivariateDistribution
-  dist_ao::Union{Nothing, UnivariateDistribution}
+  dist_ao::Union{Nothing,UnivariateDistribution}
 end
 
 
@@ -195,12 +206,12 @@ Yₜ₁,ₜ₂ = β₁ ⋅ εₜ₁₋₁,ₜ₂ᵃ +
 
 """
 struct SQMA22 <: SpatialDGP
-  dgp_params::Tuple{Float64, Float64, Float64, Float64, Float64, Float64, Float64, Float64}
-  eps_params::Tuple{Int, Int, Int, Int, Int, Int, Int, Int}
+  dgp_params::Tuple{Float64,Float64,Float64,Float64,Float64,Float64,Float64,Float64}
+  eps_params::Tuple{Int,Int,Int,Int,Int,Int,Int,Int}
   M_rows::Int
   N_cols::Int
   dist::UnivariateDistribution
-  dist_ao::Union{Nothing, UnivariateDistribution}
+  dist_ao::Union{Nothing,UnivariateDistribution}
 end
 
 """ 
@@ -229,17 +240,17 @@ sqinma11 = SQINMA11((0.5, 0.3, 0.2), (1, 1, 2), 10, 10, Normal(0, 1), nothing, 1
 ```
 """
 struct SQINMA11 <: SpatialDGP
-  dgp_params::Tuple{Float64, Float64, Float64}
-  eps_params::Tuple{Int, Int, Int}
+  dgp_params::Tuple{Float64,Float64,Float64}
+  eps_params::Tuple{Int,Int,Int}
   M_rows::Int
   N_cols::Int
   dist::UnivariateDistribution
   dist_ao::Nothing
-  SQINMA11(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao) = 
-    0.00 <= dgp_params[1] < 1 && 
-    0.00 <= dgp_params[2] < 1 && 
+  SQINMA11(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao) =
+    0.00 <= dgp_params[1] < 1 &&
+    0.00 <= dgp_params[2] < 1 &&
     0.00 <= dgp_params[3] < 1 ?
-    new(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao) : 
+    new(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao) :
     error("Note that β₁, β₂, and β₃ ∈ [0, 1] is required for binomial thinning.")
 end
 
@@ -268,12 +279,12 @@ Yₜ₁,ₜ₂ = a₁ ⋅ Yₜ₁₋₁,ₜ₂ +
 sar1 = SAR1((0.5, 0.3, 0.2, 0.1), 10, 10, Normal(0, 1), nothing, 20) 
 ```
 """
-struct SAR1  <: SpatialDGP
-  dgp_params::Tuple{Float64, Float64, Float64, Float64}
+struct SAR1 <: SpatialDGP
+  dgp_params::Tuple{Float64,Float64,Float64,Float64}
   M_rows::Int
   N_cols::Int
   dist::UnivariateDistribution
-  dist_ao::Union{Nothing, UnivariateDistribution}
+  dist_ao::Union{Nothing,UnivariateDistribution}
   margin::Int
 end
 
@@ -303,8 +314,8 @@ bsqma11 = BSQMA11((0.5, 0.3, 0.2, 0.1), (1, 1, 2, 2), 10, 10, Normal(0, 1), noth
 ```
 """
 struct BSQMA11 <: SpatialDGP
-  dgp_params::Tuple{Float64, Float64, Float64, Float64}
-  eps_params::Tuple{Int, Int, Int, Int}
+  dgp_params::Tuple{Float64,Float64,Float64,Float64}
+  eps_params::Tuple{Int,Int,Int,Int}
   M_rows::Int
   N_cols::Int
   dist::UnivariateDistribution

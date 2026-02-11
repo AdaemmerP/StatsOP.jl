@@ -69,22 +69,9 @@ export init_mat!,
   stat_sop
 
 # SOP Types (from 'sop_dgp_structs.jl')
-export ICSTS,
-  SAR11,
-  SAR22,
-  SINAR11,
-  SQMA11,
-  SQMA22,
-  SQINMA11,
-  SAR1,
-  BSQMA11
 
 # Custom distributions to export (from 'sop_distributions.jl')
-export BinomialC,
-  BinomialCvec,
-  ZIP,
-  PoiBin,
-  BinNorm
+
 
 # ---------------------------------------------#
 # OP related functions and structs  to export  #
@@ -93,18 +80,6 @@ export BinomialC,
 # ACF functions to export (from 'op_acf_functions.jl')
 export rl_acf,
   arl_acf
-
-# OP Types to export (from 'op_dgp_structs.jl')  
-export ICTS,
-  AR1,
-  TEAR1,
-  MA1,
-  MA2,
-  QAR1,
-  INAR1,
-  BAR1,
-  DAR1
-
 
 # OP functions to export
 export rl_op_ic,

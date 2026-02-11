@@ -1,3 +1,8 @@
+export BinomialC,
+  BinomialCvec,
+  ZIP,
+  PoiBin,
+  BinNorm
 
 """
     BinomialC{T <: Real}  <: DiscreteUnivariateDistribution 
