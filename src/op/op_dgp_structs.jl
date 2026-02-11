@@ -182,7 +182,7 @@ where:
 
 struct TobitINAR1{T<:DiscreteUnivariateDistribution}
     α::Float64
-    dist_error::T
+    dist::T
     L::Int
     add_noise::Bool
     burn_in::Int
