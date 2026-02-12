@@ -69,7 +69,7 @@ function rl_gop_ic(
     fill_p0!(p0, gop_dgp_dist)
 
     # compute length of 'x_seq' vector based on d
-    x_seq = zeros(Int, 1 + (m - 1) * d)
+    x_seq = zeros(1 + (m - 1) * d)
 
     for r in axes(p_reps, 1) # p_reps is a range
 
@@ -103,7 +103,7 @@ function rl_gop_ic(
             stat = chart_stat_gop(p_p0, chart_choice)
 
             # update sequence depending on DGP
-            seq = StatsOP.update_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
+            seq = update_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
             fill!(win, 0)
         end
 
@@ -137,7 +137,7 @@ function rl_gop_ic(
     fill_p0!(p0, gop_dgp_dist)
 
     # compute length of 'x_seq' vector based on d
-    x_seq = zeros(Int, 1 + (m - 1) * d)
+    x_seq = zeros(1 + (m - 1) * d)
 
     for r in axes(p_reps, 1) # p_reps is a range
 
@@ -146,7 +146,7 @@ function rl_gop_ic(
         # initialze EWMA statistic, Equation (17), in the paper
         p .= p0
         # Initialize observations
-        seq = StatsOP.init_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
+        seq = init_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
         # initial statistic
         @. p_p0 = p - p0
         stat = chart_stat_gop(p_p0, G1G, chart_choice)
@@ -171,7 +171,7 @@ function rl_gop_ic(
             stat = chart_stat_gop(p_p0, G1G, chart_choice)
 
             # update sequence depending on DGP
-            seq = StatsOP.update_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
+            seq = update_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
             fill!(win, 0)
 
         end

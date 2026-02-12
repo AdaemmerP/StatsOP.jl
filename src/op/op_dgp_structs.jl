@@ -159,6 +159,27 @@ struct INAR1
     add_noise::Bool
 end
 
+"""
+    INARS1(α, dist, add_noise, burn_in)
+First-Order **S**igned **I**nteger **N**umerated **A**uto**R**egressive Process
+
+The INARS(1) model is a signed version of the INAR(1) process, allowing for both positive and negative integer values. The process is defined by:
+
+# Fields
+- `α::Float64`: The autoregressive parameter (thinning probability). Can be in
+\$(0, 1)\$ for positive dependence or \$( -1, 0)\$ for negative dependence.
+- `dist::DiscreteUnivariateDistribution`: The distribution of the innovation term \$\\epsilon_t\$.
+- `add_noise::Bool`: Flag indicating whether a small amount of uniform noise should be added to the process (usually for simulating continuous-like observations from a discrete process).
+- `burn_in::Int`: The number of initial observations to discard to allow the process to reach its stationary distribution before collecting data for analysis.
+
+"""
+struct INARS1
+    α::Float64
+    dist::DiscreteUnivariateDistribution
+    add_noise::Bool
+    burn_in::Int
+end
+
 # -----------------------------------------------------------------------------
 """    
     TobitINAR1(α, dist_error, L, add_noise, burn_in)

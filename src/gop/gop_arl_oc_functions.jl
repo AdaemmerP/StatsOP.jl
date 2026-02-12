@@ -63,7 +63,7 @@ function rl_gop_oc(
   m = 3
 
   # Pre-allocate variables
-  rls = zeros(Int64, length(p_reps))
+  rls = zeros(Int, length(p_reps))
   bin = zeros(Int, 13)
   win = zeros(Int, m)
   ix = similar(win)
@@ -73,7 +73,7 @@ function rl_gop_oc(
   fill_p0!(p0, null_dist)
 
   # compute length of 'x_seq' vector based on d
-  x_seq = zeros(Int, 1 + (m - 1) * d)
+  x_seq = zeros(1 + (m - 1) * d)
 
   for r in axes(p_reps, 1) # p_reps is a range
 
@@ -107,7 +107,7 @@ function rl_gop_oc(
       stat = chart_stat_gop(p_p0, chart_choice)
 
       # update sequence depending on DGP
-      seq = StatsOP.update_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
+      seq = update_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
       fill!(win, 0)
     end
 
@@ -142,7 +142,7 @@ function rl_gop_oc(
   fill_p0!(p0, null_dist)
 
   # compute length of 'x_seq' vector based on d
-  x_seq = zeros(Int, 1 + (m - 1) * d)
+  x_seq = zeros(1 + (m - 1) * d)
 
   for r in axes(p_reps, 1) # p_reps is a range
 
@@ -177,7 +177,7 @@ function rl_gop_oc(
       stat = chart_stat_gop(p_p0, G1G, chart_choice)
 
       # update sequence depending on DGP
-      seq = StatsOP.update_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
+      seq = update_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
       fill!(win, 0)
 
     end

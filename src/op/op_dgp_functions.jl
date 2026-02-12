@@ -251,6 +251,7 @@ function init_dgp_op!(dgp::INAR1, x_long, dist_error::Poisson, d::Int)
     for i in 2:lastindex(x_long)
         x_long[i] = rand(Binomial(x_long[i-1], dgp.α)) + rand(dist_error)
     end
+
     # add noise ?
     if dgp.add_noise
         for i in axes(x_long, 1)
@@ -266,6 +267,7 @@ function update_dgp_op!(dgp::INAR1, x_long, dist_error::Poisson, d::Int)
         x_long[i] = x_long[i+1]
     end
     x = floor(x_long[end-1])
+
     # add noise?
     if dgp.add_noise
         x_long[end] = rand(Binomial(x, dgp.α)) + rand(dist_error) + rand()
@@ -277,47 +279,43 @@ function update_dgp_op!(dgp::INAR1, x_long, dist_error::Poisson, d::Int)
 end
 
 # -------------------------------------------------#
-# ---------------  Tobit-INAR(1) methods  ---------#
+# ---------------  INARS(1) methods  ---------------#
 # -------------------------------------------------#
 
-
-# Method to initialize with Burn-in phase
-function init_dgp_op!(dgp::TobitINAR1, x_long::Vector{Float64}, dist, d::Int)
-
+# Method to initialize INAR(1) when d is Int 
+function init_dgp_op!(dgp::INARS1, x_long, dist::DiscreteUnivariateDistribution, d::Int)
     α = dgp.α
     abs_α = abs(α)
     sign_α = sign(α)
-    lower_bound = dgp.L
 
-    # 1. Burn-in Phase
-    μ_ε = mean(dist)
+    # 1. Burn-in Phase   
     # Start heuristically near steady state
     # Convert to Float64 to avoid type issues when adding noise 
+    μ_ε = mean(dist) |> abs
     xₜ₋₁ = rand(Poisson(μ_ε / (1 - min(0.99, abs_α)))) |> Float64
 
     for _ in 1:dgp.burn_in
-        εₜ = rand(dist)
 
         # Signed binomial thinning operator: α ⊙ xₜ₋₁
         # -> sgn(α) * sgn(xₜ₋₁) * (|α| ∘ |xₜ₋₁|)
         operator_result = sign_α * sign(xₜ₋₁) * rand(Binomial(Int(abs(xₜ₋₁)), abs_α))
 
         # Get observed value with Tobit censoring
-        yₜ = operator_result + εₜ
-        xₜ = Float64(max(yₜ, lower_bound))
+        εₜ = rand(dist)
+        xₜ = operator_result + εₜ
         xₜ₋₁ = xₜ
     end
 
     # 2. Fill vector and start with last burn-in value
     x_long[1] = xₜ₋₁
     for t in 2:lastindex(x_long)
-        εₜ = rand(dist)
+
         xₜ₋₁ = x_long[t-1]
 
         # Get observed value with Tobit censoring
+        εₜ = rand(dist)
         operator_result = sign(α) * sign(xₜ₋₁) * rand(Binomial(Int(abs(xₜ₋₁)), abs_α))
-        yₜ = operator_result + εₜ
-        x_long[t] = max(yₜ, lower_bound)
+        x_long[t] = operator_result + εₜ
     end
 
     # 3. Add noise
@@ -330,8 +328,8 @@ function init_dgp_op!(dgp::TobitINAR1, x_long::Vector{Float64}, dist, d::Int)
     return @views x_long[1:d:end]
 end
 
-# Method to update the process
-function update_dgp_op!(dgp::TobitINAR1, x_long::Vector{Float64}, dist, d::Int)
+# Method to update INAR(1) 
+function update_dgp_op!(dgp::INARS1, x_long, dist::DiscreteUnivariateDistribution, d::Int)
 
     α = dgp.α
 
@@ -345,10 +343,91 @@ function update_dgp_op!(dgp::TobitINAR1, x_long::Vector{Float64}, dist, d::Int)
     εₜ = rand(dist)
 
     # Apply signed operator: α ⊙ xₜ₋₁
+    # -> sgn(α) * sgn(xₜ₋₁) * (|α| ∘ |xₜ₋₁|)
     operator_result = sign(α) * sign(xₜ₋₁) * rand(Binomial(Int(abs(xₜ₋₁)), abs(α)))
+    xₜ = operator_result + εₜ
+    x_long[end] = dgp.add_noise ? xₜ + rand() : xₜ
+
+    return @views x_long[1:d:end]
+
+
+end
+
+# -------------------------------------------------#
+# ---------------  Tobit-INAR(1) methods  ---------#
+# -------------------------------------------------#
+# Method to initialize with Burn-in phase
+function init_dgp_op!(dgp::TobitINAR1, x_long::Vector{Float64}, dist::DiscreteUnivariateDistribution, d::Int)
+
+    α = dgp.α
+    abs_α = abs(α)
+    sign_α = sign(α)
+    lower_bound = dgp.L
+
+    # 1. Burn-in Phase    
+    # Start heuristically near steady state
+    # Convert to Float64 to avoid type issues when adding noise 
+    μ_ε = mean(dist) |> abs
+    xₜ₋₁ = rand(Poisson(μ_ε / (1 - min(0.99, abs_α)))) |> Float64
+
+    for _ in 1:dgp.burn_in
+        εₜ = rand(dist)
+
+        # Signed binomial thinning operator: α ⊙ xₜ₋₁
+        # -> sgn(α) * sgn(xₜ₋₁) * (|α| ∘ |xₜ₋₁|)
+        operator_result = sign_α * sign(xₜ₋₁) * rand(Binomial(Int(abs(xₜ₋₁)), abs_α))
+
+        # Get observed value with Tobit censoring
+        yₜ = operator_result + εₜ
+        xₜ = max(lower_bound, yₜ) |> Float64 # convert to Float64 for noise addition
+        xₜ₋₁ = xₜ
+    end
+
+    # 2. Fill vector and start with last burn-in value
+    x_long[1] = xₜ₋₁
+    for t in 2:lastindex(x_long)
+        εₜ = rand(dist)
+        xₜ₋₁ = x_long[t-1]
+
+        # Get observed value with Tobit censoring
+        operator_result = sign(α) * sign(xₜ₋₁) * rand(Binomial(Int(abs(xₜ₋₁)), abs_α))
+        yₜ = operator_result + εₜ
+        x_long[t] = max(lower_bound, yₜ) |> Float64
+    end
+
+    # 3. Add noise
+    if dgp.add_noise
+        for i in axes(x_long, 1)
+            x_long[i] += rand()
+        end
+    end
+
+    return @views x_long[1:d:end]
+end
+
+# Method to update the process
+function update_dgp_op!(dgp::TobitINAR1, x_long::Vector{Float64}, dist::DiscreteUnivariateDistribution, d::Int)
+
+    α = dgp.α
+    abs_α = abs(α)
+    sign_α = sign(α)
+    lower_bound = dgp.L
+
+    # Shift window left
+    for t in 1:(lastindex(x_long)-1)
+        x_long[t] = x_long[t+1]
+    end
+
+    # Get previous state xₜ₋₁
+    xₜ₋₁ = floor(x_long[end-1])
+    εₜ = rand(dist)
+
+    # Apply signed operator: α ⊙ xₜ₋₁
+    # -> sgn(α) * sgn(xₜ₋₁) * (|α| ∘ |xₜ₋₁|)
+    operator_result = sign_α * sign(xₜ₋₁) * rand(Binomial(Int(abs(xₜ₋₁)), abs_α))
 
     yₜ = operator_result + εₜ
-    x_new = Float64(max(yₜ, dgp.L))
+    x_new = max(lower_bound, yₜ) |> Float64
 
     x_long[end] = dgp.add_noise ? x_new + rand() : x_new
 
