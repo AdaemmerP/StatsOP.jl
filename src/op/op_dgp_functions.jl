@@ -331,6 +331,7 @@ end
 # Method to update INAR(1) 
 function update_dgp_op!(dgp::INARS1, x_long, dist::DiscreteUnivariateDistribution, d::Int)
 
+    # Extract parameters for easier access
     α = dgp.α
 
     # Shift window left
@@ -359,6 +360,7 @@ end
 # Method to initialize with Burn-in phase
 function init_dgp_op!(dgp::TobitINAR1, x_long::Vector{Float64}, dist::DiscreteUnivariateDistribution, d::Int)
 
+    # Extract parameters for easier access
     α = dgp.α
     abs_α = abs(α)
     sign_α = sign(α)
@@ -408,6 +410,7 @@ end
 # Method to update the process
 function update_dgp_op!(dgp::TobitINAR1, x_long::Vector{Float64}, dist::DiscreteUnivariateDistribution, d::Int)
 
+    # Extract parameters for easier access
     α = dgp.α
     abs_α = abs(α)
     sign_α = sign(α)
