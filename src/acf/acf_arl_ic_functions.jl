@@ -72,8 +72,6 @@ function rl_acf_ic(lam, cl, p_reps, acf_dgp, acf_dgp_dist, acf_version)
       cₜ = 0.0
       sₜ = var(acf_dgp_dist)
       μ₀ = mean(acf_dgp_dist)
-      # --- not used but ensures type stability
-      # mₜ = μ₀
 
       # Compute statistic for version 1 (Equation (3))
       init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
@@ -85,7 +83,6 @@ function rl_acf_ic(lam, cl, p_reps, acf_dgp, acf_dgp_dist, acf_version)
       cₜ = mean(acf_dgp_dist)^2
       sₜ = var(acf_dgp_dist) + mean(acf_dgp_dist)^2
       mₜ = mean(acf_dgp_dist)
-      # μ₀ = mean(acf_dgp_dist)
 
       # Compute statistic for version 2 (Equation (4))
       init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
@@ -98,21 +95,14 @@ function rl_acf_ic(lam, cl, p_reps, acf_dgp, acf_dgp_dist, acf_version)
     elseif acf_version == 3
       cₜ = 0.0
       sₜ = var(acf_dgp_dist)
-      # --- not used but ensures type stability
-      # mₜ = 0.0
-      # μ₀ = mean(acf_dgp_dist)
+      μ₀ = mean(acf_dgp_dist)
+
       # Compute statistic for version 3 (Equation (5))
       init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
       cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1 - lam) * cₜ
       acf_stat = cₜ / sₜ
 
     end
-
-    # initialize sequence depending on DGP
-    # init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
-
-    # set ACF statistic to zero
-    # acf_stat = 0.0
 
     rl = 0
 
