@@ -71,32 +71,68 @@ function rl_acf_oc(lam, cl, p_reps, acf_dgp, acf_dgp_dist, dist_null, acf_versio
     # initialize values
     # Convert all values to ensure type stability
     if acf_version == 1
-      rl = 0
-      c_0 = 0.0
-      s_0 = var(dist_null)
-      m_0 = mean(dist_null)
-      acf_stat = 0.0
-      μ0 = mean(dist_null)
-      σ0 = std(dist_null)
+      # rl = 0
+      # c_0 = 0.0
+      # s_0 = var(dist_null)
+      # m_0 = mean(dist_null)
+      # acf_stat = 0.0
+      # μ0 = mean(dist_null)
+      # σ0 = std(dist_null)
+
+      cₜ = 0.0
+      sₜ = var(dist_null)
+      μ₀ = mean(dist_null)
+      # --- not used but ensures type stability
+      # mₜ = μ₀
+
+      # Compute statistic for version 1 (Equation (3))
+      init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
+      cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1.0 - lam) * cₜ
+      sₜ = lam * (x_vec[2] - μ₀)^2 + (1.0 - lam) * sₜ
+      acf_stat = cₜ / sₜ
 
     elseif acf_version == 2
-      rl = 0
-      c_0 = mean(dist_null)^2
-      s_0 = var(dist_null) + mean(dist_null)^2
-      m_0 = mean(dist_null)
-      acf_stat = 0.0
-      μ0 = mean(dist_null)
-      σ0 = std(dist_null)
+      # rl = 0
+      # c_0 = mean(dist_null)^2
+      # s_0 = var(dist_null) + mean(dist_null)^2
+      # m_0 = mean(dist_null)
+      # acf_stat = 0.0
+      # μ0 = mean(dist_null)
+      # σ0 = std(dist_null)
+
+      cₜ = mean(dist_null)^2
+      sₜ = var(dist_null) + mean(dist_null)^2
+      mₜ = mean(dist_null)
+      # μ₀ = mean(acf_dgp_dist)
+
+      # Compute statistic for version 2 (Equation (4))
+      init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
+      cₜ = lam * x_vec[2] * x_vec[1] + (1.0 - lam) * cₜ
+      sₜ = lam * x_vec[2]^2 + (1.0 - lam) * sₜ
+      mₜ = lam * x_vec[2] + (1.0 - lam) * mₜ
+      acf_stat = (cₜ - mₜ^2) / (sₜ - mₜ^2)
+
+
 
     elseif acf_version == 3
-      rl = 0
-      c_0 = 0.0
-      # --- not necessary but still ensure type stability
-      s_0 = 0.0
-      m_0 = 0.0
-      acf_stat = 0.0
-      μ0 = mean(dist_null)
-      σ0 = std(dist_null)
+      # rl = 0
+      # c_0 = 0.0
+      # # --- not necessary but still ensure type stability
+      # s_0 = 0.0
+      # m_0 = 0.0
+      # acf_stat = 0.0
+      # μ0 = mean(dist_null)
+      # σ0 = std(dist_null)
+
+      cₜ = 0.0
+      sₜ = var(dist_null)
+      # --- not used but ensures type stability
+      # mₜ = 0.0
+      # μ₀ = mean(acf_dgp_dist)
+      # Compute statistic for version 3 (Equation (5))
+      init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
+      cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1 - lam) * cₜ
+      acf_stat = cₜ / sₜ
 
     end
 
@@ -104,7 +140,9 @@ function rl_acf_oc(lam, cl, p_reps, acf_dgp, acf_dgp_dist, dist_null, acf_versio
     init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
 
     # set ACF statistic to zero
-    acf_stat = 0
+    # acf_stat = 0
+
+    rl = 0
 
     while abs(acf_stat) < cl
 
@@ -115,21 +153,21 @@ function rl_acf_oc(lam, cl, p_reps, acf_dgp, acf_dgp_dist, dist_null, acf_versio
       if acf_version == 1
 
         # Equation (3), page 3 in the paper
-        c_0 = lam * (x_vec[2] - μ0) * (x_vec[1] - μ0) + (1.0 - lam) * c_0
-        s_0 = lam * (x_vec[2] - μ0)^2 + (1.0 - lam) * s_0
-        acf_stat = c_0 / s_0
+        cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1.0 - lam) * cₜ
+        sₜ = lam * (x_vec[2] - μ₀)^2 + (1.0 - lam) * sₜ
+        acf_stat = cₜ / sₜ
 
       elseif acf_version == 2
         # Equation (4), page 3 in the paper
-        c_0 = lam * x_vec[2] * x_vec[1] + (1.0 - lam) * c_0
-        s_0 = lam * x_vec[2]^2 + (1.0 - lam) * s_0
-        m_0 = lam * x_vec[2] + (1.0 - lam) * m_0
-        acf_stat = (c_0 - m_0^2) / (s_0 - m_0^2)
+        cₜ = lam * x_vec[2] * x_vec[1] + (1.0 - lam) * cₜ
+        sₜ = lam * x_vec[2]^2 + (1.0 - lam) * sₜ
+        mₜ = lam * x_vec[2] + (1.0 - lam) * mₜ
+        acf_stat = (cₜ - mₜ^2) / (sₜ - mₜ^2)
 
       elseif acf_version == 3
         # Equation (5), page 3 in the paper
-        c_0 = lam * (x_vec[2] - μ0) * (x_vec[1] - μ0) + (1 - lam) * c_0
-        acf_stat = c_0 / σ0^2
+        cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1 - lam) * cₜ
+        acf_stat = cₜ / sₜ
 
       end
 

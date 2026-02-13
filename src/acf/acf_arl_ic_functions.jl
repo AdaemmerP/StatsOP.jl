@@ -1,96 +1,3 @@
-"""
-    rl_acf(lam, cl, p_reps, acf_dgp)
-
-Function to compute the run length (RL) for a specified DGP using the ACF statistic by XXX.
-  
-- `lam::Float64`: Smoothing parameter for the EWMA statistic.
-- `cl::Float64`: Control limit for the ACF statistic.
-- `p_reps::Vector{Int64}`: Unit range for number of replications.
-- `acf_dgp::Union{IC, AR1, TEAR1}`: DGP.
-
-```julia
-rl_acf(0.1, 3.0, 10_000, IC(Normal(0, 1)))
-```
-"""
-function rl_acf_ic(lam, cl, p_reps, acf_dgp, acf_dgp_dist, acf_version)
-
-  # Pre-allocate 
-  rls = Vector{Int64}(undef, length(p_reps))
-  x_vec = Vector{Float64}(undef, 2)
-
-  for r in 1:length(p_reps)
-
-    # initialize values
-    # Convert all values to ensure type stability
-    if acf_version == 1
-      rl = 0
-      c_0 = 0.0
-      s_0 = var(acf_dgp_dist)
-      m_0 = mean(acf_dgp_dist)
-      acf_stat = 0.0
-      μ0 = mean(acf_dgp_dist)
-
-    elseif acf_version == 2
-      rl = 0
-      c_0 = mean(acf_dgp_dist)^2
-      s_0 = var(acf_dgp_dist) + mean(acf_dgp_dist)^2
-      m_0 = mean(acf_dgp_dist)
-      acf_stat = 0.0
-      μ0 = mean(acf_dgp_dist)
-
-    elseif acf_version == 3
-      rl = 0
-      c_0 = 0.0
-      s_0 = var(acf_dgp_dist)
-      # --- not necessary but still ensure type stability
-      m_0 = 0.0
-      acf_stat = 0.0
-      μ0 = mean(acf_dgp_dist)
-
-    end
-
-    # initialize sequence depending on DGP
-    init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
-
-    # set ACF statistic to zero
-    acf_stat = 0
-
-    while abs(acf_stat) < cl
-
-      # increase run length
-      rl += 1
-
-      # compute EWMA ACF
-      if acf_version == 1
-
-        # Equation (3), page 3 in the paper
-        c_0 = lam * (x_vec[2] - μ0) * (x_vec[1] - μ0) + (1.0 - lam) * c_0
-        s_0 = lam * (x_vec[2] - μ0)^2 + (1.0 - lam) * s_0
-        acf_stat = c_0 / s_0
-
-      elseif acf_version == 2
-        # Equation (4), page 3 in the paper
-        c_0 = lam * x_vec[2] * x_vec[1] + (1.0 - lam) * c_0
-        s_0 = lam * x_vec[2]^2 + (1.0 - lam) * s_0
-        m_0 = lam * x_vec[2] + (1.0 - lam) * m_0
-        acf_stat = (c_0 - m_0^2) / (s_0 - m_0^2)
-
-      elseif acf_version == 3
-        # Equation (5), page 3 in the paper
-        c_0 = lam * (x_vec[2] - μ0) * (x_vec[1] - μ0) + (1 - lam) * c_0
-        acf_stat = c_0 / s_0
-
-      end
-
-
-      # update x_vec depending on DGP
-      update_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
-    end
-
-    rls[r] = rl
-  end
-  return rls
-end
 
 """
     arl_acf(lam, cl, acf_dgp, reps=10000)
@@ -135,6 +42,115 @@ function arl_acf_ic(lam, cl, acf_dgp, reps, acf_version)
   rls = fetch.(par_results)
   rlvec = Iterators.flatten(rls) |> collect
   return (mean(rlvec), std(rlvec) / sqrt(reps))
+end
+
+
+"""
+    rl_acf(lam, cl, p_reps, acf_dgp)
+
+Function to compute the run length (RL) for a specified DGP using the ACF statistic by XXX.
+  
+- `lam::Float64`: Smoothing parameter for the EWMA statistic.
+- `cl::Float64`: Control limit for the ACF statistic.
+- `p_reps::Vector{Int64}`: Unit range for number of replications.
+- `acf_dgp::Union{IC, AR1, TEAR1}`: DGP.
+
+```julia
+rl_acf(0.1, 3.0, 10_000, IC(Normal(0, 1)))
+```
+"""
+function rl_acf_ic(lam, cl, p_reps, acf_dgp, acf_dgp_dist, acf_version)
+
+  # Pre-allocate 
+  rls = Vector{Int64}(undef, length(p_reps))
+  x_vec = Vector{Float64}(undef, 2)
+
+  for r in 1:length(p_reps)
+
+    # initialize values
+    if acf_version == 1
+      cₜ = 0.0
+      sₜ = var(acf_dgp_dist)
+      μ₀ = mean(acf_dgp_dist)
+      # --- not used but ensures type stability
+      # mₜ = μ₀
+
+      # Compute statistic for version 1 (Equation (3))
+      init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
+      cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1.0 - lam) * cₜ
+      sₜ = lam * (x_vec[2] - μ₀)^2 + (1.0 - lam) * sₜ
+      acf_stat = cₜ / sₜ
+
+    elseif acf_version == 2
+      cₜ = mean(acf_dgp_dist)^2
+      sₜ = var(acf_dgp_dist) + mean(acf_dgp_dist)^2
+      mₜ = mean(acf_dgp_dist)
+      # μ₀ = mean(acf_dgp_dist)
+
+      # Compute statistic for version 2 (Equation (4))
+      init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
+      cₜ = lam * x_vec[2] * x_vec[1] + (1.0 - lam) * cₜ
+      sₜ = lam * x_vec[2]^2 + (1.0 - lam) * sₜ
+      mₜ = lam * x_vec[2] + (1.0 - lam) * mₜ
+      acf_stat = (cₜ - mₜ^2) / (sₜ - mₜ^2)
+
+
+    elseif acf_version == 3
+      cₜ = 0.0
+      sₜ = var(acf_dgp_dist)
+      # --- not used but ensures type stability
+      # mₜ = 0.0
+      # μ₀ = mean(acf_dgp_dist)
+      # Compute statistic for version 3 (Equation (5))
+      init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
+      cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1 - lam) * cₜ
+      acf_stat = cₜ / sₜ
+
+    end
+
+    # initialize sequence depending on DGP
+    # init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
+
+    # set ACF statistic to zero
+    # acf_stat = 0.0
+
+    rl = 0
+
+    while abs(acf_stat) < cl
+
+      # increase run length
+      rl += 1
+
+      # compute EWMA ACF
+      if acf_version == 1
+
+        # Equation (3), page 3 in the paper
+        cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1.0 - lam) * cₜ
+        sₜ = lam * (x_vec[2] - μ₀)^2 + (1.0 - lam) * sₜ
+        acf_stat = cₜ / sₜ
+
+      elseif acf_version == 2
+        # Equation (4), page 3 in the paper
+        cₜ = lam * x_vec[2] * x_vec[1] + (1.0 - lam) * cₜ
+        sₜ = lam * x_vec[2]^2 + (1.0 - lam) * sₜ
+        mₜ = lam * x_vec[2] + (1.0 - lam) * mₜ
+        acf_stat = (cₜ - mₜ^2) / (sₜ - mₜ^2)
+
+      elseif acf_version == 3
+        # Equation (5), page 3 in the paper
+        cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1 - lam) * cₜ
+        acf_stat = cₜ / sₜ
+
+      end
+
+      # update x_vec depending on DGP
+      update_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
+
+    end
+
+    rls[r] = rl
+  end
+  return rls
 end
 
 
