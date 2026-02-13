@@ -281,7 +281,6 @@ end
 # -------------------------------------------------#
 # ---------------  INARS(1) methods  ---------------#
 # -------------------------------------------------#
-
 # Method to initialize INAR(1) when d is Int 
 function init_dgp_op!(dgp::SINAR1, x_long, dist::DiscreteUnivariateDistribution, d::Int)
     α = dgp.α
