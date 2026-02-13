@@ -283,7 +283,7 @@ end
 # -------------------------------------------------#
 
 # Method to initialize INAR(1) when d is Int 
-function init_dgp_op!(dgp::INARS1, x_long, dist::DiscreteUnivariateDistribution, d::Int)
+function init_dgp_op!(dgp::SINAR1, x_long, dist::DiscreteUnivariateDistribution, d::Int)
     α = dgp.α
     abs_α = abs(α)
     sign_α = sign(α)
@@ -329,7 +329,7 @@ function init_dgp_op!(dgp::INARS1, x_long, dist::DiscreteUnivariateDistribution,
 end
 
 # Method to update INAR(1) 
-function update_dgp_op!(dgp::INARS1, x_long, dist::DiscreteUnivariateDistribution, d::Int)
+function update_dgp_op!(dgp::SINAR1, x_long, dist::DiscreteUnivariateDistribution, d::Int)
 
     # Extract parameters for easier access
     α = dgp.α
@@ -358,7 +358,7 @@ end
 # ---------------  Tobit-INAR(1) methods  ---------#
 # -------------------------------------------------#
 # Method to initialize with Burn-in phase
-function init_dgp_op!(dgp::TobitINAR1, x_long::Vector{Float64}, dist::DiscreteUnivariateDistribution, d::Int)
+function init_dgp_op!(dgp::TINAR1, x_long::Vector{Float64}, dist::DiscreteUnivariateDistribution, d::Int)
 
     # Extract parameters for easier access
     α = dgp.α
@@ -408,7 +408,7 @@ function init_dgp_op!(dgp::TobitINAR1, x_long::Vector{Float64}, dist::DiscreteUn
 end
 
 # Method to update the process
-function update_dgp_op!(dgp::TobitINAR1, x_long::Vector{Float64}, dist::DiscreteUnivariateDistribution, d::Int)
+function update_dgp_op!(dgp::TINAR1, x_long::Vector{Float64}, dist::DiscreteUnivariateDistribution, d::Int)
 
     # Extract parameters for easier access
     α = dgp.α

@@ -160,10 +160,10 @@ struct INAR1
 end
 
 """
-    INARS1(α, dist, add_noise, burn_in)
+    SINAR1(α, dist, add_noise, burn_in)
 First-Order **S**igned **I**nteger **N**umerated **A**uto**R**egressive Process
 
-The INARS(1) model is a signed version of the INAR(1) process, allowing for both positive and negative integer values. The process is defined by:
+The SINAR(1) model is a signed version of the INAR(1) process, allowing for both positive and negative integer values. The process is defined by:
 
 # Fields
 - `α::Float64`: The autoregressive parameter (thinning probability). Can be in
@@ -173,7 +173,7 @@ The INARS(1) model is a signed version of the INAR(1) process, allowing for both
 - `burn_in::Int`: The number of initial observations to discard to allow the process to reach its stationary distribution before collecting data for analysis.
 
 """
-struct INARS1
+struct SINAR1
     α::Float64
     dist::DiscreteUnivariateDistribution
     add_noise::Bool
@@ -182,7 +182,7 @@ end
 
 # -----------------------------------------------------------------------------
 """    
-    TobitINAR1(α, dist_error, L, add_noise, burn_in)
+    TINAR1(α, dist_error, L, add_noise, burn_in)
 
 A struct to define a Tobit-INAR(1) process, which is a censored version of the INAR(1) process. The observed values are censored at a specified lower bound (L).
 
@@ -200,8 +200,7 @@ where:
 - `add_noise::Bool`: Flag indicating whether a small amount of uniform noise should be added to the process (usually for simulating continuous-like observations from a discrete process).
 - `burn_in::Int`: The number of initial observations to discard to allow the process to reach its stationary distribution before collecting data for analysis.
 """
-
-struct TobitINAR1{T<:DiscreteUnivariateDistribution}
+struct TINAR1{T<:DiscreteUnivariateDistribution}
     α::Float64
     dist::T
     L::Int
