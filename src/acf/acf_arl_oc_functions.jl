@@ -95,8 +95,6 @@ function rl_acf_oc(lam, cl, p_reps, acf_dgp, acf_dgp_dist, dist_null, acf_versio
       mₜ = lam * x_vec[2] + (1.0 - lam) * mₜ
       acf_stat = (cₜ - mₜ^2) / (sₜ - mₜ^2)
 
-
-
     elseif acf_version == 3
 
       cₜ = 0.0
