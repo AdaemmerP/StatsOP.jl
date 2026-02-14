@@ -5,7 +5,7 @@ export arl_gop_ic,
 
 # Function to compute average run length for ordinal patterns
 function arl_gop_ic(
-    gop_dgp, lam, cl, reps; chart_choice, d=1
+    gop_dgp, lam, cl, reps; chart_choice, d=1, ced=false, ad=100
 )
 
     # Compute lookup array and number of ops
@@ -14,7 +14,7 @@ function arl_gop_ic(
     # No threading or multiprocessing
     if nprocs() == 1 && reps <= Threads.nthreads()
         results = rl_gop_ic(
-            lam, cl, lookup_array_gop, 1:reps, gop_dgp, gop_dgp.dist, chart_choice, d
+            lam, cl, lookup_array_gop, 1:reps, gop_dgp, gop_dgp.dist, chart_choice, d, ced, ad
         )
 
         return (mean(results), std(results) / sqrt(reps))
@@ -28,7 +28,9 @@ function arl_gop_ic(
         # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
         par_results = map(chunks) do i
 
-            Threads.@spawn rl_gop_ic(lam, cl, lookup_array_gop, i, gop_dgp, gop_dgp.dist, chart_choice, d)
+            Threads.@spawn rl_gop_ic(
+                lam, cl, lookup_array_gop, i, gop_dgp, gop_dgp.dist, chart_choice, d, ced, ad
+            )
 
         end
 
@@ -39,7 +41,9 @@ function arl_gop_ic(
         chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
 
         par_results = pmap(chunks) do i
-            rl_gop_ic(lam, cl, lookup_array_gop, i, gop_dgp, gop_dgp.dist, chart_choice, d)
+            rl_gop_ic(
+                lam, cl, lookup_array_gop, i, gop_dgp, gop_dgp.dist, chart_choice, d, ced, ad
+            )
         end
 
     end
@@ -52,7 +56,7 @@ end
 
 #--- Run-length method for D-Chart
 function rl_gop_ic(
-    lam, cl, lookup_array_gop, p_reps, gop_dgp, gop_dgp_dist, chart_choice::Union{D_Chart,Persistence}, d::Int
+    lam, cl, lookup_array_gop, p_reps, gop_dgp, gop_dgp_dist, chart_choice::Union{D_Chart,Persistence}, d::Int, ced::Bool, ad::Int
 )
 
     # value of patterns (can become variable in future versions)
@@ -63,26 +67,82 @@ function rl_gop_ic(
     bin = zeros(Int, 13)
     win = zeros(Int, m)
     ix = similar(win)
-    p = zeros(13)
-    p0 = zeros(13)
-    p_p0 = zeros(13) # for "p - p0"
-    fill_p0!(p0, gop_dgp_dist)
+    pₜ = zeros(13)
+    p₀ = zeros(13)
+    pₜ_p₀ = zeros(13) # for "pₜ - p₀"
+    fill_p0!(p₀, gop_dgp_dist)
 
     # compute length of 'x_seq' vector based on d
     x_seq = zeros(1 + (m - 1) * d)
 
     for r in axes(p_reps, 1) # p_reps is a range
 
+        #----------------------------------------------------------------------#
+        #---------------------      use ced?            -----------------------#
+        #----------------------------------------------------------------------#
+        if ced
+
+            icrun = true
+
+            while icrun
+
+                # initialze EWMA statistic, Equation (17), in the paper
+
+                # Initialize observations
+                pₜ .= p₀
+                seq = init_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
+
+                falarm = false
+                # Loop for "in-control" run
+                for _ in 1:ad
+
+                    bin .= 0
+
+                    # compute ordinal pattern based on permutations    
+                    competerank!(win, seq, ix)
+
+                    # Binarization of ordinal pattern
+                    j, k, l = win
+                    bin[lookup_array_gop[j, k, l]] = 1
+
+                    # Compute EWMA statistic, Equation (17), in the paper
+                    @. pₜ = lam * bin + (1 - lam) * pₜ
+                    @. pₜ_p₀ = pₜ - p₀
+                    stat = chart_stat_gop(pₜ_p₀, chart_choice)
+
+                    # update sequence depending on DGP
+                    seq = update_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
+                    fill!(win, 0)
+
+                    if stat > cl
+                        falarm = true
+                    end
+
+                end # for ad run
+
+                if falarm == false
+                    icrun = false
+                end
+            end
+
+        end
+        #----------------------------------------------------------------------#
+
+        # If ced=true...
+        if ced
+            seq = update_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
+        else
+            # initialze EWMA statistic, Equation (17), in the paper
+            pₜ .= p₀
+            # Initialize observations
+            seq = init_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
+            # initial statistic
+            @. pₜ_p₀ = pₜ - p₀
+            stat = chart_stat_gop(pₜ_p₀, chart_choice)
+        end
+
         # initialize run length at zero
         rl = 0
-        # initialze EWMA statistic, Equation (17), in the paper
-        p .= p0
-        # Initialize observations
-        seq = init_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
-
-        # initial statistic
-        @. p_p0 = p - p0
-        stat = chart_stat_gop(p_p0, chart_choice)
 
         while !abort_criterium_gop(stat, cl, chart_choice)
             # increase run length
@@ -97,10 +157,10 @@ function rl_gop_ic(
             bin[lookup_array_gop[j, k, l]] = 1
 
             # Compute EWMA statistic, Equation (17), in the paper
-            @. p = lam * bin + (1 - lam) * p
-            # statistic based on smoothed p-estimate
-            @. p_p0 = p - p0
-            stat = chart_stat_gop(p_p0, chart_choice)
+            @. pₜ = lam * bin + (1 - lam) * pₜ
+            # statistic based on smoothed pₜ-estimate
+            @. pₜ_p₀ = pₜ - p₀
+            stat = chart_stat_gop(pₜ_p₀, chart_choice)
 
             # update sequence depending on DGP
             seq = update_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
@@ -112,72 +172,74 @@ function rl_gop_ic(
     return rls
 end
 
-#--- Run-length method for G-Chart
-function rl_gop_ic(
-    lam, cl, lookup_array_gop, p_reps, gop_dgp, gop_dgp_dist, chart_choice::G_Chart, d::Int
-)
-
-    # value of patterns (can become variable in future versions)
-    m = 3
-
-    # Pre-allocate variables
-    rls = zeros(Int64, length(p_reps))
-    bin = zeros(Int, 13)
-    win = zeros(Int, m)
-    ix = similar(win)
-    p = zeros(13)
-    p0 = similar(p)
-    p_p0 = similar(p) # for "p - p0"
-    G = [
-        1 0 0 0 0 0 0 1 0 1 0 0 0;
-        0 0 0 0 0 1 0 0 0 0 1 0 1;
-        0 1 1 1 1 0 1 0 1 0 0 1 0
-    ]
-    G1G = G' * G
-    fill_p0!(p0, gop_dgp_dist)
-
-    # compute length of 'x_seq' vector based on d
-    x_seq = zeros(1 + (m - 1) * d)
-
-    for r in axes(p_reps, 1) # p_reps is a range
-
-        # initialize run length at zero
-        rl = 0
-        # initialze EWMA statistic, Equation (17), in the paper
-        p .= p0
-        # Initialize observations
-        seq = init_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
-        # initial statistic
-        @. p_p0 = p - p0
-        stat = chart_stat_gop(p_p0, G1G, chart_choice)
 
 
-        while !abort_criterium_gop(stat, cl, chart_choice)
-            # increase run length
-            rl += 1
-            bin .= 0
+# #--- Run-length method for G-Chart
+# function rl_gop_ic(
+#     lam, cl, lookup_array_gop, p_reps, gop_dgp, gop_dgp_dist, chart_choice::G_Chart, d::Int
+# )
 
-            # compute ordinal pattern based on permutations    
-            competerank!(win, seq, ix)
+#     # value of patterns (can become variable in future versions)
+#     m = 3
 
-            # Binarization of ordinal pattern
-            j, k, l = win
-            bin[lookup_array_gop[j, k, l]] = 1
+#     # Pre-allocate variables
+#     rls = zeros(Int64, length(p_reps))
+#     bin = zeros(Int, 13)
+#     win = zeros(Int, m)
+#     ix = similar(win)
+#     pₜ = zeros(13)
+#     p₀ = similar(pₜ)
+#     pₜ_p₀ = similar(pₜ) # for "pₜ - p₀"
+#     G = [
+#         1 0 0 0 0 0 0 1 0 1 0 0 0;
+#         0 0 0 0 0 1 0 0 0 0 1 0 1;
+#         0 1 1 1 1 0 1 0 1 0 0 1 0
+#     ]
+#     G1G = G' * G
+#     fill_p0!(p₀, gop_dgp_dist)
 
-            # Compute EWMA statistic, Equation (17), in the paper
-            @. p = lam * bin + (1 - lam) * p
-            # statistic based on smoothed p-estimate
-            @. p_p0 = p - p0
-            stat = chart_stat_gop(p_p0, G1G, chart_choice)
+#     # compute length of 'x_seq' vector based on d
+#     x_seq = zeros(1 + (m - 1) * d)
 
-            # update sequence depending on DGP
-            seq = update_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
-            fill!(win, 0)
+#     for r in axes(p_reps, 1) # p_reps is a range
 
-        end
+#         # initialize run length at zero
+#         rl = 0
+#         # initialze EWMA statistic, Equation (17), in the paper
+#         pₜ .= p₀
+#         # Initialize observations
+#         seq = init_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
+#         # initial statistic
+#         @. pₜ_p₀ = pₜ - p₀
+#         stat = chart_stat_gop(pₜ_p₀, G1G, chart_choice)
 
-        rls[r] = rl
-    end
-    return rls
-end
+
+#         while !abort_criterium_gop(stat, cl, chart_choice)
+#             # increase run length
+#             rl += 1
+#             bin .= 0
+
+#             # compute ordinal pattern based on permutations    
+#             competerank!(win, seq, ix)
+
+#             # Binarization of ordinal pattern
+#             j, k, l = win
+#             bin[lookup_array_gop[j, k, l]] = 1
+
+#             # Compute EWMA statistic, Equation (17), in the paper
+#             @. pₜ = lam * bin + (1 - lam) * pₜ
+#             # statistic based on smoothed pₜ-estimate
+#             @. pₜ_p₀ = pₜ - p₀
+#             stat = chart_stat_gop(pₜ_p₀, G1G, chart_choice)
+
+#             # update sequence depending on DGP
+#             seq = update_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
+#             fill!(win, 0)
+
+#         end
+
+#         rls[r] = rl
+#     end
+#     return rls
+# end
 
