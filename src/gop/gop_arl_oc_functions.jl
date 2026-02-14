@@ -77,11 +77,11 @@ function rl_gop_oc(
 
   # Create pool vector for CED runs (if "ced=true")
   # If true, create and fill vector with initial values
-  pool_vector = if ced
-    Vector{Float64}(undef, 10_000)
+  if ced
+    pool_vector = Vector{Float64}(undef, 10_000)
     init_dgp_op!(dgp, pool_vector, dist, 1)
   else
-    Float64[]
+    pool_vector = Float64[]
   end
 
   for r in axes(p_reps, 1) # p_reps is a range

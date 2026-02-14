@@ -116,14 +116,15 @@ function rl_op_oc(
   p = zeros(Float64, m_fact)
   bin = zeros(Int, m_fact)
   win = zeros(Int, m)
+  idx_used = similar(win)
 
   # Create pool vector for CED runs (if "ced=true")
   # If true, create and fill vector with initial values
-  pool_vector = if ced
-    Vector{Float64}(undef, 10_000)
-    init_dgp_op!(dgp, pool_vector, dist, 1)
+  if ced
+    pool_vector = Vector{Float64}(undef, 10_000)
+    init_dgp_op!(op_dgp, pool_vector, op_dgp_dist, 1)
   else
-    Float64[]
+    pool_vector = Float64[]
   end
 
   # Check for MA1 and MA2 and compute length of the vectors accordingly
@@ -174,7 +175,7 @@ function rl_op_oc(
       while icrun
 
         fill!(p, 1 / 6)
-        seq = init_dgp_op_ced!(gop_dgp, x_seq, pool_vector, d)
+        seq = init_dgp_op_ced!(op_dgp, x_seq, pool_vector, d)
 
         falarm = false
 
@@ -194,7 +195,7 @@ function rl_op_oc(
           # test statistic
           stat = chart_stat_op(p, chart_choice)
           # update sequence depending on DGP
-          seq = update_dgp_op_ced!(gop_dgp, x_seq, pool_vector, d)
+          seq = update_dgp_op_ced!(op_dgp, x_seq, pool_vector, d)
           # check whether false alarm 
           if abort_criterium_op(stat, cl, chart_choice)
             falarm = true

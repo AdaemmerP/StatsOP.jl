@@ -46,7 +46,7 @@ arl_op(
 ```
 """
 function arl_op_ic(
-  op_dgp::ICTS, lam, cl, reps=10_000; chart_choice, d::Int=1, m::Int=3, ced=false, ad=100
+  op_dgp::Union{ContinuousDGPIC,DiscreteDGPIC}, lam, cl, reps=10_000; chart_choice, d::Int=1, m::Int=3, ced=false, ad=100
 )
 
   # Compute lookup array and number of ops
@@ -110,7 +110,7 @@ rl_op(0.1, 3.0, lookup_array_op, 1:10_000, IC(Normal(0, 1)), Normal(0, 1), 1; d=
 ```
 """
 function rl_op_ic(
-  op_dgp::ICTS, lam, cl, p_reps,
+  op_dgp::Union{ContinuousDGPIC,DiscreteDGPIC}, lam, cl, p_reps,
   op_dgp_dist, chart_choice; d::Int=1, m::Int, ced=false, ad=100
 )
 

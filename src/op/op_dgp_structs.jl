@@ -23,7 +23,7 @@ ic = ContinuousDGPIC(Normal(0, 1))
 ```
 """
 struct ContinuousDGPIC
-    dist::UnivariateContinuousDistribution
+    dist::ContinuousUnivariateDistribution
 end
 
 
