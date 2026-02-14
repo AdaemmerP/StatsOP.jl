@@ -56,7 +56,8 @@ end
 
 #--- Run-length method for D-Chart
 function rl_gop_ic(
-    lam, cl, lookup_array_gop, p_reps, gop_dgp, gop_dgp_dist, chart_choice::Union{D_Chart,Persistence}, d::Int, ced::Bool, ad::Int
+    lam, cl, lookup_array_gop, p_reps, gop_dgp, gop_dgp_dist,
+    chart_choice::Union{D_Chart,Persistence}, d::Int, ced::Bool, ad::Int
 )
 
     # value of patterns (can become variable in future versions)
@@ -78,7 +79,7 @@ function rl_gop_ic(
     for r in axes(p_reps, 1) # p_reps is a range
 
         #----------------------------------------------------------------------#
-        #---------------------      use ced?            -----------------------#
+        #---------   Use Conditional Expected Delay (CED)?  -------------------#
         #----------------------------------------------------------------------#
         if ced
 
@@ -86,14 +87,11 @@ function rl_gop_ic(
 
             while icrun
 
-                # initialze EWMA statistic, Equation (17), in the paper
-
                 # Initialize observations
                 pₜ .= p₀
                 seq = init_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
 
                 falarm = false
-                # Loop for "in-control" run
                 for _ in 1:ad
 
                     bin .= 0
@@ -114,7 +112,7 @@ function rl_gop_ic(
                     seq = update_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
                     fill!(win, 0)
 
-                    if stat > cl
+                    if abort_criterium_gop(stat, cl, chart_choice)
                         falarm = true
                     end
 

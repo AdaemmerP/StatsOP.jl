@@ -279,7 +279,7 @@ function update_dgp_op!(dgp::INAR1, x_long, dist_error::Poisson, d::Int)
 end
 
 # -------------------------------------------------#
-# ---------------  INARS(1) methods  ---------------#
+# ---------------  SINAR(1) methods  ---------------#
 # -------------------------------------------------#
 # Method to initialize INAR(1) when d is Int 
 function init_dgp_op!(dgp::SINAR1, x_long, dist::DiscreteUnivariateDistribution, d::Int)
@@ -402,6 +402,44 @@ function init_dgp_op!(dgp::TINAR1, x_long::Vector{Float64}, dist::DiscreteUnivar
             x_long[i] += rand()
         end
     end
+
+    return @views x_long[1:d:end]
+end
+
+# Methods when using Conditional Expected Delay approach
+function init_dgp_op_ced!(
+    dgp::TINAR1, x_long::Vector{Float64}, pool::Vector{Float64}, d::Int
+)
+    # Fill 'x_long' with randomly drawn values from the pool
+    for i in eachindex(x_long)
+        x_long[i] = rand(pool)
+    end
+
+    # Optional: add noise
+    if dgp.add_noise
+        for i in eachindex(x_long)
+            x_long[i] += rand()
+        end
+    end
+
+    return @views x_long[1:d:end]
+end
+
+
+
+function update_dgp_op_ced!(
+    dgp::TINAR1, x_long::Vector{Float64}, pool::Vector{Float64}, d::Int
+)
+    # 1. Shift window left
+    for t in 1:(lastindex(x_long)-1)
+        x_long[t] = x_long[t+1]
+    end
+
+    # 2. Draw a new independent value from the pool
+    x_new = rand(pool)
+
+    # 3. Insert value (with noise option)
+    x_long[end] = dgp.add_noise ? x_new + rand() : x_new
 
     return @views x_long[1:d:end]
 end
