@@ -1,4 +1,5 @@
-export ICTS,
+export DiscreteDGPIC,
+    ContinuousDGPIC,
     AR1,
     TEAR1,
     MA1,
@@ -10,17 +11,33 @@ export ICTS,
     TobitINAR1
 
 
-"""
-    IC(dist::UnivariateDistribution)
+# Make abstract type for continuous and discrete DGPs
+abstract type ContinuousDGP end
+abstract type DiscreteDGP end
 
-A struct to define the in-control (IC) process. The struct contains one field, namely `dist::UnivariateDistribution`, which is the distribution of the in-control process.   
+"""
+    ContinuousDGPIC(dist::UnivariateContinuousDistribution)
+A struct to define a continuous in-control (IC) process. The struct contains one field, namely `dist::UnivariateContinuousDistribution`, which is the distribution of the in-control process.
+```julia
+ic = ContinuousDGPIC(Normal(0, 1))
+```
+"""
+struct ContinuousDGPIC
+    dist::UnivariateContinuousDistribution
+end
+
+
+"""
+    DiscreteDGPIC(dist::UnivariateDistribution)
+
+A struct to define a discrete in-control (IC) process. The struct contains one field, namely `dist::UnivariateDistribution`, which is the distribution of the in-control process.
     
 ```julia
-ic = ICTS(Normal(0, 1))
+ic = DiscreteDGPIC(Poisson(5))
 ```    
 """
-struct ICTS
-    dist::UnivariateDistribution
+struct DiscreteDGPIC
+    dist::DiscreteUnivariateDistribution
     add_noise::Bool
 end
 
@@ -37,7 +54,7 @@ A struct to define an AR(1) process:
 ar1 = AR1(0.5, Normal(0, 1))
 ```
 """
-struct AR1
+struct AR1 <: ContinuousDGP
     α::Float64
     dist::UnivariateDistribution
 end
@@ -55,7 +72,7 @@ A struct to define an MA(1) process:
 ma1 = MA1(0.5, Normal(0, 1))
 ```
 """
-struct MA1
+struct MA1 <: ContinuousDGP
     α::Float64
     dist::UnivariateDistribution
 end
@@ -74,7 +91,7 @@ A struct to define an MA(2) process:
 ma2 = MA2(0.5, 0.3, Normal(0, 1))
 ```
 """
-struct MA2
+struct MA2 <: ContinuousDGP
     α₁::Float64
     α₂::Float64
     dist::UnivariateDistribution
@@ -93,7 +110,7 @@ A struct to define a TEAR(1) process:
 tear1 = TEAR1(0.5, Normal(0, 1))
 ```
 """
-struct TEAR1
+struct TEAR1 <: ContinuousDGP
     α::Float64
     dist::UnivariateDistribution
 end
@@ -112,7 +129,7 @@ A struct to define a AAR(1) (absolute AR) process:
 aar1 = AAR1(0.5, Normal(0, 1))
 ```
 """
-struct AAR1
+struct AAR1 <: ContinuousDGP
     α::Float64
     dist::UnivariateDistribution
 end
@@ -131,7 +148,7 @@ A struct to define a QAR(1) (quadratic AR) process:
 qar1 = QAR1(0.5, Normal(0, 1))
 ```
 """
-struct QAR1
+struct QAR1 <: ContinuousDGP
     α::Float64
     dist::UnivariateDistribution
 end
@@ -153,7 +170,7 @@ where:
 - `dist::DiscreteUnivariateDistribution`: The distribution of the innovation term \$\\epsilon_t\$.
 - `add_noise::Bool`: Flag indicating whether a small amount of uniform noise should be added to the process (usually for simulating continuous-like observations from a discrete process).
 """
-struct INAR1
+struct INAR1 <: DiscreteDGP
     α::Float64
     dist::DiscreteUnivariateDistribution
     add_noise::Bool
@@ -173,7 +190,7 @@ The SINAR(1) model is a signed version of the INAR(1) process, allowing for both
 - `burn_in::Int`: The number of initial observations to discard to allow the process to reach its stationary distribution before collecting data for analysis.
 
 """
-struct SINAR1
+struct SINAR1 <: DiscreteDGP
     α::Float64
     dist::DiscreteUnivariateDistribution
     add_noise::Bool
@@ -200,7 +217,7 @@ where:
 - `add_noise::Bool`: Flag indicating whether a small amount of uniform noise should be added to the process (usually for simulating continuous-like observations from a discrete process).
 - `burn_in::Int`: The number of initial observations to discard to allow the process to reach its stationary distribution before collecting data for analysis.
 """
-struct TINAR1{T<:DiscreteUnivariateDistribution}
+struct TINAR1{T<:DiscreteUnivariateDistribution} <: DiscreteDGP
     α::Float64
     dist::T
     L::Int
@@ -226,7 +243,7 @@ The process maintains a stationary mean `μ` through its construction.
 - `dist::Nothing`: Placeholder, as the innovation distribution is implicitly Binomial/Bernoulli via the structure.
 - `add_noise::Bool`: Flag to add small noise.
 """
-struct BAR1
+struct BAR1 <: DiscreteDGP
     n::Int64
     ρ::Float64
     μ::Float64
@@ -269,7 +286,7 @@ where:
 - `dist::DiscreteUnivariateDistribution`: The distribution of the innovation term \$\\epsilon_t\$.
 - `add_noise::Bool`: Flag to add small noise.
 """
-struct DAR1
+struct DAR1 <: DiscreteDGP
     α::Float64
     dist::DiscreteUnivariateDistribution
     add_noise::Bool

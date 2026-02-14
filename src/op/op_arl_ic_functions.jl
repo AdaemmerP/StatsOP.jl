@@ -124,9 +124,9 @@ function rl_op_ic(
 
   # Compute vectors accordingly
   if d isa Int && d == 1
-    x_long = Vector{Float64}(undef, m)
+    x_seq = Vector{Float64}(undef, m)
   elseif d isa Int && d > 1
-    x_long = Vector{Float64}(undef, m + d)
+    x_seq = Vector{Float64}(undef, m + d)
   end
 
   # burn-in vector for AAR(1) and QAR(1) DGPs
@@ -144,7 +144,7 @@ function rl_op_ic(
       while icrun
 
         fill!(p, 1 / m_fact)
-        seq = init_dgp_op!(op_dgp, x_long, op_dgp_dist, d)
+        seq = init_dgp_op!(op_dgp, x_seq, op_dgp_dist, d)
 
         # Add noise when using discrete distribution
         add_noise!(vec, op_dgp_dist)
@@ -167,7 +167,7 @@ function rl_op_ic(
           # test statistic
           stat = chart_stat_op(p, chart_choice)
           # update sequence depending on DGP
-          seq = update_dgp_op!(op_dgp, x_long, op_dgp_dist, d)
+          seq = update_dgp_op!(op_dgp, x_seq, op_dgp_dist, d)
           # check whether false alarm 
           if abort_criterium_op(stat, cl, chart_choice)
             falarm = true
@@ -188,9 +188,9 @@ function rl_op_ic(
 
     # check whether to use ced. If ced is used, update observations. Otherwise, initialize observations
     if ced
-      seq = update_dgp_op!(op_dgp, x_long, op_dgp_dist, d)
+      seq = update_dgp_op!(op_dgp, x_seq, op_dgp_dist, d)
     else
-      seq = init_dgp_op!(op_dgp, x_long, op_dgp_dist, d)
+      seq = init_dgp_op!(op_dgp, x_seq, op_dgp_dist, d)
       fill!(p, 1 / m_fact)
       stat = chart_stat_op(p, chart_choice)
     end
@@ -211,7 +211,7 @@ function rl_op_ic(
       # statistic based on smoothed p-estimate
       stat = chart_stat_op(p, chart_choice)
       # update sequence depending on DGP
-      seq = update_dgp_op!(op_dgp, x_long, op_dgp_dist, d)
+      seq = update_dgp_op!(op_dgp, x_seq, op_dgp_dist, d)
     end
 
     rls[r] = rl

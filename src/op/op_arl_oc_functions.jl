@@ -117,36 +117,45 @@ function rl_op_oc(
   bin = zeros(Int, m_fact)
   win = zeros(Int, m)
 
+  # Create pool vector for CED runs (if "ced=true")
+  # If true, create and fill vector with initial values
+  pool_vector = if ced
+    Vector{Float64}(undef, 10_000)
+    init_dgp_op!(dgp, pool_vector, dist, 1)
+  else
+    Float64[]
+  end
+
   # Check for MA1 and MA2 and compute length of the vectors accordingly
   if op_dgp isa MA1
 
     if d isa Int && d == 1
-      x_long = Vector{Float64}(undef, m + 1)
-      eps_long = similar(x_long)
+      x_seq = Vector{Float64}(undef, m + 1)
+      eps_long = similar(x_seq)
     elseif d isa Int && d > 1
-      x_long = Vector{Float64}(undef, m + d + 1)
-      eps_long = similar(x_long)
+      x_seq = Vector{Float64}(undef, m + d + 1)
+      eps_long = similar(x_seq)
     end
 
   elseif op_dgp isa MA2
 
     if d isa Int && d == 1
-      x_long = Vector{Float64}(undef, m + 2)
-      eps_long = similar(x_long)
+      x_seq = Vector{Float64}(undef, m + 2)
+      eps_long = similar(x_seq)
     elseif d isa Int && d > 1
-      x_long = Vector{Float64}(undef, m + d + 2)
-      eps_long = similar(x_long)
+      x_seq = Vector{Float64}(undef, m + d + 2)
+      eps_long = similar(x_seq)
     end
 
     # Anything other than MA1 or MA2
   else
 
     if d isa Int && d == 1
-      x_long = Vector{Float64}(undef, m)
-      eps_long = similar(x_long)
+      x_seq = Vector{Float64}(undef, m)
+      eps_long = similar(x_seq)
     elseif d isa Int && d > 1
-      x_long = Vector{Float64}(undef, m + d)
-      eps_long = similar(x_long)
+      x_seq = Vector{Float64}(undef, m + d)
+      eps_long = similar(x_seq)
     end
 
   end
@@ -165,7 +174,7 @@ function rl_op_oc(
       while icrun
 
         fill!(p, 1 / 6)
-        seq = init_dgp_op_ced!(op_dgp, x_long, d)
+        seq = init_dgp_op_ced!(gop_dgp, x_seq, pool_vector, d)
 
         falarm = false
 
@@ -185,7 +194,7 @@ function rl_op_oc(
           # test statistic
           stat = chart_stat_op(p, chart_choice)
           # update sequence depending on DGP
-          seq = update_dgp_op_ced!(op_dgp, x_long, d)
+          seq = update_dgp_op_ced!(gop_dgp, x_seq, pool_vector, d)
           # check whether false alarm 
           if abort_criterium_op(stat, cl, chart_choice)
             falarm = true
@@ -206,9 +215,9 @@ function rl_op_oc(
 
     # check whether to use ced. If ced is used, update observations. Otherwise, initialize observations
     if ced
-      seq = update_dgp_op!(op_dgp, x_long, eps_long, op_dgp_dist, d)
+      seq = update_dgp_op!(op_dgp, x_seq, eps_long, op_dgp_dist, d)
     else
-      seq = init_dgp_op!(op_dgp, x_long, eps_long, op_dgp_dist, d, xbiv)
+      seq = init_dgp_op!(op_dgp, x_seq, eps_long, op_dgp_dist, d, xbiv)
       fill!(p, 1 / m_fact)
       stat = chart_stat_op(p, chart_choice)
     end
@@ -229,7 +238,7 @@ function rl_op_oc(
       # statistic based on smoothed p-estimate
       stat = chart_stat_op(p, chart_choice)
       # update sequence depending on DGP
-      seq = update_dgp_op!(op_dgp, x_long, eps_long, op_dgp_dist, d)
+      seq = update_dgp_op!(op_dgp, x_seq, eps_long, op_dgp_dist, d)
     end
 
     rls[r] = rl
@@ -254,32 +263,32 @@ function rl_op_oc(
   if op_dgp isa MA1
 
     if d isa Int && d == 1
-      x_long = Vector{Float64}(undef, m + 1)
-      eps_long = similar(x_long)
+      x_seq = Vector{Float64}(undef, m + 1)
+      eps_long = similar(x_seq)
     elseif d isa Int && d > 1
-      x_long = Vector{Float64}(undef, m + d + 1)
-      eps_long = similar(x_long)
+      x_seq = Vector{Float64}(undef, m + d + 1)
+      eps_long = similar(x_seq)
     end
 
   elseif op_dgp isa MA2
 
     if d isa Int && d == 1
-      x_long = Vector{Float64}(undef, m + 2)
-      eps_long = similar(x_long)
+      x_seq = Vector{Float64}(undef, m + 2)
+      eps_long = similar(x_seq)
     elseif d isa Int && d > 1
-      x_long = Vector{Float64}(undef, m + d + 2)
-      eps_long = similar(x_long)
+      x_seq = Vector{Float64}(undef, m + d + 2)
+      eps_long = similar(x_seq)
     end
 
     # Anything other than MA1 or MA2
   else
 
     if d isa Int && d == 1
-      x_long = Vector{Float64}(undef, m)
-      eps_long = similar(x_long)
+      x_seq = Vector{Float64}(undef, m)
+      eps_long = similar(x_seq)
     elseif d isa Int && d > 1
-      x_long = Vector{Float64}(undef, m + d)
-      eps_long = similar(x_long)
+      x_seq = Vector{Float64}(undef, m + d)
+      eps_long = similar(x_seq)
     end
   end
 
@@ -295,7 +304,7 @@ function rl_op_oc(
       while icrun
 
         fill!(p, 1 / 6)
-        seq = init_dgp_op_ced!(op_dgp, x_long, d)
+        seq = init_dgp_op_ced!(op_dgp, x_seq, d)
 
         falarm = false
 
@@ -315,14 +324,14 @@ function rl_op_oc(
           # test statistic
           stat = chart_stat_op(p, chart_choice)
           # update sequence depending on DGP
-          seq = update_dgp_op_ced!(op_dgp, x_long, d)
+          seq = update_dgp_op_ced!(op_dgp, x_seq, d)
           # check whether false alarm 
           if abort_criterium_op(stat, cl, chart_choice)
             falarm = true
           end
 
         end # for ad run
-        # in case of no false alarm, set icrun to false and step out of while loop
+        # false alarm -> set icrun to false and step out of while loop
         if falarm == false
           icrun = false
         end
@@ -336,9 +345,9 @@ function rl_op_oc(
 
     # check whether to use ced. If ced is used, update observations. Otherwise, initialize observations
     if ced
-      seq = update_dgp_op!(op_dgp, x_long, op_dgp_dist, d)
+      seq = update_dgp_op!(op_dgp, x_seq, op_dgp_dist, d)
     else
-      seq = init_dgp_op!(op_dgp, x_long, op_dgp_dist, d)
+      seq = init_dgp_op!(op_dgp, x_seq, op_dgp_dist, d)
       fill!(p, 1 / m_fact)
       stat = chart_stat_op(p, chart_choice)
     end
@@ -359,7 +368,7 @@ function rl_op_oc(
       # statistic based on smoothed p-estimate
       stat = chart_stat_op(p, chart_choice)
       # update sequence depending on DGP
-      seq = update_dgp_op!(op_dgp, x_long, op_dgp_dist, d)
+      seq = update_dgp_op!(op_dgp, x_seq, op_dgp_dist, d)
     end
 
     rls[r] = rl
@@ -384,26 +393,26 @@ function rl_op_oc(
   if op_dgp isa MA1
 
     if d isa Int && d == 1
-      x_long = Vector{Float64}(undef, m + 1)
+      x_seq = Vector{Float64}(undef, m + 1)
     elseif d isa Int && d > 1
-      x_long = Vector{Float64}(undef, m + d + 1)
+      x_seq = Vector{Float64}(undef, m + d + 1)
     end
 
   elseif op_dgp isa MA2
 
     if d isa Int && d == 1
-      x_long = Vector{Float64}(undef, m + 2)
+      x_seq = Vector{Float64}(undef, m + 2)
     elseif d isa Int && d > 1
-      x_long = Vector{Float64}(undef, m + d + 2)
+      x_seq = Vector{Float64}(undef, m + d + 2)
     end
 
     # Anything other than MA1 or MA2
   else
 
     if d isa Int && d == 1
-      x_long = Vector{Float64}(undef, m)
+      x_seq = Vector{Float64}(undef, m)
     elseif d isa Int && d > 1
-      x_long = Vector{Float64}(undef, m + d)
+      x_seq = Vector{Float64}(undef, m + d)
     end
   end
 
@@ -419,7 +428,7 @@ function rl_op_oc(
       while icrun
 
         fill!(p, 1 / 6)
-        seq = init_dgp_op_ced!(op_dgp, x_long, d)
+        seq = init_dgp_op_ced!(op_dgp, x_seq, d)
 
         falarm = false
 
@@ -439,7 +448,7 @@ function rl_op_oc(
           # test statistic
           stat = chart_stat_op(p, chart_choice)
           # update sequence depending on DGP
-          seq = update_dgp_op_ced!(op_dgp, x_long, d)
+          seq = update_dgp_op_ced!(op_dgp, x_seq, d)
           # check whether false alarm 
           if abort_criterium_op(stat, cl, chart_choice)
             falarm = true
@@ -460,9 +469,9 @@ function rl_op_oc(
 
     # check whether to use ced. If ced is used, update observations. Otherwise, initialize observations
     if ced
-      seq = update_dgp_op!(op_dgp, x_long, op_dgp_dist, d)
+      seq = update_dgp_op!(op_dgp, x_seq, op_dgp_dist, d)
     else
-      seq = init_dgp_op!(op_dgp, x_long, op_dgp_dist, d)
+      seq = init_dgp_op!(op_dgp, x_seq, op_dgp_dist, d)
       fill!(p, 1 / m_fact)
       stat = chart_stat_op(p, chart_choice)
     end
@@ -483,7 +492,7 @@ function rl_op_oc(
       # statistic based on smoothed p-estimate
       stat = chart_stat_op(p, chart_choice)
       # update sequence depending on DGP
-      seq = update_dgp_op!(op_dgp, x_long, op_dgp_dist, d)
+      seq = update_dgp_op!(op_dgp, x_seq, op_dgp_dist, d)
     end
 
     rls[r] = rl
