@@ -16,7 +16,7 @@ export ICTS,
 A struct to define the in-control (IC) process. The struct contains one field, namely `dist::UnivariateDistribution`, which is the distribution of the in-control process.   
     
 ```julia
-ic = IC(Normal(0, 1))
+ic = ICTS(Normal(0, 1))
 ```    
 """
 struct ICTS

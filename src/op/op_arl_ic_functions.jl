@@ -40,7 +40,9 @@ Function to compute the average run length (ARL) for ordinal patterns using the 
 end 
 
 # Run function
-arl_op(0.1, cl_init, IC(Normal(0, 1)), 10_000; chart_choice=1, d=1, ced=false, ad=100)
+arl_op(
+  0.1, cl_init, IC(Normal(0, 1)), 10_000; chart_choice=1, d=1, ced=false, ad=100
+  )
 ```
 """
 function arl_op_ic(
@@ -59,7 +61,9 @@ function arl_op_ic(
     # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
     par_results = map(chunks) do i
 
-      Threads.@spawn rl_op_ic(op_dgp, lam, cl, i, op_dgp.dist, chart_choice; d=d, m=m, ced=ced, ad=ad)
+      Threads.@spawn rl_op_ic(
+        op_dgp, lam, cl, i, op_dgp.dist, chart_choice; d=d, m=m, ced=ced, ad=ad
+      )
 
     end
 
@@ -70,7 +74,8 @@ function arl_op_ic(
 
     par_results = pmap(chunks) do i
       rl_op_ic(
-        op_dgp, lam, cl, i, op_dgp.dist, chart_choice; d=d, m=m, ced=ced, ad=ad)
+        op_dgp, lam, cl, i, op_dgp.dist, chart_choice; d=d, m=m, ced=ced, ad=ad
+      )
 
     end
 
@@ -111,10 +116,10 @@ function rl_op_ic(
 
   # Pre-allocate variables
   m_fact = factorial(m)
-  rls = zeros(Int, length(p_reps)) # Vector{Int64}(undef, length(p_reps))
-  p = zeros(Float64, m_fact) # Vector{Float64}(undef, m_fact)
-  bin = zeros(Int, m_fact) # Vector{Int64}(undef, m_fact)
-  win = zeros(Int, m) # Vector{Int64}(undef, m)
+  rls = zeros(Int, length(p_reps))
+  p = zeros(Float64, m_fact)
+  bin = zeros(Int, m_fact)
+  win = zeros(Int, m)
   idx_used = similar(win)
 
   # Compute vectors accordingly
@@ -139,7 +144,7 @@ function rl_op_ic(
       while icrun
 
         fill!(p, 1 / m_fact)
-        seq = init_dgp_op_ced!(op_dgp, x_long, d)
+        seq = init_dgp_op!(op_dgp, x_long, op_dgp_dist, d)
 
         # Add noise when using discrete distribution
         add_noise!(vec, op_dgp_dist)
@@ -162,7 +167,7 @@ function rl_op_ic(
           # test statistic
           stat = chart_stat_op(p, chart_choice)
           # update sequence depending on DGP
-          seq = update_dgp_op_ced!(op_dgp, x_long, d)
+          seq = update_dgp_op!(op_dgp, x_long, op_dgp_dist, d)
           # check whether false alarm 
           if abort_criterium_op(stat, cl, chart_choice)
             falarm = true
