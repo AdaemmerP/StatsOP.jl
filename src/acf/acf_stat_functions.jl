@@ -1,3 +1,5 @@
+export stat_acf
+
 function stat_acf(
   data, lam, cl, p_reps, acf_dgp, acf_dgp_dist, acf_version
 )

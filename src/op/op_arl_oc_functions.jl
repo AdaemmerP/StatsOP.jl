@@ -56,7 +56,7 @@ function arl_op_oc(
     # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
     par_results = map(chunks) do i
 
-      Threads.@spawn rl_op_oc(
+      Threads.@spawn rl_acf_oc(
         op_dgp, lam, cl, i, op_dgp.dist, chart_choice,
         d, m, ced, ad
       )
@@ -69,7 +69,7 @@ function arl_op_oc(
     chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
 
     par_results = pmap(chunks) do i
-      rl_op_oc(
+      rl_acf_oc(
         op_dgp, lam, cl, i, op_dgp.dist, chart_choice,
         d, m, ced, ad
       )
@@ -86,7 +86,7 @@ end
 
 
 """
-    rl_op_oc( op_dgp, lam, cl, lookup_array_op, p_reps,
+    rl_acf_oc( op_dgp, lam, cl, lookup_array_op, p_reps,
       op_dgp_dist, chart_choice; d::Union{Int,Vector{Int}}=1, ced=false, ad=100)
 
 Function to compute run length for ordinal patterns. 
@@ -106,7 +106,7 @@ Function to compute run length for ordinal patterns.
 rl_op(0.1, 3.0, lookup_array_op, 1:10_000, IC(Normal(0, 1)), Normal(0, 1), 1; d=1, ced=false, ad=100)
 ```
 """
-function rl_op_oc(
+function rl_acf_oc(
   op_dgp, lam, cl, p_reps, op_dgp_dist::Union{ContinuousUnivariateDistribution,Nothing}, chart_choice, d, m, ced, ad
 )
 
@@ -248,7 +248,7 @@ function rl_op_oc(
 end
 
 
-function rl_op_oc(
+function rl_acf_oc(
   op_dgp, lam, cl, p_reps, op_dgp_dist::DiscreteUnivariateDistribution, chart_choice, d, m, ced, ad
 )
 
@@ -378,7 +378,7 @@ function rl_op_oc(
 end
 
 
-function rl_op_oc(
+function rl_acf_oc(
   op_dgp, lam, cl, p_reps, op_dgp_dist::Nothing, chart_choice, d, m, ced, ad
 )
 
