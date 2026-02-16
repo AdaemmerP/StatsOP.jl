@@ -1,5 +1,5 @@
 
-zzzz"""
+"""
     arl_op_ic( op_dgp, lam, cl, reps=10_000; chart_choice, d=1, ced=false, ad=100)
 
 Function to compute the average run length (ARL) for ordinal patterns using the EWMA statistic. The function implements the test statistics by Weiss and Testik (2023), who use a pattern length of 3. 
@@ -61,7 +61,7 @@ function arl_op_ic(
     # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
     par_results = map(chunks) do i
 
-      Threads.@spawn rl_acf_ic(
+      Threads.@spawn rl_op_ic(
         op_dgp, lam, cl, i, op_dgp.dist, chart_choice; d=d, m=m, ced=ced, ad=ad
       )
 
@@ -73,7 +73,7 @@ function arl_op_ic(
     chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
 
     par_results = pmap(chunks) do i
-      rl_acf_ic(
+      rl_op_ic(
         op_dgp, lam, cl, i, op_dgp.dist, chart_choice; d=d, m=m, ced=ced, ad=ad
       )
 
@@ -89,7 +89,7 @@ end
 
 
 """
-    rl_acf_ic(lam, cl, lookup_array_op, p_reps, op_dgp,
+    rl_op_ic(lam, cl, lookup_array_op, p_reps, op_dgp,
       op_dgp_dist, chart_choice; d::Union{Int,Vector{Int}}=1, ced=false, ad=100)
 
 Function to compute run length for ordinal patterns. 
@@ -109,7 +109,7 @@ Function to compute run length for ordinal patterns.
 rl_op(0.1, 3.0, lookup_array_op, 1:10_000, IC(Normal(0, 1)), Normal(0, 1), 1; d=1, ced=false, ad=100)
 ```
 """
-function rl_acf_ic(
+function rl_op_ic(
   op_dgp::Union{ContinuousDGPIC,DiscreteDGPIC}, lam, cl, p_reps,
   op_dgp_dist, chart_choice; d::Int=1, m::Int, ced=false, ad=100
 )
