@@ -8,6 +8,7 @@ export DiscreteDGPIC,
     INAR1,
     BAR1,
     DAR1,
+    WDAR1,
     TobitINAR1
 
 
@@ -290,4 +291,34 @@ struct DAR1 <: DiscreteDGP
     α::Float64
     dist::DiscreteUnivariateDistribution
     add_noise::Bool
+end
+
+
+"""
+    WDAR1(α, W, dist, add_noise)
+**W**eighted **D**iscrete **A**uto**R**egressive process of order 1.
+The WDAR(1) model is a generalization of the DAR(1) process that allows for a weighted combination of multiple past values. The process is defined by:
+\$\$X_t = \\alpha \\cdot \\sum_{j=1}^{m} W_{j} X_{t-j} + (1 - \\alpha) \\cdot \\epsilon_t\$\$
+where:
+* \$W_j\$ are the weights for the past values, which sum to 1.
+* \$\\epsilon_t\$ is an independent sequence of random variables (the innovation).
+# Fields
+- `α::Float64`: The autoregressive parameter (weighting factor). Must be in \$(0, 1)\$.
+- `W::Matrix{Float64}`: A matrix of weights for the past values. Each column corresponds to a different lag, and the weights in each column should sum to 1.
+- `W_samplers::Vector{Distributions.AliasTable}`: A vector of samplers corresponding to the columns of `W`, used for efficient sampling from the weighted past values.
+- `dist::Categorical`: The distribution of the innovation term \$\\epsilon_t\$. This is typically a categorical distribution that matches the support of the process.   
+- `add_noise::Bool`: Flag to add small noise.
+"""
+struct WDAR1
+    α::Float64
+    W::Matrix{Float64}
+    W_samplers::Vector{Distributions.AliasTable}
+    dist::Categorical
+    add_noise::Bool
+end
+
+# Constructor computes the samplers for each column of W
+function WDAR1(α::Float64, W::Matrix{Float64}, dist::Categorical, add_noise::Bool)
+    samps = [sampler(Categorical(W[:, j])) for j in 1:size(W, 2)]
+    return WDAR1(α, W, samps, dist, add_noise)
 end

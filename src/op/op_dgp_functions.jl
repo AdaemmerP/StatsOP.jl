@@ -460,7 +460,11 @@ end
 
 # Method to initialize DAR(1) when d is Int 
 function init_dgp_op!(dgp::DAR1, x_long, dist_error, d::Int)
+
+    # First draw
     x_long[1] = rand(dist_error)
+
+    # Fill
     for i in 2:lastindex(x_long)
         if rand(Binomial(1, dgp.α)) == 0
             x_long[i] = rand(dist_error)
@@ -468,12 +472,14 @@ function init_dgp_op!(dgp::DAR1, x_long, dist_error, d::Int)
             x_long[i] = x_long[i-1]
         end
     end
+
     # add noise ? 
     if dgp.add_noise
         for i in axes(x_long, 1)
             x_long[i] += rand()
         end
     end
+
     return @views x_long[1:d:end]
 end
 
@@ -498,6 +504,53 @@ function update_dgp_op!(dgp::DAR1, x_long, dist_error, d::Int)
     end
     return @views x_long[1:d:end]
 end
+
+# -------------------------------------------------#
+# ---------------  WDAR(1) methods ----------------#
+# -------------------------------------------------#
+function init_dgp_op!(dgp::WDAR1, x_long, dist_error::Categorical, d::Int)
+    # 1. Initialize first value
+    x_long[1] = rand(dist_error)
+
+    # 2. Fill the rest of the path
+    for i in 2:lastindex(x_long)
+        if rand(Bernoulli(dgp.α))
+            prev_idx = Int(floor(x_long[i-1]))
+            x_long[i] = rand(dgp.W_samplers[prev_idx])
+        else
+            x_long[i] = rand(dist_error)
+        end
+    end
+
+    # Add noise?
+    if dgp.add_noise
+        for i in eachindex(x_long)
+            x_long[i] += rand()
+        end
+    end
+
+    return @views x_long[1:d:end]
+end
+
+# Update
+function update_dgp_op!(dgp::WDAR1, x_long, dist_error::Categorical, d::Int)
+
+    for i in 1:(lastindex(x_long)-1)
+        x_long[i] = x_long[i+1]
+    end
+
+    new_val = if rand(Bernoulli(dgp.α))
+        x_prev = Int(floor(x_long[end-1]))
+        rand(dgp.W_samplers[x_prev])
+    else
+        rand(dist_error)
+    end
+
+    x_long[end] = dgp.add_noise ? new_val + rand() : new_val
+
+    return @views x_long[1:d:end]
+end
+
 
 # --------------------------------------------------------------------#
 # ----  Methods to initializize and update vectors for CED -----------#
