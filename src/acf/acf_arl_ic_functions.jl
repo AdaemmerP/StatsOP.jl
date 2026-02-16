@@ -1,18 +1,123 @@
 
-"""
-    arl_acf(lam, cl, acf_dgp, reps=10000)
+function arl_acf_ic(lam, cl, acf_dgp, reps; ced=false, ad=100)
 
-Function to compute the average run length (ARL) for a specified DGP using the ACF statistic by XXX.
+  # Check whether to use threading or multi processing --> only one process threading, else distributed
+  if nprocs() == 1
 
-- `lam::Float64`: Smoothing parameter for the EWMA statistic.
-- `cl::Float64`: Control limit for the ACF statistic.
-- `acf_dgp::Union{IC, AR1, TEAR1}`: DGP.
-- `reps::Int64`: Number of replications.  
+    # Make chunks for separate tasks (based on number of threads)        
+    chunks = Iterators.partition(1:reps, div(reps, Threads.nthreads())) |> collect
 
-```julia
-arl_acf(0.1, 3.0, IC(Normal(0, 1)), 10000)
-```
-"""
+    # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
+    par_results = map(chunks) do i
+      Threads.@spawn rl_acf_ic(lam, cl, i, acf_dgp, acf_dgp.dist; ced=ced, ad=ad)
+
+    end
+
+  elseif nprocs() > 1
+
+    # Make chunks for separate tasks (based on number of workers)
+    chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
+
+    par_results = pmap(chunks) do i
+      rl_acf_ic(lam, cl, i, acf_dgp, acf_dgp.dist; ced=ced, ad=ad)
+    end
+
+  end
+
+  # Collect results from tasks
+  rls = fetch.(par_results)
+  rlvec = Iterators.flatten(rls) |> collect
+  return (mean(rlvec), std(rlvec) / sqrt(reps))
+end
+
+function rl_acf_ic(lam, cl, p_reps, acf_dgp, dgp_dist_ic; ced=false, ad=100)
+
+  # Pre-allocate 
+  rls = Vector{Int64}(undef, length(p_reps))
+  x_vec = Vector{Float64}(undef, 2)
+
+  for r in 1:length(p_reps)
+
+    cₜ = 0.0
+    sₜ = var(dgp_dist_ic)
+    μ₀ = mean(dgp_dist_ic)
+
+    # -------------------------------------------------------------------------#
+    # ---------------------      check whether to use CED     -----------------#
+    # -------------------------------------------------------------------------#
+    if ced
+
+      icrun = true
+
+      while icrun
+
+        # Initialize 
+        init_dgp_op!(acf_dgp, x_vec, dgp_dist_ic, 1)
+        falarm = false
+
+        for _ in 1:ad
+
+          # Compute statistic 
+          cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1.0 - lam) * cₜ
+          sₜ = lam * (x_vec[2] - μ₀)^2 + (1.0 - lam) * sₜ
+          acf_stat = cₜ / sₜ
+
+          update_dgp_op!(acf_dgp, x_vec, dgp_dist_ic, 1)
+
+          # check whether false alarm 
+          if abs(acf_stat) > cl
+            falarm = true
+          end
+
+        end # for ad run
+        # in case of no false alarm, set icrun to false and step out of while loop
+        if falarm == false
+          icrun = false
+        end
+      end
+
+    end
+
+    rl = 0
+
+    # check whether to use ced. If ced is used, update observations. 
+    # Otherwise, initialize observations
+    if ced
+      update_dgp_op!(acf_dgp, x_vec, dgp_dist_ic, 1)
+    else
+      # Initialize values for statistic
+      init_dgp_op!(acf_dgp, x_vec, dgp_dist_ic, 1)
+      cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1.0 - lam) * cₜ
+      sₜ = lam * (x_vec[2] - μ₀)^2 + (1.0 - lam) * sₜ
+      acf_stat = cₜ / sₜ
+    end
+
+    while abs(acf_stat) < cl
+
+      # increase run length
+      rl += 1
+
+      # Equation (3), page 3 in the paper
+      cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1.0 - lam) * cₜ
+      sₜ = lam * (x_vec[2] - μ₀)^2 + (1.0 - lam) * sₜ
+      acf_stat = cₜ / sₜ
+
+      # update x_vec depending on DGP
+      update_dgp_op!(acf_dgp, x_vec, dgp_dist_ic, 1)
+
+    end
+
+    rls[r] = rl
+  end
+  return rls
+end
+
+
+
+
+# -----------------------------------------------------------------------------#
+# --------            Only for testing different versions ---------------------#
+# -----------------------------------------------------------------------------#
 function arl_acf_ic(lam, cl, acf_dgp, reps, acf_version)
 
   # Check whether to use threading or multi processing --> only one process threading, else distributed
