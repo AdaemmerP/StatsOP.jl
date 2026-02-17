@@ -161,7 +161,6 @@ function rl_kappa_ic(
 )
   rls = zeros(Int64, length(p_reps))
   p_low, p_high = 1e-12, 1 - 1e-12
-
   sup_lb = isfinite(minimum(qual_dgp_dist)) ? minimum(qual_dgp_dist) : quantile(qual_dgp_dist, p_low)
   sup_ub = isfinite(maximum(qual_dgp_dist)) ? maximum(qual_dgp_dist) : quantile(qual_dgp_dist, p_high)
   sup = collect(sup_lb:sup_ub)
@@ -203,7 +202,9 @@ function rl_kappa_ic(
   lam, cl, p_reps, qual_dgp, qual_dgp_dist, chart_choice::KappaN2
 )
   rls = zeros(Int64, length(p_reps))
-  # ... [Support calculation same as above] ...
+  p_low, p_high = 1e-12, 1 - 1e-12
+  sup_lb = isfinite(minimum(qual_dgp_dist)) ? minimum(qual_dgp_dist) : quantile(qual_dgp_dist, p_low)
+  sup_ub = isfinite(maximum(qual_dgp_dist)) ? maximum(qual_dgp_dist) : quantile(qual_dgp_dist, p_high)
   sup = collect(sup_lb:sup_ub)
 
   Bₜ, Bₜ₋₁ = zeros(Int, length(sup)), zeros(Int, length(sup))
@@ -237,7 +238,9 @@ function rl_kappa_ic(
   lam, cl, p_reps, qual_dgp, qual_dgp_dist, chart_choice::KappaO1
 )
   rls = zeros(Int64, length(p_reps))
-  # ... [Support calculation same as above] ...
+  p_low, p_high = 1e-12, 1 - 1e-12
+  sup_lb = isfinite(minimum(qual_dgp_dist)) ? minimum(qual_dgp_dist) : quantile(qual_dgp_dist, p_low)
+  sup_ub = isfinite(maximum(qual_dgp_dist)) ? maximum(qual_dgp_dist) : quantile(qual_dgp_dist, p_high)
   sup = collect(sup_lb:sup_ub)
 
   Bₜ, Bₜ₋₁ = zeros(Int, length(sup)), zeros(Int, length(sup))
@@ -274,7 +277,9 @@ function rl_kappa_ic(
   lam, cl, p_reps, qual_dgp, qual_dgp_dist, chart_choice::KappaO2
 )
   rls = zeros(Int64, length(p_reps))
-  # ... [Support calculation same as above] ...
+  p_low, p_high = 1e-12, 1 - 1e-12
+  sup_lb = isfinite(minimum(qual_dgp_dist)) ? minimum(qual_dgp_dist) : quantile(qual_dgp_dist, p_low)
+  sup_ub = isfinite(maximum(qual_dgp_dist)) ? maximum(qual_dgp_dist) : quantile(qual_dgp_dist, p_high)
   sup = collect(sup_lb:sup_ub)
 
   Bₜ, Bₜ₋₁ = zeros(Int, length(sup)), zeros(Int, length(sup))
