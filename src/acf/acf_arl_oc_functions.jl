@@ -74,7 +74,7 @@ function rl_acf_ic(lam, cl, p_reps, acf_dgp, dgp_dist_ic; ced=false, ad=100)
 
           if abs(acf_stat) > cl
             falarm = true
-            break
+            break # Exit directly when a false alarm occurs
           end
         end
 

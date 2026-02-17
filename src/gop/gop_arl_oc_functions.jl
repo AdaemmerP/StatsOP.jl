@@ -56,10 +56,11 @@ end
 
 #--- Run-length method for D-Chart
 function rl_gop_oc(
-  lam, cl, lookup_array_gop, p_reps, gop_dgp, gop_dgp_dist, null_dist, chart_choice::Union{D_Chart,Persistence}, d::Int, ced::Bool, ad::Int
+  lam, cl, lookup_array_gop, p_reps, gop_dgp, gop_dgp_dist, null_dist,
+  chart_choice::Union{D_Chart,Persistence}, d::Int, ced::Bool, ad::Int
 )
 
-  # value of patterns (can become variable in future versions)
+  # Pattern size
   m = 3
 
   # Pre-allocate variables
@@ -69,109 +70,90 @@ function rl_gop_oc(
   ix = similar(win)
   pₜ = zeros(13)
   p₀ = zeros(13)
-  pₜ_p₀ = zeros(13) # for "pₜ - p₀"
+  pₜ_p₀ = zeros(13)
   fill_p0!(p₀, null_dist)
 
-  # compute length of 'x_seq' vector based on d
+  # Compute length of 'x_seq' vector based on delay d
   x_seq = zeros(1 + (m - 1) * d)
 
-  # Create pool vector for CED runs (if "ced=true")
-  # If true, create and fill vector with initial values
+  # Create pool vector for CED runs (stationary distribution of null process)
   if ced
     pool_vector = Vector{Float64}(undef, 10_000)
-    init_dgp_op!(dgp, pool_vector, dist, 1)
+    # Using null_dist to represent the in-control stationary state
+    init_dgp_op!(gop_dgp, pool_vector, null_dist, 1)
   else
     pool_vector = Float64[]
   end
 
-  for r in axes(p_reps, 1) # p_reps is a range
+  for r in axes(p_reps, 1)
 
     #----------------------------------------------------------------------#
-    #---------   Use Conditional Expected Delay (CED)?  -------------------#
+    # 1. Initialization / CED Phase (In-Control stationary phase)
     #----------------------------------------------------------------------#
     if ced
-
       icrun = true
-
       while icrun
-
-        # initialze EWMA statistic, Equation (17), in the paper
-
-        # Initialize observations
         pₜ .= p₀
+        # Initialize x_seq from the stationary pool
         seq = init_dgp_op_ced!(gop_dgp, x_seq, pool_vector, d)
-
         falarm = false
-        # Loop for "in-control" run
+
         for _ in 1:ad
-
           bin .= 0
-
-          # compute ordinal pattern based on permutations    
           competerank!(win, seq, ix)
-
-          # Binarization of ordinal pattern
           j, k, l = win
           bin[lookup_array_gop[j, k, l]] = 1
 
-          # Compute EWMA statistic, Equation (17), in the paper
+          # Update EWMA using null mean p₀
           @. pₜ = lam * bin + (1 - lam) * pₜ
           @. pₜ_p₀ = pₜ - p₀
           stat = chart_stat_gop(pₜ_p₀, chart_choice)
 
-          # update sequence depending on DGP
+          # Update from stationary pool
           seq = update_dgp_op_ced!(gop_dgp, x_seq, pool_vector, d)
           fill!(win, 0)
 
-          if stat > cl
+          if abort_criterium_gop(stat, cl, chart_choice)
             falarm = true
+            break
           end
+        end
 
-        end # for ad run
-
-        if falarm == false
+        if !falarm
           icrun = false
         end
       end
-
-    end
-    #----------------------------------------------------------------------#
-
-    if ced
-      seq = update_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
+      # Transition: No extra update here. 
+      # seq is ready for the first OOC observation from gop_dgp_dist.
     else
-      # initialze EWMA statistic, Equation (17), in the paper
+      # Standard initialization for immediate OOC phase
       pₜ .= p₀
-      # Initialize observations
       seq = init_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
-
-      # initial statistic
-      @. pₜ_p₀ = pₜ - p₀
+      # Neutral start to ensure loop enters and processes first point at rl=1
+      @. pₜ_p₀ = 0.0
       stat = chart_stat_gop(pₜ_p₀, chart_choice)
     end
 
-    # initialize run length at zero
+    #----------------------------------------------------------------------#
+    # 2. Run Length (RL) Phase (Out-of-Control)
+    #----------------------------------------------------------------------#
     rl = 0
 
     while !abort_criterium_gop(stat, cl, chart_choice)
-      # increase run length
       rl += 1
       bin .= 0
 
-      # compute ordinal pattern based on permutations    
+      # compute ordinal pattern on current sequence
       competerank!(win, seq, ix)
-
-      # Binarization of ordinal pattern
       j, k, l = win
       bin[lookup_array_gop[j, k, l]] = 1
 
-      # Compute EWMA statistic, Equation (17), in the paper
+      # Update EWMA
       @. pₜ = lam * bin + (1 - lam) * pₜ
-      # statistic based on smoothed pₜ-estimate
       @. pₜ_p₀ = pₜ - p₀
       stat = chart_stat_gop(pₜ_p₀, chart_choice)
 
-      # update sequence depending on DGP
+      # update sequence depending on OOC DGP
       seq = update_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
       fill!(win, 0)
     end

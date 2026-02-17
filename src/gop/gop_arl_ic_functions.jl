@@ -60,7 +60,7 @@ function rl_gop_ic(
     chart_choice::Union{D_Chart,Persistence}, d::Int, ced::Bool, ad::Int
 )
 
-    # value of patterns (can become variable in future versions)
+    # pattern size
     m = 3
 
     # Pre-allocate variables
@@ -70,97 +70,82 @@ function rl_gop_ic(
     ix = similar(win)
     pₜ = zeros(13)
     p₀ = zeros(13)
-    pₜ_p₀ = zeros(13) # for "pₜ - p₀"
+    pₜ_p₀ = zeros(13)
     fill_p0!(p₀, gop_dgp_dist)
 
-    # compute length of 'x_seq' vector based on d
+    # compute sequence vector length based on delay d
     x_seq = zeros(1 + (m - 1) * d)
 
-    for r in axes(p_reps, 1) # p_reps is a range
+    for r in axes(p_reps, 1)
 
         #----------------------------------------------------------------------#
-        #---------   Use Conditional Expected Delay (CED)?  -------------------#
+        # 1. Initialization / CED Phase
         #----------------------------------------------------------------------#
         if ced
-
             icrun = true
-
             while icrun
-
-                # Initialize observations
                 pₜ .= p₀
                 seq = init_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
-
                 falarm = false
+
                 for _ in 1:ad
-
                     bin .= 0
-
-                    # compute ordinal pattern based on permutations    
                     competerank!(win, seq, ix)
-
-                    # Binarization of ordinal pattern
                     j, k, l = win
                     bin[lookup_array_gop[j, k, l]] = 1
 
-                    # Compute EWMA statistic, Equation (17), in the paper
                     @. pₜ = lam * bin + (1 - lam) * pₜ
                     @. pₜ_p₀ = pₜ - p₀
                     stat = chart_stat_gop(pₜ_p₀, chart_choice)
 
-                    # update sequence depending on DGP
+                    # Update prepares the sequence for the next step
                     seq = update_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
                     fill!(win, 0)
 
                     if abort_criterium_gop(stat, cl, chart_choice)
                         falarm = true
+                        break # Optimization: abort this IC attempt early
                     end
+                end
 
-                end # for ad run
-
-                if falarm == false
+                if !falarm
                     icrun = false
                 end
             end
-
-        end
-        #----------------------------------------------------------------------#
-
-        # If ced=true...
-        if ced
-            seq = update_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
+            # After CED: stat reflects time ad. seq is ready for ad + 1.
+            # No additional update here!
         else
-            # initialze EWMA statistic, Equation (17), in the paper
+            # Standard initialization
             pₜ .= p₀
-            # Initialize observations
             seq = init_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
-            # initial statistic
-            @. pₜ_p₀ = pₜ - p₀
+            # Set neutral stat to ensure the while loop starts at rl=1
+            # chart_stat_gop(0, ...) should not trigger an alarm
+            @. pₜ_p₀ = 0.0
             stat = chart_stat_gop(pₜ_p₀, chart_choice)
         end
 
-        # initialize run length at zero
+        #----------------------------------------------------------------------#
+        # 2. Run Length (RL) Phase
+        #----------------------------------------------------------------------#
         rl = 0
 
+        # If ced=true, stat is from step ad (under cl).
+        # If ced=false, stat is 0.0 (under cl).
         while !abort_criterium_gop(stat, cl, chart_choice)
-            # increase run length
             rl += 1
             bin .= 0
 
-            # compute ordinal pattern based on permutations    
+            # compute pattern on current sequence
             competerank!(win, seq, ix)
-
-            # Binarization of ordinal pattern
             j, k, l = win
             bin[lookup_array_gop[j, k, l]] = 1
 
-            # Compute EWMA statistic, Equation (17), in the paper
+            # Update EWMA
             @. pₜ = lam * bin + (1 - lam) * pₜ
-            # statistic based on smoothed pₜ-estimate
             @. pₜ_p₀ = pₜ - p₀
             stat = chart_stat_gop(pₜ_p₀, chart_choice)
 
-            # update sequence depending on DGP
+            # Update sequence for next iteration
             seq = update_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
             fill!(win, 0)
         end
