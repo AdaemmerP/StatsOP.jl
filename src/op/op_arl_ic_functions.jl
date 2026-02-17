@@ -172,9 +172,7 @@ function rl_op_ic(
       # Standard initialization: no warm-up delay
       fill!(p, 1 / m_fact)
       seq = init_dgp_op!(op_dgp, x_vec, op_dgp_dist, d)
-
-      # Set neutral stat to ensure the loop starts at rl=1
-      stat = 0.0
+      stat = chart_stat_op(p, chart_choice)
     end
 
     # -------------------------------------------------------------------------#
