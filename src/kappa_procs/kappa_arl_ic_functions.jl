@@ -190,8 +190,7 @@ function rl_kappa_ic(
   return rls
 end
 
-#--- Run-length method for KNominal
-function rl_kappa_ic(
+#--- Run-length method for KOrdinal
   lam, cl, p_reps, qual_dgp, qual_dgp_dist, chart_choice::KappaO1
 )
 
@@ -262,7 +261,7 @@ function rl_kappa_ic(
 end
 
 
-#--- Run-length method for KNominal
+#--- Run-length method for KOrdinal
 function rl_kappa_ic(
   lam, cl, p_reps, qual_dgp, qual_dgp_dist, chart_choice::KappaO2
 )
