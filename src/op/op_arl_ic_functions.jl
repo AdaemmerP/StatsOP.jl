@@ -122,99 +122,197 @@ function rl_op_ic(
   win = zeros(Int, m)
   idx_used = similar(win)
 
-  # Compute vectors accordingly
+  # Compute vector length based on delay d
   if d isa Int && d == 1
-    x_seq = Vector{Float64}(undef, m)
+    x_vec = Vector{Float64}(undef, m)
   elseif d isa Int && d > 1
-    x_seq = Vector{Float64}(undef, m + d)
+    x_vec = Vector{Float64}(undef, m + d)
   end
 
-  # burn-in vector for AAR(1) and QAR(1) DGPs
-  # xbiv = zeros(Float64, ad)
+  for r in axes(p_reps, 1)
 
-  for r in axes(p_reps, 1) # p_reps is a range
-
-    # ------------------------------------------------------------------------------
-    # ---------------------      check whether to use ced     ----------------------
-    # ------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------#
+    # 1. Initialization / CED Phase (In-Control)
+    # -------------------------------------------------------------------------#
     if ced
-
       icrun = true
-
       while icrun
 
+        # Initialize probabilities to uniform distribution
         fill!(p, 1 / m_fact)
-        seq = init_dgp_op!(op_dgp, x_seq, op_dgp_dist, d)
-
-        # Add noise when using discrete distribution
-        add_noise!(vec, op_dgp_dist)
-
+        seq = init_dgp_op!(op_dgp, x_vec, op_dgp_dist, d)
         falarm = false
 
         for _ in 1:ad
-
           bin .= 0
-          # compute ordinal pattern based on permutations          
           sortperm!(win, seq)
-
-          # binarization of ordinal pattern
           index = perm_to_lehm_idx!(win, idx_used)
           bin[index] = 1
           fill!(idx_used, 0)
 
-          # compute EWMA statistic
-          @. p = lam * bin .+ (1 - lam) * p
-          # test statistic
+          # Compute EWMA statistic
+          @. p = lam * bin + (1.0 - lam) * p
           stat = chart_stat_op(p, chart_choice)
-          # update sequence depending on DGP
-          seq = update_dgp_op!(op_dgp, x_seq, op_dgp_dist, d)
-          # check whether false alarm 
+
+          # Update prepares the sequence for the next step
+          seq = update_dgp_op!(op_dgp, x_vec, op_dgp_dist, d)
+
           if abort_criterium_op(stat, cl, chart_choice)
             falarm = true
+            break
           end
+        end
 
-        end # for ad run
-        # in case of no false alarm, set icrun to false and step out of while loop
-        if falarm == false
+        if !falarm
           icrun = false
         end
       end
+      # After CED: seq is ready for step ad+1. No extra update here.
+    else
+      # Standard initialization: no warm-up delay
+      fill!(p, 1 / m_fact)
+      seq = init_dgp_op!(op_dgp, x_vec, op_dgp_dist, d)
 
+      # Set neutral stat to ensure the loop starts at rl=1
+      stat = 0.0
     end
-    # ------------------------------------------------------------------------------
 
-    # initialize run length at zero
+    # -------------------------------------------------------------------------#
+    # 2. Run Length (RL) Phase
+    # -------------------------------------------------------------------------#
     rl = 0
 
-    # check whether to use ced. If ced is used, update observations. Otherwise, initialize observations
-    if ced
-      seq = update_dgp_op!(op_dgp, x_seq, op_dgp_dist, d)
-    else
-      seq = init_dgp_op!(op_dgp, x_seq, op_dgp_dist, d)
-      fill!(p, 1 / m_fact)
-      stat = chart_stat_op(p, chart_choice)
-    end
-
+    # Loop enters for the first monitor step (t=1 or t=ad+1)
     while !abort_criterium_op(stat, cl, chart_choice)
-      # increase run length
       rl += 1
       bin .= 0
 
-      # binarization of ordinal pattern
+      # compute ordinal pattern
       sortperm!(win, seq)
       index = perm_to_lehm_idx!(win, idx_used)
       bin[index] = 1
       fill!(idx_used, 0)
 
-      # Compute EWMA statistic for binarized ordinal pattern, Equation (5), page 342, Weiss and Testik (2023)
-      @. p = lam * bin .+ (1 - lam) * p
-      # statistic based on smoothed p-estimate
+      # Update EWMA
+      @. p = lam * bin + (1.0 - lam) * p
       stat = chart_stat_op(p, chart_choice)
-      # update sequence depending on DGP
-      seq = update_dgp_op!(op_dgp, x_seq, op_dgp_dist, d)
+
+      # Prepare sequence for next iteration
+      seq = update_dgp_op!(op_dgp, x_vec, op_dgp_dist, d)
     end
 
     rls[r] = rl
   end
   return rls
 end
+
+
+# function rl_op_ic(
+#   op_dgp::Union{ContinuousDGPIC,DiscreteDGPIC}, lam, cl, p_reps,
+#   op_dgp_dist, chart_choice; d::Int=1, m::Int, ced=false, ad=100
+# )
+
+#   # Pre-allocate variables
+#   m_fact = factorial(m)
+#   rls = zeros(Int, length(p_reps))
+#   p = zeros(Float64, m_fact)
+#   bin = zeros(Int, m_fact)
+#   win = zeros(Int, m)
+#   idx_used = similar(win)
+
+#   # Compute vectors accordingly
+#   if d isa Int && d == 1
+#     x_vec = Vector{Float64}(undef, m)
+#   elseif d isa Int && d > 1
+#     x_vec = Vector{Float64}(undef, m + d)
+#   end
+
+#   # burn-in vector for AAR(1) and QAR(1) DGPs
+#   # xbiv = zeros(Float64, ad)
+
+#   for r in axes(p_reps, 1) # p_reps is a range
+
+#     # ------------------------------------------------------------------------------
+#     # ---------------------      check whether to use ced     ----------------------
+#     # ------------------------------------------------------------------------------
+#     if ced
+
+#       icrun = true
+
+#       while icrun
+
+#         fill!(p, 1 / m_fact)
+#         seq = init_dgp_op!(op_dgp, x_vec, op_dgp_dist, d)
+
+#         # Add noise when using discrete distribution
+#         add_noise!(vec, op_dgp_dist)
+
+#         falarm = false
+
+#         for _ in 1:ad
+
+#           bin .= 0
+#           # compute ordinal pattern based on permutations          
+#           sortperm!(win, seq)
+
+#           # binarization of ordinal pattern
+#           index = perm_to_lehm_idx!(win, idx_used)
+#           bin[index] = 1
+#           fill!(idx_used, 0)
+
+#           # compute EWMA statistic
+#           @. p = lam * bin .+ (1 - lam) * p
+#           # test statistic
+#           stat = chart_stat_op(p, chart_choice)
+#           # update sequence depending on DGP
+#           seq = update_dgp_op!(op_dgp, x_vec, op_dgp_dist, d)
+#           # check whether false alarm 
+#           if abort_criterium_op(stat, cl, chart_choice)
+#             falarm = true
+#           end
+
+#         end # for ad run
+#         # in case of no false alarm, set icrun to false and step out of while loop
+#         if falarm == false
+#           icrun = false
+#         end
+#       end
+
+#     end
+#     # ------------------------------------------------------------------------------
+
+#     # initialize run length at zero
+#     rl = 0
+
+#     # check whether to use ced. If ced is used, update observations. Otherwise, initialize observations
+#     if ced
+#       seq = update_dgp_op!(op_dgp, x_vec, op_dgp_dist, d)
+#     else
+#       seq = init_dgp_op!(op_dgp, x_vec, op_dgp_dist, d)
+#       fill!(p, 1 / m_fact)
+#       stat = chart_stat_op(p, chart_choice)
+#     end
+
+#     while !abort_criterium_op(stat, cl, chart_choice)
+#       # increase run length
+#       rl += 1
+#       bin .= 0
+
+#       # binarization of ordinal pattern
+#       sortperm!(win, seq)
+#       index = perm_to_lehm_idx!(win, idx_used)
+#       bin[index] = 1
+#       fill!(idx_used, 0)
+
+#       # Compute EWMA statistic for binarized ordinal pattern, Equation (5), page 342, Weiss and Testik (2023)
+#       @. p = lam * bin .+ (1 - lam) * p
+#       # statistic based on smoothed p-estimate
+#       stat = chart_stat_op(p, chart_choice)
+#       # update sequence depending on DGP
+#       seq = update_dgp_op!(op_dgp, x_vec, op_dgp_dist, d)
+#     end
+
+#     rls[r] = rl
+#   end
+#   return rls
+# end
