@@ -36,75 +36,71 @@ function rl_acf_ic(lam, cl, p_reps, acf_dgp, dgp_dist_ic; ced=false, ad=100)
   rls = Vector{Int64}(undef, length(p_reps))
   x_vec = Vector{Float64}(undef, 2)
 
+  # Pre-calculate process parameters
+  μ₀ = mean(dgp_dist_ic)
+  σ₀² = var(dgp_dist_ic)
+
   for r in 1:length(p_reps)
 
-    cₜ = 0.0
-    sₜ = var(dgp_dist_ic)
-    μ₀ = mean(dgp_dist_ic)
-
     # -------------------------------------------------------------------------#
-    # ---------------------      check whether to use CED     -----------------#
+    # 1. Initialization / CED Phase
     # -------------------------------------------------------------------------#
     if ced
-
       icrun = true
-
       while icrun
-
-        # Initialize 
+        # Initialize DGP and statistics for each IC attempt
         init_dgp_op!(acf_dgp, x_vec, dgp_dist_ic, 1)
+        cₜ = 0.0
+        sₜ = σ₀²
         falarm = false
 
         for _ in 1:ad
-
           # Compute statistic 
           cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1.0 - lam) * cₜ
           sₜ = lam * (x_vec[2] - μ₀)^2 + (1.0 - lam) * sₜ
           acf_stat = cₜ / sₜ
 
+          # Prepare next observation
           update_dgp_op!(acf_dgp, x_vec, dgp_dist_ic, 1)
 
-          # check whether false alarm 
+          # Check for false alarm
           if abs(acf_stat) > cl
             falarm = true
+            break # Exit for loop early if false alarm occurs
           end
+        end
 
-        end # for ad run
-        # in case of no false alarm, set icrun to false and step out of while loop
+        # If no false alarm occurred during 'ad' steps, accept the state
         if falarm == false
           icrun = false
         end
       end
-
-    end
-
-    rl = 0
-
-    # check whether to use ced. If ced is used, update observations. 
-    # Otherwise, initialize observations
-    if ced
-      update_dgp_op!(acf_dgp, x_vec, dgp_dist_ic, 1)
     else
-      # Initialize values for statistic
+      # Standard initialization without CED
       init_dgp_op!(acf_dgp, x_vec, dgp_dist_ic, 1)
-      cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1.0 - lam) * cₜ
-      sₜ = lam * (x_vec[2] - μ₀)^2 + (1.0 - lam) * sₜ
-      acf_stat = cₜ / sₜ
+      cₜ = 0.0
+      sₜ = σ₀²
+      # Set to 0.0 so the RL while-loop condition is met initially
+      acf_stat = 0.0
     end
 
+    # -------------------------------------------------------------------------#
+    # 2. Run Length (RL) Phase
+    # -------------------------------------------------------------------------#
+    rl = 0
+    # Note: If ced=true, acf_stat starts with the value from the last ad step.
+    # Since falarm was false, abs(acf_stat) < cl is guaranteed here.
     while abs(acf_stat) < cl
-
-      # increase run length
       rl += 1
 
-      # Equation (3), page 3 in the paper
+      # Update statistics with current x_vec
+      # (t=1 if ced=false; t=ad+1 if ced=true)
       cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1.0 - lam) * cₜ
       sₜ = lam * (x_vec[2] - μ₀)^2 + (1.0 - lam) * sₜ
       acf_stat = cₜ / sₜ
 
-      # update x_vec depending on DGP
+      # Update x_vec for the next iteration
       update_dgp_op!(acf_dgp, x_vec, dgp_dist_ic, 1)
-
     end
 
     rls[r] = rl
@@ -170,83 +166,150 @@ function rl_acf_ic(lam, cl, p_reps, acf_dgp, acf_dgp_dist, acf_version)
   rls = Vector{Int64}(undef, length(p_reps))
   x_vec = Vector{Float64}(undef, 2)
 
+  # Pre-calculate process parameters
+  μ₀ = mean(acf_dgp_dist)
+  σ₀² = var(acf_dgp_dist)
+
   for r in 1:length(p_reps)
 
-    # initialize values
+    # 1. Initialize data vector with the first two observations
+    init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
+
+    # 2. Set starting values for EWMA components based on the chosen version
     if acf_version == 1
       cₜ = 0.0
-      sₜ = var(acf_dgp_dist)
-      μ₀ = mean(acf_dgp_dist)
-
-      # Compute statistic for version 1 (Equation (3))
-      init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
-      cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1.0 - lam) * cₜ
-      sₜ = lam * (x_vec[2] - μ₀)^2 + (1.0 - lam) * sₜ
-      acf_stat = cₜ / sₜ
-
+      sₜ = σ₀²
     elseif acf_version == 2
-      cₜ = mean(acf_dgp_dist)^2
-      sₜ = var(acf_dgp_dist) + mean(acf_dgp_dist)^2
-      mₜ = mean(acf_dgp_dist)
-
-      # Compute statistic for version 2 (Equation (4))
-      init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
-      cₜ = lam * x_vec[2] * x_vec[1] + (1.0 - lam) * cₜ
-      sₜ = lam * x_vec[2]^2 + (1.0 - lam) * sₜ
-      mₜ = lam * x_vec[2] + (1.0 - lam) * mₜ
-      acf_stat = (cₜ - mₜ^2) / (sₜ - mₜ^2)
-
-
+      cₜ = μ₀^2
+      sₜ = σ₀² + μ₀^2
+      mₜ = μ₀
     elseif acf_version == 3
       cₜ = 0.0
-      sₜ = var(acf_dgp_dist)
-      μ₀ = mean(acf_dgp_dist)
-
-      # Compute statistic for version 3 (Equation (5))
-      init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
-      cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1 - lam) * cₜ
-      acf_stat = cₜ / sₜ
-
+      sₜ = σ₀²
     end
 
+    # Initialize rl and acf_stat 
+    # acf_stat is set to 0.0 to ensure the while loop starts correctly
     rl = 0
+    acf_stat = 0.0
 
+    # 3. Run Length Phase
     while abs(acf_stat) < cl
-
-      # increase run length
       rl += 1
 
-      # compute EWMA ACF
       if acf_version == 1
-
-        # Equation (3), page 3 in the paper
+        # Equation (3)
         cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1.0 - lam) * cₜ
         sₜ = lam * (x_vec[2] - μ₀)^2 + (1.0 - lam) * sₜ
         acf_stat = cₜ / sₜ
 
       elseif acf_version == 2
-        # Equation (4), page 3 in the paper
+        # Equation (4)
         cₜ = lam * x_vec[2] * x_vec[1] + (1.0 - lam) * cₜ
         sₜ = lam * x_vec[2]^2 + (1.0 - lam) * sₜ
         mₜ = lam * x_vec[2] + (1.0 - lam) * mₜ
         acf_stat = (cₜ - mₜ^2) / (sₜ - mₜ^2)
 
       elseif acf_version == 3
-        # Equation (5), page 3 in the paper
-        cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1 - lam) * cₜ
-        acf_stat = cₜ / sₜ
-
+        # Equation (5)
+        cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1.0 - lam) * cₜ
+        acf_stat = cₜ / σ₀²
       end
 
-      # update x_vec depending on DGP
+      # Update x_vec for the next iteration
       update_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
-
     end
 
     rls[r] = rl
   end
   return rls
 end
+
+
+# function rl_acf_ic(lam, cl, p_reps, acf_dgp, acf_dgp_dist, acf_version)
+
+#   # Pre-allocate 
+#   rls = Vector{Int64}(undef, length(p_reps))
+#   x_vec = Vector{Float64}(undef, 2)
+#   μ₀ = mean(acf_dgp_dist)
+
+#   for r in 1:length(p_reps)
+
+#     # initialize values
+#     if acf_version == 1
+#       cₜ = 0.0
+#       sₜ = var(acf_dgp_dist)
+
+
+#       # Compute statistic for version 1 (Equation (3))
+#       init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
+#       cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1.0 - lam) * cₜ
+#       sₜ = lam * (x_vec[2] - μ₀)^2 + (1.0 - lam) * sₜ
+#       acf_stat = cₜ / sₜ
+
+#     elseif acf_version == 2
+#       cₜ = mean(acf_dgp_dist)^2
+#       sₜ = var(acf_dgp_dist) + mean(acf_dgp_dist)^2
+#       mₜ = mean(acf_dgp_dist)
+
+#       # Compute statistic for version 2 (Equation (4))
+#       init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
+#       cₜ = lam * x_vec[2] * x_vec[1] + (1.0 - lam) * cₜ
+#       sₜ = lam * x_vec[2]^2 + (1.0 - lam) * sₜ
+#       mₜ = lam * x_vec[2] + (1.0 - lam) * mₜ
+#       acf_stat = (cₜ - mₜ^2) / (sₜ - mₜ^2)
+
+
+#     elseif acf_version == 3
+#       cₜ = 0.0
+#       sₜ = var(acf_dgp_dist)
+#       μ₀ = mean(acf_dgp_dist)
+
+#       # Compute statistic for version 3 (Equation (5))
+#       init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
+#       cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1 - lam) * cₜ
+#       acf_stat = cₜ / sₜ
+
+#     end
+
+#     rl = 0
+
+#     while abs(acf_stat) < cl
+
+#       # increase run length
+#       rl += 1
+
+#       # compute EWMA ACF
+#       if acf_version == 1
+
+#         # Equation (3), page 3 in the paper
+#         cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1.0 - lam) * cₜ
+#         sₜ = lam * (x_vec[2] - μ₀)^2 + (1.0 - lam) * sₜ
+#         acf_stat = cₜ / sₜ
+
+#       elseif acf_version == 2
+#         # Equation (4), page 3 in the paper
+#         cₜ = lam * x_vec[2] * x_vec[1] + (1.0 - lam) * cₜ
+#         sₜ = lam * x_vec[2]^2 + (1.0 - lam) * sₜ
+#         mₜ = lam * x_vec[2] + (1.0 - lam) * mₜ
+#         acf_stat = (cₜ - mₜ^2) / (sₜ - mₜ^2)
+
+#       elseif acf_version == 3
+#         # Equation (5), page 3 in the paper
+#         cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1 - lam) * cₜ
+#         acf_stat = cₜ / sₜ
+
+#       end
+
+#       # update x_vec depending on DGP
+#       update_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
+
+#     end
+
+#     rls[r] = rl
+#   end
+#   return rls
+# end
 
 
 # # -------------------------------------------------#
