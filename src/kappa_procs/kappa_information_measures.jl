@@ -1,15 +1,19 @@
 export chart_stat_qual,
+  KappaN,
+  KappaO,
   KappaN1,
   KappaN2,
   KappaO1,
   KappaO2
 
+struct KappaN <: InformationMeasure end
+struct KappaO <: InformationMeasure end
 struct KappaN1 <: InformationMeasure end
 struct KappaN2 <: InformationMeasure end
 struct KappaO1 <: InformationMeasure end
 struct KappaO2 <: InformationMeasure end
 
-function chart_stat_qual(q, Q, ::Union{KappaN1,KappaO1,KappaN2,KappaO2})
+function chart_stat_qual(q, Q, ::Union{KappaN,KappaO,KappaN1,KappaO1,KappaN2,KappaO2})
 
   # Sum for numerator and denominator part
   numerator_sum = 0.0

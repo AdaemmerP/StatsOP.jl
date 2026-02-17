@@ -49,103 +49,103 @@ function arl_kappa_ic(
 end
 
 
-function rl_kappa_ic(
-  lam, cl, p_reps, qual_dgp, qual_dgp_dist, chart_choice::KappaN;
-  ced=false, ad=100
-)
+# function rl_kappa_ic(
+#   lam, cl, p_reps, qual_dgp, qual_dgp_dist, chart_choice::KappaN;
+#   ced=false, ad=100
+# )
 
-  # Pre-allocate variables
-  rls = zeros(Int64, length(p_reps))
-  p_low, p_high = 1e-12, 1 - 1e-12
+#   # Pre-allocate variables
+#   rls = zeros(Int64, length(p_reps))
+#   p_low, p_high = 1e-12, 1 - 1e-12
 
-  sup_lb = isfinite(minimum(qual_dgp_dist)) ?
-           minimum(qual_dgp_dist) : quantile(qual_dgp_dist, p_low)
-  sup_ub = isfinite(maximum(qual_dgp_dist)) ?
-           maximum(qual_dgp_dist) : quantile(qual_dgp_dist, p_high)
+#   sup_lb = isfinite(minimum(qual_dgp_dist)) ?
+#            minimum(qual_dgp_dist) : quantile(qual_dgp_dist, p_low)
+#   sup_ub = isfinite(maximum(qual_dgp_dist)) ?
+#            maximum(qual_dgp_dist) : quantile(qual_dgp_dist, p_high)
 
-  sup = collect(sup_lb:sup_ub)
-  Bₜ = zeros(Int, length(sup))
-  Bₜ₋₁ = similar(Bₜ)
+#   sup = collect(sup_lb:sup_ub)
+#   Bₜ = zeros(Int, length(sup))
+#   Bₜ₋₁ = similar(Bₜ)
 
-  # Global initial states (targets)
-  q₀ = pdf(qual_dgp_dist, sup)
-  Q₀ = sum(q₀ .^ 2)
+#   # Global initial states (targets)
+#   q₀ = pdf(qual_dgp_dist, sup)
+#   Q₀ = sum(q₀ .^ 2)
 
-  x_vec = zeros(2)
+#   x_vec = zeros(2)
 
-  for r in axes(p_reps, 1)
+#   for r in axes(p_reps, 1)
 
-    # -------------------------------------------------------------------------#
-    # 1. Initialization / CED Phase
-    # -------------------------------------------------------------------------#
-    if ced
-      icrun = true
-      while icrun
-        # Reset to target IC state for each attempt
-        qₜ = copy(q₀)
-        Qₜ = Q₀
-        seq = init_dgp_op!(qual_dgp, x_vec, qual_dgp_dist, 1)
-        falarm = false
+#     # -------------------------------------------------------------------------#
+#     # 1. Initialization / CED Phase
+#     # -------------------------------------------------------------------------#
+#     if ced
+#       icrun = true
+#       while icrun
+#         # Reset to target IC state for each attempt
+#         qₜ = copy(q₀)
+#         Qₜ = Q₀
+#         seq = init_dgp_op!(qual_dgp, x_vec, qual_dgp_dist, 1)
+#         falarm = false
 
-        for _ in 1:ad
-          # Update match counts
-          @. Bₜ = (sup == seq[2])
-          @. Bₜ₋₁ = (sup == seq[1])
-          dot_Bₜ_Bₜ₋₁ = dot(Bₜ, Bₜ₋₁)
+#         for _ in 1:ad
+#           # Update match counts
+#           @. Bₜ = (sup == seq[2])
+#           @. Bₜ₋₁ = (sup == seq[1])
+#           dot_Bₜ_Bₜ₋₁ = dot(Bₜ, Bₜ₋₁)
 
-          # EWMA update
-          @. qₜ = lam * Bₜ + (1 - lam) * qₜ
-          Qₜ = lam * dot_Bₜ_Bₜ₋₁ + (1 - lam) * Qₜ
-          stat = chart_stat_qual(qₜ, Qₜ, chart_choice)
+#           # EWMA update
+#           @. qₜ = lam * Bₜ + (1 - lam) * qₜ
+#           Qₜ = lam * dot_Bₜ_Bₜ₋₁ + (1 - lam) * Qₜ
+#           stat = chart_stat_qual(qₜ, Qₜ, chart_choice)
 
-          # Prepare next observation
-          seq = update_dgp_op!(qual_dgp, x_vec, qual_dgp_dist, 1)
+#           # Prepare next observation
+#           seq = update_dgp_op!(qual_dgp, x_vec, qual_dgp_dist, 1)
 
-          if abs(stat) > cl
-            falarm = true
-            break
-          end
-        end
+#           if abs(stat) > cl
+#             falarm = true
+#             break
+#           end
+#         end
 
-        if !falarm
-          icrun = false
-        end
-      end
-    else
-      # Standard initialization
-      qₜ = copy(q₀)
-      Qₜ = Q₀
-      seq = init_dgp_op!(qual_dgp, x_vec, qual_dgp_dist, 1)
-      # Neutral start to enter loop and process t=1 correctly
-      stat = 0.0
-    end
+#         if !falarm
+#           icrun = false
+#         end
+#       end
+#     else
+#       # Standard initialization
+#       qₜ = copy(q₀)
+#       Qₜ = Q₀
+#       seq = init_dgp_op!(qual_dgp, x_vec, qual_dgp_dist, 1)
+#       # Neutral start to enter loop and process t=1 correctly
+#       stat = 0.0
+#     end
 
-    # -------------------------------------------------------------------------#
-    # 2. Run Length (RL) Phase
-    # -------------------------------------------------------------------------#
-    rl = 0
+#     # -------------------------------------------------------------------------#
+#     # 2. Run Length (RL) Phase
+#     # -------------------------------------------------------------------------#
+#     rl = 0
 
-    while abs(stat) < cl
-      rl += 1
+#     while abs(stat) < cl
+#       rl += 1
 
-      # Update match counts for current seq
-      @. Bₜ = (sup == seq[2])
-      @. Bₜ₋₁ = (sup == seq[1])
-      dot_Bₜ_Bₜ₋₁ = dot(Bₜ, Bₜ₋₁)
+#       # Update match counts for current seq
+#       @. Bₜ = (sup == seq[2])
+#       @. Bₜ₋₁ = (sup == seq[1])
+#       dot_Bₜ_Bₜ₋₁ = dot(Bₜ, Bₜ₋₁)
 
-      # EWMA update
-      @. qₜ = lam * Bₜ + (1 - lam) * qₜ
-      Qₜ = lam * dot_Bₜ_Bₜ₋₁ + (1 - lam) * Qₜ
-      stat = chart_stat_qual(qₜ, Qₜ, chart_choice)
+#       # EWMA update
+#       @. qₜ = lam * Bₜ + (1 - lam) * qₜ
+#       Qₜ = lam * dot_Bₜ_Bₜ₋₁ + (1 - lam) * Qₜ
+#       stat = chart_stat_qual(qₜ, Qₜ, chart_choice)
 
-      # Update sequence for the next iteration
-      seq = update_dgp_op!(qual_dgp, x_vec, qual_dgp_dist, 1)
-    end
+#       # Update sequence for the next iteration
+#       seq = update_dgp_op!(qual_dgp, x_vec, qual_dgp_dist, 1)
+#     end
 
-    rls[r] = rl
-  end
-  return rls
-end
+#     rls[r] = rl
+#   end
+#   return rls
+# end
 
 
 
