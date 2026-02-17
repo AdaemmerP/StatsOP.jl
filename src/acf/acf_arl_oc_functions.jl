@@ -1,4 +1,5 @@
 export arl_acf_oc
+
 function arl_acf_oc(lam, cl, acf_dgp, dist_null, reps)
 
   # Check whether to use threading or multi processing --> only one process threading, else distributed
@@ -30,89 +31,89 @@ function arl_acf_oc(lam, cl, acf_dgp, dist_null, reps)
   return (mean(rlvec), std(rlvec) / sqrt(reps))
 end
 
-function rl_acf_ic(lam, cl, p_reps, acf_dgp, dgp_dist_ic; ced=false, ad=100)
+# function rl_acf_ic(lam, cl, p_reps, acf_dgp, dgp_dist_ic; ced=false, ad=100)
 
-  # Pre-allocate 
-  rls = Vector{Int64}(undef, length(p_reps))
-  x_vec = Vector{Float64}(undef, 2)
+#   # Pre-allocate 
+#   rls = Vector{Int64}(undef, length(p_reps))
+#   x_vec = Vector{Float64}(undef, 2)
 
-  # Reference null distribution parameters
-  μ₀ = mean(dgp_dist_ic)
-  σ₀² = var(dgp_dist_ic)
+#   # Reference null distribution parameters
+#   μ₀ = mean(dgp_dist_ic)
+#   σ₀² = var(dgp_dist_ic)
 
-  # Create pool vector for CED runs to sample from the stationary distribution
-  if ced
-    pool_vector = Vector{Float64}(undef, 10_000)
-    # Corrected variable names to match function arguments
-    init_dgp_op!(acf_dgp, pool_vector, dgp_dist_ic, 1)
-  else
-    pool_vector = Float64[]
-  end
+#   # Create pool vector for CED runs to sample from the stationary distribution
+#   if ced
+#     pool_vector = Vector{Float64}(undef, 10_000)
+#     # Corrected variable names to match function arguments
+#     init_dgp_op!(acf_dgp, pool_vector, dgp_dist_ic, 1)
+#   else
+#     pool_vector = Float64[]
+#   end
 
-  for r in 1:length(p_reps)
+#   for r in 1:length(p_reps)
 
-    # -------------------------------------------------------------------------#
-    # 1. Initialization / CED Phase (Version 1 Logic)
-    # -------------------------------------------------------------------------#
-    if ced
-      icrun = true
-      while icrun
-        # Initialize x_vec using the stationary pool
-        init_dgp_op_ced!(acf_dgp, x_vec, pool_vector, 1)
-        cₜ = 0.0
-        sₜ = σ₀²
-        falarm = false
+#     # -------------------------------------------------------------------------#
+#     # 1. Initialization / CED Phase (Version 1 Logic)
+#     # -------------------------------------------------------------------------#
+#     if ced
+#       icrun = true
+#       while icrun
+#         # Initialize x_vec using the stationary pool
+#         init_dgp_op_ced!(acf_dgp, x_vec, pool_vector, 1)
+#         cₜ = 0.0
+#         sₜ = σ₀²
+#         falarm = false
 
-        for _ in 1:ad
-          # Compute statistic
-          cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1.0 - lam) * cₜ
-          sₜ = lam * (x_vec[2] - μ₀)^2 + (1.0 - lam) * sₜ
-          acf_stat = cₜ / sₜ
+#         for _ in 1:ad
+#           # Compute statistic
+#           cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1.0 - lam) * cₜ
+#           sₜ = lam * (x_vec[2] - μ₀)^2 + (1.0 - lam) * sₜ
+#           acf_stat = cₜ / sₜ
 
-          # Prepare next observation from stationary pool
-          update_dgp_op_ced!(acf_dgp, x_vec, pool_vector, 1)
+#           # Prepare next observation from stationary pool
+#           update_dgp_op_ced!(acf_dgp, x_vec, pool_vector, 1)
 
-          if abs(acf_stat) > cl
-            falarm = true
-            break # Exit directly when a false alarm occurs
-          end
-        end
+#           if abs(acf_stat) > cl
+#             falarm = true
+#             break # Exit directly when a false alarm occurs
+#           end
+#         end
 
-        # Step out of while loop if no false alarm occurred
-        if !falarm
-          icrun = false
-        end
-      end
-    else
-      # Standard initialization: no delay phase
-      init_dgp_op!(acf_dgp, x_vec, dgp_dist_ic, 1)
-      cₜ = 0.0
-      sₜ = σ₀²
-      acf_stat = 0.0
-    end
+#         # Step out of while loop if no false alarm occurred
+#         if !falarm
+#           icrun = false
+#         end
+#       end
+#     else
+#       # Standard initialization: no delay phase
+#       init_dgp_op!(acf_dgp, x_vec, dgp_dist_ic, 1)
+#       cₜ = 0.0
+#       sₜ = σ₀²
+#       acf_stat = 0.0
+#     end
 
-    # -------------------------------------------------------------------------#
-    # 2. Run Length (RL) Phase
-    # -------------------------------------------------------------------------#
-    rl = 0
+#     # -------------------------------------------------------------------------#
+#     # 2. Run Length (RL) Phase
+#     # -------------------------------------------------------------------------#
+#     rl = 0
 
-    # Start monitoring. If ced=true, acf_stat is the state at t=ad.
-    while abs(acf_stat) < cl
-      rl += 1
+#     # Start monitoring. If ced=true, acf_stat is the state at t=ad.
+#     while abs(acf_stat) < cl
+#       rl += 1
 
-      # Update statistics with actual process data
-      cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1.0 - lam) * cₜ
-      sₜ = lam * (x_vec[2] - μ₀)^2 + (1.0 - lam) * sₜ
-      acf_stat = cₜ / sₜ
+#       # Update statistics with actual process data
+#       cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1.0 - lam) * cₜ
+#       sₜ = lam * (x_vec[2] - μ₀)^2 + (1.0 - lam) * sₜ
+#       acf_stat = cₜ / sₜ
 
-      # Generate next data point from the actual process DGP
-      update_dgp_op!(acf_dgp, x_vec, dgp_dist_ic, 1)
-    end
+#       # Generate next data point from the actual process DGP
+#       update_dgp_op!(acf_dgp, x_vec, dgp_dist_ic, 1)
+#     end
 
-    rls[r] = rl
-  end
-  return rls
-end
+#     rls[r] = rl
+#   end
+#   return rls
+# end
 
 
 
