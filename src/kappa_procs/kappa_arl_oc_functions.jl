@@ -257,9 +257,7 @@ function rl_kappa_oc(
   lam, cl, p_reps, qual_dgp, qual_dgp_dist, qual_null_dist, chart_choice::KappaN1
 )
   rls = zeros(Int64, length(p_reps))
-  p_low, p_high = 1e-12, 1 - 1e-12
-  sup_lb = isfinite(minimum(qual_null_dist)) ? minimum(qual_null_dist) : quantile(qual_null_dist, p_low)
-  sup_ub = isfinite(maximum(qual_null_dist)) ? maximum(qual_null_dist) : quantile(qual_null_dist, p_high)
+  sup_lb, sup_ub = get_bounds(qual_null_dist)
   sup = collect(sup_lb:sup_ub)
 
   Bₜ, Bₜ₋₁ = zeros(Int, length(sup)), zeros(Int, length(sup))
@@ -298,9 +296,7 @@ function rl_kappa_oc(
   lam, cl, p_reps, qual_dgp, qual_dgp_dist, qual_null_dist, chart_choice::KappaN2
 )
   rls = zeros(Int64, length(p_reps))
-  p_low, p_high = 1e-12, 1 - 1e-12
-  sup_lb = isfinite(minimum(qual_null_dist)) ? minimum(qual_null_dist) : quantile(qual_null_dist, p_low)
-  sup_ub = isfinite(maximum(qual_null_dist)) ? maximum(qual_null_dist) : quantile(qual_null_dist, p_high)
+  sup_lb, sup_ub = get_bounds(qual_null_dist)
   sup = collect(sup_lb:sup_ub)
   Bₜ, Bₜ₋₁ = zeros(Int, length(sup)), zeros(Int, length(sup))
 
@@ -336,9 +332,7 @@ function rl_kappa_oc(
   lam, cl, p_reps, qual_dgp, qual_dgp_dist, qual_null_dist, chart_choice::KappaO1
 )
   rls = zeros(Int64, length(p_reps))
-  p_low, p_high = 1e-12, 1 - 1e-12
-  sup_lb = isfinite(minimum(qual_null_dist)) ? minimum(qual_null_dist) : quantile(qual_null_dist, p_low)
-  sup_ub = isfinite(maximum(qual_null_dist)) ? maximum(qual_null_dist) : quantile(qual_null_dist, p_high)
+  sup_lb, sup_ub = get_bounds(qual_null_dist)
   sup = collect(sup_lb:sup_ub)
   Bₜ, Bₜ₋₁ = zeros(Int, length(sup)), zeros(Int, length(sup))
 
@@ -376,9 +370,7 @@ function rl_kappa_oc(
   lam, cl, p_reps, qual_dgp, qual_dgp_dist, qual_null_dist, chart_choice::KappaO2
 )
   rls = zeros(Int64, length(p_reps))
-  p_low, p_high = 1e-12, 1 - 1e-12
-  sup_lb = isfinite(minimum(qual_null_dist)) ? minimum(qual_null_dist) : quantile(qual_null_dist, p_low)
-  sup_ub = isfinite(maximum(qual_null_dist)) ? maximum(qual_null_dist) : quantile(qual_null_dist, p_high)
+  sup_lb, sup_ub = get_bounds(qual_null_dist)
   sup = collect(sup_lb:sup_ub)
   Bₜ, Bₜ₋₁ = zeros(Int, length(sup)), zeros(Int, length(sup))
 
