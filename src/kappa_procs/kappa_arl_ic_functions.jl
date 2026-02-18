@@ -252,8 +252,8 @@ function rl_kappa_ic(
     while abs(stat) < cl
       rl += 1
       # Note: For ordinal, B is usually the indicator for the cumulative state
-      @. Bₜ = (sup >= seq[2])
-      @. Bₜ₋₁ = (sup >= seq[1])
+      @. Bₜ = (sup == seq[2])
+      @. Bₜ₋₁ = (sup == seq[1])
 
       @. qₜ = lam * Bₜ + (1.0 - lam) * qₜ
       Qₜ = lam * dot(Bₜ, Bₜ₋₁) + (1.0 - lam) * Qₜ
@@ -271,7 +271,7 @@ function rl_kappa_ic(
   lam, cl, p_reps, qual_dgp, qual_dgp_dist, chart_choice::KappaO2
 )
   rls = zeros(Int64, length(p_reps))
-  sup_lb, sup_ub = get_bounds(dist_null)
+  sup_lb, sup_ub = get_bounds(qual_dgp_dist)
   sup = collect(sup_lb:sup_ub)
 
   Bₜ, Bₜ₋₁ = zeros(Int, length(sup)), zeros(Int, length(sup))
@@ -286,8 +286,8 @@ function rl_kappa_ic(
 
     while abs(stat) < cl
       rl += 1
-      @. Bₜ = (sup >= seq[2])
-      @. Bₜ₋₁ = (sup >= seq[1])
+      @. Bₜ = (sup == seq[2])
+      @. Bₜ₋₁ = (sup == seq[1])
 
       Qₜ = lam * dot(Bₜ, Bₜ₋₁) + (1.0 - lam) * Qₜ
       stat = chart_stat_qual(f₀, Qₜ, chart_choice)
