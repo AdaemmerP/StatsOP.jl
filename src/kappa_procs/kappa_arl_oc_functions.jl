@@ -351,8 +351,8 @@ function rl_kappa_oc(
       rl += 1
       fill!(Bₜ, 0)
       fill!(Bₜ₋₁, 0)
-      @. Bₜ = (sup >= seq[2])
-      @. Bₜ₋₁ = (sup >= seq[1])
+      @. Bₜ = (sup == seq[2])
+      @. Bₜ₋₁ = (sup == seq[1])
 
       @. qₜ = lam * Bₜ + (1.0 - lam) * qₜ
       Qₜ = lam * dot(Bₜ, Bₜ₋₁) + (1.0 - lam) * Qₜ
@@ -388,8 +388,8 @@ function rl_kappa_oc(
       rl += 1
       fill!(Bₜ, 0)
       fill!(Bₜ₋₁, 0)
-      @. Bₜ = (sup >= seq[2])
-      @. Bₜ₋₁ = (sup >= seq[1])
+      @. Bₜ = (sup == seq[2])
+      @. Bₜ₋₁ = (sup == seq[1])
 
       Qₜ = lam * dot(Bₜ, Bₜ₋₁) + (1.0 - lam) * Qₜ
       stat = chart_stat_qual(f₀, Qₜ, chart_choice)
