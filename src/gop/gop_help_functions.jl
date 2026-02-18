@@ -41,19 +41,19 @@ function compute_lookup_array_gop()
     # Construct all possible ordinal patterns, Equation (2), page 574, 
     # and Equation (4), page 575 Weiss and Schnurr (2024)
     ranks = [
-        1 2 3;
-        1 3 2;
-        2 1 3;
-        2 3 1;
-        3 1 2;
-        3 2 1;
-        1 1 1;
-        1 1 3; # In paper: 1 1 2
-        1 3 1; # In paper: 1 2 1;
-        1 2 2;
-        3 1 1; # In paper: 2 1 1;
-        2 1 2;
-        2 2 1
+        1 2 3; # 1
+        1 3 2; # 2
+        2 1 3; # 3
+        2 3 1; # 4
+        3 1 2; # 5
+        3 2 1; # 6
+        1 1 1; # 7
+        1 1 3; # 8 In paper: 1 1 2
+        1 3 1; # 9 In paper: 1 2 1;
+        1 2 2; # 10
+        3 1 1; # 11 In paper: 2 1 1;
+        2 1 2; # 12
+        2 2 1  # 13
     ]
 
     # Construct multi-dimensional lookup array     
@@ -68,6 +68,51 @@ function compute_lookup_array_gop()
 
 end
 
+function fill_p0!(p0, dist_null)
+    # Constants for quantile fallback
+    p_low, p_high = 1e-12, 1 - 1e-12
+
+    # 1. Determine support boundaries
+    sup_lb = isfinite(minimum(dist_null)) ? Int(minimum(dist_null)) : Int(quantile(dist_null, p_low))
+    sup_ub = isfinite(maximum(dist_null)) ? Int(maximum(dist_null)) : Int(quantile(dist_null, p_high))
+
+    # 2. Pre-calculate PDF and CDF values
+    # Include (sup_lb - 1) to ensure cdf_dict[x-1] is defined
+    search_range = (sup_lb-1):sup_ub
+    pdf_dict = Dict(x => pdf(dist_null, x) for x in search_range)
+    cdf_dict = Dict(x => cdf(dist_null, x) for x in search_range)
+
+    # Initialize p0
+    p0 .= 0.0
+
+    # p(1,1,1) = E[p(X)^2]
+    for x in sup_lb:sup_ub
+        p0[7] += pdf_dict[x]^3
+    end
+
+    # p(1,2,2) = p(2,1,2) = p(2,2,1) = E[f(X-1) * p(X)]
+    val_122 = 0.0
+    for x in sup_lb:sup_ub
+        val_122 += cdf_dict[x-1] * pdf_dict[x]^2
+    end
+    p0[[10, 12, 13]] .= val_122
+
+    # p(1,1,2) = p(1,2,1) = p(2,1,1) = E[p(X) * (1 - f(X))]
+    val_112 = 0.0
+    for x in sup_lb:sup_ub
+        val_112 += pdf_dict[x]^2 * (1 - cdf_dict[x])
+    end
+    p0[[8, 9, 11]] .= val_112
+
+    # p(1,2,3) = ... = E[f(X-1) * p(X) * (1 - f(X))]
+    val_123 = 0.0
+    for x in sup_lb:sup_ub
+        val_123 += cdf_dict[x-1] * pdf_dict[x] * (1 - cdf_dict[x])
+    end
+    p0[1:6] .= val_123
+
+    return p0
+end
 
 # # Function to fill p0 vector for GOPs
 # function fill_p0!(p0, dist_null)
@@ -82,82 +127,41 @@ end
 #     elseif println("Distribution not impleneted.")
 #     end
 
+#     # Create dictionary with outcome (key) and probability (value) pairs
+#     outcome = -1:q
+#     pdf_dict = Dict(
+#         zip(outcome, pdf(dist_null, outcome))
+#     )
+#     cdf_dict = Dict(
+#         zip(outcome, cdf(dist_null, outcome))
+#     )
+
 #     # p(1,1,1)
 #     for x in 0:q
-#         p0[7] += pdf(dist_null, x)^3
+#         p0[7] += pdf_dict[x]^3
 #     end
 
 #     # p(1,2,2)=p(2,1,2)=p(2,2,1)
 #     val_tmp = 0.0
-#     for x in 0:q
-#         val_tmp += cdf(dist_null, x - 1) * pdf(dist_null, x)^2
+#     for x in 1:q
+#         val_tmp += cdf_dict[x-1] * pdf_dict[x]^2
 #     end
 #     p0[[10, 12, 13]] .= val_tmp
 
 #     # p(1,1,2)=p(1,2,1)=p(2,1,1)
 #     val_tmp = 0.0
 #     for x in 0:q
-#         val_tmp += pdf(dist_null, x)^2 * (1 - cdf(dist_null, x))
+#         val_tmp += pdf_dict[x]^2 * (1 - cdf_dict[x])
 #     end
 #     p0[[8, 9, 11]] .= val_tmp
 
 #     # p(1,2,3)=p(3,2,1)=p(3,1,2)=p(2,3,1)=p(1,3,2)=p(2,1,3)
 #     val_tmp = 0.0
 #     for x in 1:q
-#         val_tmp += cdf(dist_null, x - 1) * pdf(dist_null, x) * (1 - cdf(dist_null, x))
+#         val_tmp += cdf_dict[x-1] * pdf_dict[x] * (1 - cdf_dict[x])
 #     end
 #     p0[1:6] .= val_tmp
 # end
-
-
-# Function to fill p0 vector for GOPs
-function fill_p0!(p0, dist_null)
-    # in-control GOP-distribution depends on the specified in-control model for (Xt) 
-    # see Weiss and Schnurr (2023), page 577 proposition 2.3 for details how to fill the vector p0
-    # compute upper limit for the approximation
-    # only two distributions implemented so far
-    if dist_null isa Poisson
-        q = quantile(dist_null, 1 - (1 * 10^-12))
-    elseif dist_null isa Binomial
-        q = dist_null.n
-    elseif println("Distribution not impleneted.")
-    end
-
-    # Create dictionary with outcome (key) and probability (value) pairs
-    outcome = -1:q
-    pdf_dict = Dict(
-        zip(outcome, pdf(dist_null, outcome))
-    )
-    cdf_dict = Dict(
-        zip(outcome, cdf(dist_null, outcome))
-    )
-
-    # p(1,1,1)
-    for x in 0:q
-        p0[7] += pdf_dict[x]^3
-    end
-
-    # p(1,2,2)=p(2,1,2)=p(2,2,1)
-    val_tmp = 0.0
-    for x in 1:q
-        val_tmp += cdf_dict[x-1] * pdf_dict[x]^2
-    end
-    p0[[10, 12, 13]] .= val_tmp
-
-    # p(1,1,2)=p(1,2,1)=p(2,1,1)
-    val_tmp = 0.0
-    for x in 0:q
-        val_tmp += pdf_dict[x]^2 * (1 - cdf_dict[x])
-    end
-    p0[[8, 9, 11]] .= val_tmp
-
-    # p(1,2,3)=p(3,2,1)=p(3,1,2)=p(2,3,1)=p(1,3,2)=p(2,1,3)
-    val_tmp = 0.0
-    for x in 1:q
-        val_tmp += cdf_dict[x-1] * pdf_dict[x] * (1 - cdf_dict[x])
-    end
-    p0[1:6] .= val_tmp
-end
 
 # --- Function to select abort criterium --- #
 # see Equation (18) and Equation (20), page 7 in the paper
