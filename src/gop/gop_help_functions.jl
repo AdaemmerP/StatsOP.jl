@@ -73,8 +73,30 @@ function fill_p0!(p0, dist_null)
     p_low, p_high = 1e-12, 1 - 1e-12
 
     # 1. Determine support boundaries
-    sup_lb = isfinite(minimum(dist_null)) ? Int(minimum(dist_null)) : Int(quantile(dist_null, p_low))
-    sup_ub = isfinite(maximum(dist_null)) ? Int(maximum(dist_null)) : Int(quantile(dist_null, p_high))
+    if isfinite(minimum(dist_null)) && isfinite(maximum(dist_null))
+        sup_lb = Int(minimum(dist_null))
+        sup_ub = Int(maximum(dist_null))
+    else
+        # For distributions with infinite support, use inverse CDF
+        # Find x such that CDF(x) ≈ p_low and CDF(x) ≈ p_high
+        μ = mean(dist_null)
+        σ = std(dist_null)
+        # Start with a reasonable guess based on normal approximation
+        lb_guess = Int(floor(μ - 6σ))
+        ub_guess = Int(ceil(μ + 6σ))
+        
+        # Refine lower bound
+        sup_lb = lb_guess
+        while cdf(dist_null, sup_lb) > p_low && sup_lb > lb_guess - 100
+            sup_lb -= 1
+        end
+        
+        # Refine upper bound
+        sup_ub = ub_guess
+        while cdf(dist_null, sup_ub) < p_high && sup_ub < ub_guess + 100
+            sup_ub += 1
+        end
+    end
 
     # 2. Pre-calculate PDF and CDF values
     # Include (sup_lb - 1) to ensure cdf_dict[x-1] is defined
