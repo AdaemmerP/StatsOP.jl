@@ -94,8 +94,8 @@ function stat_kappa(
   for r in 2:length(data)
 
     # Set match counts
-    @. Bₜ = (sup == data[r])
-    @. Bₜ₋₁ = (sup == data[r-1])
+    @. Bₜ = (sup >= data[r])
+    @. Bₜ₋₁ = (sup >= data[r-1])
     dot_Bₜ_Bₜ₋₁ = dot(Bₜ, Bₜ₋₁)
 
     # Compute EWMA statistic
@@ -132,8 +132,8 @@ function stat_kappa(
   for r in 2:length(data)
 
     # Set match counts
-    @. Bₜ = (sup == data[r])
-    @. Bₜ₋₁ = (sup == data[r-1])
+    @. Bₜ = (sup >= data[r])
+    @. Bₜ₋₁ = (sup >= data[r-1])
     dot_Bₜ_Bₜ₋₁ = dot(Bₜ, Bₜ₋₁)
 
     # Compute EWMA statistic
