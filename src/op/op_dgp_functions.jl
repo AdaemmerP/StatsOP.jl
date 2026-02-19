@@ -337,7 +337,7 @@ end
 # ---------------  Tobit-INAR(1) methods  ---------#
 # -------------------------------------------------#
 # Method to initialize with Burn-in phase
-function init_dgp_op!(dgp::TINAR1, x_long::Vector{Float64}, dist::DiscreteUnivariateDistribution, d::Int)
+function init_dgp_op!(dgp::TINAR1, x_long::Vector{Float64}, dist::DiscreteUnivariateDistribution, d::Int, xbiv)
 
     # Extract parameters for easier access
     α = dgp.α
