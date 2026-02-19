@@ -1,35 +1,35 @@
 export arl_acf_oc
 
-function arl_acf_oc(lam, cl, acf_dgp, dist_null, reps)
+# function arl_acf_oc(lam, cl, acf_dgp, dist_null, reps)
 
-  # Check whether to use threading or multi processing --> only one process threading, else distributed
-  if nprocs() == 1
+#   # Check whether to use threading or multi processing --> only one process threading, else distributed
+#   if nprocs() == 1
 
-    # Make chunks for separate tasks (based on number of threads)        
-    chunks = Iterators.partition(1:reps, div(reps, Threads.nthreads())) |> collect
+#     # Make chunks for separate tasks (based on number of threads)        
+#     chunks = Iterators.partition(1:reps, div(reps, Threads.nthreads())) |> collect
 
-    # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
-    par_results = map(chunks) do i
-      Threads.@spawn rl_acf_oc(lam, cl, i, acf_dgp, acf_dgp.dist, dist_null)
+#     # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
+#     par_results = map(chunks) do i
+#       Threads.@spawn rl_acf_oc(lam, cl, i, acf_dgp, acf_dgp.dist, dist_null)
 
-    end
+#     end
 
-  elseif nprocs() > 1
+#   elseif nprocs() > 1
 
-    # Make chunks for separate tasks (based on number of workers)
-    chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
+#     # Make chunks for separate tasks (based on number of workers)
+#     chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
 
-    par_results = pmap(chunks) do i
-      rl_acf(lam, cl, i, acf_dgp, acf_dgp.dist, dist_null)
-    end
+#     par_results = pmap(chunks) do i
+#       rl_acf(lam, cl, i, acf_dgp, acf_dgp.dist, dist_null)
+#     end
 
-  end
+#   end
 
-  # Collect results from tasks
-  rls = fetch.(par_results)
-  rlvec = Iterators.flatten(rls) |> collect
-  return (mean(rlvec), std(rlvec) / sqrt(reps))
-end
+#   # Collect results from tasks
+#   rls = fetch.(par_results)
+#   rlvec = Iterators.flatten(rls) |> collect
+#   return (mean(rlvec), std(rlvec) / sqrt(reps))
+# end
 
 # function rl_acf_ic(lam, cl, p_reps, acf_dgp, dgp_dist_ic; ced=false, ad=100)
 
