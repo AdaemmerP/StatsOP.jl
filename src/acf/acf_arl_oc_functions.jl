@@ -121,7 +121,6 @@ export arl_acf_oc
 
 
 
-
 function arl_acf_oc(lam, cl, acf_dgp, dist_null, reps, acf_version)
 
   # Check whether to use threading or multi processing --> only one process threading, else distributed
