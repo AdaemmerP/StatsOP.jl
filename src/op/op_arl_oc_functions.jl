@@ -124,7 +124,7 @@ function rl_op_oc(
   end
 
   x_seq = Vector{Float64}(undef, m + (d > 1 ? d : 0))
-  xbiv = Vector{Float64}(undef, ad)
+  # xbiv not needed for generic OP DGPs
 
   for r in axes(p_reps, 1)
     if ced
@@ -154,7 +154,7 @@ function rl_op_oc(
     else
       fill!(p, 1 / m_fact)
       # Standard init without eps_long
-      seq = init_dgp_op!(op_dgp, x_seq, op_dgp_dist, d, xbiv)
+      seq = init_dgp_op!(op_dgp, x_seq, op_dgp_dist, d)
       stat = 0.0
     end
 
@@ -201,7 +201,7 @@ function rl_op_oc(
   offset = (op_dgp isa MA1) ? 1 : 2
   x_seq = Vector{Float64}(undef, m + (d > 1 ? d : 0) + offset)
   eps_long = similar(x_seq)
-  xbiv = Vector{Float64}(undef, ad)
+  # xbiv not needed for generic OP DGPs
 
   for r in axes(p_reps, 1)
     if ced
