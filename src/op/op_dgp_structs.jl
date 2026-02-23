@@ -9,7 +9,8 @@ export DiscreteDGPIC,
     BAR1,
     DAR1,
     WDAR1,
-    TINAR1
+    TINAR1,
+    SINAR1
 
 
 # Make abstract type for continuous and discrete DGPs
