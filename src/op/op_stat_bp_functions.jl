@@ -14,6 +14,7 @@ function stat_op_bp(data; chart_choice, m::Int=3, w=3, ljung_box::Bool=false)
     bin = zeros(Int, m_fact)
     p_rel = zeros(Float64, m_fact)
     win = Vector{Int64}(undef, m)
+    idx_used = zeros(Int, m)
     bp_stats_all = Vector{Float64}(undef, w)
 
     for (i, d) in enumerate(1:w)
@@ -30,8 +31,8 @@ function stat_op_bp(data; chart_choice, m::Int=3, w=3, ljung_box::Bool=false)
             sortperm!(win, x_long)
 
             # Convert permutation to lehmer index
-            index = perm_to_lehm_idx!(win, used)
-            fill!(used, 0) # reset used
+            index = perm_to_lehm_idx!(win, idx_used)
+            fill!(idx_used, 0) # reset idx_used
 
             # Binarization of ordinal pattern
             bin[index] = 1
