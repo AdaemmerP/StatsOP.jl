@@ -64,14 +64,14 @@ function stat_op_bp(data; chart_choice, m::Int=3, w=3, ljung_box::Bool=false)
     end
 
     # (1) H-chart 
-    if typeof(chart_choice) == Shannon
+    if chart_choice isa Shannon
         for (i, weight) in enumerate(stat_weights)
             bp_val += weight * (log_nr_perm - bp_stats_all[i])
         end
         return 2 / m_fact * bp_val
 
         # (2) Hex-chart
-    elseif typeof(chart_choice) == Shannon
+    elseif chart_choice isa ShannonExtropy
         term = (m_fact - 1) * log(m_fact / (m_fact - 1))
         for (i, weight) in enumerate(stat_weights)
             bp_val += weight * (term - bp_stats_all[i])
@@ -79,16 +79,16 @@ function stat_op_bp(data; chart_choice, m::Int=3, w=3, ljung_box::Bool=false)
         return (2 * (m_fact - 1) / m_fact) * bp_val
 
         # (3) Δ-chart  
-    elseif typeof(chart_choice) == DistanceToWhiteNoise
+    elseif chart_choice isa DistanceToWhiteNoise
         for (i, weight) in enumerate(stat_weights)
             bp_val += weight * bp_stats_all[i]
         end
         return bp_val
 
         # (4) β-chart, (5) τ-chart, (6) γ-chart, (7) δ-chart  
-    elseif typeof(chart_choice) in (
-        UpDownBalance, Persistence, RotationalAsymmetry, UpDownScaling
-    )
+    elseif chart_choice isa UpDownBalance || chart_choice isa Persistence ||
+           chart_choice isa RotationalAsymmetry || chart_choice isa UpDownScaling
+
         for (i, weight) in enumerate(stat_weights)
             bp_val += weight * bp_stats_all[i]^2
         end
