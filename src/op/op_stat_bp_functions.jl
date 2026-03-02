@@ -35,7 +35,7 @@ function stat_op_bp(data; chart_choice, m::Int=3, w=3, ljung_box::Bool=false)
             fill!(idx_used, 0) # reset idx_used
 
             # Binarization of ordinal pattern
-            bin[index] = 1
+            bin[index] += 1
 
         end # end of range loop
 
