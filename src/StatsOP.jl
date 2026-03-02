@@ -112,6 +112,7 @@ include("op/op_arl_oc_functions.jl")
 include("op/op_cl_functions.jl")
 include("op/op_dependence.jl")
 include("op/op_stat_functions.jl")
+include("op/op_stat_bp_functions.jl")
 include("op/op_test_functions.jl")
 include("op/op_help_functions.jl")
 
