@@ -108,7 +108,8 @@ function crit_val_op_bp(; chart_choice, w, m, alpha=0.05)
     # ---------------------------------------------------------------------------#
 
     if m == 2
-        if typeof(chart_choice) in (Shannon, DistanceToWhiteNoise)
+        # Check if chart_choice is an instance of Shannon (any base) or DistanceToWhiteNoise
+        if chart_choice isa Shannon || chart_choice isa DistanceToWhiteNoise
             return 1 / 6 * quantile(Chisq(w), 1 - alpha)
         end
     end
@@ -120,7 +121,7 @@ function crit_val_op_bp(; chart_choice, w, m, alpha=0.05)
     # ---------------------------------------------------------------------------#
     if m == 3
         # for H-chart, Hex-chart and Δ-chart
-        if typeof(chart_choice) in (Shannon, ShannonExtropy, DistanceToWhiteNoise) #1:3
+        if chart_choice isa Shannon || chart_choice isa ShannonExtropy || chart_choice isa DistanceToWhiteNoise
             if w == 1
                 return 1.484224
             elseif w == 2
@@ -135,12 +136,12 @@ function crit_val_op_bp(; chart_choice, w, m, alpha=0.05)
         end
 
         # critical value for β-chart
-        if typeof(chart_choice) == UpDownBalance # 4
+        if chart_choice isa UpDownBalance # 4
             return 1 / 3 * quantile(Chisq(w), 1 - alpha)
         end
 
         # critical value for τ-chart
-        if typeof(chart_choice) == Persistence #5
+        if chart_choice isa Persistence #5
             if w == 1
                 return 0.6829163
             elseif w == 2
@@ -155,7 +156,7 @@ function crit_val_op_bp(; chart_choice, w, m, alpha=0.05)
         end
 
         # critical value for γ-chart
-        if typeof(chart_choice) == RotationalAsymmetry #6
+        if chart_choice isa RotationalAsymmetry #6
             if w == 1
                 return 1.536584
             elseif w == 2
@@ -170,7 +171,7 @@ function crit_val_op_bp(; chart_choice, w, m, alpha=0.05)
         end
 
         # critical value for δ-chart
-        if typeof(chart_choice) == UpDownScaling # 7
+        if chart_choice isa UpDownScaling # 7
             if w == 1
                 return 2.560972
             elseif w == 2
