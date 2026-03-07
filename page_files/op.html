@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.24">
+<meta name="generator" content="quarto-1.8.27">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -20,7 +20,27 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="../site_libs/quarto-nav/quarto-nav.js"></script>
@@ -37,7 +57,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dc55a5b9e770e841cd82e46aadbfb9b0.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-df8a045e43089f1c09f06b2b7e0ad557.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -69,6 +89,35 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../styles.css">
 </head>
@@ -92,11 +141,11 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="../index.html" aria-current="page"> 
+    <a class="nav-link" href="../index.html"> 
 <span class="menu-text">StatsOP.jl</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../page_files/op.html"> 
+    <a class="nav-link active" href="../page_files/op.html" aria-current="page"> 
 <span class="menu-text">OPs</span></a>
   </li>  
   <li class="nav-item">
@@ -133,10 +182,6 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
-    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
-      <a href="../index.html" class="sidebar-logo-link">
-      </a>
-      </div>
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
@@ -167,12 +212,31 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="ordinal-patterns" class="level1">
 <h1>Ordinal Patterns</h1>
-<p>Ordinal Patterns (OPs) are a method to. They have been used in the context of …</p>
+<p>Ordinal patterns are a useful tool in time series analysis that convert short segments of data into permutations describing their relative order. This transformation makes it easier to study complex dynamics because ordinal patterns are unaffected by strictly monotonic transformations and are robust to outliers.</p>
+<p>Ordinal patterns are well suited for distribution-free tests. In statistical process control (SPC), they can also be used to build nonparametric control charts that monitor processes without requiring specific distributional assumptions.</p>
+<p>‘StatsOP.jl’ provides functions for computing ordinal patterns from time series data and for conducting tests based on these patterns. It also enables the replication of several studies listed below.</p>
+
 
 
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-bandt2002" class="csl-entry" role="listitem">
+Bandt, Christoph, and Bernd Pompe. 2002. <span>“Permutation Entropy: A Natural Complexity Measure for Time Series.”</span> <em>Physical Review Letters</em> 88 (17). <a href="https://doi.org/10.1103/physrevlett.88.174102">https://doi.org/10.1103/physrevlett.88.174102</a>.
+</div>
+<div id="ref-schnurr2017" class="csl-entry" role="listitem">
+Schnurr, Alexander, and Herold Dehling. 2017. <span>“Testing for Structural Breaks via Ordinal Pattern Dependence.”</span> <em>Journal of the American Statistical Association</em> 112 (518): 706–20.
+</div>
+<div id="ref-weiss2021" class="csl-entry" role="listitem">
+Weiß, Christian H. 2021. <span>“Measuring Dispersion and Serial Dependence in Ordinal Time Series Based on the Cumulative Paired <span class="math inline">\(\phi\)</span>-Entropy.”</span> <em>Entropy</em> 24 (1): 42.
+</div>
+<div id="ref-weiss2022" class="csl-entry" role="listitem">
+———. 2022. <span>“Non-Parametric Tests for Serial Dependence in Time Series Based on Asymptotic Implementations of Ordinal-Pattern Statistics.”</span> <em>Chaos: An Interdisciplinary Journal of Nonlinear Science</em> 32 (9).
+</div>
+<div id="ref-weiss2023" class="csl-entry" role="listitem">
+Weiß, Christian H, and Murat Caner Testik. 2023. <span>“Nonparametric Control Charts for Monitoring Serial Dependence Based on Ordinal Patterns.”</span> <em>Technometrics</em> 65 (3): 340–50.
+</div>
+</div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
