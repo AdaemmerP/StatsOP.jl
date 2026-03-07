@@ -89,6 +89,35 @@ div.csl-indent {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -163,7 +192,7 @@ div.csl-indent {
 
 <section id="statsop.jl" class="level1">
 <h1>StatsOP.jl</h1>
-<p><code>StatsOP.jl</code> is a Julia package that provides functions to conduct (sequential) tests for time series data, using ordinal patterns. The package builds on the seminal work of <span class="citation" data-cites="bandt2002">Bandt and Pompe (<a href="#ref-bandt2002" role="doc-biblioref">2002</a>)</span>. The package is highly optimized and fast. The package is designed to be easy to use and provides a simple interface to compute ordinal patterns from time series data.</p>
+<p><code>StatsOP.jl</code> is a Julia package that provides functions to conduct (sequential) tests for time series data, using ordinal patterns. The package builds on the seminal work of <span class="citation" data-cites="bandt2002">Christoph Bandt and Pompe (<a href="#ref-bandt2002" role="doc-biblioref">2002</a>)</span>. The package is highly optimized and fast. The package is designed to be easy to use and provides a simple interface to compute ordinal patterns from time series data.</p>
 <section id="installation" class="level2">
 <h2 class="anchored" data-anchor-id="installation">Installation</h2>
 <p>The package is currently not registered and has to be installed manually from GitHub.</p>
@@ -176,6 +205,24 @@ div.csl-indent {
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
 <div id="ref-bandt2002" class="csl-entry" role="listitem">
 Bandt, Christoph, and Bernd Pompe. 2002. <span>“Permutation Entropy: A Natural Complexity Measure for Time Series.”</span> <em>Physical Review Letters</em> 88 (17). <a href="https://doi.org/10.1103/physrevlett.88.174102">https://doi.org/10.1103/physrevlett.88.174102</a>.
+</div>
+<div id="ref-bandt2007" class="csl-entry" role="listitem">
+Bandt, Chstoph, and Faten Shiha. 2007. <span>“Order Patterns in Time Series.”</span> <em>Journal of Time Series Analysis</em> 28 (5): 646–65.
+</div>
+<div id="ref-keller2007" class="csl-entry" role="listitem">
+Keller, Karsten, Mathieu Sinn, and Jan Emonds. 2007. <span>“Time Series from the Ordinal Viewpoint.”</span> <em>Stochastics and Dynamics</em> 7 (02): 247–72.
+</div>
+<div id="ref-schnurr2017" class="csl-entry" role="listitem">
+Schnurr, Alexander, and Herold Dehling. 2017. <span>“Testing for Structural Breaks via Ordinal Pattern Dependence.”</span> <em>Journal of the American Statistical Association</em> 112 (518): 706–20. <a href="https://doi.org/10.1080/01621459.2016.1164706">https://doi.org/10.1080/01621459.2016.1164706</a>.
+</div>
+<div id="ref-weiss2021" class="csl-entry" role="listitem">
+Weiß, Christian H. 2021. <span>“Measuring Dispersion and Serial Dependence in Ordinal Time Series Based on the Cumulative Paired <span class="math inline">\(\phi\)</span>-Entropy.”</span> <em>Entropy</em> 24 (1): 42. <a href="https://www.mdpi.com/1099-4300/24/1/42">https://www.mdpi.com/1099-4300/24/1/42</a>.
+</div>
+<div id="ref-weiss2022" class="csl-entry" role="listitem">
+———. 2022. <span>“Non-Parametric Tests for Serial Dependence in Time Series Based on Asymptotic Implementations of Ordinal-Pattern Statistics.”</span> <em>Chaos: An Interdisciplinary Journal of Nonlinear Science</em> 32 (9). <a href="https://pubs.aip.org/aip/cha/article-abstract/32/9/093107/2835852/Non-parametric-tests-for-serial-dependence-in-time?redirectedFrom=fulltext">https://pubs.aip.org/aip/cha/article-abstract/32/9/093107/2835852/Non-parametric-tests-for-serial-dependence-in-time?redirectedFrom=fulltext</a>.
+</div>
+<div id="ref-weiss2023" class="csl-entry" role="listitem">
+Weiß, Christian H, and Murat Caner Testik. 2023. <span>“Nonparametric Control Charts for Monitoring Serial Dependence Based on Ordinal Patterns.”</span> <em>Technometrics</em> 65 (3): 340–50.
 </div>
 </div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
