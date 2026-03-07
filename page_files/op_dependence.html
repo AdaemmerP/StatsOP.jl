@@ -55,7 +55,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="../site_libs/quarto-nav/quarto-nav.js"></script>
@@ -175,7 +195,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="dependency-test" class="level1">
 <h1>Dependency test</h1>
-<p><code>OrdinalPatterns.jl</code> allows to compute the dependency statistic based on <span class="citation" data-cites="schnurr2017">@schnurr2017</span>.</p>
+<p><code>OrdinalPatterns.jl</code> allows to compute the dependency statistic based on <span class="citation" data-cites="schnurr2017">Schnurr and Dehling (<a href="#ref-schnurr2017" role="doc-biblioref">2017</a>)</span>.</p>
 <div id="2" class="cell" data-execution_count="0">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">RCall</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">OrdinalPatterns</span></span>
@@ -205,9 +225,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 
 
+
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-schnurr2017" class="csl-entry" role="listitem">
+Schnurr, Alexander, and Herold Dehling. 2017. <span>“Testing for Structural Breaks via Ordinal Pattern Dependence.”</span> <em>Journal of the American Statistical Association</em> 112 (518): 706–20. <a href="https://doi.org/10.1080/01621459.2016.1164706">https://doi.org/10.1080/01621459.2016.1164706</a>.
+</div>
+</div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
