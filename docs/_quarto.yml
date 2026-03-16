@@ -1,6 +1,9 @@
 project:
   type: website
   output-dir: site
+
+bibliography: references.bib
+
 execute:
   freeze: false
   cache: true
@@ -72,8 +75,8 @@ website:
       collapse-level: 1
       contents:
         - page_files/sop.qmd
-        - page_files/sop_tutorial.qmd
-        - page_files/sop_replication.qmd   
+        # - page_files/sop_tutorial.qmd
+        # - page_files/sop_replication.qmd   
     - title: "OPs"
       style: "docked"
       background: light

@@ -1,4 +1,15 @@
+---
+nocite: |
+  @adammer2026
+  @weiss2024b
+  @weiss2025
+---
+
 
 # Spatial Ordinal Patterns
  
- Spatial Ordinal Patterns (SOPs) are a way to ...
+Spatial ordinal patterns extend the idea of ordinal patterns from time series to spatial data arranged on a grid. Instead of comparing values across time, they compare the relative ordering of values within small spatial neighborhoods (for example a 2×2 block) and encode these order relations as spatial patterns. 
+
+The frequencies of these patterns summarize the local spatial structure of the data without relying on the exact values themselves. Under spatial independence, the patterns occur with equal probability, so deviations from this uniform distribution can be used for non-parametric tests of spatial dependence. Because the approach only uses ranks, it is robust to outliers and distributional assumptions and can detect complex or nonlinear spatial relationships that traditional measures like spatial autocorrelation might miss.
+
+`StatsOP.jl` provides functions for computing spatial ordinal patterns from gridded data and for conducting (sequential) tests based on these patterns. It also enables the replication of several studies listed below.

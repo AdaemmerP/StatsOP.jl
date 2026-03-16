@@ -1,1 +1,16 @@
+---
+nocite: |
+  @bandt2002
+  @bian2012
+  @unakafova2013
+  @schnurr2022
+  @weiss2024
+---
+
 # Generalized Ordinal Patterns
+
+Generalized ordinal patterns extend classical ordinal patterns for time-series analysis by allowing ties between observations, which often occur in discrete or rounded data. Instead of simple permutations, they use Cayley permutations to represent the relative ordering of values, including equal ones. This makes it possible to capture the structure of discrete time series without artificially breaking ties. 
+
+The frequencies of these patterns can be used to test for serial dependence: since their theoretical distribution under independence is not uniform, bootstrap methods are used to obtain valid test statistics. The same idea can be applied in statistical process control (SPC) by monitoring changes in the distribution of generalized ordinal patterns over time, which can signal shifts or emerging dependencies in a process.
+
+`StatsOP.jl` provides functions for computing generalized ordinal patterns from time series data and for conducting (sequential) tests based on these patterns. It also enables the replication of several studies listed below.

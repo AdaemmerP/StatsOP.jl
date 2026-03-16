@@ -16,7 +16,10 @@ The input parameters are:
 The default value is 3.
 """
 function arl_sop_ic(
-  sop_dgp::ICSTS, lam, cl, d1::Int, d2::Int, reps=10_000; chart_choice=TauTilde(), refinement::Union{Nothing,RefinedType}=nothing
+  sop_dgp::ICSTS, lam, cl, d1::Int, d2::Int, reps=10_000;
+  chart_choice=TauTilde(),
+  refinement::Union{Nothing,RefinedType}=nothing,
+  truncate::Bool=false
 )
 
   # Check input parameters
@@ -37,7 +40,7 @@ function arl_sop_ic(
 
     # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
     par_results = map(chunks) do i
-      Threads.@spawn rl_sop_ic(lam, cl, lookup_array_sop, i, dist, chart_choice, refinement, m, n, d1, d2)
+      Threads.@spawn rl_sop_ic(lam, cl, lookup_array_sop, i, dist, chart_choice, refinement, m, n, d1, d2, truncate)
     end
 
   elseif nprocs() > 1
@@ -46,7 +49,7 @@ function arl_sop_ic(
     chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
 
     par_results = pmap(chunks) do i
-      rl_sop_ic(lam, cl, lookup_array_sop, i, dist, chart_choice, refinement, m, n, d1, d2)
+      rl_sop_ic(lam, cl, lookup_array_sop, i, dist, chart_choice, refinement, m, n, d1, d2, truncate)
     end
 
   end
@@ -79,7 +82,7 @@ univariate distribution from the `Distributions.jl` package.
 - `d2::Int`: An integer value for the second delay (d₂).
 """
 function rl_sop_ic(
-  lam, cl, lookup_array_sop, reps_range::UnitRange{Int}, dist, chart_choice, refinement, m, n, d1::Int, d2::Int
+  lam, cl, lookup_array_sop, reps_range::UnitRange{Int}, dist, chart_choice, refinement, m, n, d1::Int, d2::Int, truncate::Bool
 )
 
   # Pre-allocate
@@ -137,6 +140,11 @@ function rl_sop_ic(
       fill!(win, 0)
       fill!(sop_freq, 0)
       fill!(p_hat, 0)
+
+      # Break while loop when truncate and rl exceeds 10,000
+      if truncate && rl > 25_000
+        break
+      end
     end
 
     rls[r] = rl

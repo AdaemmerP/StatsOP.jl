@@ -1,4 +1,19 @@
+---
+nocite: |
+  @bandt2002
+  @bandt2007
+  @keller2007
+  @schnurr2017
+  @weiss2021
+  @weiss2022
+  @weiss2023
+---
+
 # Ordinal Patterns
 
-Ordinal Patterns (OPs) are a method to. They have been used in the context of ...
+Ordinal patterns are a useful tool in time series analysis that convert short segments of data into permutations describing their relative order. This transformation makes it easier to study complex dynamics because ordinal patterns are unaffected by strictly monotonic transformations and are robust to outliers.
+
+Ordinal patterns are well suited for distribution-free tests. In statistical process control (SPC), they can also be used to build nonparametric control charts that monitor processes without requiring specific distributional assumptions.
+
+`StatsOP.jl` provides functions for computing ordinal patterns from time series data and for conducting tests based on these patterns. It also enables the replication of several studies listed below. 
 

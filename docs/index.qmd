@@ -1,5 +1,12 @@
 ---
-bibliography: references.bib
+nocite: |
+  @bandt2002
+  @bandt2007
+  @keller2007
+  @schnurr2017
+  @weiss2021
+  @weiss2022
+  @weiss2023
 ---
 
 #  StatsOP.jl 
