@@ -31,7 +31,7 @@ The type frequencies are based on the ranks of the sops, but we use sortperm to
 compute the order of the elements in the vector. 
 """
 # Function that returns SOP indices for sortperm values
-function create_index_sop(refinement)
+function create_index_sop(; refinement)
 
   # @assert refinement in 0:3 "refinement must be in 0:3"
 

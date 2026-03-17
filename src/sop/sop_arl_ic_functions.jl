@@ -18,12 +18,10 @@ The default value is 3.
 function arl_sop_ic(
   sop_dgp::ICSTS, lam, cl, d1::Int, d2::Int, reps=10_000;
   chart_choice=TauTilde(),
-  refinement::Union{Nothing,RefinedType}=nothing,
-  truncate::Bool=false
+  refinement::Union{Bool,RefinedType}=false,
+  rl_max::Int=typemax(Int)
 )
 
-  # Check input parameters
-  @assert chart_choice in (Shannon, ShannonExtropy, DistanceToWhiteNoise, TauHat, KappaHat, TauTilde, KappaTilde) "chart_choice must be one of the defined chart types from type InformationMeasure"
   # Extract values    
   m = sop_dgp.M_rows - d1
   n = sop_dgp.N_cols - d2
@@ -32,27 +30,33 @@ function arl_sop_ic(
   # Compute lookup array and number of sops
   lookup_array_sop = compute_lookup_array_sop()
 
+  # Number of chunks
+  n_chunks = Threads.nthreads() * 4
+
+  # Assert that reps is bigger than
+  @assert reps > n_chunks "Number of repetitions must be greater than number of chunks, which equal number of threads times 4. Current number of repetitions: $reps, number of chunks: $n_chunks."
+
   # Check whether to use threading or multi processing --> only one process threading, else distributed
-  if nprocs() == 1
+  #if nprocs() == 1
 
-    # Make chunks for separate tasks (based on number of threads)        
-    chunks = Iterators.partition(1:reps, div(reps, Threads.nthreads())) |> collect
+  # Make chunks for separate tasks (based on number of threads)        
+  chunks = Iterators.partition(1:reps, div(reps, n_chunks))
 
-    # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
-    par_results = map(chunks) do i
-      Threads.@spawn rl_sop_ic(lam, cl, lookup_array_sop, i, dist, chart_choice, refinement, m, n, d1, d2, truncate)
-    end
-
-  elseif nprocs() > 1
-
-    # Make chunks for separate tasks (based on number of workers)
-    chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
-
-    par_results = pmap(chunks) do i
-      rl_sop_ic(lam, cl, lookup_array_sop, i, dist, chart_choice, refinement, m, n, d1, d2, truncate)
-    end
-
+  # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
+  par_results = map(chunks) do i
+    Threads.@spawn rl_sop_ic(lam, cl, lookup_array_sop, i, dist, chart_choice, refinement, m, n, d1, d2, rl_max)
   end
+
+  # elseif nprocs() > 1
+
+  #   # Make chunks for separate tasks (based on number of workers)
+  #   chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
+
+  #   par_results = pmap(chunks) do i
+  #     rl_sop_ic(lam, cl, lookup_array_sop, i, dist, chart_choice, refinement, m, n, d1, d2, rl_max)
+  #   end
+
+  # end
 
   # Collect results from tasks
   rls = fetch.(par_results)
@@ -82,18 +86,15 @@ univariate distribution from the `Distributions.jl` package.
 - `d2::Int`: An integer value for the second delay (d₂).
 """
 function rl_sop_ic(
-  lam, cl, lookup_array_sop, reps_range::UnitRange{Int}, dist, chart_choice, refinement, m, n, d1::Int, d2::Int, truncate::Bool
+  lam, cl, lookup_array_sop, reps_range::UnitRange{Int}, dist, chart_choice, refinement, m, n, d1::Int, d2::Int, rl_max::Int=typemax(Int)
 )
 
+
   # Pre-allocate
-  if isnothing(refinement)    # classical approach
-    p_hat = zeros(3)
-    p_ewma = zeros(3)
-  elseif refinement isa RefinedType
-    # refined approach
-    p_hat = zeros(6)
-    p_ewma = zeros(6)
-  end
+  n_size = refinement ? 6 : 3
+  p_hat = zeros(n_size)
+  p_ewma = zeros(n_size)
+
   sop_freq = zeros(Int, 24) # factorial(4)
   win = zeros(Int, 4)
   data_tmp = zeros(m + d1, n + d2)
@@ -141,8 +142,8 @@ function rl_sop_ic(
       fill!(sop_freq, 0)
       fill!(p_hat, 0)
 
-      # Break while loop when truncate and rl exceeds 10,000
-      if truncate && rl > 25_000
+      # Break while loop when rl exceeds rl_max
+      if rl > rl_max
         break
       end
     end
