@@ -1,17 +1,18 @@
 module StatsOP
 
 # Packages to use
-using Random
-using LinearAlgebra
-using Statistics
 using Combinatorics
-using Distributions
-using Distributed
-using StaticArrays
-using StatsBase
-using Reexport
-using Roots
 using ComplexityMeasures: InformationMeasure, ComplexityEstimator, Entropy, Shannon, ShannonExtropy
+using Distributed
+using Distributions
+using GeneralizedChisqDistribution
+using LinearAlgebra
+using Random
+using Reexport
+using Roots: TIP
+using StaticArrays
+using Statistics
+using StatsBase
 import PrecompileTools
 
 # Reexport
