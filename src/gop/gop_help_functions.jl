@@ -1,7 +1,3 @@
-export competerank!,
-    compute_lookup_array_gop,
-    fill_p0!,
-    abort_criterium_gop
 
 # Competition ranking ("1224" ranking) 
 # Code is based on StatsBase.jl

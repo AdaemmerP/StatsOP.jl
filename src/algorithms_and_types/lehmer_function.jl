@@ -1,5 +1,3 @@
-export perm_to_lehm_idx!,
-  perm_to_lehm_idx
 
 """
     perm_to_lehm_idx(P::Vector{<:Integer}) -> Int

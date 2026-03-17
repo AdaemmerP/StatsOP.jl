@@ -1,4 +1,3 @@
-export stat_kappa
 
 function stat_kappa(
   data::Vector{T}, lam, dist_null, chart_choice::KappaN1

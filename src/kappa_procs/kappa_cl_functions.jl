@@ -1,4 +1,3 @@
-export cl_kappa
 
 
 # --- Function to compute control limit for OPs --- #

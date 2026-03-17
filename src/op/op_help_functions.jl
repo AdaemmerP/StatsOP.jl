@@ -1,4 +1,3 @@
-export add_noise!
 
 
 # --- Function to select abort criterium --- #

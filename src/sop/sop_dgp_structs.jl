@@ -1,13 +1,3 @@
-export ICSTS,
-  SAR11,
-  SAR22,
-  SINAR11,
-  SQMA11,
-  SQMA22,
-  SQINMA11,
-  SAR1,
-  BSQMA11
-
 
 # Abstract type for all DGPS
 abstract type SpatialDGP end

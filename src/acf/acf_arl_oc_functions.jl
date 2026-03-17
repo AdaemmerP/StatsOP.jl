@@ -1,4 +1,3 @@
-export arl_acf_oc
 
 # function arl_acf_oc(lam, cl, acf_dgp, dist_null, reps)
 

@@ -1,17 +1,3 @@
-export DiscreteDGPIC,
-    ContinuousDGPIC,
-    AR1,
-    TEAR1,
-    MA1,
-    MA2,
-    QAR1,
-    INAR1,
-    BAR1,
-    DAR1,
-    WDAR1,
-    TINAR1,
-    SINAR1
-
 
 # Make abstract type for continuous and discrete DGPs
 abstract type ContinuousDGP end

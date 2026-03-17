@@ -1,5 +1,3 @@
-export arl_kappa_oc,
-  rl_kappa_oc
 
 # Function to compute average run length for ordinal patterns
 function arl_kappa_oc(

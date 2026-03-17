@@ -1,5 +1,3 @@
-export cl_gop
-
 
 # --- Function to compute control limit for OPs --- #
 function cl_gop(

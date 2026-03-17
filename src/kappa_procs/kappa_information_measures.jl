@@ -1,10 +1,3 @@
-export chart_stat_qual,
-  KappaN,
-  KappaO,
-  KappaN1,
-  KappaN2,
-  KappaO1,
-  KappaO2
 
 struct KappaN <: InformationMeasure end
 struct KappaO <: InformationMeasure end

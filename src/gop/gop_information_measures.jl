@@ -1,7 +1,3 @@
-export D_Chart,
-  G_Chart,
-  chart_stat_gop
-
 
 # Define abstract type for Information Measures
 struct D_Chart <: InformationMeasure end

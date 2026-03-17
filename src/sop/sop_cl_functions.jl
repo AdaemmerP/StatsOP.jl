@@ -1,4 +1,3 @@
-export cl_sop
 
 """
     cl_sop(sop_dgp, lam, L0, cl_guess, d1, d2;

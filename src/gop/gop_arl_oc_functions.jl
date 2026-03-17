@@ -1,6 +1,3 @@
-export arl_gop_oc,
-  rl_gop_oc
-
 
 
 # Function to compute average run length for ordinal patterns

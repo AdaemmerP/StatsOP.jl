@@ -1,9 +1,3 @@
-export DistanceToWhiteNoise,
-  UpDownBalance,
-  Persistence,
-  RotationalAsymmetry,
-  UpDownScaling,
-  chart_stat_op
 
 struct DistanceToWhiteNoise <: InformationMeasure end
 struct UpDownBalance <: ComplexityEstimator end

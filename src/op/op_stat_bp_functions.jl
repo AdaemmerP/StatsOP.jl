@@ -1,4 +1,3 @@
-export stat_op_bp, crit_val_op_bp
 
 ################################################################################
 #                        Use information measures and lehmer                   #
