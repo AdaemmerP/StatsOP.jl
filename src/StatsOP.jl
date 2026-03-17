@@ -23,64 +23,64 @@ import PrecompileTools
 # -----------------------------------------------#
 
 # algorithms_and_types/lehmer_function.jl
-export perm_to_lehm_idx!,
-  perm_to_lehm_idx
+export perm_to_lehm_idx,
+  perm_to_lehm_idx!
 
 # ---------------------------------------------#
 # OP related functions and structs  to export  #
 # ---------------------------------------------#
 
 # op/op_dgp_structs.jl
-export DiscreteDGPIC,
+export AR1,
+  BAR1,
   ContinuousDGPIC,
-  AR1,
-  TEAR1,
+  DAR1,
+  DiscreteDGPIC,
+  INAR1,
   MA1,
   MA2,
   QAR1,
-  INAR1,
-  BAR1,
-  DAR1,
-  WDAR1,
+  SINAR1,
+  TEAR1,
   TINAR1,
-  SINAR1
+  WDAR1
 
 # op/op_information_measures.jl
-export DistanceToWhiteNoise,
-  UpDownBalance,
+export chart_stat_op,
+  DistanceToWhiteNoise,
   Persistence,
   RotationalAsymmetry,
-  UpDownScaling,
-  chart_stat_op
+  UpDownBalance,
+  UpDownScaling
 
 # op/op_stat_bp_functions.jl
-export stat_op_bp,
-  crit_val_op_bp
+export crit_val_op_bp,
+  stat_op_bp
 
 # op/op_help_functions.jl
 export add_noise!
 
 # op/op_arl_ic_functions.jl, op_arl_oc_functions.jl, op_cl_functions.jl,
 # op_dependence.jl, op_stat_functions.jl, op_test_functions.jl
-export rl_op_ic,
-  rl_op_oc,
-  arl_op_ic,
+export arl_op_ic,
   arl_op_oc,
-  stat_op,
-  test_op,
+  changepoint_op,
   cl_op,
-  count_uv_op,
   count_mv_op,
+  count_uv_op,
   dependence_op,
-  changepoint_op
+  rl_op_ic,
+  rl_op_oc,
+  stat_op,
+  test_op
 
 # ---------------------------------------------#
 # ACF related functions and structs to export  #
 # ---------------------------------------------#
 
 # acf/acf_arl_ic_functions.jl
-export rl_acf,
-  arl_acf
+export arl_acf,
+  rl_acf
 
 # acf/acf_arl_oc_functions.jl
 export arl_acf_oc
@@ -93,9 +93,9 @@ export cl_acf
 # ----------------------------------------------#
 
 # gop/gop_information_measures.jl
-export D_Chart,
-  G_Chart,
-  chart_stat_gop
+export chart_stat_gop,
+  D_Chart,
+  G_Chart
 
 # gop/gop_arl_ic_functions.jl
 export arl_gop_ic,
@@ -109,10 +109,10 @@ export arl_gop_oc,
 export cl_gop
 
 # gop/gop_help_functions.jl
-export competerank!,
+export abort_criterium_gop,
+  competerank!,
   compute_lookup_array_gop,
-  fill_p0!,
-  abort_criterium_gop
+  fill_p0!
 
 # gop/gop_stat_functions.jl
 export stat_gop
@@ -123,43 +123,43 @@ export stat_gop
 
 # sop/sop_information_measures.jl
 export chart_stat_sop,
-  TauHat,
+  DiagonalType,
+  DirectionType,
   KappaHat,
-  TauTilde,
   KappaTilde,
   RefinedType,
   RotationType,
-  DirectionType,
-  DiagonalType
+  TauHat,
+  TauTilde
 
 # sop/sop_dgp_structs.jl
-export ICSTS,
+export BSQMA11,
+  ICSTS,
+  SAR1,
   SAR11,
   SAR22,
   SINAR11,
-  SQMA11,
-  SQMA22,
   SQINMA11,
-  SAR1,
-  BSQMA11
+  SQMA11,
+  SQMA22
 
 # sop/sop_distributions.jl
-export BinomialC,
+export BinNorm,
+  BinomialC,
   BinomialCvec,
-  ZIP,
   PoiBin,
-  BinNorm
+  ZIP
 
 # sop/sop_dgp_functions.jl
-export init_mat!,
+export build_sar1_matrix,
   fill_mat_dgp_sop!,
-  build_sar1_matrix
+  init_mat!
 
 # sop/sop_help_functions.jl
-export sop_frequencies!,
-  compute_lookup_array_sop,
+export compute_lookup_array_sop,
   compute_p_array,
-  compute_p_array_bp
+  compute_p_array_bp,
+  sop_frequencies!
 
 # sop/sop_arl_ic_functions.jl
 export arl_sop_ic
@@ -224,9 +224,9 @@ export cl_sacf
 export cl_sacf_bp
 
 # sacf/sacf_stat_functions.jl
-export sacf,
-  stat_sacf,
-  crit_val_sacf
+export crit_val_sacf,
+  sacf,
+  stat_sacf
 
 # sacf/sacf_stat_bp_functions.jl
 export stat_sacf_bp
@@ -238,9 +238,9 @@ export stat_sacf_bp
 # kappa_procs/kappa_information_measures.jl
 export chart_stat_qual,
   KappaN,
-  KappaO,
   KappaN1,
   KappaN2,
+  KappaO,
   KappaO1,
   KappaO2
 
