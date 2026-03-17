@@ -52,33 +52,16 @@ function arl_op_ic(
   # Compute lookup array and number of ops
   #lookup_array_op = compute_lookup_array_op()
 
-  # Check whether to use threading or multi processing -
-  if nprocs() == 1
+  # Number of chunks for load balancing
+  n_chunks = Threads.nthreads() * 4
 
-    # Make chunks for separate tasks (based on number of threads)   
-    chunks = Iterators.partition(1:reps, div(reps, Threads.nthreads())) |> collect
+  # Make chunks for separate tasks (based on number of threads)
+  chunks = Iterators.partition(1:reps, div(reps, n_chunks))
 
-    # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
-    par_results = map(chunks) do i
-
-      Threads.@spawn rl_op_ic(
-        op_dgp, lam, cl, i, op_dgp.dist, chart_choice; d=d, m=m, ced=ced, ad=ad
-      )
-
-    end
-
-  elseif nprocs() > 1
-
-    # Make chunks for separate tasks (based on number of workers)
-    chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
-
-    par_results = pmap(chunks) do i
-      rl_op_ic(
-        op_dgp, lam, cl, i, op_dgp.dist, chart_choice; d=d, m=m, ced=ced, ad=ad
-      )
-
-    end
-
+  par_results = map(chunks) do i
+    Threads.@spawn rl_op_ic(
+      op_dgp, lam, cl, i, op_dgp.dist, chart_choice; d=d, m=m, ced=ced, ad=ad
+    )
   end
 
   # Collect results from tasks

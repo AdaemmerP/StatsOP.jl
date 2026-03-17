@@ -37,56 +37,28 @@ function arl_sop_oc(
     # Compute lookup array to finde SOPs
     lookup_array_sop = compute_lookup_array_sop()
 
-    # Check whether to use threading or multi processing --> only one process threading, else distributed
-    if nprocs() == 1
+    # Number of chunks for load balancing
+    n_chunks = Threads.nthreads() * 4
 
-        # Make chunks for separate tasks        
-        chunks = Iterators.partition(1:reps, div(reps, Threads.nthreads())) |> collect
-        # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
-        par_results = map(chunks) do i
+    # Make chunks for separate tasks (based on number of threads)
+    chunks = Iterators.partition(1:reps, div(reps, n_chunks))
 
-            Threads.@spawn rl_sop_oc(
-                spatial_dgp,
-                lam,
-                cl,
-                lookup_array_sop,
-                i,
-                dist_error,
-                dist_ao,
-                chart_choice,
-                refinement,
-                m_rows,
-                n_cols,
-                d1,
-                d2,
-            )
-
-
-        end
-
-    elseif nprocs() > 1 # Multi Processing
-
-        chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
-        par_results = pmap(chunks) do i
-
-            rl_sop_oc(
-                spatial_dgp,
-                lam,
-                cl,
-                lookup_array_sop,
-                i,
-                dist_error,
-                dist_ao,
-                chart_choice,
-                refinement,
-                m_rows,
-                n_cols,
-                d1,
-                d2,
-            )
-
-        end
-
+    par_results = map(chunks) do i
+        Threads.@spawn rl_sop_oc(
+            spatial_dgp,
+            lam,
+            cl,
+            lookup_array_sop,
+            i,
+            dist_error,
+            dist_ao,
+            chart_choice,
+            refinement,
+            m_rows,
+            n_cols,
+            d1,
+            d2,
+        )
     end
     # Collect results from tasks
     rls = fetch.(par_results)

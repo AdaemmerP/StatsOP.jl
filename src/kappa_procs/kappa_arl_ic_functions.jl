@@ -5,39 +5,16 @@ function arl_kappa_ic(
   qual_dgp, lam, cl, reps; chart_choice
 )
 
-  # No threading or multiprocessing
-  if nprocs() == 1 && reps <= Threads.nthreads()
-    results = rl_kappa_ic(
-      lam, cl, 1:reps, qual_dgp, qual_dgp.dist, chart_choice
+  # Number of chunks for load balancing
+  n_chunks = Threads.nthreads() * 4
+
+  # Make chunks for separate tasks (based on number of threads)
+  chunks = Iterators.partition(1:reps, div(reps, n_chunks))
+
+  par_results = map(chunks) do i
+    Threads.@spawn rl_kappa_ic(
+      lam, cl, i, qual_dgp, qual_dgp.dist, chart_choice
     )
-
-    return (mean(results), std(results) / sqrt(reps))
-
-    # Threading
-  elseif nprocs() == 1 && reps > Threads.nthreads()
-
-    # Make chunks for separate tasks (based on number of threads)        
-    chunks = Iterators.partition(1:reps, div(reps, Threads.nthreads())) |> collect
-
-    # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
-    par_results = map(chunks) do i
-
-      Threads.@spawn rl_kappa_ic(
-        lam, cl, i, qual_dgp, qual_dgp.dist, chart_choice
-      )
-
-    end
-
-    # Multiprocessing    
-  elseif nprocs() > 1 && reps >= nworkers()
-
-    # Make chunks for separate tasks (based on number of workers)
-    chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
-
-    par_results = pmap(chunks) do i
-      rl_kappa_ic(lam, cl, i, qual_dgp, qual_dgp.dist, chart_choice)
-    end
-
   end
 
   # Collect results from tasks

@@ -3,13 +3,12 @@ module StatsOP
 # Packages to use
 using Combinatorics
 using ComplexityMeasures: InformationMeasure, ComplexityEstimator, Entropy, Shannon, ShannonExtropy
-using Distributed
 using Distributions
 using GeneralizedChisqDistribution
 using LinearAlgebra
 using Random
 using Reexport
-using Roots: TIP
+using Roots
 using StaticArrays
 using Statistics
 using StatsBase

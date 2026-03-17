@@ -23,25 +23,14 @@ function arl_sop_bp_bootstrap(
     p_array::Array{T,3}, lam, cl, w, reps; chart_choice=TauTilde()
 ) where {T<:Real}
 
-    # Check whether to use threading or multi processing --> only one process threading, else distributed
-    if nprocs() == 1
-        # Make chunks for separate tasks (based on number of threads)        
-        chunks = Iterators.partition(1:reps, div(reps, Threads.nthreads())) |> collect
+    # Number of chunks for load balancing
+    n_chunks = Threads.nthreads() * 4
 
-        # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
-        par_results = map(chunks) do i
-            Threads.@spawn rl_sop_bp_bootstrap(p_array, lam, cl, i, chart_choice)
-        end
+    # Make chunks for separate tasks (based on number of threads)
+    chunks = Iterators.partition(1:reps, div(reps, n_chunks))
 
-    elseif nprocs() > 1
-
-        # Make chunks for separate tasks (based on number of workers)
-        chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
-
-        par_results = pmap(chunks) do i
-            rl_sop_bp_bootstrap(p_array, lam, cl, i, chart_choice)
-        end
-
+    par_results = map(chunks) do i
+        Threads.@spawn rl_sop_bp_bootstrap(p_array, lam, cl, i, chart_choice)
     end
 
     # Collect results from tasks

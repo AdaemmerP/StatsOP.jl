@@ -8,41 +8,16 @@ function arl_gop_ic(
     # Compute lookup array and number of ops
     lookup_array_gop = compute_lookup_array_gop()
 
-    # No threading or multiprocessing
-    if nprocs() == 1 && reps <= Threads.nthreads()
-        results = rl_gop_ic(
-            lam, cl, lookup_array_gop, 1:reps, gop_dgp, gop_dgp.dist, chart_choice, d, ced, ad
+    # Number of chunks for load balancing
+    n_chunks = Threads.nthreads() * 4
+
+    # Make chunks for separate tasks (based on number of threads)
+    chunks = Iterators.partition(1:reps, div(reps, n_chunks))
+
+    par_results = map(chunks) do i
+        Threads.@spawn rl_gop_ic(
+            lam, cl, lookup_array_gop, i, gop_dgp, gop_dgp.dist, chart_choice, d, ced, ad
         )
-
-        return (mean(results), std(results) / sqrt(reps))
-
-        # Threading
-    elseif nprocs() == 1 && reps > Threads.nthreads()
-
-        # Make chunks for separate tasks (based on number of threads)        
-        chunks = Iterators.partition(1:reps, div(reps, Threads.nthreads())) |> collect
-
-        # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
-        par_results = map(chunks) do i
-
-            Threads.@spawn rl_gop_ic(
-                lam, cl, lookup_array_gop, i, gop_dgp, gop_dgp.dist, chart_choice, d, ced, ad
-            )
-
-        end
-
-        # Multiprocessing    
-    elseif nprocs() > 1 && reps >= nworkers()
-
-        # Make chunks for separate tasks (based on number of workers)
-        chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
-
-        par_results = pmap(chunks) do i
-            rl_gop_ic(
-                lam, cl, lookup_array_gop, i, gop_dgp, gop_dgp.dist, chart_choice, d, ced, ad
-            )
-        end
-
     end
 
     # Collect results from tasks

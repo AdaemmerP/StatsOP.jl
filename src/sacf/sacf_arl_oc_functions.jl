@@ -22,26 +22,14 @@ function arl_sacf_oc(sp_dgp::SpatialDGP, lam, cl, d1::Int, d2::Int, reps = 10_00
     dist_error = sp_dgp.dist
     dist_ao = sp_dgp.dist_ao
 
-    # Check whether to use threading or multi processing
-    if nprocs() == 1 # Threading
+    # Number of chunks for load balancing
+    n_chunks = Threads.nthreads() * 4
 
-        # Make chunks for separate tasks (based on number of threads)        
-        chunks = Iterators.partition(1:reps, div(reps, Threads.nthreads())) |> collect
+    # Make chunks for separate tasks (based on number of threads)
+    chunks = Iterators.partition(1:reps, div(reps, n_chunks))
 
-        # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
-        par_results = map(chunks) do i
-            Threads.@spawn rl_sacf_oc(sp_dgp, lam, cl, d1, d2, i, dist_error, dist_ao)
-        end
-
-    elseif nprocs() > 1 # Multi Processing
-
-        # Make chunks for separate tasks (based on number of workers)
-        chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
-
-        par_results = pmap(chunks) do i
-            rl_sacf_oc(sp_dgp, lam, cl, d1, d2, i, dist_error, dist_ao)
-        end
-
+    par_results = map(chunks) do i
+        Threads.@spawn rl_sacf_oc(sp_dgp, lam, cl, d1, d2, i, dist_error, dist_ao)
     end
 
     # Collect results from tasks

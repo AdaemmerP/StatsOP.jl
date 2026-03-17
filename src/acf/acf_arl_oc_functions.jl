@@ -122,27 +122,14 @@
 
 function arl_acf_oc(lam, cl, acf_dgp, dist_null, reps, acf_version)
 
-  # Check whether to use threading or multi processing --> only one process threading, else distributed
-  if nprocs() == 1
+  # Number of chunks for load balancing
+  n_chunks = Threads.nthreads() * 4
 
-    # Make chunks for separate tasks (based on number of threads)        
-    chunks = Iterators.partition(1:reps, div(reps, Threads.nthreads())) |> collect
+  # Make chunks for separate tasks (based on number of threads)
+  chunks = Iterators.partition(1:reps, div(reps, n_chunks))
 
-    # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
-    par_results = map(chunks) do i
-      Threads.@spawn rl_acf_oc(lam, cl, i, acf_dgp, acf_dgp.dist, dist_null, acf_version)
-
-    end
-
-  elseif nprocs() > 1
-
-    # Make chunks for separate tasks (based on number of workers)
-    chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
-
-    par_results = pmap(chunks) do i
-      rl_acf(lam, cl, i, acf_dgp, acf_dgp.dist, dist_null, acf_version)
-    end
-
+  par_results = map(chunks) do i
+    Threads.@spawn rl_acf_oc(lam, cl, i, acf_dgp, acf_dgp.dist, dist_null, acf_version)
   end
 
   # Collect results from tasks

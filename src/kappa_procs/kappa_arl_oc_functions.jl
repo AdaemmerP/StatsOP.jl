@@ -4,37 +4,14 @@ function arl_kappa_oc(
   qual_dgp, qual_null_dist, lam, cl, reps; chart_choice
 )
 
-  # No threading or multiprocessing
-  if nprocs() == 1 && reps <= Threads.nthreads()
-    results = rl_kappa_oc(
-      lam, cl, 1:reps, qual_dgp, qual_dgp.dist, chart_choice
-    )
+  # Number of chunks for load balancing
+  n_chunks = Threads.nthreads() * 4
 
-    return (mean(results), std(results) / sqrt(reps))
+  # Make chunks for separate tasks (based on number of threads)
+  chunks = Iterators.partition(1:reps, div(reps, n_chunks))
 
-    # Threading
-  elseif nprocs() == 1 && reps > Threads.nthreads()
-
-    # Make chunks for separate tasks (based on number of threads)        
-    chunks = Iterators.partition(1:reps, div(reps, Threads.nthreads())) |> collect
-
-    # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
-    par_results = map(chunks) do i
-
-      Threads.@spawn rl_kappa_oc(lam, cl, i, qual_dgp, qual_dgp.dist, qual_null_dist, chart_choice)
-
-    end
-
-    # Multiprocessing    
-  elseif nprocs() > 1 && reps >= nworkers()
-
-    # Make chunks for separate tasks (based on number of workers)
-    chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
-
-    par_results = pmap(chunks) do i
-      rl_kappa_oc(lam, cl, i, qual_dgp, qual_dgp.dist, qual_null_dist, chart_choice)
-    end
-
+  par_results = map(chunks) do i
+    Threads.@spawn rl_kappa_oc(lam, cl, i, qual_dgp, qual_dgp.dist, qual_null_dist, chart_choice)
   end
 
   # Collect results from tasks

@@ -47,34 +47,17 @@ function arl_op_oc(
   op_dgp, lam, cl, reps=10_000; chart_choice, d::Int=1, m::Int=3, ced=false, ad=100
 )
 
-  # Check whether to use threading or multi processing --> only one process threading, else distributed
-  if nprocs() == 1
+  # Number of chunks for load balancing
+  n_chunks = Threads.nthreads() * 4
 
-    # Make chunks for separate tasks (based on number of threads)   
-    chunks = Iterators.partition(1:reps, div(reps, Threads.nthreads())) |> collect
+  # Make chunks for separate tasks (based on number of threads)
+  chunks = Iterators.partition(1:reps, div(reps, n_chunks))
 
-    # Run tasks: "Threads.@spawn" for threading, "pmap()" for multiprocessing
-    par_results = map(chunks) do i
-
-      Threads.@spawn rl_op_oc(
-        op_dgp, lam, cl, i, op_dgp.dist, chart_choice,
-        d, m, ced, ad
-      )
-
-    end
-
-  elseif nprocs() > 1
-
-    # Make chunks for separate tasks (based on number of workers)
-    chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
-
-    par_results = pmap(chunks) do i
-      rl_op_oc(
-        op_dgp, lam, cl, i, op_dgp.dist, chart_choice,
-        d, m, ced, ad
-      )
-    end
-
+  par_results = map(chunks) do i
+    Threads.@spawn rl_op_oc(
+      op_dgp, lam, cl, i, op_dgp.dist, chart_choice,
+      d, m, ced, ad
+    )
   end
 
   # Collect results from tasks
