@@ -1,5 +1,5 @@
 # Quantile computation for the generalized chi-squared distribution
-function qup3_value(alpha)
+function qup3_op_value(alpha)
 
   ev = [(2 + sqrt(2)) / 12, 2 / 15, 1 / 10, (2 - sqrt(2)) / 12]
   quantile(GeneralizedChisq(ev, ones(length(ev)), zeros(length(ev)), 0.0, 0.0), 1 - alpha)
@@ -23,7 +23,7 @@ function crit_val_op(::Shannon, m, n_patterns; alpha=0.05)
     return log(2) - qup2 / n_patterns
   elseif m == 3
     # H-chart (m=3)
-    qup3 = qup3_value(alpha)
+    qup3 = qup3_op_value(alpha)
     return log(6) - 3 * qup3 / n_patterns
   else
     throw(ArgumentError("Unsupported m value for Shannon chart: $m. Use 2 or 3."))
@@ -35,7 +35,7 @@ function crit_val_op(::ShannonExtropy, m, n_patterns; alpha=0.05)
   @assert m == 3 "ShannonExtropy test only supports m = 3."
 
   # Hex-chart (m=3)
-  qup3 = qup3_value(alpha)
+  qup3 = qup3_op_value(alpha)
   return 5 * log(6 / 5) - 3 * qup3 / 5 / n_patterns
 end
 
@@ -49,7 +49,7 @@ function crit_val_op(::DistanceToWhiteNoise, m, n_patterns; alpha=0.05)
     return qup2 / n_patterns
   elseif m == 3
     # Δ-chart (m=3)
-    qup3 = qup3_value(alpha)
+    qup3 = qup3_op_value(alpha)
     return qup3 / n_patterns
   end
 end

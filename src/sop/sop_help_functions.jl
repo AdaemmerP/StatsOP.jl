@@ -76,6 +76,7 @@ function create_index_sop(; refinement)
     return [s_11, s_12, s_21, s_22, s_31, s_32]
   end
 
+
 end
 
 """
@@ -272,7 +273,7 @@ function fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, s_all)
         p_hat[2] += sop_freq[j]
       end
 
-    elseif typeof(chart_choice) in (Shannon, ShannonExtropy, DistanceToWhiteNoise)
+    elseif isa(chart_choice, Shannon) || isa(chart_choice, ShannonExtropy) || typeof(chart_choice) == DistanceToWhiteNoise
       for (i, j, k) in zip(s_all[1], s_all[2], s_all[3])
         p_hat[1] += sop_freq[i]
         p_hat[2] += sop_freq[j]
@@ -281,16 +282,16 @@ function fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, s_all)
     end
 
     # For refined computations  
-  elseif typeof(refinement) == RefinedType
-    for (i, j, k, l, m, n) in zip(
+  elseif isa(refinement, RefinedType)
+    for (i, j, k, l, p, q) in zip(  # do not use m and n for safety
       s_all[1], s_all[2], s_all[3], s_all[4], s_all[5], s_all[6]
     )
       p_hat[1] += sop_freq[i]
       p_hat[2] += sop_freq[j]
       p_hat[3] += sop_freq[k]
       p_hat[4] += sop_freq[l]
-      p_hat[5] += sop_freq[m]
-      p_hat[6] += sop_freq[n]
+      p_hat[5] += sop_freq[p]
+      p_hat[6] += sop_freq[q]
     end
 
 

@@ -63,7 +63,7 @@ function stat_sop(
   n = size(data, 2) - d2
 
   # indices for sum of frequencies
-  index_sop = create_index_sop(refinement)
+  index_sop = create_index_sop(; refinement)
 
   # Add noise?
   if add_noise
@@ -79,7 +79,7 @@ function stat_sop(
   # Compute test statistic
   stat = chart_stat_sop(p_hat, chart_choice)
 
-  return stat
+  return (stat, p_hat)
 end
 
 # 2. Method to compute test statistic for multiple pictures
@@ -114,7 +114,7 @@ function stat_sop(
   d1::Int,
   d2::Int;
   chart_choice=TauTilde(),
-  refinement::Union{Bool,RefinedType}=false,
+  refinement::Union{Bool,RotationType,DirectionType,DiagonalType}=false,
   add_noise::Bool=false,
   noise_dist::UnivariateDistribution=Uniform(0, 1),
   type_freq_init::Union{Float64,Array{Float64,2}}=1 / 3
@@ -127,7 +127,7 @@ function stat_sop(
   lookup_array_sop = compute_lookup_array_sop()
 
   # Pre-allocate
-  if refinement == nothing
+  if refinement == false
     p_hat = zeros(3) # classical approach
   else
     p_hat = zeros(6) # refined approach
