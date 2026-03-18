@@ -17,7 +17,7 @@ The input parameters are:
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 """
 function arl_sop_bp_ic(
-  spatial_dgp::ICSTS, lam, cl, w::Int, reps=1_000; chart_choice=TauTilde(), refinement::Union{Nothing,RefinedType}=nothing,
+  spatial_dgp::ICSTS, lam, cl, w::Int, reps=1_000; chart_choice=TauTilde(), refinement::Union{Nothing,RefinedType}=nothing, rl_max::Int=typemax(Int)
 )
 
   # Check input parameters
@@ -40,7 +40,7 @@ function arl_sop_bp_ic(
 
   par_results = map(chunks) do i
     Threads.@spawn rl_sop_bp_ic(
-      spatial_dgp, lam, cl, w, lookup_array_sop, i, dist_error, chart_choice, refinement
+      spatial_dgp, lam, cl, w, lookup_array_sop, i, dist_error, chart_choice, refinement, rl_max
     )
   end
   # Collect results from tasks
@@ -74,7 +74,7 @@ univariate distribution from the `Distributions.jl` package.
 """
 function rl_sop_bp_ic(
   spatial_dgp::ICSTS, lam, cl, w::Int, lookup_array_sop, reps_range::UnitRange,
-  dist_error, chart_choice, refinement
+  dist_error, chart_choice, refinement, rl_max::Int=typemax(Int)
 )
 
   # Pre-allocate    
@@ -157,6 +157,11 @@ function rl_sop_bp_ic(
         fill!(p_hat, 0)
       end
       # -------------------------------------------------#
+
+      # Break while loop when rl exceeds rl_max
+      if rl > rl_max
+        break
+      end
     end
 
     rls[r] = rl

@@ -2,7 +2,7 @@
 
 # Function to compute average run length for ordinal patterns
 function arl_gop_oc(
-  gop_dgp, null_dist, lam, cl, reps; chart_choice, d=1, ced=false, ad=100
+  gop_dgp, null_dist, lam, cl, reps; chart_choice, d=1, ced=false, ad=100, rl_max::Int=typemax(Int)
 )
 
   # Compute lookup array and number of ops
@@ -16,7 +16,7 @@ function arl_gop_oc(
 
   par_results = map(chunks) do i
     Threads.@spawn rl_gop_oc(
-      lam, cl, lookup_array_gop, i, gop_dgp, gop_dgp.dist, null_dist, chart_choice, d, ced, ad
+      lam, cl, lookup_array_gop, i, gop_dgp, gop_dgp.dist, null_dist, chart_choice, d, ced, ad, rl_max
     )
   end
 
@@ -29,7 +29,7 @@ end
 #--- Run-length method for D-Chart
 function rl_gop_oc(
   lam, cl, lookup_array_gop, p_reps, gop_dgp, gop_dgp_dist, null_dist,
-  chart_choice::Union{D_Chart,Persistence}, d::Int, ced::Bool, ad::Int
+  chart_choice::Union{D_Chart,Persistence}, d::Int, ced::Bool, ad::Int, rl_max::Int=typemax(Int)
 )
 
   # Pattern size
@@ -128,6 +128,11 @@ function rl_gop_oc(
       # update sequence depending on OOC DGP
       seq = update_dgp_op!(gop_dgp, x_seq, gop_dgp_dist, d)
       fill!(win, 0)
+
+      # Break while loop when rl exceeds rl_max
+      if rl > rl_max
+        break
+      end
     end
 
     rls[r] = rl

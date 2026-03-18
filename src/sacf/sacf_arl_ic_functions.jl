@@ -16,7 +16,7 @@ The input arguments are:
 - `reps`: The number of repetitions to compute the ARL.
 """
 function arl_sacf_ic(
-    spatial_dgp::ICSTS, lam, cl, d1::Int, d2::Int, reps=10_000
+    spatial_dgp::ICSTS, lam, cl, d1::Int, d2::Int, reps=10_000; rl_max::Int=typemax(Int)
 )
 
     # Extract        
@@ -29,7 +29,7 @@ function arl_sacf_ic(
     chunks = Iterators.partition(1:reps, div(reps, n_chunks))
 
     par_results = map(chunks) do i
-        Threads.@spawn rl_sacf_ic(spatial_dgp, lam, cl, d1, d2, i, dist_error)
+        Threads.@spawn rl_sacf_ic(spatial_dgp, lam, cl, d1, d2, i, dist_error, rl_max)
     end
 
     # Collect results from tasks
@@ -57,7 +57,7 @@ The input arguments are:
 - `dist_error::UnivariateDistribution`: The distribution to use for the error term.
 """
 function rl_sacf_ic(
-    spatial_dgp::ICSTS, lam, cl, d1::Int, d2::Int, p_reps::UnitRange, dist_error::UnivariateDistribution
+    spatial_dgp::ICSTS, lam, cl, d1::Int, d2::Int, p_reps::UnitRange, dist_error::UnivariateDistribution, rl_max::Int=typemax(Int)
 )
 
     # Extract matrix size and pre-allocate matrices
@@ -82,6 +82,10 @@ function rl_sacf_ic(
             # compute ρ(d1,d2)-EWMA
             rho_hat = (1 - lam) * rho_hat + lam * sacf(X_centered, d1, d2)
 
+            # Break while loop when rl exceeds rl_max
+            if rl > rl_max
+                break
+            end
         end
 
         rls[r] = rl

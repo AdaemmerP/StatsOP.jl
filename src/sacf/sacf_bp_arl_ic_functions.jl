@@ -12,7 +12,7 @@ SACF function.
 - `d2_vec::Vector{Int}`: The second (column) delays for the spatial process.
 - `reps`: The number of repetitions to compute the ARL.
 """
-function arl_sacf_bp_ic(sp_dgp::ICSTS, lam, cl, w::Int, reps=10_000)
+function arl_sacf_bp_ic(sp_dgp::ICSTS, lam, cl, w::Int, reps=10_000; rl_max::Int=typemax(Int))
 
     # Extract distribution        
     dist_error = sp_dgp.dist
@@ -24,7 +24,7 @@ function arl_sacf_bp_ic(sp_dgp::ICSTS, lam, cl, w::Int, reps=10_000)
     chunks = Iterators.partition(1:reps, div(reps, n_chunks))
 
     par_results = map(chunks) do i
-        Threads.@spawn rl_sacf_bp_ic(sp_dgp, lam, cl, w, i, dist_error)
+        Threads.@spawn rl_sacf_bp_ic(sp_dgp, lam, cl, w, i, dist_error, rl_max)
     end
 
     # Collect results from tasks
@@ -56,7 +56,7 @@ has to be a unit range of integers to allow for parallel processing, since the
 in the spatial process. This can be any univariate distribution from the `Distributions.jl` package.
 """
 function rl_sacf_bp_ic(
-    sp_dgp::ICSTS, lam, cl, w::Int, p_reps::UnitRange, dist_error::UnivariateDistribution
+    sp_dgp::ICSTS, lam, cl, w::Int, p_reps::UnitRange, dist_error::UnivariateDistribution, rl_max::Int=typemax(Int)
 )
 
     # Extract matrix size and pre-allocate data matrices
@@ -96,6 +96,10 @@ function rl_sacf_bp_ic(
 
             end
 
+            # Break while loop when rl exceeds rl_max
+            if rl > rl_max
+                break
+            end
         end
 
         rls[r] = rl

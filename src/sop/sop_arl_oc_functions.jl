@@ -25,7 +25,8 @@ function arl_sop_oc(
     d2::Int,
     reps=10_000;
     chart_choice=TauTilde(),
-    refinement::Union{Bool,RefinedType}=false
+    refinement::Union{Bool,RefinedType}=false,
+    rl_max::Int=typemax(Int)
 )
 
     # Compute m and n (final SOP matrix)
@@ -58,6 +59,7 @@ function arl_sop_oc(
             n_cols,
             d1,
             d2,
+            rl_max,
         )
     end
     # Collect results from tasks
@@ -84,6 +86,7 @@ function rl_sop_oc(
     n,
     d1::Int,
     d2::Int,
+    rl_max::Int=typemax(Int),
 )
 
     # pre-allocate
@@ -168,6 +171,10 @@ function rl_sop_oc(
             fill!(sop_freq, 0)
             fill!(p_hat, 0)
 
+            # Break while loop when rl exceeds rl_max
+            if rl > rl_max
+                break
+            end
         end
 
         rls[r] = rl
@@ -192,6 +199,7 @@ function rl_sop_oc(
     n,
     d1::Int,
     d2::Int,
+    rl_max::Int=typemax(Int),
 )
 
     # pre-allocate
@@ -263,10 +271,14 @@ function rl_sop_oc(
             fill!(sop_freq, 0)
             fill!(p_hat, 0)
 
-            # Re-initialize matrix 
+            # Re-initialize matrix
             fill!(mat, 0.0)
             init_mat!(spatial_dgp, dist_error, mat)
 
+            # Break while loop when rl exceeds rl_max
+            if rl > rl_max
+                break
+            end
         end
 
         rls[r] = rl
@@ -291,6 +303,7 @@ function rl_sop_oc(
     n,
     d1::Int,
     d2::Int,
+    rl_max::Int=typemax(Int),
 )
 
     # pre-allocate
@@ -361,9 +374,13 @@ function rl_sop_oc(
             fill!(sop_freq, 0)
             fill!(p_hat, 0)
 
-            # Re-set matrix 
+            # Re-set matrix
             fill!(mat, 0.0)
 
+            # Break while loop when rl exceeds rl_max
+            if rl > rl_max
+                break
+            end
         end
 
         rls[r] = rl
@@ -388,6 +405,7 @@ function rl_sop_oc(
     n,
     d1::Int,
     d2::Int,
+    rl_max::Int=typemax(Int),
 )
 
     # pre-allocate
@@ -458,9 +476,13 @@ function rl_sop_oc(
             fill!(sop_freq, 0)
             fill!(p_hat, 0)
 
-            # Re-set matrix 
+            # Re-set matrix
             fill!(mat, 0.0)
 
+            # Break while loop when rl exceeds rl_max
+            if rl > rl_max
+                break
+            end
         end
 
         rls[r] = rl
@@ -485,6 +507,7 @@ function rl_sop_oc(
     n,
     d1::Int,
     d2::Int,
+    rl_max::Int=typemax(Int),
 )
 
     # pre-allocate
@@ -556,9 +579,13 @@ function rl_sop_oc(
             fill!(sop_freq, 0)
             fill!(p_hat, 0)
 
-            # Re-set matrix 
+            # Re-set matrix
             fill!(mat, 0.0)
 
+            # Break while loop when rl exceeds rl_max
+            if rl > rl_max
+                break
+            end
         end
 
         rls[r] = rl

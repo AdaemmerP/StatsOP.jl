@@ -20,7 +20,7 @@ denotes each d₁-d₂ combination. This matrix will be used for re-sampling.
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 """
 function arl_sop_bp_bootstrap(
-    p_array::Array{T,3}, lam, cl, w, reps; chart_choice=TauTilde()
+    p_array::Array{T,3}, lam, cl, w, reps; chart_choice=TauTilde(), rl_max::Int=typemax(Int)
 ) where {T<:Real}
 
     # Number of chunks for load balancing
@@ -30,7 +30,7 @@ function arl_sop_bp_bootstrap(
     chunks = Iterators.partition(1:reps, div(reps, n_chunks))
 
     par_results = map(chunks) do i
-        Threads.@spawn rl_sop_bp_bootstrap(p_array, lam, cl, i, chart_choice)
+        Threads.@spawn rl_sop_bp_bootstrap(p_array, lam, cl, i, chart_choice, rl_max)
     end
 
     # Collect results from tasks
@@ -57,7 +57,7 @@ each d₁-d₂ combination. This array will be used for re-sampling.
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 """
 function rl_sop_bp_bootstrap(
-    p_array::Array{T,3}, lam, cl, reps_range::UnitRange, chart_choice
+    p_array::Array{T,3}, lam, cl, reps_range::UnitRange, chart_choice, rl_max::Int=typemax(Int)
 ) where {T<:Real}
 
     # Pre-allocate
@@ -106,6 +106,10 @@ function rl_sop_bp_bootstrap(
 
             end
 
+            # Break while loop when rl exceeds rl_max
+            if rl > rl_max
+                break
+            end
         end
 
         rls[r] = rl

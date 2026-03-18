@@ -15,7 +15,7 @@ control chart.
 - `d2_vec::Vector{Int}`: The second (column) delays for the spatial process.
 - `reps`: The number of repetitions to compute the ARL.
 """
-function arl_sacf_bp_oc(spatial_dgp::SpatialDGP, lam, cl, w::Int, reps = 10_000)
+function arl_sacf_bp_oc(spatial_dgp::SpatialDGP, lam, cl, w::Int, reps = 10_000; rl_max::Int=typemax(Int))
 
     # Extract distribution          
     dist_error = spatial_dgp.dist
@@ -28,7 +28,7 @@ function arl_sacf_bp_oc(spatial_dgp::SpatialDGP, lam, cl, w::Int, reps = 10_000)
     chunks = Iterators.partition(1:reps, div(reps, n_chunks))
 
     par_results = map(chunks) do i
-        Threads.@spawn rl_sacf_bp(spatial_dgp, lam, cl, w, i, dist_error, dist_ao)
+        Threads.@spawn rl_sacf_bp(spatial_dgp, lam, cl, w, i, dist_error, dist_ao, rl_max)
     end
 
     # Collect results from tasks
@@ -49,6 +49,7 @@ function rl_sacf_bp(
     p_reps::UnitRange,
     dist_error::UnivariateDistribution,
     dist_ao::Union{UnivariateDistribution,Nothing},
+    rl_max::Int=typemax(Int),
 )
 
     # Extract matrix sizes and pre-allocate
@@ -112,6 +113,10 @@ function rl_sacf_bp(
 
             end
 
+            # Break while loop when rl exceeds rl_max
+            if rl > rl_max
+                break
+            end
         end
 
         rls[r] = rl
@@ -131,6 +136,7 @@ function rl_sacf_bp(
     p_reps::UnitRange,
     dist_error::UnivariateDistribution,
     dist_ao::Union{UnivariateDistribution,Nothing},
+    rl_max::Int=typemax(Int),
 )
 
     # Extract matrix sizes and pre-allocate
@@ -182,12 +188,16 @@ function rl_sacf_bp(
 
             end
 
-            # Re-initialize matrix 
+            # Re-initialize matrix
             fill!(mat, 0.0)
             if typeof(spatial_dgp) ∈ (SAR11, SINAR11, SAR22)
                 init_mat!(spatial_dgp, dist_error, mat)
             end
 
+            # Break while loop when rl exceeds rl_max
+            if rl > rl_max
+                break
+            end
         end
 
         rls[r] = rl
@@ -206,6 +216,7 @@ function rl_sacf_bp(
     p_reps::UnitRange,
     dist_error::UnivariateDistribution,
     dist_ao::Union{UnivariateDistribution,Nothing},
+    rl_max::Int=typemax(Int),
 )
 
     # Extract matrix sizes and pre-allocate
@@ -256,9 +267,13 @@ function rl_sacf_bp(
 
             end
 
-            # Re-set matrix 
+            # Re-set matrix
             fill!(mat, 0.0)
 
+            # Break while loop when rl exceeds rl_max
+            if rl > rl_max
+                break
+            end
         end
 
         rls[r] = rl
@@ -277,6 +292,7 @@ function rl_sacf_bp(
     p_reps::UnitRange,
     dist_error::UnivariateDistribution,
     dist_ao::Union{UnivariateDistribution,Nothing},
+    rl_max::Int=typemax(Int),
 )
 
     # Extract matrix sizes and pre-allocate
@@ -327,9 +343,13 @@ function rl_sacf_bp(
 
             end
 
-            # Re-set matrix 
+            # Re-set matrix
             fill!(mat, 0.0)
 
+            # Break while loop when rl exceeds rl_max
+            if rl > rl_max
+                break
+            end
         end
 
         rls[r] = rl
@@ -348,6 +368,7 @@ function rl_sacf_bp(
     p_reps::UnitRange,
     dist_error::UnivariateDistribution,
     dist_ao::Union{UnivariateDistribution,Nothing},
+    rl_max::Int=typemax(Int),
 )
 
     # Extract matrix sizes and pre-allocate
@@ -398,9 +419,13 @@ function rl_sacf_bp(
 
             end
 
-            # Re-set matrix 
+            # Re-set matrix
             fill!(mat, 0.0)
 
+            # Break while loop when rl exceeds rl_max
+            if rl > rl_max
+                break
+            end
         end
 
         rls[r] = rl

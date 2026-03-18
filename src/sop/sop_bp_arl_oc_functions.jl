@@ -24,6 +24,7 @@ function arl_sop_bp_oc(
     reps=1_000;
     chart_choice=TauTilde(),
     refinement::Union{Nothing,RefinedType}=nothing,
+    rl_max::Int=typemax(Int)
 )
 
     # Compute m and n
@@ -50,7 +51,8 @@ function arl_sop_bp_oc(
             dist_error,
             dist_ao,
             chart_choice,
-            refinement
+            refinement,
+            rl_max,
         )
     end
     # Collect results from tasks
@@ -73,7 +75,8 @@ function rl_sop_bp_oc(
     dist_error::UnivariateDistribution,
     dist_ao::Union{Nothing,UnivariateDistribution},
     chart_choice,
-    refinement
+    refinement,
+    rl_max::Int=typemax(Int),
 )
 
     # find maximum values of d1 and d2 for construction of matrices
@@ -171,6 +174,10 @@ function rl_sop_bp_oc(
             end
             # -------------------------------------------------------------------------------#
 
+            # Break while loop when rl exceeds rl_max
+            if rl > rl_max
+                break
+            end
         end
 
         rls[r] = rl
@@ -191,6 +198,8 @@ function rl_sop_bp_oc(
     dist_error::UnivariateDistribution,
     dist_ao::Union{Nothing,UnivariateDistribution},
     chart_choice,
+    refinement=nothing,
+    rl_max::Int=typemax(Int),
 )
 
     # find maximum values of d1 and d2 for construction of matrices
@@ -283,10 +292,15 @@ function rl_sop_bp_oc(
             end
             # -------------------------------------------------------------------------------#
 
-            # Re-initialize matrix 
+            # Re-initialize matrix
             fill!(mat, 0.0)
             if typeof(spatial_dgp) ∈ (SAR11, SINAR11, SAR22)
                 init_mat!(spatial_dgp, dist_error, mat)
+            end
+
+            # Break while loop when rl exceeds rl_max
+            if rl > rl_max
+                break
             end
         end
 
@@ -308,6 +322,8 @@ function rl_sop_bp_oc(
     dist_error::UnivariateDistribution,
     dist_ao::Union{Nothing,UnivariateDistribution},
     chart_choice,
+    refinement=nothing,
+    rl_max::Int=typemax(Int),
 )
 
     # find maximum values of d1 and d2 for construction of matrices
@@ -399,9 +415,13 @@ function rl_sop_bp_oc(
             end
             # -------------------------------------------------------------------------------#
 
-            # Re-set matrix 
+            # Re-set matrix
             fill!(mat, 0.0)
 
+            # Break while loop when rl exceeds rl_max
+            if rl > rl_max
+                break
+            end
         end
 
         rls[r] = rl
@@ -422,6 +442,8 @@ function rl_sop_bp_oc(
     dist_error::UnivariateDistribution,
     dist_ao::Union{Nothing,UnivariateDistribution},
     chart_choice,
+    refinement=nothing,
+    rl_max::Int=typemax(Int),
 )
 
     # find maximum values of d1 and d2 for construction of matrices
@@ -512,9 +534,13 @@ function rl_sop_bp_oc(
             end
             # -------------------------------------------------------------------------------#
 
-            # Re-set matrix 
+            # Re-set matrix
             fill!(mat, 0.0)
 
+            # Break while loop when rl exceeds rl_max
+            if rl > rl_max
+                break
+            end
         end
 
         rls[r] = rl
@@ -535,6 +561,8 @@ function rl_sop_bp_oc(
     dist_error::UnivariateDistribution,
     dist_ao::Union{Nothing,UnivariateDistribution},
     chart_choice,
+    refinement=nothing,
+    rl_max::Int=typemax(Int),
 )
 
     # find maximum values of d1 and d2 for construction of matrices
@@ -625,9 +653,13 @@ function rl_sop_bp_oc(
             end
             # -------------------------------------------------------------------------------#
 
-            # Re-set matrix 
+            # Re-set matrix
             fill!(mat, 0.0)
 
+            # Break while loop when rl exceeds rl_max
+            if rl > rl_max
+                break
+            end
         end
 
         rls[r] = rl

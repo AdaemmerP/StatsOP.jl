@@ -44,7 +44,7 @@ arl_op(0.1, cl_init, IC(Normal(0, 1)), 10_000; chart_choice=1, d=1, ced=false, a
 ```
 """
 function arl_op_oc(
-  op_dgp, lam, cl, reps=10_000; chart_choice, d::Int=1, m::Int=3, ced=false, ad=100
+  op_dgp, lam, cl, reps=10_000; chart_choice, d::Int=1, m::Int=3, ced=false, ad=100, rl_max::Int=typemax(Int)
 )
 
   # Number of chunks for load balancing
@@ -56,7 +56,7 @@ function arl_op_oc(
   par_results = map(chunks) do i
     Threads.@spawn rl_op_oc(
       op_dgp, lam, cl, i, op_dgp.dist, chart_choice,
-      d, m, ced, ad
+      d, m, ced, ad, rl_max
     )
   end
 
@@ -90,7 +90,7 @@ rl_op(0.1, 3.0, lookup_array_op, 1:10_000, IC(Normal(0, 1)), Normal(0, 1), 1; d=
 ```
 """
 function rl_op_oc(
-  op_dgp, lam, cl, p_reps, op_dgp_dist, chart_choice, d, m, ced, ad
+  op_dgp, lam, cl, p_reps, op_dgp_dist, chart_choice, d, m, ced, ad, rl_max::Int=typemax(Int)
 )
   m_fact = factorial(m)
   rls = zeros(Int, length(p_reps))
@@ -154,6 +154,11 @@ function rl_op_oc(
       stat = chart_stat_op(p, chart_choice)
       # Standard update
       seq = update_dgp_op!(op_dgp, x_seq, op_dgp_dist, d)
+
+      # Break while loop when rl exceeds rl_max
+      if rl > rl_max
+        break
+      end
     end
     rls[r] = rl
   end
@@ -163,7 +168,7 @@ end
 
 # Methods specifically for MA1 and MA2, which need an extra vector for the epsilons
 function rl_op_oc(
-  op_dgp::Union{MA1,MA2}, lam, cl, p_reps, op_dgp_dist, chart_choice, d, m, ced, ad
+  op_dgp::Union{MA1,MA2}, lam, cl, p_reps, op_dgp_dist, chart_choice, d, m, ced, ad, rl_max::Int=typemax(Int)
 )
   m_fact = factorial(m)
   rls = zeros(Int, length(p_reps))
@@ -230,6 +235,11 @@ function rl_op_oc(
       stat = chart_stat_op(p, chart_choice)
       # Specific update for MA processes using eps_long
       seq = update_dgp_op!(op_dgp, x_seq, eps_long, op_dgp_dist, d)
+
+      # Break while loop when rl exceeds rl_max
+      if rl > rl_max
+        break
+      end
     end
     rls[r] = rl
   end

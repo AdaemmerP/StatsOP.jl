@@ -16,7 +16,7 @@ This can be one of the following: `SAR1`, `SAR11`, `SAR22`, `SINAR11`, `SQMA11`,
 - `d2::Int`: The second (column) delay for the spatial process.
 - `reps`: The number of repetitions to compute the ARL.
 """
-function arl_sacf_oc(sp_dgp::SpatialDGP, lam, cl, d1::Int, d2::Int, reps = 10_000)
+function arl_sacf_oc(sp_dgp::SpatialDGP, lam, cl, d1::Int, d2::Int, reps = 10_000; rl_max::Int=typemax(Int))
 
     # extract m and n from spatial_dgp
     dist_error = sp_dgp.dist
@@ -29,7 +29,7 @@ function arl_sacf_oc(sp_dgp::SpatialDGP, lam, cl, d1::Int, d2::Int, reps = 10_00
     chunks = Iterators.partition(1:reps, div(reps, n_chunks))
 
     par_results = map(chunks) do i
-        Threads.@spawn rl_sacf_oc(sp_dgp, lam, cl, d1, d2, i, dist_error, dist_ao)
+        Threads.@spawn rl_sacf_oc(sp_dgp, lam, cl, d1, d2, i, dist_error, dist_ao, rl_max)
     end
 
     # Collect results from tasks
@@ -51,6 +51,7 @@ function rl_sacf_oc(
     p_reps::UnitRange{Int},
     dist_error::UnivariateDistribution,
     dist_ao::Union{UnivariateDistribution,Nothing},
+    rl_max::Int=typemax(Int),
 )
 
     # pre-allocate  
@@ -99,6 +100,10 @@ function rl_sacf_oc(
             # Compute ρ(d1,d2)-EWMA
             rho_hat = (1 - lam) * rho_hat + lam * sacf(X_centered, d1, d2)
 
+            # Break while loop when rl exceeds rl_max
+            if rl > rl_max
+                break
+            end
         end
 
         rls[r] = rl
@@ -118,6 +123,7 @@ function rl_sacf_oc(
     p_reps::UnitRange{Int},
     dist_error::UnivariateDistribution,
     dist_ao::Union{UnivariateDistribution,Nothing},
+    rl_max::Int=typemax(Int),
 )
 
     # pre-allocate  
@@ -153,10 +159,14 @@ function rl_sacf_oc(
             # Compute ρ(d1,d2)-EWMA
             rho_hat = (1 - lam) * rho_hat + lam * sacf(X_centered, d1, d2)
 
-            # Re-set matrix 
+            # Re-set matrix
             fill!(mat, 0.0)
             init_mat!(spatial_dgp, dist_error, mat)
 
+            # Break while loop when rl exceeds rl_max
+            if rl > rl_max
+                break
+            end
         end
 
         rls[r] = rl
@@ -177,6 +187,7 @@ function rl_sacf_oc(
     p_reps::UnitRange{Int},
     dist_error::UnivariateDistribution,
     dist_ao::Union{UnivariateDistribution,Nothing},
+    rl_max::Int=typemax(Int),
 )
 
     # pre-allocate  
@@ -225,9 +236,13 @@ function rl_sacf_oc(
             # Compute ρ(d1,d2)-EWMA
             rho_hat = (1 - lam) * rho_hat + lam * sacf(X_centered, d1, d2)
 
-            # Re-set matrix 
+            # Re-set matrix
             fill!(mat, 0.0)
 
+            # Break while loop when rl exceeds rl_max
+            if rl > rl_max
+                break
+            end
         end
 
         rls[r] = rl
@@ -248,6 +263,7 @@ function rl_sacf_oc(
     p_reps::UnitRange{Int},
     dist_error::UnivariateDistribution,
     dist_ao::Union{UnivariateDistribution,Nothing},
+    rl_max::Int=typemax(Int),
 )
 
     # pre-allocate  
@@ -282,9 +298,13 @@ function rl_sacf_oc(
             # Compute ρ(d1,d2)-EWMA
             rho_hat = (1 - lam) * rho_hat + lam * sacf(X_centered, d1, d2)
 
-            # Re-set matrix 
+            # Re-set matrix
             fill!(mat, 0.0)
 
+            # Break while loop when rl exceeds rl_max
+            if rl > rl_max
+                break
+            end
         end
 
         rls[r] = rl
@@ -304,6 +324,7 @@ function rl_sacf_oc(
     p_reps::UnitRange{Int},
     dist_error::UnivariateDistribution,
     dist_ao::Union{UnivariateDistribution,Nothing},
+    rl_max::Int=typemax(Int),
 )
 
     # pre-allocate  
@@ -338,9 +359,13 @@ function rl_sacf_oc(
             # Compute ρ(d1,d2)-EWMA
             rho_hat = (1 - lam) * rho_hat + lam * sacf(X_centered, d1, d2)
 
-            # Re-set matrix 
+            # Re-set matrix
             fill!(mat, 0.0)
 
+            # Break while loop when rl exceeds rl_max
+            if rl > rl_max
+                break
+            end
         end
 
         rls[r] = rl

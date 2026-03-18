@@ -1,7 +1,7 @@
 
 # Function to compute average run length for ordinal patterns
 function arl_kappa_oc(
-  qual_dgp, qual_null_dist, lam, cl, reps; chart_choice
+  qual_dgp, qual_null_dist, lam, cl, reps; chart_choice, rl_max::Int=typemax(Int)
 )
 
   # Number of chunks for load balancing
@@ -11,7 +11,7 @@ function arl_kappa_oc(
   chunks = Iterators.partition(1:reps, div(reps, n_chunks))
 
   par_results = map(chunks) do i
-    Threads.@spawn rl_kappa_oc(lam, cl, i, qual_dgp, qual_dgp.dist, qual_null_dist, chart_choice)
+    Threads.@spawn rl_kappa_oc(lam, cl, i, qual_dgp, qual_dgp.dist, qual_null_dist, chart_choice, rl_max)
   end
 
   # Collect results from tasks
@@ -229,7 +229,7 @@ end
 # Comparison of all charts
 # ---------------------------------------------------------------------#
 function rl_kappa_oc(
-  lam, cl, p_reps, qual_dgp, qual_dgp_dist, qual_null_dist, chart_choice::KappaN1
+  lam, cl, p_reps, qual_dgp, qual_dgp_dist, qual_null_dist, chart_choice::KappaN1, rl_max::Int=typemax(Int)
 )
   rls = zeros(Int64, length(p_reps))
   sup_lb, sup_ub = get_bounds(qual_null_dist)
@@ -261,6 +261,11 @@ function rl_kappa_oc(
       stat = chart_stat_qual(qₜ, Qₜ, chart_choice)
 
       seq = update_dgp_op!(qual_dgp, x_vec, qual_dgp_dist, 1)
+
+      # Break while loop when rl exceeds rl_max
+      if rl > rl_max
+        break
+      end
     end
     rls[r] = rl
   end
@@ -268,7 +273,7 @@ function rl_kappa_oc(
 end
 
 function rl_kappa_oc(
-  lam, cl, p_reps, qual_dgp, qual_dgp_dist, qual_null_dist, chart_choice::KappaN2
+  lam, cl, p_reps, qual_dgp, qual_dgp_dist, qual_null_dist, chart_choice::KappaN2, rl_max::Int=typemax(Int)
 )
   rls = zeros(Int64, length(p_reps))
   sup_lb, sup_ub = get_bounds(qual_null_dist)
@@ -296,6 +301,11 @@ function rl_kappa_oc(
       stat = chart_stat_qual(p₀, Qₜ, chart_choice)
 
       seq = update_dgp_op!(qual_dgp, x_vec, qual_dgp_dist, 1)
+
+      # Break while loop when rl exceeds rl_max
+      if rl > rl_max
+        break
+      end
     end
     rls[r] = rl
   end
@@ -304,7 +314,7 @@ end
 
 
 function rl_kappa_oc(
-  lam, cl, p_reps, qual_dgp, qual_dgp_dist, qual_null_dist, chart_choice::KappaO1
+  lam, cl, p_reps, qual_dgp, qual_dgp_dist, qual_null_dist, chart_choice::KappaO1, rl_max::Int=typemax(Int)
 )
   rls = zeros(Int64, length(p_reps))
   sup_lb, sup_ub = get_bounds(qual_null_dist)
@@ -334,6 +344,11 @@ function rl_kappa_oc(
       stat = chart_stat_qual(qₜ, Qₜ, chart_choice)
 
       seq = update_dgp_op!(qual_dgp, x_vec, qual_dgp_dist, 1)
+
+      # Break while loop when rl exceeds rl_max
+      if rl > rl_max
+        break
+      end
     end
     rls[r] = rl
   end
@@ -342,7 +357,7 @@ end
 
 
 function rl_kappa_oc(
-  lam, cl, p_reps, qual_dgp, qual_dgp_dist, qual_null_dist, chart_choice::KappaO2
+  lam, cl, p_reps, qual_dgp, qual_dgp_dist, qual_null_dist, chart_choice::KappaO2, rl_max::Int=typemax(Int)
 )
   rls = zeros(Int64, length(p_reps))
   sup_lb, sup_ub = get_bounds(qual_null_dist)
@@ -370,6 +385,11 @@ function rl_kappa_oc(
       stat = chart_stat_qual(f₀, Qₜ, chart_choice)
 
       seq = update_dgp_op!(qual_dgp, x_vec, qual_dgp_dist, 1)
+
+      # Break while loop when rl exceeds rl_max
+      if rl > rl_max
+        break
+      end
     end
     rls[r] = rl
   end

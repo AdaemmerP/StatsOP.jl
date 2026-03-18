@@ -36,9 +36,6 @@ function arl_sop_ic(
   # Assert that reps is bigger than
   @assert reps > n_chunks "Number of repetitions must be greater than number of chunks, which equal number of threads times 4. Current number of repetitions: $reps, number of chunks: $n_chunks."
 
-  # Check whether to use threading or multi processing --> only one process threading, else distributed
-  #if nprocs() == 1
-
   # Make chunks for separate tasks (based on number of threads)        
   chunks = Iterators.partition(1:reps, div(reps, n_chunks))
 
@@ -46,17 +43,6 @@ function arl_sop_ic(
   par_results = map(chunks) do i
     Threads.@spawn rl_sop_ic(lam, cl, lookup_array_sop, i, dist, chart_choice, refinement, m, n, d1, d2, rl_max)
   end
-
-  # elseif nprocs() > 1
-
-  #   # Make chunks for separate tasks (based on number of workers)
-  #   chunks = Iterators.partition(1:reps, div(reps, nworkers())) |> collect
-
-  #   par_results = pmap(chunks) do i
-  #     rl_sop_ic(lam, cl, lookup_array_sop, i, dist, chart_choice, refinement, m, n, d1, d2, rl_max)
-  #   end
-
-  # end
 
   # Collect results from tasks
   rls = fetch.(par_results)

@@ -15,7 +15,7 @@ The input parameters are:
 The default value is 3.
 """
 function arl_sop_bootstrap(
-  p_mat::Array{Float64,2}, lam, cl, reps=10_000; chart_choice::InformationMeasure=TauTilde()
+  p_mat::Array{Float64,2}, lam, cl, reps=10_000; chart_choice::InformationMeasure=TauTilde(), rl_max::Int=typemax(Int)
 )
 
   # Number of chunks for load balancing
@@ -25,7 +25,7 @@ function arl_sop_bootstrap(
   chunks = Iterators.partition(1:reps, div(reps, n_chunks))
 
   par_results = map(chunks) do i
-    Threads.@spawn rl_sop_bootstrap(p_mat, lam, cl, i, chart_choice)
+    Threads.@spawn rl_sop_bootstrap(p_mat, lam, cl, i, chart_choice, rl_max)
   end
 
   # Collect results from tasks   
@@ -51,7 +51,7 @@ This has to be a range to be compatible with `arl_sop()` which uses threading an
 - `p_mat::Array{Float64,2}`: A matrix with the values of the relative frequencies 
 of each d1-d2 (delay) combination. This matrix will be used for re-sampling.
 """
-function rl_sop_bootstrap(p_mat::Array{Float64,2}, lam, cl, reps_range::UnitRange{Int}, chart_choice)
+function rl_sop_bootstrap(p_mat::Array{Float64,2}, lam, cl, reps_range::UnitRange{Int}, chart_choice, rl_max::Int=typemax(Int))
 
   # Pre-allocate  
   if chart_choice in (TauHat, KappaHat, TauTilde, KappaTilde)
@@ -91,8 +91,13 @@ function rl_sop_bootstrap(p_mat::Array{Float64,2}, lam, cl, reps_range::UnitRang
       # Apply EWMA to p-vectors      
       @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
 
-      # Compute test statistic      
+      # Compute test statistic
       stat = chart_stat_sop(p_ewma, chart_choice)
+
+      # Break while loop when rl exceeds rl_max
+      if rl > rl_max
+        break
+      end
     end
 
     rls[r] = rl

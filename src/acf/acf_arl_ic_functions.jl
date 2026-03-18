@@ -1,5 +1,5 @@
 
-function arl_acf_ic(lam, cl, acf_dgp, reps; ced=false, ad=100)
+function arl_acf_ic(lam, cl, acf_dgp, reps; ced=false, ad=100, rl_max::Int=typemax(Int))
 
   # Number of chunks for load balancing
   n_chunks = Threads.nthreads() * 4
@@ -8,7 +8,7 @@ function arl_acf_ic(lam, cl, acf_dgp, reps; ced=false, ad=100)
   chunks = Iterators.partition(1:reps, div(reps, n_chunks))
 
   par_results = map(chunks) do i
-    Threads.@spawn rl_acf_ic(lam, cl, i, acf_dgp, acf_dgp.dist; ced=ced, ad=ad)
+    Threads.@spawn rl_acf_ic(lam, cl, i, acf_dgp, acf_dgp.dist; ced=ced, ad=ad, rl_max=rl_max)
   end
 
   # Collect results from tasks
@@ -17,7 +17,7 @@ function arl_acf_ic(lam, cl, acf_dgp, reps; ced=false, ad=100)
   return (mean(rlvec), std(rlvec) / sqrt(reps))
 end
 
-function rl_acf_ic(lam, cl, p_reps, acf_dgp, dgp_dist_ic; ced=false, ad=100)
+function rl_acf_ic(lam, cl, p_reps, acf_dgp, dgp_dist_ic; ced=false, ad=100, rl_max::Int=typemax(Int))
 
   # Pre-allocate 
   rls = Vector{Int64}(undef, length(p_reps))
@@ -88,6 +88,11 @@ function rl_acf_ic(lam, cl, p_reps, acf_dgp, dgp_dist_ic; ced=false, ad=100)
 
       # Update x_vec for the next iteration
       update_dgp_op!(acf_dgp, x_vec, dgp_dist_ic, 1)
+
+      # Break while loop when rl exceeds rl_max
+      if rl > rl_max
+        break
+      end
     end
 
     rls[r] = rl
@@ -101,7 +106,7 @@ end
 # -----------------------------------------------------------------------------#
 # --------            Only for testing different versions ---------------------#
 # -----------------------------------------------------------------------------#
-function arl_acf_ic(lam, cl, acf_dgp, reps, acf_version)
+function arl_acf_ic(lam, cl, acf_dgp, reps, acf_version; rl_max::Int=typemax(Int))
 
   # Number of chunks for load balancing
   n_chunks = Threads.nthreads() * 4
@@ -110,7 +115,7 @@ function arl_acf_ic(lam, cl, acf_dgp, reps, acf_version)
   chunks = Iterators.partition(1:reps, div(reps, n_chunks))
 
   par_results = map(chunks) do i
-    Threads.@spawn rl_acf_ic(lam, cl, i, acf_dgp, acf_dgp.dist, acf_version)
+    Threads.@spawn rl_acf_ic(lam, cl, i, acf_dgp, acf_dgp.dist, acf_version, rl_max)
   end
 
   # Collect results from tasks
@@ -134,9 +139,9 @@ Function to compute the run length (RL) for a specified DGP using the ACF statis
 rl_acf(0.1, 3.0, 10_000, IC(Normal(0, 1)))
 ```
 """
-function rl_acf_ic(lam, cl, p_reps, acf_dgp, acf_dgp_dist, acf_version)
+function rl_acf_ic(lam, cl, p_reps, acf_dgp, acf_dgp_dist, acf_version, rl_max::Int=typemax(Int))
 
-  # Pre-allocate 
+  # Pre-allocate
   rls = Vector{Int64}(undef, length(p_reps))
   x_vec = Vector{Float64}(undef, 2)
 
@@ -192,6 +197,11 @@ function rl_acf_ic(lam, cl, p_reps, acf_dgp, acf_dgp_dist, acf_version)
 
       # Update x_vec for the next iteration
       update_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
+
+      # Break while loop when rl exceeds rl_max
+      if rl > rl_max
+        break
+      end
     end
 
     rls[r] = rl
