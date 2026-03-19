@@ -1,6 +1,6 @@
 
 """
-    cl_sop(sop_dgp, lam, L0, cl_guess, d1, d2;
+    cl_sop(sop_dgp, lam, L0, cl_init, d1, d2;
            reps_final, reps_bracket, bracket_step,
            arl_truncation_factor, chart_choice, refinement,
            verbose, cl_tol, seed)
@@ -10,7 +10,7 @@ in-control Average Run Length (ARL) equals `L0`.
 
 The search proceeds in two phases:
 1. **Bracketing**: A coarse Monte Carlo estimate (using `reps_bracket` replications)
-   steps away from `cl_guess` in increments of `bracket_step` until an interval
+   steps away from `cl_init` in increments of `bracket_step` until an interval
    `[a, b]` is found where the ARL crosses `L0`.
 2. **Refinement**: The ITP root-finding algorithm narrows the bracket to
    within `cl_tol` using full Monte Carlo estimates (`reps_final` replications).
@@ -25,7 +25,7 @@ across calls, or fix the seed for reproducibility.
 - `sop_dgp::ICSTS`: Data-generating process under the in-control distribution.
 - `lam`: EWMA smoothing parameter λ ∈ (0, 1].
 - `L0`: Target in-control ARL.
-- `cl_guess`: Initial guess for the critical limit. Does not need to be precise —
+- `cl_init`: Initial guess for the critical limit. Does not need to be precise —
   a rough value in the right ballpark is sufficient.
 - `d1`, `d2`: Integer parameters passed to the ARL simulation.
 
@@ -55,7 +55,7 @@ cl = cl_sop(dgp, 0.1, 370.0, 2.5, 3, 5; reps_final=50_000, seed=42)
 ```
 """
 function cl_sop(
-    sop_dgp::ICSTS, lam, L0, cl_guess, d1::Int, d2::Int;
+    sop_dgp::ICSTS, lam, L0, cl_init, d1::Int, d2::Int;
     reps_final=10_000,
     reps_bracket=1_000,
     bracket_step=0.001,
@@ -95,14 +95,14 @@ function cl_sop(
         println("="^60)
     end
 
-    # Start bracket search from cl_guess.
-    a = cl_guess
+    # Start bracket search from cl_init.
+    a = cl_init
     f_a = get_arl(a, reps_bracket, trunc_val) - L0
 
-    # If cl_guess hits the truncation cap, shift down until we get a real ARL estimate.
+    # If cl_init hits the truncation cap, shift down until we get a real ARL estimate.
     if f_a >= cap_val
         if verbose
-            println("  [!] cl_guess hits truncation cap — shifting down:")
+            println("  [!] cl_init hits truncation cap — shifting down:")
         end
         while f_a >= cap_val
             a -= bracket_step
@@ -123,7 +123,7 @@ function cl_sop(
         f_b = get_arl(b, reps_bracket, trunc_val) - L0
         search_iter += 1
         if search_iter > 100
-            error("Could not find a bracket. Check if cl_guess is reasonable.")
+            error("Could not find a bracket. Check if cl_init is reasonable.")
         end
     end
 
