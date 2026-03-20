@@ -60,7 +60,7 @@ function update_dgp_op!(dgp::AR1, x_long, eps_long, dist_error, d::Int)
     for i in 1:(lastindex(x_long)-1)
         x_long[i] = x_long[i+1]
     end
-    x_long[end] = dgp.α * x_long[2] + rand(dist_error)
+    x_long[end] = dgp.α * x_long[end-1] + rand(dist_error)
     return @views x_long[1:d:end]
 end
 
@@ -79,7 +79,7 @@ function update_dgp_op!(dgp::AR1, x_long, dist_error, d::Int)
     for i in 1:(lastindex(x_long)-1)
         x_long[i] = x_long[i+1]
     end
-    x_long[end] = dgp.α * x_long[2] + rand(dist_error)
+    x_long[end] = dgp.α * x_long[end-1] + rand(dist_error)
     return @views x_long[1:d:end]
 end
 
