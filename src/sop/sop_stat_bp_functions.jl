@@ -4,19 +4,13 @@ function stat_sop_bp(
   data::Union{SubArray,Array{T,2}},
   w::Int;
   chart_choice=TauTilde(),
-  refinement::Union{Nothing,RefinedType}=nothing,
+  refinement::Union{Bool,RefinedType}=false,
   add_noise::Bool=false,
   noise_dist::UnivariateDistribution=Uniform(0, 1)
 ) where {T<:Real}
 
-  # Check input parameters
-  @assert 1 <= chart_choice <= 7 "chart_choice must be between 1 and 7"
-  if chart_choice in 1:4
-    @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
-  end
-
   # Pre-allocate
-  if refinement == 0
+  if refinement == false
     # classical approach
     p_hat = zeros(3)
   else
@@ -73,20 +67,12 @@ function stat_sop_bp(
   lam,
   w::Int;
   chart_choice=TauTilde(),
-  refinement::Union{Nothing,RefinedType}=nothing,
+  refinement::Union{Bool,RefinedType}=false,
   add_noise=false,
   noise_dist::UnivariateDistribution=Uniform(0, 1),
   stat_ic::Union{Float64,Vector{Float64}}=0.0,
   type_freq_init::Union{Float64,Array{Float64,3}}=1 / 3
 ) where {T<:Real}
-
-  # Check input parameters
-  @assert 1 <= chart_choice <= 7 "chart_choice must be between 1 and 7"
-  if chart_choice in 1:4
-    @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
-  elseif chart_choice in 5:7
-    @assert 1 <= refinement <= 3 "refinement must be 1-3 for chart_choices 5-7"
-  end
 
   # Number of d1-d2 combinations
   length_d1d2 = length(Iterators.product(1:w, 1:w))
