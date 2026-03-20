@@ -5,7 +5,8 @@ using Random
 
 my_tests = ["test_frequencies.jl",
   "test_op_test_functions.jl",
-  "test_cl_functions.jl"]
+  "test_cl_functions.jl",
+  "test_fill_p_hat.jl"]
 
 println("Running tests:")
 

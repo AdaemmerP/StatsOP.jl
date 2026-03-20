@@ -241,59 +241,59 @@ function sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_fr
 end
 
 
-# Fill p_hat with the sum of frequencies and compute relative frequencies
-function fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, s_all)
+# Fill p_hat with the sum of frequencies and compute relative frequencies.
+# Dispatch on chart_choice type (classical, ::Bool refinement) and on RefinedType.
 
-  # For classical appraoch
-  if refinement == false
-    if typeof(chart_choice) == TauHat # previously chart_choice == 1
-      for i in s_all[1]
-        p_hat[1] += sop_freq[i]
-      end
-
-    elseif typeof(chart_choice) == KappaHat # previously chart_choice == 2
-      for (i, j) in zip(s_all[2], s_all[3])
-        p_hat[2] += sop_freq[i]
-        p_hat[3] += sop_freq[j]
-      end
-
-    elseif typeof(chart_choice) == TauTilde # previously chart_choice == 3
-      for i in s_all[3]
-        p_hat[3] += sop_freq[i]
-      end
-
-    elseif typeof(chart_choice) == KappaTilde # previously chart_choice == 4
-      for (i, j) in zip(s_all[1], s_all[2])
-        p_hat[1] += sop_freq[i]
-        p_hat[2] += sop_freq[j]
-      end
-
-    elseif isa(chart_choice, Shannon) || isa(chart_choice, ShannonExtropy) || typeof(chart_choice) == DistanceToWhiteNoise
-      for (i, j, k) in zip(s_all[1], s_all[2], s_all[3])
-        p_hat[1] += sop_freq[i]
-        p_hat[2] += sop_freq[j]
-        p_hat[3] += sop_freq[k]
-      end
-    end
-
-    # For refined computations  
-  elseif isa(refinement, RefinedType)
-    for (i, j, k, l, p, q) in zip(  # do not use m and n for safety
-      s_all[1], s_all[2], s_all[3], s_all[4], s_all[5], s_all[6]
-    )
-      p_hat[1] += sop_freq[i]
-      p_hat[2] += sop_freq[j]
-      p_hat[3] += sop_freq[k]
-      p_hat[4] += sop_freq[l]
-      p_hat[5] += sop_freq[p]
-      p_hat[6] += sop_freq[q]
-    end
-
-
+function fill_p_hat!(p_hat, ::TauHat, ::Bool, sop_freq, m, n, s_all)
+  for i in s_all[1]
+    p_hat[1] += sop_freq[i]
   end
-
-  # Compute relative frequencies
   p_hat ./= m * n
+end
 
+function fill_p_hat!(p_hat, ::KappaHat, ::Bool, sop_freq, m, n, s_all)
+  for (i, j) in zip(s_all[2], s_all[3])
+    p_hat[2] += sop_freq[i]
+    p_hat[3] += sop_freq[j]
+  end
+  p_hat ./= m * n
+end
+
+function fill_p_hat!(p_hat, ::TauTilde, ::Bool, sop_freq, m, n, s_all)
+  for i in s_all[3]
+    p_hat[3] += sop_freq[i]
+  end
+  p_hat ./= m * n
+end
+
+function fill_p_hat!(p_hat, ::KappaTilde, ::Bool, sop_freq, m, n, s_all)
+  for (i, j) in zip(s_all[1], s_all[2])
+    p_hat[1] += sop_freq[i]
+    p_hat[2] += sop_freq[j]
+  end
+  p_hat ./= m * n
+end
+
+# Covers Shannon, ShannonExtropy, DistanceToWhiteNoise (all <: InformationMeasure)
+function fill_p_hat!(p_hat, ::Union{Shannon,ShannonExtropy,DistanceToWhiteNoise}, ::Bool, sop_freq, m, n, s_all)
+  for (i, j, k) in zip(s_all[1], s_all[2], s_all[3])
+    p_hat[1] += sop_freq[i]
+    p_hat[2] += sop_freq[j]
+    p_hat[3] += sop_freq[k]
+  end
+  p_hat ./= m * n
+end
+
+# Refined computations: same for all chart types
+function fill_p_hat!(p_hat, ::Any, ::RefinedType, sop_freq, m, n, s_all)
+  for (i1, i2, i3, i4, i5, i6) in zip(s_all[1], s_all[2], s_all[3], s_all[4], s_all[5], s_all[6])
+    p_hat[1] += sop_freq[i1]
+    p_hat[2] += sop_freq[i2]
+    p_hat[3] += sop_freq[i3]
+    p_hat[4] += sop_freq[i4]
+    p_hat[5] += sop_freq[i5]
+    p_hat[6] += sop_freq[i6]
+  end
+  p_hat ./= m * n
 end
 

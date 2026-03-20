@@ -127,11 +127,10 @@ function stat_sop(
   lookup_array_sop = compute_lookup_array_sop()
 
   # Pre-allocate
-  if refinement == false
-    p_hat = zeros(3) # classical approach
-  else
-    p_hat = zeros(6) # refined approach
-  end
+  # Pre-allocate
+  n_size = refinement ? 6 : 3
+  p_hat = zeros(n_size)
+  p_ewma = zeros(n_size)
 
   sop = zeros(4)
   p_ewma = zeros(3)
