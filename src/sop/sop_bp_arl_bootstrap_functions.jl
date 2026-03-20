@@ -61,7 +61,7 @@ function rl_sop_bp_bootstrap(
 ) where {T<:Real}
 
     # Pre-allocate
-    if chart_choice in 1:4
+    if chart_choice isa Union{TauHat, KappaHat, TauTilde, KappaTilde}
         # classical approach
         p_hat = zeros(3)
     else

@@ -15,7 +15,7 @@ The input parameters are:
 The default value is 3.
 """
 function arl_sop_bootstrap(
-  p_mat::Array{Float64,2}, lam, cl, reps=10_000; chart_choice::InformationMeasure=TauTilde(), rl_max::Int=typemax(Int)
+  p_mat::Array{Float64,2}, lam, cl, reps=10_000; chart_choice=TauTilde(), refinement=false, rl_max::Int=typemax(Int)
 )
 
   # Number of chunks for load balancing
@@ -25,7 +25,7 @@ function arl_sop_bootstrap(
   chunks = Iterators.partition(1:reps, div(reps, n_chunks))
 
   par_results = map(chunks) do i
-    Threads.@spawn rl_sop_bootstrap(p_mat, lam, cl, i, chart_choice, rl_max)
+    Threads.@spawn rl_sop_bootstrap(p_mat, lam, cl, i, chart_choice, refinement, rl_max)
   end
 
   # Collect results from tasks   
@@ -51,16 +51,12 @@ This has to be a range to be compatible with `arl_sop()` which uses threading an
 - `p_mat::Array{Float64,2}`: A matrix with the values of the relative frequencies 
 of each d1-d2 (delay) combination. This matrix will be used for re-sampling.
 """
-function rl_sop_bootstrap(p_mat::Array{Float64,2}, lam, cl, reps_range::UnitRange{Int}, chart_choice, rl_max::Int=typemax(Int))
+function rl_sop_bootstrap(p_mat::Array{Float64,2}, lam, cl, reps_range::UnitRange{Int}, chart_choice, refinement=false, rl_max::Int=typemax(Int))
 
-  # Pre-allocate  
-  if chart_choice in (TauHat, KappaHat, TauTilde, KappaTilde)
-    # classical approach
-    p_hat = zeros(3)
-  elseif chart_choice in (Shannon, ShannonExtropy, DistanceToWhiteNoise)
-    # refined approach
-    p_hat = zeros(6)
-  end
+  # Pre-allocate
+  n_size = refinement ? 6 : 3
+  p_hat = zeros(n_size)
+
   rls = zeros(Int, length(reps_range))
   p_vec_mean = vec(mean(p_mat, dims=1))
   p_ewma = similar(p_vec_mean)

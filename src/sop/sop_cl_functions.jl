@@ -76,7 +76,9 @@ function cl_sop(
             refinement=refinement,
             rl_max=current_truncate
         )
-        println("  cl = ", round(cl, digits=6), " | ARL = ", round(res[1], digits=4))
+        if verbose
+            println("  cl = ", round(cl, digits=6), " | ARL = ", round(res[1], digits=4))
+        end
         return res[1]
     end
 

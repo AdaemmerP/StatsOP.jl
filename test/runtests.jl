@@ -1,13 +1,17 @@
 using Combinatorics
 using StatsOP
 using Test
+using Random
 
 my_tests = ["test_frequencies.jl",
-  "test_op_test_functions.jl"]
+  "test_op_test_functions.jl",
+  "test_cl_functions.jl"]
 
 println("Running tests:")
 
 anyerrors = false
+fatalerrors = false
+quiet = false
 
 # Approach taken from: https://github.com/JuliaData/DataFrames.jl/blob/main/test/runtests.jl
 for my_test in my_tests

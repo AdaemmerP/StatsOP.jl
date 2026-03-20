@@ -84,21 +84,14 @@ end
 
 Compute the matrix of p-hat values for a given 3D array of data when the delays are integers. These values are used for bootstrapping. 
 """
-function compute_p_array(data::Array{T,3}, d1::Int, d2::Int; chart_choice::InformationMeasure=TauTilde(), refinement::Union{Nothing,RefinedType}=nothing, add_noise=false) where {T<:Real}
+function compute_p_array(data::Array{T,3}, d1::Int, d2::Int; chart_choice=TauTilde(), refinement::Union{Bool,RefinedType}=false, add_noise=false) where {T<:Real}
 
-  # Check input parameters
-  @assert 1 <= chart_choice <= 7 "chart_choice must be between 1 and 7"
-  if chart_choice in 1:4
-    @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
-  elseif chart_choice in 5:7
-    @assert 1 <= refinement <= 3 "refinement must be 1-3 for chart_choices 5-7"
-  end
-
-  # pre-allocate  
+  # pre-allocate
   m = size(data, 1) - d1
   n = size(data, 2) - d2
   lookup_array_sop = compute_lookup_array_sop()
-  p_mat = zeros(size(data, 3), 3)
+  n_size = refinement ? 6 : 3
+  p_mat = zeros(size(data, 3), n_size)
 
   # indices for sum of frequencies
   index_sop = create_index_sop(refinement=refinement)
@@ -113,7 +106,8 @@ function compute_p_array(data::Array{T,3}, d1::Int, d2::Int; chart_choice::Infor
     i, data_tmp, p_mat, lookup_array_sop, m, n, d1, d2, s_all, chart_choice, refinement
   )
 
-    p_hat = zeros(1, 3)
+    n_size = refinement ? 6 : 3
+    p_hat = zeros(1, n_size)
     sop = zeros(4)
     sop_freq = zeros(Int, 24)
     win = zeros(Int, 4)
@@ -154,13 +148,13 @@ compute_p_array(data::Array{Float64,3})
 
 Compute the matrix of p-hat values for a given 3D array of data when the delays are vectors of integers. These values are used for bootstrapping to compute critcial limits for the BP-statistics. 
 """
-function compute_p_array_bp(data::Array{T,3}, w::Int; chart_choice=3,
-  refinement::Int=0, add_noise=false) where {T<:Real}
+function compute_p_array_bp(data::Array{T,3}, w::Int; chart_choice, refinement::Union{Bool,RefinedType}, add_noise=false) where {T<:Real}
 
   # pre-allocate
   lookup_array_sop = compute_lookup_array_sop()
   d1_d2_combinations = Iterators.product(1:w, 1:w)
-  p_array = zeros(size(data, 3), 3, length(d1_d2_combinations))
+  n_size = refinement ? 6 : 3
+  p_array = zeros(size(data, 3), n_size, length(d1_d2_combinations))
 
   # indices for sum of type frequencies  
   index_sop = create_index_sop(refinement=refinement)
@@ -179,10 +173,11 @@ function compute_p_array_bp(data::Array{T,3}, w::Int; chart_choice=3,
     # Initialize thread-local variables
     M_rows = size(data_tmp, 1)
     N_cols = size(data_tmp, 2)
+    n_size = refinement ? 6 : 3
     sop = zeros(4)
     win = zeros(Int, 4)
     sop_freq = zeros(Int, 24)
-    p_hat = zeros(1, 3)
+    p_hat = zeros(1, n_size)
 
     for (j, (d1, d2)) in enumerate(d1_d2_combinations)
 

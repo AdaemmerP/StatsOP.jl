@@ -106,7 +106,7 @@ end
 # -----------------------------------------------------------------------------#
 # --------            Only for testing different versions ---------------------#
 # -----------------------------------------------------------------------------#
-function arl_acf_ic(lam, cl, acf_dgp, reps, acf_version; rl_max::Int=typemax(Int))
+function arl_acf_ic(lam, cl, acf_dgp, reps, acf_version; ced=false, ad=100, rl_max::Int=typemax(Int))
 
   # Number of chunks for load balancing
   n_chunks = Threads.nthreads() * 4
@@ -115,7 +115,7 @@ function arl_acf_ic(lam, cl, acf_dgp, reps, acf_version; rl_max::Int=typemax(Int
   chunks = Iterators.partition(1:reps, div(reps, n_chunks))
 
   par_results = map(chunks) do i
-    Threads.@spawn rl_acf_ic(lam, cl, i, acf_dgp, acf_dgp.dist, acf_version, rl_max)
+    Threads.@spawn rl_acf_ic(lam, cl, i, acf_dgp, acf_dgp.dist, acf_version; ced=ced, ad=ad, rl_max=rl_max)
   end
 
   # Collect results from tasks
@@ -139,7 +139,7 @@ Function to compute the run length (RL) for a specified DGP using the ACF statis
 rl_acf(0.1, 3.0, 10_000, IC(Normal(0, 1)))
 ```
 """
-function rl_acf_ic(lam, cl, p_reps, acf_dgp, acf_dgp_dist, acf_version, rl_max::Int=typemax(Int))
+function rl_acf_ic(lam, cl, p_reps, acf_dgp, acf_dgp_dist, acf_version; ced=false, ad=100, rl_max::Int=typemax(Int))
 
   # Pre-allocate
   rls = Vector{Int64}(undef, length(p_reps))
@@ -149,30 +149,73 @@ function rl_acf_ic(lam, cl, p_reps, acf_dgp, acf_dgp_dist, acf_version, rl_max::
   μ₀ = mean(acf_dgp_dist)
   σ₀² = var(acf_dgp_dist)
 
+  # Declare mₜ in outer scope (used only by version 2)
+  mₜ = μ₀
+
   for r in 1:length(p_reps)
 
-    # 1. Initialize data vector with the first two observations
-    init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
+    # -------------------------------------------------------------------------#
+    # 1. Initialization / CED Phase
+    # -------------------------------------------------------------------------#
+    if ced
+      icrun = true
+      while icrun
+        init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
 
-    # 2. Set starting values for EWMA components based on the chosen version
-    if acf_version == 1
-      cₜ = 0.0
-      sₜ = σ₀²
-    elseif acf_version == 2
-      cₜ = μ₀^2
-      sₜ = σ₀² + μ₀^2
-      mₜ = μ₀
-    elseif acf_version == 3
-      cₜ = 0.0
-      sₜ = σ₀²
+        # Set starting values based on version
+        if acf_version == 1
+          cₜ = 0.0; sₜ = σ₀²
+        elseif acf_version == 2
+          cₜ = μ₀^2; sₜ = σ₀² + μ₀^2; mₜ = μ₀
+        elseif acf_version == 3
+          cₜ = 0.0; sₜ = σ₀²
+        end
+
+        falarm = false
+        acf_stat = 0.0
+
+        for _ in 1:ad
+          if acf_version == 1
+            cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1.0 - lam) * cₜ
+            sₜ = lam * (x_vec[2] - μ₀)^2 + (1.0 - lam) * sₜ
+            acf_stat = cₜ / sₜ
+          elseif acf_version == 2
+            cₜ = lam * x_vec[2] * x_vec[1] + (1.0 - lam) * cₜ
+            sₜ = lam * x_vec[2]^2 + (1.0 - lam) * sₜ
+            mₜ = lam * x_vec[2] + (1.0 - lam) * mₜ
+            acf_stat = (cₜ - mₜ^2) / (sₜ - mₜ^2)
+          elseif acf_version == 3
+            cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1.0 - lam) * cₜ
+            acf_stat = cₜ / σ₀²
+          end
+          update_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
+          if abs(acf_stat) > cl
+            falarm = true
+            break
+          end
+        end
+
+        if falarm == false
+          icrun = false
+        end
+      end
+    else
+      # Standard initialization without CED
+      init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
+      if acf_version == 1
+        cₜ = 0.0; sₜ = σ₀²
+      elseif acf_version == 2
+        cₜ = μ₀^2; sₜ = σ₀² + μ₀^2; mₜ = μ₀
+      elseif acf_version == 3
+        cₜ = 0.0; sₜ = σ₀²
+      end
+      acf_stat = 0.0
     end
 
-    # Initialize rl and acf_stat 
-    # acf_stat is set to 0.0 to ensure the while loop starts correctly
+    # -------------------------------------------------------------------------#
+    # 2. Run Length (RL) Phase
+    # -------------------------------------------------------------------------#
     rl = 0
-    acf_stat = 0.0
-
-    # 3. Run Length Phase
     while abs(acf_stat) < cl
       rl += 1
 

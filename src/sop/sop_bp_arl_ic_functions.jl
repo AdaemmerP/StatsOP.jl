@@ -17,14 +17,8 @@ The input parameters are:
 - `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 """
 function arl_sop_bp_ic(
-  spatial_dgp::ICSTS, lam, cl, w::Int, reps=1_000; chart_choice=TauTilde(), refinement::Union{Nothing,RefinedType}=nothing, rl_max::Int=typemax(Int)
+  spatial_dgp::ICSTS, lam, cl, w::Int, reps=1_000; chart_choice=TauTilde(), refinement::Union{Bool,RefinedType}=false, rl_max::Int=typemax(Int)
 )
-
-  # Check input parameters
-  @assert 1 <= chart_choice <= 7 "chart_choice must be between 1 and 7"
-  if chart_choice in 1:4
-    @assert refinement == 0 "refinement must be 0 for chart_choice 1-4"
-  end
 
   # Compute m and n  
   dist_error = spatial_dgp.dist
@@ -74,17 +68,25 @@ univariate distribution from the `Distributions.jl` package.
 """
 function rl_sop_bp_ic(
   spatial_dgp::ICSTS, lam, cl, w::Int, lookup_array_sop, reps_range::UnitRange,
-  dist_error, chart_choice, refinement, rl_max::Int=typemax(Int)
+  dist_error, chart_choice,
+  refinement,
+  rl_max::Int=typemax(Int)
 )
 
-  # Pre-allocate    
-  if isnothing(refinement)
-    # classical approach
-    p_hat = zeros(3)
-  elseif refinement isa RefinedType
-    # refined approach
-    p_hat = zeros(6)
-  end
+  # # Pre-allocate    
+  # if isnothing(refinement)
+  #   # classical approach
+  #   p_hat = zeros(3)
+  # elseif refinement isa RefinedType
+  #   # refined approach
+  #   p_hat = zeros(6)
+  # end
+
+  # Pre-allocate
+  n_size = refinement ? 6 : 3
+  p_hat = zeros(n_size)
+  p_ewma = zeros(n_size)
+
   sop = zeros(4)
   sop_freq = zeros(Int, 24) # factorial(4)
   win = zeros(Int, 4)
@@ -97,11 +99,13 @@ function rl_sop_bp_ic(
 
   # Compute all possible combinations of d1 and d2
   d1_d2_combinations = Iterators.product(1:w, 1:w)
-  if isnothing(refinement)
-    p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
-  elseif refinement isa RefinedType
-    p_ewma_all = zeros(6, 1, length(d1_d2_combinations))
-  end
+  # Pre-allocate array for p_ewma for all d1-d2 combinations
+  refinement ? p_ewma_all = zeros(6, 1, length(d1_d2_combinations)) : p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
+  # if isnothing(refinement)
+  #   p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
+  # elseif refinement isa RefinedType
+  #   p_ewma_all = zeros(6, 1, length(d1_d2_combinations))
+  # end
 
   # indices for sum of frequencies
   index_sop = create_index_sop(refinement=refinement)
