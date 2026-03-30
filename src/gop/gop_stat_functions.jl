@@ -8,7 +8,7 @@ function stat_gop(
 )
 
   # Compute lookup array and number of ops
-  lookup_array_gop = compute_lookup_array_gop()
+  lookup_array_gop = _LOOKUP_GOP
   p = zeros(13)
   bin = zeros(Int, 13)
   win = zeros(Int, m)
@@ -51,7 +51,7 @@ end
 function stat_gop(data, null_dist::DiscreteUnivariateDistribution, lam, chart_choice::Union{D_Chart,Persistence}, m::Int=3, d=1)
 
   # Compute lookup array and number of ops
-  lookup_array_gop = compute_lookup_array_gop()
+  lookup_array_gop = _LOOKUP_GOP
   p = zeros(13)
   bin = zeros(Int, 13)
   win = zeros(Int, m)

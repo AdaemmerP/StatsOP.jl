@@ -6,7 +6,7 @@ function arl_gop_ic(
 )
 
     # Compute lookup array and number of ops
-    lookup_array_gop = compute_lookup_array_gop()
+    lookup_array_gop = _LOOKUP_GOP
 
     # Number of chunks for load balancing
     n_chunks = Threads.nthreads() * 4

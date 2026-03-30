@@ -64,6 +64,8 @@ function compute_lookup_array_gop()
 
 end
 
+const _LOOKUP_GOP = compute_lookup_array_gop()
+
 """
     find_effective_support(dist::Distribution; p_low=1e-6, p_high=1-1e-6, max_extra=100)
 
