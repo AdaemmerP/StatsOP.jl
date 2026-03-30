@@ -21,7 +21,7 @@ function init_dgp_op!(dgp::DiscreteDGPIC, x_long, dist_error::DiscreteUnivariate
     rand!(dist_error, x_long)
     # add noise ?
     if dgp.add_noise
-        for i in axes(x_long, 1)
+        for i in eachindex(x_long)
             x_long[i] += rand()
         end
     end
@@ -234,7 +234,7 @@ function init_dgp_op!(dgp::INAR1, x_long, dist_error::Poisson, d::Int)
 
     # add noise ?
     if dgp.add_noise
-        for i in axes(x_long, 1)
+        for i in eachindex(x_long)
             x_long[i] += rand()
         end
     end
@@ -299,7 +299,7 @@ function init_dgp_op!(dgp::SINAR1, x_long, dist::DiscreteUnivariateDistribution,
 
     # 3. Add noise
     if dgp.add_noise
-        for i in axes(x_long, 1)
+        for i in eachindex(x_long)
             x_long[i] += rand()
         end
     end
@@ -378,7 +378,7 @@ function init_dgp_op!(dgp::TINAR1, x_long::Vector{Float64}, dist::DiscreteUnivar
 
     # 3. Add noise
     if dgp.add_noise
-        for i in axes(x_long, 1)
+        for i in eachindex(x_long)
             x_long[i] += rand()
         end
     end
@@ -430,7 +430,7 @@ function init_dgp_op!(dgp::BAR1, x_long, dist_error::Nothing, d::Int)
     end
     # add noise ?
     if dgp.add_noise
-        for i in axes(x_long, 1)
+        for i in eachindex(x_long)
             x_long[i] += rand()
         end
     end
@@ -475,7 +475,7 @@ function init_dgp_op!(dgp::DAR1, x_long, dist_error, d::Int)
 
     # add noise ? 
     if dgp.add_noise
-        for i in axes(x_long, 1)
+        for i in eachindex(x_long)
             x_long[i] += rand()
         end
     end
