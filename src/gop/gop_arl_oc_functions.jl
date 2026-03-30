@@ -23,7 +23,7 @@ function arl_gop_oc(
   # Collect results from tasks
   rls = fetch.(par_results)
   rlvec = Iterators.flatten(rls) |> collect
-  return (mean(rlvec), std(rlvec) / sqrt(reps), median(rlvec))
+  return (mean(rlvec), std(rlvec) / sqrt(reps))
 end
 
 #--- Run-length method for D-Chart
