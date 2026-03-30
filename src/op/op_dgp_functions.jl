@@ -466,10 +466,10 @@ function init_dgp_op!(dgp::DAR1, x_long, dist_error, d::Int)
 
     # Fill
     for i in 2:lastindex(x_long)
-        if rand(Bernoulli(dgp.α)) == 0
-            x_long[i] = rand(dist_error)
-        else
+        if rand(Bernoulli(dgp.α))
             x_long[i] = x_long[i-1]
+        else
+            x_long[i] = rand(dist_error)
         end
     end
 
@@ -490,16 +490,16 @@ function update_dgp_op!(dgp::DAR1, x_long, dist_error, d::Int)
     end
     # add noise ?
     if dgp.add_noise
-        if rand(Bernoulli(dgp.α)) == 0
-            x_long[end] = rand(dist_error) + rand()
-        else
+        if rand(Bernoulli(dgp.α))
             x_long[end] = floor(Int, x_long[end-1]) + rand()
+        else
+            x_long[end] = rand(dist_error) + rand()
         end
     else
-        if rand(Bernoulli(dgp.α)) == 0
-            x_long[end] = rand(dist_error)
-        else
+        if rand(Bernoulli(dgp.α))
             x_long[end] = floor(Int, x_long[end-1])
+        else
+            x_long[end] = rand(dist_error)
         end
     end
     return @views x_long[1:d:end]
