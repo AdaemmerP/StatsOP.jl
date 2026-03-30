@@ -94,8 +94,7 @@ export cl_acf
 
 # gop/gop_information_measures.jl
 export chart_stat_gop,
-  D_Chart,
-  G_Chart
+  D_Chart
 
 # gop/gop_arl_ic_functions.jl
 export arl_gop_ic,
