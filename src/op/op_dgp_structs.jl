@@ -264,7 +264,7 @@ end
 **D**iscrete **A**uto**R**egressive process of order 1.
 
 The DAR(1) model is a simple discrete-valued time series model defined by:
-\$\$X_t = (1 - B_t) X_{t-1} + B_t \\epsilon_t\$\$
+\$\$X_t = B_t X_{t-1} +  (1 - B_t) \\epsilon_t\$\$
 where:
 * \$B_t\$ is an i.i.d. Bernoulli random variable with parameter \$\\alpha\$.
 * \$\\epsilon_t\$ is an independent sequence of random variables (the innovation).
