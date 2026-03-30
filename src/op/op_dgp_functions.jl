@@ -324,7 +324,7 @@ function update_dgp_op!(dgp::SINAR1, x_long, dist::DiscreteUnivariateDistributio
 
     # Apply signed operator: α ⊙ xₜ₋₁
     # -> sgn(α) * sgn(xₜ₋₁) * (|α| ∘ |xₜ₋₁|)
-    operator_result = sign(α) * sign(xₜ₋₁) * rand(Binomial(Int(abs(xₜ₋₁)), abs(α)))
+    operator_result = sign(α) * sign(xₜ₋₁) * rand(Binomial(abs(xₜ₋₁), abs(α)))
     xₜ = operator_result + εₜ
     x_long[end] = dgp.add_noise ? xₜ + rand() : xₜ
 
@@ -406,7 +406,7 @@ function update_dgp_op!(dgp::TINAR1, x_long::Vector{Float64}, dist::DiscreteUniv
 
     # Apply signed operator: α ⊙ xₜ₋₁
     # -> sgn(α) * sgn(xₜ₋₁) * (|α| ∘ |xₜ₋₁|)
-    operator_result = sign_α * sign(xₜ₋₁) * rand(Binomial(Int(abs(xₜ₋₁)), abs_α))
+    operator_result = sign_α * sign(xₜ₋₁) * rand(Binomial(abs(xₜ₋₁), abs_α))
 
     yₜ = operator_result + εₜ
     x_new = max(lower_bound, yₜ) |> Float64
@@ -491,13 +491,13 @@ function update_dgp_op!(dgp::DAR1, x_long, dist_error, d::Int)
     # add noise ?
     if dgp.add_noise
         if rand(Bernoulli(dgp.α))
-            x_long[end] = floor(Int, x_long[end-1]) + rand()
+            x_long[end] = floor(x_long[end-1]) + rand()
         else
             x_long[end] = rand(dist_error) + rand()
         end
     else
         if rand(Bernoulli(dgp.α))
-            x_long[end] = floor(Int, x_long[end-1])
+            x_long[end] = floor(x_long[end-1])
         else
             x_long[end] = rand(dist_error)
         end
@@ -515,7 +515,7 @@ function init_dgp_op!(dgp::WDAR1, x_long, dist_error::Categorical, d::Int)
     # 2. Fill the rest of the path
     for i in 2:lastindex(x_long)
         if rand(Bernoulli(dgp.α))
-            prev_idx = Int(floor(x_long[i-1]))
+            prev_idx = Int(floor(x_long[i-1])) # conversion to Int is necessary for indexing
             x_long[i] = rand(dgp.W_samplers[prev_idx])
         else
             x_long[i] = rand(dist_error)
@@ -540,7 +540,7 @@ function update_dgp_op!(dgp::WDAR1, x_long, dist_error::Categorical, d::Int)
     end
 
     new_val = if rand(Bernoulli(dgp.α))
-        x_prev = Int(floor(x_long[end-1]))
+        x_prev = Int(floor(x_long[end-1])) # conversion to Int is necessary for indexing
         rand(dgp.W_samplers[x_prev])
     else
         rand(dist_error)
