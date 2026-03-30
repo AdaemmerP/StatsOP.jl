@@ -261,7 +261,7 @@ end
 # -------------------------------------------------#
 # ---------------  SINAR(1) methods  ---------------#
 # -------------------------------------------------#
-# Method to initialize INAR(1) when d is Int 
+# Method to initialize SINAR(1)
 function init_dgp_op!(dgp::SINAR1, x_long, dist::DiscreteUnivariateDistribution, d::Int)
     α = dgp.α
     abs_α = abs(α)
@@ -279,7 +279,7 @@ function init_dgp_op!(dgp::SINAR1, x_long, dist::DiscreteUnivariateDistribution,
         # -> sgn(α) * sgn(xₜ₋₁) * (|α| ∘ |xₜ₋₁|)
         operator_result = sign_α * sign(xₜ₋₁) * rand(Binomial(Int(abs(xₜ₋₁)), abs_α))
 
-        # Get observed value with Tobit censoring
+        # Compute observed value.
         εₜ = rand(dist)
         xₜ = operator_result + εₜ
         xₜ₋₁ = xₜ
@@ -291,7 +291,7 @@ function init_dgp_op!(dgp::SINAR1, x_long, dist::DiscreteUnivariateDistribution,
 
         xₜ₋₁ = x_long[t-1]
 
-        # Get observed value with Tobit censoring
+        # Compute observed value.
         εₜ = rand(dist)
         operator_result = sign(α) * sign(xₜ₋₁) * rand(Binomial(Int(abs(xₜ₋₁)), abs_α))
         x_long[t] = operator_result + εₜ
@@ -307,7 +307,7 @@ function init_dgp_op!(dgp::SINAR1, x_long, dist::DiscreteUnivariateDistribution,
     return @views x_long[1:d:end]
 end
 
-# Method to update INAR(1) 
+# Method to update SINAR(1) 
 function update_dgp_op!(dgp::SINAR1, x_long, dist::DiscreteUnivariateDistribution, d::Int)
 
     # Extract parameters for easier access
