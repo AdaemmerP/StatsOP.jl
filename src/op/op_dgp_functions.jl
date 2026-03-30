@@ -466,7 +466,7 @@ function init_dgp_op!(dgp::DAR1, x_long, dist_error, d::Int)
 
     # Fill
     for i in 2:lastindex(x_long)
-        if rand(Binomial(1, dgp.α)) == 0
+        if rand(Bernoulli(dgp.α)) == 0
             x_long[i] = rand(dist_error)
         else
             x_long[i] = x_long[i-1]
@@ -490,13 +490,13 @@ function update_dgp_op!(dgp::DAR1, x_long, dist_error, d::Int)
     end
     # add noise ?
     if dgp.add_noise
-        if rand(Binomial(1, dgp.α)) == 0
+        if rand(Bernoulli(dgp.α)) == 0
             x_long[end] = rand(dist_error) + rand()
         else
             x_long[end] = floor(Int, x_long[end-1]) + rand()
         end
     else
-        if rand(Binomial(1, dgp.α)) == 0
+        if rand(Bernoulli(dgp.α)) == 0
             x_long[end] = rand(dist_error)
         else
             x_long[end] = floor(Int, x_long[end-1])
