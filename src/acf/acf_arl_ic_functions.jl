@@ -164,11 +164,15 @@ function rl_acf_ic(lam, cl, p_reps, acf_dgp, acf_dgp_dist, acf_version; ced=fals
 
         # Set starting values based on version
         if acf_version == 1
-          cₜ = 0.0; sₜ = σ₀²
+          cₜ = 0.0
+          sₜ = σ₀²
         elseif acf_version == 2
-          cₜ = μ₀^2; sₜ = σ₀² + μ₀^2; mₜ = μ₀
+          cₜ = μ₀^2
+          sₜ = σ₀² + μ₀^2
+          mₜ = μ₀
         elseif acf_version == 3
-          cₜ = 0.0; sₜ = σ₀²
+          cₜ = 0.0
+          sₜ = σ₀²
         end
 
         falarm = false
@@ -203,11 +207,15 @@ function rl_acf_ic(lam, cl, p_reps, acf_dgp, acf_dgp_dist, acf_version; ced=fals
       # Standard initialization without CED
       init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
       if acf_version == 1
-        cₜ = 0.0; sₜ = σ₀²
+        cₜ = 0.0
+        sₜ = σ₀²
       elseif acf_version == 2
-        cₜ = μ₀^2; sₜ = σ₀² + μ₀^2; mₜ = μ₀
+        cₜ = μ₀^2
+        sₜ = σ₀² + μ₀^2
+        mₜ = μ₀
       elseif acf_version == 3
-        cₜ = 0.0; sₜ = σ₀²
+        cₜ = 0.0
+        sₜ = σ₀²
       end
       acf_stat = 0.0
     end
@@ -253,151 +261,5 @@ function rl_acf_ic(lam, cl, p_reps, acf_dgp, acf_dgp_dist, acf_version; ced=fals
 end
 
 
-# function rl_acf_ic(lam, cl, p_reps, acf_dgp, acf_dgp_dist, acf_version)
-
-#   # Pre-allocate 
-#   rls = Vector{Int64}(undef, length(p_reps))
-#   x_vec = Vector{Float64}(undef, 2)
-#   μ₀ = mean(acf_dgp_dist)
-
-#   for r in 1:length(p_reps)
-
-#     # initialize values
-#     if acf_version == 1
-#       cₜ = 0.0
-#       sₜ = var(acf_dgp_dist)
-
-
-#       # Compute statistic for version 1 (Equation (3))
-#       init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
-#       cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1.0 - lam) * cₜ
-#       sₜ = lam * (x_vec[2] - μ₀)^2 + (1.0 - lam) * sₜ
-#       acf_stat = cₜ / sₜ
-
-#     elseif acf_version == 2
-#       cₜ = mean(acf_dgp_dist)^2
-#       sₜ = var(acf_dgp_dist) + mean(acf_dgp_dist)^2
-#       mₜ = mean(acf_dgp_dist)
-
-#       # Compute statistic for version 2 (Equation (4))
-#       init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
-#       cₜ = lam * x_vec[2] * x_vec[1] + (1.0 - lam) * cₜ
-#       sₜ = lam * x_vec[2]^2 + (1.0 - lam) * sₜ
-#       mₜ = lam * x_vec[2] + (1.0 - lam) * mₜ
-#       acf_stat = (cₜ - mₜ^2) / (sₜ - mₜ^2)
-
-
-#     elseif acf_version == 3
-#       cₜ = 0.0
-#       sₜ = var(acf_dgp_dist)
-#       μ₀ = mean(acf_dgp_dist)
-
-#       # Compute statistic for version 3 (Equation (5))
-#       init_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
-#       cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1 - lam) * cₜ
-#       acf_stat = cₜ / sₜ
-
-#     end
-
-#     rl = 0
-
-#     while abs(acf_stat) < cl
-
-#       # increase run length
-#       rl += 1
-
-#       # compute EWMA ACF
-#       if acf_version == 1
-
-#         # Equation (3), page 3 in the paper
-#         cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1.0 - lam) * cₜ
-#         sₜ = lam * (x_vec[2] - μ₀)^2 + (1.0 - lam) * sₜ
-#         acf_stat = cₜ / sₜ
-
-#       elseif acf_version == 2
-#         # Equation (4), page 3 in the paper
-#         cₜ = lam * x_vec[2] * x_vec[1] + (1.0 - lam) * cₜ
-#         sₜ = lam * x_vec[2]^2 + (1.0 - lam) * sₜ
-#         mₜ = lam * x_vec[2] + (1.0 - lam) * mₜ
-#         acf_stat = (cₜ - mₜ^2) / (sₜ - mₜ^2)
-
-#       elseif acf_version == 3
-#         # Equation (5), page 3 in the paper
-#         cₜ = lam * (x_vec[2] - μ₀) * (x_vec[1] - μ₀) + (1 - lam) * cₜ
-#         acf_stat = cₜ / sₜ
-
-#       end
-
-#       # update x_vec depending on DGP
-#       update_dgp_op!(acf_dgp, x_vec, acf_dgp_dist, 1)
-
-#     end
-
-#     rls[r] = rl
-#   end
-#   return rls
-# end
-
-
-# # -------------------------------------------------#
-# # --------------- In-control methods---------------#
-# # -------------------------------------------------#
-
-# # Method to initialize in-control
-# function init_dgp_acf!(dgp::ICTS, x_vec, dist_error)
-#   rand!(dist_error, x_vec)
-#   return nothing
-# end
-
-# # Method to update in-control
-# function update_dgp_acf!(dgp::ICTS, x_vec, dist_error)
-#   x_vec[1] = x_vec[2]
-#   x_vec[2] = rand(dist_error)
-#   return nothing
-# end
-
-# # -------------------------------------------------#
-# # ---------------  AR(1) methods    ---------------#
-# # -------------------------------------------------#
-
-# # Method to initialize AR(1)
-# function init_dgp_acf!(dgp::AR1, x_vec, dist_error)
-#   x_vec[1] = rand(dist_error)
-#   x_vec[2] = dgp.α * x_vec[1] + rand(Normal(0, sqrt(1 - (dgp.α^2))))
-#   return nothing
-# end
-
-# # Method to update AR(1)
-# function update_dgp_acf!(dgp::AR1, x_vec, dist_error)
-#   x_vec[1] = x_vec[2]
-#   x_vec[2] = dgp.α * x_vec[1] + rand(Normal(0, sqrt(1 - (dgp.α^2))))
-#   return nothing
-# end
-
-# # -------------------------------------------------#
-# # ---------------  TEAR(1) methods   --------------#
-# # -------------------------------------------------#
-
-# # Method to initialize TEAR(1) 
-# function init_dgp_acf!(dgp::TEAR1, x_vec, dist_error)
-#   y = rand(dist_error)
-
-#   x_vec[1] = quantile(Normal(0, 1), cdf(dgp.dist, y))
-#   y = (1 - dgp.α) * rand(dgp.dist) + rand(Bernoulli(dgp.α)) * y
-#   x_vec[2] = quantile(Normal(0, 1), cdf(dgp.dist, y))
-
-#   return nothing
-# end
-
-# # Method to update TEAR(1) for ACF
-# function update_dgp_acf!(dgp::TEAR1, x_vec, dist_error)
-#   x_vec[1] = x_vec[2]
-
-#   # compute old "y" value to compute new "x" value
-#   y_old = quantile(Exponential(1), cdf(Normal(0, 1), x_vec[2]))
-#   y = (1 - dgp.α) * rand(dist_error) + rand(Bernoulli(dgp.α)) * y_old
-#   x_vec[2] = quantile(Normal(0, 1), cdf(dgp.dist, y))
-#   return nothing
-# end
 
 
