@@ -88,6 +88,8 @@ export arl_acf_oc
 # acf/acf_cl_functions.jl
 export cl_acf
 
+# acf/acf_stat_functions.jl
+export stat_acf
 # ----------------------------------------------#
 #  GOP related functions and structs to export  #
 # ----------------------------------------------#
@@ -282,6 +284,7 @@ include("op/op_help_functions.jl")
 include("acf/acf_arl_ic_functions.jl")
 include("acf/acf_arl_oc_functions.jl")
 include("acf/acf_cl_functions.jl")
+include("acf/acf_stat_functions.jl")
 
 # ----------------------------------------------#
 #  GOP related functions and structs to include #
