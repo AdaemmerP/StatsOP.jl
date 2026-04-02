@@ -1,4 +1,3 @@
-export stat_acf
 
 function stat_acf(data, lam, null_dist, acf_version)
 
