@@ -270,8 +270,7 @@ function init_dgp_op!(dgp::SINAR1, x_long, dist::DiscreteUnivariateDistribution,
     # 1. Burn-in Phase   
     # Start heuristically near steady state
     # Convert to Float64 to avoid type issues when adding noise 
-    μ_ε = mean(dist) |> abs
-    xₜ₋₁ = rand(Skellam(μ_ε, μ_ε)) |> Float64 # rand(Poisson(μ_ε / (1 - min(0.99, abs_α))))
+    xₜ₋₁ = Int(round(mean(dist)))
 
     for _ in 1:dgp.burn_in
 
