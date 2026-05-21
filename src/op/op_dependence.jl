@@ -1,128 +1,110 @@
 
 """
-    count_uv_op(ts; op_length::Int=3, d=1)
+    count_uv_op(ts; m::Int=3, d=1)
 
 Count the number of ordinal patterns in bins for a single time series `ts`. 
   
 - `ts::Vector{Float64}`: Time series for which the ordinal patterns are counted.
-- `op_length::Int=3`: Length of the ordinal patterns. Default is 3. Minimum is 2, maximum is 4.
+- `m::Int=3`: Length of the ordinal patterns. Default is 3. Minimum is 2, maximum is 4.
 - `d::Int=1`: Time delay. Default is 1.
 
 ```julia
 
 ts = rand(100)
-count_uv_op(ts; op_length=3, d=1)
+count_uv_op(ts; m=3, d=1)
 ```
 """
-function count_uv_op(ts; op_length::Int=3, d=1)
+function count_uv_op(ts; m::Int=3, d=1)
 
-  # Assert that 2 <= op_length <= 4
-  @assert 2 <= op_length <= 4 "This function is only implemented for pattern lengths of 2, 3 and 4"
+  m! = factorial(m)
+  number_of_patterns = length(ts) - (m - 1) * d
+  p_count = zeros(Int, m!)
+  bin = zeros(Int, m!)
+  win = Vector{Int}(undef, m)
+  idx_used = zeros(Int, m)
 
-  # create vector with unit range for indexing 
-  dindex_ranges = compute_dindex_op(ts; op_length=op_length, d=d)
+  for i in 1:number_of_patterns
 
-  # Compute lookup array and number of ops
-  lookup_array_op = compute_lookup_array_op(op_length=op_length)
-  op_length! = factorial(op_length)
-  p_count = zeros(Int, op_length!)     
-  bin = Vector{Int}(undef, op_length!) 
-  win = Vector{Int}(undef, op_length) 
-  seq = Vector{Float64}(undef, op_length) 
-
-  for (i, j) in enumerate(dindex_ranges)
-
-    seq = view(ts, j)
+    unit_range = range(i; step=d, length=m)
+    x_long = view(ts, unit_range)
     fill!(bin, 0)
-    order_vec!(seq, win)
+    sortperm!(win, x_long)
 
-    if op_length == 2
-      bin[lookup_array_op[win[1], win[2]]] = 1
-    elseif op_length == 3
-      bin[lookup_array_op[win[1], win[2], win[3]]] = 1
-    elseif op_length == 4
-      bin[lookup_array_op[win[1], win[2], win[3], win[4]]] = 1
-    end
+    index = perm_to_lehm_idx!(win, idx_used)
+    fill!(idx_used, 0)
+    bin[index] = 1
 
     @. p_count += bin
   end
 
   # Return tuple with relative frequencies and counts
-  return ([p_count ./ length(dindex_ranges)], p_count)
+  return ([p_count ./ number_of_patterns], p_count)
 
 end
 
 """
-    count_mv_op(tsx, tsy; op_length::Int=3, d=1)
+    count_mv_op(tsx, tsy; m::Int=3, d=1)
 
 Count the number of ordinal patterns in bins for two time series `tsx` and `tsy`. The output will be used
 to compute the ordinal pattern dependence coefficient by Schnurr and Dehling (2017) <doi:10.1080/01621459.2016.1164706>.
 
 - `tsx`: First time series for which the ordinal patterns are counted.
 - `tsy`: Second time series for which the ordinal patterns are counted.
-- `op_length::Int=3`: Length of the ordinal patterns. Default is 3. Minimum is 2, maximum is 4.
+- `m::Int=3`: Length of the ordinal patterns. Default is 3. Minimum is 2, maximum is 4.
 - `d::Int=1`: Time delay. Default is 1.
 
 ```julia
 tsx = rand(100)
 tsy = rand(100)
-count_mv_op(tsx, tsy; op_length=3, d=1)
+count_mv_op(tsx, tsy; m=3, d=1)
 ```
 """
-function count_mv_op(tsx, tsy; op_length::Int=3, d=1)
+function count_mv_op(tsx, tsy; m::Int=3, d=1)
 
   # Assert that time series have the same length
   @assert length(tsx) == length(tsy) "The time series must have the same length"
 
-  # Assert that 2 <= op_length <= 4
-  @assert 2 <= op_length <= 4 "This function is only implemented for pattern lengths of 2, 3 and 4"
+  # Assert that 2 <= m <= 4
+  @assert 2 <= m <= 4 "This function is only implemented for pattern lengths of 2, 3 and 4"
 
-  # Create vector with unit range for indexing 
-  dindex_ranges = compute_dindex_op(tsx, op_length=op_length, d=d)
-
-  # Compute lookup array and number of ops
-  lookup_array_op = compute_lookup_array_op(op_length=op_length)
+  m! = factorial(m)
+  number_of_patterns = length(tsx) - (m - 1) * d
 
   # Vectors to store counts for op of x, y and reversed y
-  op_length! = factorial(op_length)
-  count_x = zeros(Int, op_length!)
-  count_y = zeros(Int, op_length!)
-  count_yrev = zeros(Int, op_length!)
+  count_x = zeros(Int, m!)
+  count_y = zeros(Int, m!)
+  count_yrev = zeros(Int, m!)
 
   # Vectors to store counts for equal and non-equal op
-  count_eq = zeros(Int, op_length!)
-  count_neq = zeros(Int, op_length!)
+  count_eq = zeros(Int, m!)
+  count_neq = zeros(Int, m!)
 
-  # Vectors for storing op match 
-  bin_x = Vector{Int}(undef, op_length!)
-  bin_y = Vector{Int}(undef, op_length!)
+  # Vectors for storing op match
+  bin_x = zeros(Int, m!)
+  bin_y = zeros(Int, m!)
 
   # Vectors for storing ordered sequence
-  win_x = Vector{Int}(undef, op_length)
-  win_y = Vector{Int}(undef, op_length)
+  win_x = Vector{Int}(undef, m)
+  win_y = Vector{Int}(undef, m)
+  idx_used = zeros(Int, m)
 
-  pattern_seq_tsx = Vector{Int}(undef, length(dindex_ranges))
-  pattern_seq_tsy = Vector{Int}(undef, length(dindex_ranges))
+  pattern_seq_tsx = Vector{Int}(undef, number_of_patterns)
+  pattern_seq_tsy = Vector{Int}(undef, number_of_patterns)
 
-  for (i, j) in enumerate(dindex_ranges)
-    seq_x = view(tsx, j)
-    seq_y = view(tsy, j)
+  for i in 1:number_of_patterns
+    unit_range = range(i; step=d, length=m)
+    seq_x = view(tsx, unit_range)
+    seq_y = view(tsy, unit_range)
     fill!(bin_x, 0)
     fill!(bin_y, 0)
 
-    order_vec!(seq_x, win_x)
-    order_vec!(seq_y, win_y)
+    sortperm!(win_x, seq_x)
+    sortperm!(win_y, seq_y)
 
-    if op_length == 2
-      index_x = lookup_array_op[win_x[1], win_x[2]]
-      index_y = lookup_array_op[win_y[1], win_y[2]]
-    elseif op_length == 3
-      index_x = lookup_array_op[win_x[1], win_x[2], win_x[3]]
-      index_y = lookup_array_op[win_y[1], win_y[2], win_y[3]]
-    elseif op_length == 4
-      index_x = lookup_array_op[win_x[1], win_x[2], win_x[3], win_x[4]]
-      index_y = lookup_array_op[win_y[1], win_y[2], win_y[3], win_y[4]]
-    end
+    index_x = perm_to_lehm_idx!(win_x, idx_used)
+    fill!(idx_used, 0)
+    index_y = perm_to_lehm_idx!(win_y, idx_used)
+    fill!(idx_used, 0)
 
     pattern_seq_tsx[i] = index_x
     pattern_seq_tsy[i] = index_y
@@ -138,13 +120,9 @@ function count_mv_op(tsx, tsy; op_length::Int=3, d=1)
     reverse!(win_y)
     fill!(bin_y, 0)
 
-    if op_length == 2
-      bin_y[lookup_array_op[win_y[1], win_y[2]]] = 1
-    elseif op_length == 3
-      bin_y[lookup_array_op[win_y[1], win_y[2], win_y[3]]] = 1
-    elseif op_length == 4
-      bin_y[lookup_array_op[win_y[1], win_y[2], win_y[3], win_y[4]]] = 1
-    end
+    index_yrev = perm_to_lehm_idx!(win_y, idx_used)
+    fill!(idx_used, 0)
+    bin_y[index_yrev] = 1
 
     @. count_yrev += bin_y
     @. count_neq = count_neq + bin_x * bin_y
@@ -160,16 +138,16 @@ end
 
 
 """
-    dependence_op(tsx, tsy; op_length::Int=3, d=1)
+    dependence_op(tsx, tsy; m::Int=3, d=1)
 
 Compute the ordinal pattern dependence coefficient by Schnurr and Dehling (2017) <doi:10.1080/01621459.2016.1164706>.
 
 """
-function dependence_op(tsx, tsy; op_length::Int=3, d=1)
+function dependence_op(tsx, tsy; m::Int=3, d=1)
 
   @assert length(tsx) == length(tsy) "The time series must have the same length"
 
-  results_count = count_mv_op(tsx, tsy; op_length=op_length, d=d)
+  results_count = count_mv_op(tsx, tsy; m=m, d=d)
 
   count_x = results_count[1] # all pattern counts for x
   count_y = results_count[2] # all pattern counts for y
@@ -217,7 +195,7 @@ function weightfun(maxdif, x)
 end
 
 """
-    changepoint_op(tsx, tsy; conf_level=0.95, weight=true, bn=log(length(tsx)), op_length::Int=3, d=1)
+    changepoint_op(tsx, tsy; conf_level=0.95, weight=true, bn=log(length(tsx)), m::Int=3, d=1)
 
 Compute the changepoint in dependence between two time series based on Schnurr and Dehling (2017) <doi:10.1080/01621459.2016.1164706>.
 
@@ -226,54 +204,45 @@ Compute the changepoint in dependence between two time series based on Schnurr a
 - `conf_level::Float64=0.95`: Confidence level for the changepoint detection. Default is 0.95.
 - `weight::Bool=true`: Whether to use a weight function. Default is true.
 - `bn::Float64=log(length(tsx))`: Bandwidth for the kernel function. Default is log(length(tsx)).
-- `op_length::Int=3`: Length of the ordinal patterns. Default is 3. Minimum is 2, maximum is 4.
+- `m::Int=3`: Length of the ordinal patterns. Default is 3. Minimum is 2, maximum is 4.
 - `d::Int=1`: Time delay. Default is 1.
 
 ```julia
 tsx = rand(100)
 tsy = rand(100)
-changepoint_op(tsx, tsy; conf_level=0.95, weight=true, bn=log(length(tsx)), op_length=3, d=1)
+changepoint_op(tsx, tsy; conf_level=0.95, weight=true, bn=log(length(tsx)), m=3, d=1)
 ```
 """
-function changepoint_op(tsx, tsy; conf_level=0.95, weight=true, bn=log(length(tsx)), op_length::Int=3, d=1)
-
-  # Check whether op_length is 2, 3, or 4
-  @assert 2 <= op_length <= 4 "This function is only implemented for pattern lengths of 2, 3 and 4"
-
-  # Get possible ranks
-  rank_pattern = get_ranks_op(; op_length=op_length)
+function changepoint_op(tsx, tsy; conf_level=0.95, weight=true, bn=log(length(tsx)), m::Int=3, d=1)
 
   # Defining standard weight function
   # Based on https://github.com/cran/ordinalpattern/blob/17b24cfe203893c3ceb41e867de8021760fea1e4/R/Pattern.R#L173
   if (weight == true)
-    maxdif = floor(op_length / 2) * (floor(op_length / 2) + 1) + floor((op_length - 1) / 2) * (floor((op_length - 1) / 2) + 1)
+    maxdif = floor(m / 2) * (floor(m / 2) + 1) + floor((m - 1) / 2) * (floor((m - 1) / 2) + 1)
   end
 
-  results_count = count_mv_op(tsx, tsy; op_length=op_length, d=d)
+  results_count = count_mv_op(tsx, tsy; m=m, d=d)
   pattern_x_index::Vector{Int64} = results_count[6]
   pattern_index_y::Vector{Int64} = results_count[7]
 
-  # Pre-allocate vector for L1 norm
+  # Pre-allocate vectors for L1 norm computation
   L1_vec = Vector{Int}(undef, length(pattern_x_index))
-  x_minus_y = Vector{Int}(undef, op_length) # Vector to save in-place subtraction  
+  rks_x = Vector{Int}(undef, m)
+  rks_y = Vector{Int}(undef, m)
+  ix = Vector{Int}(undef, m)   # scratch for competerank!
+  x_minus_y = Vector{Int}(undef, m)
 
-  # Loop to compute L1 norm for each pattern
-  for i in axes(pattern_x_index, 1)
+  # Loop to compute L1 norm for each pattern using rank vectors (matching R's patternseq)
+  for i in eachindex(pattern_x_index)
 
-    # Get index for pattern
-    ind_x = pattern_x_index[i]
-    ind_y = pattern_index_y[i]
+    unit_range = range(i; step=d, length=m)
+    competerank!(rks_x, view(tsx, unit_range), ix)
+    competerank!(rks_y, view(tsy, unit_range), ix)
 
-    # Extract rank pattern
-    @views pattern_x = rank_pattern[ind_x, :]
-    @views pattern_y = rank_pattern[ind_y, :]
-
-    # Compute absolute vector differences 
-    for j in 1:op_length
-      x_minus_y[j] = abs(pattern_x[j] - pattern_y[j])
+    for j in 1:m
+      x_minus_y[j] = abs(rks_x[j] - rks_y[j])
     end
 
-    # Compute L1 norm
     L1_vec[i] = sum(x_minus_y)
 
   end
