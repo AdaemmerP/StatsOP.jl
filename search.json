@@ -1,158 +1,173 @@
 [
   {
-    "objectID": "reference/rl_sop_bp_bootstrap.html",
-    "href": "reference/rl_sop_bp_bootstrap.html",
-    "title": "rl_sop_bp_bootstrap",
+    "objectID": "page_files/op_changepoint.html",
+    "href": "page_files/op_changepoint.html",
+    "title": "Changepoint test",
     "section": "",
-    "text": "rl_sop_bp_bootstrap\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sop_bp_bootstrap(p_array::Array{T,3}, lam, cl, reps_range, chart_choice, ) where {T&lt;:Real}\n\nCompute the EWMA-BP-SOP run length for a given control limit using bootstraping.\nThe input parameters are:\n\np_array::Array{Float64,3}: A 3D array with the with the relative frequencies for each d1-d2 (delay) combination. The first dimension (rows) is the picture, the second dimension refers to the patterns group (s₁, s₂, or s₃) and the third dimension denotes each d₁-d₂ combination. This array will be used for re-sampling.\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nreps_range::UnitRange{Int}: A range of integers for the number of repetitions.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4."
+    "text": "Changepoint test\nOrdinalPatterns.jl allows to compute the chanegpoint statistic based on Schnurr and Dehling (2017).\n\nusing RCall\nusing OrdinalPatterns\nusing BenchmarkTools\n\ntsx = rand(100)\ntsy = rand(100)\n\n# R\n@rput tsx tsy\nR\"\"\"\nlibrary(ordinalpattern)\nresult_dep = patterndependence(tsx, tsy)\nresult_dep$patterncoef |&gt; print()\n\nmicrobenchmark::microbenchmark(\n  timing = patterndependence(tsx, tsy, tiesmethod=\"first\"), times = 100\n  )\n\"\"\"\n\n\nchangepoint_op(tsx, tsy, op_length=3)\n\n\n\n\n\n\nReferences\n\nSchnurr, Alexander, and Herold Dehling. 2017. “Testing for Structural Breaks via Ordinal Pattern Dependence.” Journal of the American Statistical Association 112 (518): 706–20. https://doi.org/10.1080/01621459.2016.1164706."
   },
   {
-    "objectID": "reference/SQINMA11.html",
-    "href": "reference/SQINMA11.html",
-    "title": "SQINMA11",
+    "objectID": "page_files/installation.html",
+    "href": "page_files/installation.html",
+    "title": "Installation",
     "section": "",
-    "text": "SQINMA11\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nSQINMA11(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao, prerun)\n\nA struct to define a Spatial quadratic integer moving-average SQINMA(1, 1):\n\\(\\qquad X_{t_1, t_2}=\\beta_1 \\circ \\epsilon_{t_1-1, t_2}^a+\\beta_2 \\circ \\epsilon_{t_1, t_2-1}^b+\\beta_3 \\circ \\epsilon_{t_1-1, t_2-1}^c+\\epsilon_{t_1, t_2}.\\)\nXₜ₁,ₜ₂ = β₁ ⋅ εₜ₁₋₁,ₜ₂ᵃ + β₂ ⋅ εₜ₁,ₜ₂₋₁ᵇ + β₃ ⋅ εₜ₁₋₁,ₜ₂₋₁ᶜ + εₜ₁,ₜ₂\n\ndgp_params::Tuple(β₁::Float64, β₂::Float64, β₃::Float64). Note that β₁, β₂, and β₃ ∈ [0, 1].\neps_params::Tuple(a::Int, b::Int, c::Int). A tuple of the parameters of the DGP, indicating which error terms shall be squared. Note that eps_params ∈ {1, 2}.\nM_rows::Int. The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.\nN_cols::Int. The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.\ndist::Distribution A distribution for . You can use any univariate distribution from the Distributions.jl package.\ndist_ao::Nothing.\nprerun::Int A value to initialize the DGP to achieve stationarity. These number of rows and columns will be discarded after the initialization.\n\n\nsqinma11 = SQINMA11((0.5, 0.3, 0.2), (1, 1, 2), 10, 10, Normal(0, 1), nothing, 1)",
+    "text": "Installation\nThe package is currently not registered and has to be installed manually from GitHub."
+  },
+  {
+    "objectID": "page_files/op_tutorial.html",
+    "href": "page_files/op_tutorial.html",
+    "title": "Tutorial for time series ordinal pattern tests",
+    "section": "",
+    "text": "using StatsOP, Random, Statistics, DataFrames\n\n\n\n\nAn ordinal pattern test asks whether the frequencies of rank permutations in a time series are consistent with an i.i.d. (white noise) process. For a series \\(x_1, \\ldots, x_n\\), overlapping windows of length \\(m\\) are each mapped to the permutation that describes the relative order of the values. The resulting pattern frequency distribution is summarised by a scalar test statistic. Under \\(H_0\\) (i.i.d.) that distribution is uniform across all \\(m!\\) patterns, so the statistic has a known or bootstrap-approximated null distribution.\nStatsOP.jl provides:\n\nComputing the statistic\n\nstat_op() — computes the chosen test statistic from the observed pattern frequencies.\n\nAsymptotic inference\n\ntest_op() — compares the statistic to an analytical critical value derived from the limiting distribution. Supports m = 2 and m = 3.\n\nBootstrap inference\n\nbootstrap_op() — generates the empirical null distribution by i.i.d. resampling of the data.\ntest_op_bootstrap() — combines statistic computation and bootstrap inference in one call; works for any m.\n\n\n\n\n\n\nstat_op(data; chart_choice, m=3, d=1)\n\nReturns [test_statistic, pattern_frequencies].\nchart_choice: one of\n\nPersistence()\nUpDownBalance()\nRotationalAsymmetry()\nUpDownScaling()\nDistanceToWhiteNoise()\nShannon()\nShannonExtropy().\n\nm: pattern length (window size)\nd: delay between observations within a window.\n\ntest_op(data; chart_choice, m=3, d=1, alpha=0.05)\n\nReturns (test_statistic, critical_value, reject_H₀).\nCritical value and rejection direction are chosen automatically from chart_choice.\nalpha: significance level.\nRelies on asymptotic limiting distributions; currently supports m = 2 and m = 3 only.\n\nbootstrap_op(data, n_boot; chart_choice, m=3, d=1, block_size=1)\n\nReturns a length-n_boot vector of resampled statistics under \\(H_0\\).\nn_boot: number of bootstrap replications.\nblock_size = 1: standard i.i.d. bootstrap. block_size &gt; 1: block bootstrap that preserves local serial structure.\nWorks for any m.\n\ntest_op_bootstrap(data, n_boot; chart_choice, m=3, d=1, alpha=0.05, block_size=1)\n\nReturns an OPTestResultBoot with the observed statistic, bootstrap critical value, bootstrap p-value, and reject decision.\nHandles the correct bootstrap direction (two-sided, upper-tail, lower-tail) automatically.\nalpha: significance level. block_size: as in bootstrap_op().\nWorks for any m — the only inference option when m &gt; 3.\n\n\n\n\n\nSeven chart statistics are available. They differ in what they measure, the direction of the rejection region, and the limiting distribution under \\(H_0\\).\n\n\n\n\n\n\n\n\n\n\n\nStatistic\nConstructor\nUnder \\(H_0\\)\nReject \\(H_0\\) when\nDistribution\n\n\n\n\nPersistence (\\(\\hat{\\tau}\\))\nPersistence()\n\\(\\hat{\\tau} = 0\\)\n\\(\\lvert\\hat{\\tau}\\rvert &gt; c\\)\nNormal\n\n\nUpDownBalance (\\(\\hat{\\beta}\\))\nUpDownBalance()\n\\(\\hat{\\beta} = 0\\)\n\\(\\lvert\\hat{\\beta}\\rvert &gt; c\\)\nNormal\n\n\nRotationalAsymmetry (\\(\\hat{\\gamma}\\))\nRotationalAsymmetry()\n\\(\\hat{\\gamma} = 0\\)\n\\(\\lvert\\hat{\\gamma}\\rvert &gt; c\\)\nNormal\n\n\nUpDownScaling (\\(\\hat{\\delta}\\))\nUpDownScaling()\n\\(\\hat{\\delta} = 0\\)\n\\(\\lvert\\hat{\\delta}\\rvert &gt; c\\)\nNormal\n\n\nDistanceToWhiteNoise (\\(\\hat{\\Delta}\\))\nDistanceToWhiteNoise()\n\\(\\hat{\\Delta} = 0\\)\n\\(\\hat{\\Delta} &gt; c\\)\nGeneralized \\(\\chi^2\\)\n\n\nShannon entropy (\\(\\hat{H}\\))\nShannon()\n\\(\\hat{H} = \\log(m!)\\)\n\\(\\hat{H} &lt; c\\)\nGeneralized \\(\\chi^2\\)\n\n\nShannon extropy (\\(\\hat{H}_\\text{ex}\\))\nShannonExtropy()\n\\(\\hat{H}_\\text{ex} = 5\\log(6/5)\\)\n\\(\\hat{H}_\\text{ex} &lt; c\\)\nGeneralized \\(\\chi^2\\)\n\n\n\n\n\nThe first four statistics use a two-sided test. DistanceToWhiteNoise is always non-negative — upper-tail.\nThe entropy statistics decrease under non-uniformity — lower-tail.\nThe test direction determines how bootstrap p-values are computed (see below).\nThe asymptotic critical values and their limiting distributions are derived in Weiß (2022).\n\n\n\n\n\nRandom.seed!(42)\nn, m, d = 300, 3, 1\nn_pat = n - (m - 1) * d\n\nfmt(r) = (; stat=round(r[1], digits=3), crit=round(r[2], digits=3), reject=r[3])\n\nfmt (generic function with 1 method)\n\n\n\n\n\n\ndata_iid = randn(n)   # i.i.d. — H₀ is true\n\nφ = 0.5\ndata_ar1 = zeros(n);\ndata_ar1[1] = randn();\nfor t in 2:n\n    data_ar1[t] = φ * data_ar1[t-1] + randn()\nend   # AR(1) — H₀ is false\n\n\n\n\n\n\n\nfmt(test_op(data_iid; chart_choice=Persistence(), m=m, d=d))\n\n(stat = 0.016, crit = 0.048, reject = false)\n\n\n\nfmt(test_op(data_ar1; chart_choice=Persistence(), m=m, d=d))\n\n(stat = 0.123, crit = 0.048, reject = true)\n\n\n\n\n\n\nfmt(test_op(data_iid; chart_choice=DistanceToWhiteNoise(), m=m, d=d))\n\n(stat = 0.002, crit = 0.005, reject = false)\n\n\n\nfmt(test_op(data_ar1; chart_choice=DistanceToWhiteNoise(), m=m, d=d))\n\n(stat = 0.011, crit = 0.005, reject = true)\n\n\n\n\n\n\nfmt(test_op(data_iid; chart_choice=Shannon(), m=m, d=d))\n\n(stat = 1.786, crit = 1.777, reject = false)\n\n\n\nfmt(test_op(data_ar1; chart_choice=Shannon(), m=m, d=d))\n\n(stat = 1.759, crit = 1.777, reject = true)\n\n\nThe i.i.d. series is not rejected; the AR(1) series is. The critical value is the same for both series — it depends only on n_pat, m, and alpha, not on the data.\n\n\n\n\ntest_op_bootstrap() generates the empirical null distribution via bootstrap_op(), then computes the bootstrap critical value and p-value in the correct direction for the chosen statistic. It works for any m — including m &gt; 3 where test_op() has no asymptotic theory.\n\nRandom.seed!(42)\ntest_op_bootstrap(data_ar1, 2_000; chart_choice=Persistence(), m=m, d=d)\n\n\nOPTestResultBoot\n  Chart:            Persistence()\n  Statistic:        0.123\n  ─────────────────────────────\n  Bootstrap  (n_boot = 2000)\n    Critical value: 0.0481\n    p-value:        0.0\n    Reject H₀:      true\n\n\n\nThe bootstrap critical value agrees closely with the asymptotic one shown above. The table below confirms this across all seven statistics.\n\n\n\n\nRandom.seed!(42)\nchart_list = [\n    (\"Persistence (τ)\", Persistence(), \"two-sided\"),\n    (\"UpDownBalance (β)\", UpDownBalance(), \"two-sided\"),\n    (\"RotationalAsymmetry (γ)\", RotationalAsymmetry(), \"two-sided\"),\n    (\"UpDownScaling (δ)\", UpDownScaling(), \"two-sided\"),\n    (\"DistanceToWhiteNoise (Δ)\", DistanceToWhiteNoise(), \"upper-tail\"),\n    (\"Shannon entropy (H)\", Shannon(), \"lower-tail\"),\n    (\"Shannon extropy (Hex)\", ShannonExtropy(), \"lower-tail\"),\n]\nasymp_res = [test_op(data_ar1; chart_choice=c, m=m, d=d) for (_, c, _) in chart_list]\nboot_res = [test_op_bootstrap(data_ar1, 2_000; chart_choice=c, m=m, d=d) for (_, c, _) in chart_list]\n\n\nDataFrame(\n    Statistic=[t[1] for t in chart_list],\n    Direction=[t[3] for t in chart_list],\n    stat=round.([r[1] for r in asymp_res], digits=3),\n    asymp_crit=round.([r[2] for r in asymp_res], digits=3),\n    boot_crit=round.([r.boot_crit for r in boot_res], digits=3),\n    boot_pval=round.([r.boot_pval for r in boot_res], digits=3),\n    reject=[r[3] for r in asymp_res],\n)\n\n7×7 DataFrame\n\n\n\nRow\nStatistic\nDirection\nstat\nasymp_crit\nboot_crit\nboot_pval\nreject\n\n\n\nString\nString\nFloat64\nFloat64\nFloat64\nFloat64\nBool\n\n\n\n\n1\nPersistence (τ)\ntwo-sided\n0.123\n0.048\n0.048\n0.0\ntrue\n\n\n2\nUpDownBalance (β)\ntwo-sided\n-0.007\n0.066\n0.064\n0.882\nfalse\n\n\n3\nRotationalAsymmetry (γ)\ntwo-sided\n0.007\n0.072\n0.074\n0.871\nfalse\n\n\n4\nUpDownScaling (δ)\ntwo-sided\n-0.013\n0.093\n0.094\n0.796\nfalse\n\n\n5\nDistanceToWhiteNoise (Δ)\nupper-tail\n0.011\n0.005\n0.005\n0.001\ntrue\n\n\n6\nShannon entropy (H)\nlower-tail\n1.759\n1.777\n1.777\n0.002\ntrue\n\n\n7\nShannon extropy (Hex)\nlower-tail\n0.905\n0.909\n0.909\n0.001\ntrue\n\n\n\n\n\n\nAcross all seven statistics the analytical and bootstrap critical values are close, and the bootstrap p-values are consistent with the reject column — confirming that bootstrap_op() is a reliable alternative whenever the limiting distribution is complex or the sample size is small.\n\n\n\n\n\nWeiß, Christian H. 2022. “Non-Parametric Tests for Serial Dependence in Time Series Based on Asymptotic Implementations of Ordinal-Pattern Statistics.” Chaos: An Interdisciplinary Journal of Nonlinear Science 32 (9). https://pubs.aip.org/aip/cha/article-abstract/32/9/093107/2835852/Non-parametric-tests-for-serial-dependence-in-time?redirectedFrom=fulltext.",
     "crumbs": [
-      "API",
-      "Types for spatial ordinal patterns",
-      "SQINMA11"
+      "OPs",
+      "Tutorial for time series ordinal pattern tests"
     ]
   },
   {
-    "objectID": "reference/dependence_op.html",
-    "href": "reference/dependence_op.html",
-    "title": "dependence_op",
+    "objectID": "page_files/op_tutorial.html#libraries",
+    "href": "page_files/op_tutorial.html#libraries",
+    "title": "Tutorial for time series ordinal pattern tests",
     "section": "",
-    "text": "dependence_op\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\ndependence_op(tsx, tsy; op_length::Int=3, d=1)\n\nCompute the ordinal pattern dependence coefficient by Schnurr and Dehling (2017) doi:10.1080/01621459.2016.1164706."
-  },
-  {
-    "objectID": "reference/BSQMA11.html",
-    "href": "reference/BSQMA11.html",
-    "title": "BSQMA11",
-    "section": "",
-    "text": "BSQMA11\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nBSQMA11(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao)\n\nA struct to define a bilateral spatial quadratic moving-average (BSQMA(1, 1)) process:\nY{t1, t2}=b1 ^a+b2 ^b+b3 ^c+b*4 ^d+,\nYₜ₁,ₜ₂ = b₁ ⋅ εₜ₁₋₁,ₜ₂₋₁ᵃ + b₂ ⋅ εₜ₁₊₁,ₜ₂₋₁ᵇ + b₃ ⋅ εₜ₁₊₁,ₜ₂₊₁ᶜ + b₄ ⋅ εₜ₁₋₁,ₜ₂₊₁ᵈ + εₜ₁,ₜ₂\n\ndgp_params::Tuple{Float64, Float64, Float64, Float64}: A tuple of the parameters of the DGP. The parameters correspond to b₁, b₂, b₃ and b₄, respectively.\neps_params::Tuple{Int, Int, Int, Int}: A tuple of the parameters of the DGP, indicating which error terms shall be squared. Note that eps_params ∈ {1, 2}.\nM_rows::Int: The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.\nN_cols::Int: The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.\ndist::Distribution: A distribution for . You can use any univariate distribution from the Distributions.jl package.\ndist_ao::Nothing: Nothing.\n\n\nbsqma11 = BSQMA11((0.5, 0.3, 0.2, 0.1), (1, 1, 2, 2), 10, 10, Normal(0, 1), nothing)"
-  },
-  {
-    "objectID": "reference/rl_sop_bp.html",
-    "href": "reference/rl_sop_bp.html",
-    "title": "rl_sop_bp",
-    "section": "",
-    "text": "rl_sop_bp\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sop_bp(\n\nlam, cl, lookuparraysop, spatialdgp::ICSP, repsrange, dist, chartchoice, d1vec::Vector{Int}, d2_vec::Vector{Int} )\nComputes the run length for a given in-control spatial DGP, using the EWMA-BP-SOP statistic.\nThe input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nlookup_array_sop::Array{Int, 4}: A 4D array with the lookup array for the sops, which will be computed computed using lookup_array_sop = compute_lookup_array_sop().\nspatial_dgp::ICSP: A struct for the in-control spatial DGP.\nreps_range::UnitRange{Int}: A range of integers for the number of repetitions.\ndist::Distribution: A distribution for the error term. Here you can use any univariate distribution from the Distributions.jl package.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\nd1_vec::Vector{Int}: A vector with integer values for the first delay (d₁).\nd2_vec::Vector{Int}: A vector with integer values for the second delay (d₂).\n\n\n\n\n\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sop_bp(\n\nlam, cl, lookuparraysop, preps, spatialdgp::SpatialDGP, disterror::UnivariateDistribution, distao::Union{Nothing,UnivariateDistribution}, chartchoice, d1vec::Vector{Int}, d2_vec::Vector{Int} )\nComputes the run length for a given out-of-control DGP, using the EWMA-BP-SOP statistic.\nThe input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nlookup_array_sop::Array{Int, 4}: A 4D array with the lookup array for the sops, which will be computed computed using lookup_array_sop = compute_lookup_array_sop().\np_reps::UnitRange{Int}: A range of integers for the number of repetitions.\nspatial_dgp::SpatialDGP: A struct for the out-of-control spatial DGP.\ndist_error::UnivariateDistribution: A distribution for the error term. Here you can use any univariate distribution from the Distributions.jl package.\ndist_ao::Union{Nothing,UnivariateDistribution}: A distribution for the additive outlier.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\nd1_vec::Vector{Int}: A vector with integer values for the first delay (d₁).\nd2_vec::Vector{Int}: A vector with integer values for the second delay (d₂)."
-  },
-  {
-    "objectID": "reference/arl_sacf_ic.html",
-    "href": "reference/arl_sacf_ic.html",
-    "title": "arl_sacf_ic",
-    "section": "",
-    "text": "arl_sacf_ic\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\narlsacfic(lam, cl, spatialdgp::ICSTS, d1::Int, d2::Int, reps=10000)\nCompute the in-control average run length (ARL), using the spatial autocorrelation function (SACF) for a delay (d1, d2) combination. The function returns the ARL for a given control limit cl and a given number of repetitions reps.\nThe input arguments are:\n\nspatial_dgp: The in-control spatial data generating process (DGP) to use for the SACF function.\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\nd1::Int: The first (row) delay for the spatial process.\nd2::Int: The second (column) delay for the spatial process.\nreps: The number of repetitions to compute the ARL."
-  },
-  {
-    "objectID": "reference/rl_sop_bootstrap.html",
-    "href": "reference/rl_sop_bootstrap.html",
-    "title": "rl_sop_bootstrap",
-    "section": "",
-    "text": "rl_sop_bootstrap\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sop_bootstrap(lam, cl, reps_range, chart_choice, p_mat::Array{Float64,2})\n\nCompute the run length for a given control limit using bootstraping instead of a theoretical in-control distribution.\nThe input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nreps_range::UnitRange{Int}: A range of integers for the number of repetitions. This has to be a range to be compatible with arl_sop() which uses threading and multi-processing.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\np_mat::Array{Float64,2}: A matrix with the values of the relative frequencies of each d1-d2 (delay) combination. This matrix will be used for re-sampling."
-  },
-  {
-    "objectID": "reference/arl_sacf_bp_oc.html",
-    "href": "reference/arl_sacf_bp_oc.html",
-    "title": "arl_sacf_bp_oc",
-    "section": "",
-    "text": "arl_sacf_bp_oc\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\narl_sacf_bp_oc(spatial_dgp::SpatialDGP, lam, cl, w::Int, reps=10_000)\n\nCompute the out-of-control average run length (ARL) using the spatial autocorrelation function (SACF) for the BP-statistic. The function returns the ARL for a given control limit cl and a given number of repetitions reps. The input arguments are:\n\nspatial_dgp::SpatialDGP: The spatial data generating process (DGP) to use for the SACF function. This can be one of the following: SAR1, SAR11, SAR22, SINAR11, SQMA11, SQINMA11, or BSQMA11.\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\nd1_vec::Vector{Int}: The first (row) delays for the spatial process.\nd2_vec::Vector{Int}: The second (column) delays for the spatial process.\nreps: The number of repetitions to compute the ARL."
-  },
-  {
-    "objectID": "reference/cl_sop.html",
-    "href": "reference/cl_sop.html",
-    "title": "cl_sop",
-    "section": "",
-    "text": "cl_sop\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\ncl_sop(\n\nsopdgp::ICSTS, lam, L0, clinit, d1::Int, d2::Int, reps=10000; chartchoice=3, jmin=4, jmax=6, verbose=false )\nCompute the control limit for a given in-control process. The input parameters are:\n\nsop_dgp: The in-control spatial process (ICSTS) to use for the control limit.\nlam::Float64: A scalar value for lambda for the EWMA chart.\nL0::Float64: The desired average run length.\ncl_init::Float64: The initial value for the control limit.\nd1::Int: The first (row) delay for the spatial process.\nd2::Int: The second (column) delay for the spatial process.\nreps::Int: The number of replications to compute the ARL.\nchart_choice::Int: The chart choice for the SOP chart.\njmin: The minimum number of values to change after the decimal point in the control limit.\njmax: The maximum number of values to change after the decimal point in the control limit.\nverbose::Bool: A boolean to indicate whether to print the control limit and ARL for each iteration."
-  },
-  {
-    "objectID": "reference/compute_p_mat.html",
-    "href": "reference/compute_p_mat.html",
-    "title": "compute_p_mat",
-    "section": "",
-    "text": "compute_p_mat\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\ncompute_p_mat(data::Array{Float64,3})\n\nCompute the matrix of p-hat values for a given 3D array of data. These values are used for bootstrapping."
-  },
-  {
-    "objectID": "reference/cl_sop_bootstrap.html",
-    "href": "reference/cl_sop_bootstrap.html",
-    "title": "cl_sop_bootstrap",
-    "section": "",
-    "text": "cl_sop_bootstrap\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\ncl_sop_bootstrap(\n\ndata::Array{T,3}, lam, L0, clinit, d1, d2, reps=10000; chart_choice=3, jmin=3, jmax=7, verbose=false )\nCompute the SOP control limit for the EWMA-chart based on bootstraping. The function returns the control limit for a given average run.\nThe input parameters are:\n\ndata::Array{T,3}: A 3D-array containing the data for the EWMA-chart.\nlam::Real: The smoothing parameter for the EWMA-chart.\nL0::Real: The average run length for the EWMA-chart.\ncl_init::Real: The initial value for the control limit.\nd1::Int: The first dimension of the data array.\nd2::Int: The second dimension of the data array.\nreps::Int=10_000: The number of bootstrap replications.\nchart_choice::Int: The choice of the chart for the EWMA-chart. The default is 3.\njmin: The minimum number of values to change after the decimal point in the control limit.\njmax: The maximum number of values to change after the decimal point in the control limit.\nverbose::Bool: A boolean to indicate whether to print the control limit and ARL for each iteration."
-  },
-  {
-    "objectID": "reference/rl_sop_oc.html",
-    "href": "reference/rl_sop_oc.html",
-    "title": "rl_sop_oc",
-    "section": "",
-    "text": "rl_sop_oc\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sop_oc(\n\nspatialdgp::SpatialDGP, lam, cl, lookuparraysop, preps::UnitRange{Int}, disterror::UnivariateDistribution, distao::Union{Nothing,UnivariateDistribution}, chart_choice, m, n, d1::Int, d2::Int )\nComputes the run length for a given out-of-control DGP. The input parameters are:\n\nspatial_dgp::SpatialDGP: A struct for the out-of-control spatial DGP.\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nlookup_array_sop::Array{Int, 4}: A 4D array with the lookup array for the sops, which will be computed computed using lookup_array_sop = compute_lookup_array_sop().\np_reps::UnitRange{Int}: A range of integers for the number of repetitions.\ndist_error::UnivariateDistribution: A distribution for the error term. Here you can use any univariate distribution from the Distributions.jl package.\ndist_ao::Union{Nothing,UnivariateDistribution}: A distribution for the additive outlier.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\nm::Int: An integer value for the number of rows for the final “SOP” matrix.\nn::Int: An integer value for the number of columns for the final “SOP” matrix.\nd1::Int: An integer value for the first delay (d₁).\nd2::Int: An integer value for the second delay (d₂)."
-  },
-  {
-    "objectID": "reference/cl_op.html",
-    "href": "reference/cl_op.html",
-    "title": "cl_op",
-    "section": "",
-    "text": "cl_op\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\ncl_op(lam, L0, op_dgp, cl_init, reps=10000; chart_choice, jmin=4, jmax=6, verbose=false, d=1, ced=false, ad=100)\n\nFunction to compute the control limit for ordinal patterns.\n\nlam::Float64: Smoothing parameter for the EWMA statistic.\nL0::Float64: In-control ARL.\nop_dgp::Union{IC, AR1, MA1, MA2, TEAR1, AAR1, QAR1}: DGP.\ncl_init::Float64: Initial guess for the control limit.\nreps::Int64: Number of replications.\nchart_choice::Int\n\n\\(\\widehat{H}^{(d)}=-\\sum_{k=1}^{m!} \\hat{p}_k{ }^{(d)} \\ln \\hat{p}_k{ }^{(d)}\\)\n\\(\\widehat{H}_{\\mathrm{ex}}^{(d)}=-\\sum_{k=1}^{m!}\\left(1-\\hat{p}_k{ }^{(d)}\\right) \\ln \\left(1-\\hat{p}_k{ }^{(d)}\\right)\\)\n\\(\\widehat{\\Delta}^{(d)}=\\sum_{k=1}^{m!}\\left(\\hat{p}_k^{(d)}-1 / m!\\right)^2\\)\n\\(\\hat{\\beta}^{(d)}=\\hat{p}_6^{(d)}-\\hat{p}_1^{(d)}\\)\n\\(\\hat{\\tau}^{(d)}=\\hat{p}_6^{(d)}+\\hat{p}_1^{(d)}-\\frac{1}{3}\\)\n\\(\\hat{\\delta}^{(d)}=\\hat{p}_4^{(d)}+\\hat{p}_5^{(d)}-\\hat{p}_3^{(d)}-\\hat{p}_2^{(d)}\\)\n\nThe patterns are categorized as follows:\n\\(\\qquad p_1 = (3,2,1);  \\quad p_2=(3,1,2);  \\quad p_3 = (2,3,1);\\)\n\\(\\qquad p_4 = (1,3,2);  \\quad p_5 = (2,1,3);  \\quad p_ 6 = (1,2,3)\\)\njmin::Int Minimum number of decimals for final control limit to optimize.\njmax::Int Maximum number of decimals for final control limit to optimize.\nverbose::Bool=false Print intermediate results?\nd::Union{Int,Vector{Int}}=1: Delay vector.\nced::Bool=false: Use conditional expected delay? Default is false.\nad::Int=100: Number of iterations for ced.",
+    "text": "using StatsOP, Random, Statistics, DataFrames",
     "crumbs": [
-      "API",
-      "Functions for ordinal patterns",
-      "cl_op"
+      "OPs",
+      "Tutorial for time series ordinal pattern tests"
     ]
   },
   {
-    "objectID": "reference/arl_acf.html",
-    "href": "reference/arl_acf.html",
-    "title": "arl_acf",
+    "objectID": "page_files/op_tutorial.html#hypothesis-testing-with-ordinal-patterns",
+    "href": "page_files/op_tutorial.html#hypothesis-testing-with-ordinal-patterns",
+    "title": "Tutorial for time series ordinal pattern tests",
     "section": "",
-    "text": "arl_acf\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\narl_acf(lam, cl, acf_dgp, reps=10000)\n\nFunction to compute the average run length (ARL) for a specified DGP using the ACF statistic by XXX.\n\nlam::Float64: Smoothing parameter for the EWMA statistic.\ncl::Float64: Control limit for the ACF statistic.\nacf_dgp::Union{IC, AR1, TEAR1}: DGP.\nreps::Int64: Number of replications.\n\n\narl_acf(0.1, 3.0, IC(Normal(0, 1)), 10000)"
-  },
-  {
-    "objectID": "reference/SAR1.html",
-    "href": "reference/SAR1.html",
-    "title": "SAR1",
-    "section": "",
-    "text": "SAR1\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nSAR1(dgp_params, M_rows, N_cols, dist, dist_ao, margin)\n\nA struct to define a first-order simultaneous autoregressive (SAR(1)) model:\n\\(\\qquad Y_{t_1, t_2}=a_1 \\cdot Y_{t_1-1, t_2}+a_2 \\cdot Y_{t_1, t_2-1}+a_3 \\cdot Y_{t_1, t_2+1}+a_4 \\cdot Y_{t_1+1, t_2}+\\varepsilon_{t_1, t_2}.\\)\nYₜ₁,ₜ₂ = a₁ ⋅ Yₜ₁₋₁,ₜ₂ + a₂ ⋅ Yₜ₁,ₜ₂₋₁ + a₃ ⋅ Yₜ₁,ₜ₂₊₁ + a₄ ⋅ Yₜ₁₊₁,ₜ₂ + εₜ₁,ₜ₂\n\ndgp_params::Tuple{a₁::Float64, a₂::Float64, Float64, Float64}: A tuple of the parameters of the DGP. The first element is the parameter a₁, the second element is the parameter a₂, and the third element is the parameter a₃. a₄.\nM_rows::Int: The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.\nN_cols::Int: The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.\ndist::Distribution: A distribution for . You can use any univariate distribution from the Distributions.jl package.\ndist_ao::Union{Nothing, Distribution}: Nothing or a distribution for additive outliers. For additive outliers you can use any univariate distribution from the Distributions.jl package.\nmargin::Int: The margin for the spatial matrix used for initialization.\n\n\nsar1 = SAR1((0.5, 0.3, 0.2, 0.1), 10, 10, Normal(0, 1), nothing, 20)",
+    "text": "An ordinal pattern test asks whether the frequencies of rank permutations in a time series are consistent with an i.i.d. (white noise) process. For a series \\(x_1, \\ldots, x_n\\), overlapping windows of length \\(m\\) are each mapped to the permutation that describes the relative order of the values. The resulting pattern frequency distribution is summarised by a scalar test statistic. Under \\(H_0\\) (i.i.d.) that distribution is uniform across all \\(m!\\) patterns, so the statistic has a known or bootstrap-approximated null distribution.\nStatsOP.jl provides:\n\nComputing the statistic\n\nstat_op() — computes the chosen test statistic from the observed pattern frequencies.\n\nAsymptotic inference\n\ntest_op() — compares the statistic to an analytical critical value derived from the limiting distribution. Supports m = 2 and m = 3.\n\nBootstrap inference\n\nbootstrap_op() — generates the empirical null distribution by i.i.d. resampling of the data.\ntest_op_bootstrap() — combines statistic computation and bootstrap inference in one call; works for any m.",
     "crumbs": [
-      "API",
-      "Types for spatial ordinal patterns",
-      "SAR1"
+      "OPs",
+      "Tutorial for time series ordinal pattern tests"
     ]
   },
   {
-    "objectID": "reference/rl_sop_ic.html",
-    "href": "reference/rl_sop_ic.html",
-    "title": "rl_sop_ic",
+    "objectID": "page_files/op_tutorial.html#key-functions",
+    "href": "page_files/op_tutorial.html#key-functions",
+    "title": "Tutorial for time series ordinal pattern tests",
     "section": "",
-    "text": "rl_sop_ic\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sop_ic(lam, cl, lookup_array_sop, reps_range, dist, chart_choice, m, n, d1::Int, d2::Int)\n\nCompute the run length for a given in-control spatial DGP.\nThe input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nlookup_array_sop::Array{Int, 4}: A 4D array with the lookup array for the sops, which will be computed computed using lookup_array_sop = compute_lookup_array_sop().\nreps_range::UnitRange{Int}: A range of integers for the number of repetitions.\ndist::Distribution: A distribution for the error term. Here you can use any univariate distribution from the Distributions.jl package.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\nm::Int: An integer value for the number of rows for the final “SOP” matrix.\nn::Int: An integer value for the number of columns for the final “SOP” matrix.\nd1::Int: An integer value for the first delay (d₁).\nd2::Int: An integer value for the second delay (d₂)."
+    "text": "stat_op(data; chart_choice, m=3, d=1)\n\nReturns [test_statistic, pattern_frequencies].\nchart_choice: one of\n\nPersistence()\nUpDownBalance()\nRotationalAsymmetry()\nUpDownScaling()\nDistanceToWhiteNoise()\nShannon()\nShannonExtropy().\n\nm: pattern length (window size)\nd: delay between observations within a window.\n\ntest_op(data; chart_choice, m=3, d=1, alpha=0.05)\n\nReturns (test_statistic, critical_value, reject_H₀).\nCritical value and rejection direction are chosen automatically from chart_choice.\nalpha: significance level.\nRelies on asymptotic limiting distributions; currently supports m = 2 and m = 3 only.\n\nbootstrap_op(data, n_boot; chart_choice, m=3, d=1, block_size=1)\n\nReturns a length-n_boot vector of resampled statistics under \\(H_0\\).\nn_boot: number of bootstrap replications.\nblock_size = 1: standard i.i.d. bootstrap. block_size &gt; 1: block bootstrap that preserves local serial structure.\nWorks for any m.\n\ntest_op_bootstrap(data, n_boot; chart_choice, m=3, d=1, alpha=0.05, block_size=1)\n\nReturns an OPTestResultBoot with the observed statistic, bootstrap critical value, bootstrap p-value, and reject decision.\nHandles the correct bootstrap direction (two-sided, upper-tail, lower-tail) automatically.\nalpha: significance level. block_size: as in bootstrap_op().\nWorks for any m — the only inference option when m &gt; 3.",
+    "crumbs": [
+      "OPs",
+      "Tutorial for time series ordinal pattern tests"
+    ]
   },
   {
-    "objectID": "reference/sacf.html",
-    "href": "reference/sacf.html",
-    "title": "sacf",
+    "objectID": "page_files/op_tutorial.html#available-chart-statistics",
+    "href": "page_files/op_tutorial.html#available-chart-statistics",
+    "title": "Tutorial for time series ordinal pattern tests",
     "section": "",
-    "text": "sacf\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nsacf(X_centered, d1::Int, d2::Int)\n\n\nX_centered: The centered (de-meaned) data matrix.\nd1::Int: The first (row) delay for the spatial process.\nd2::Int: The second (column) delay for the spatial process."
+    "text": "Seven chart statistics are available. They differ in what they measure, the direction of the rejection region, and the limiting distribution under \\(H_0\\).\n\n\n\n\n\n\n\n\n\n\n\nStatistic\nConstructor\nUnder \\(H_0\\)\nReject \\(H_0\\) when\nDistribution\n\n\n\n\nPersistence (\\(\\hat{\\tau}\\))\nPersistence()\n\\(\\hat{\\tau} = 0\\)\n\\(\\lvert\\hat{\\tau}\\rvert &gt; c\\)\nNormal\n\n\nUpDownBalance (\\(\\hat{\\beta}\\))\nUpDownBalance()\n\\(\\hat{\\beta} = 0\\)\n\\(\\lvert\\hat{\\beta}\\rvert &gt; c\\)\nNormal\n\n\nRotationalAsymmetry (\\(\\hat{\\gamma}\\))\nRotationalAsymmetry()\n\\(\\hat{\\gamma} = 0\\)\n\\(\\lvert\\hat{\\gamma}\\rvert &gt; c\\)\nNormal\n\n\nUpDownScaling (\\(\\hat{\\delta}\\))\nUpDownScaling()\n\\(\\hat{\\delta} = 0\\)\n\\(\\lvert\\hat{\\delta}\\rvert &gt; c\\)\nNormal\n\n\nDistanceToWhiteNoise (\\(\\hat{\\Delta}\\))\nDistanceToWhiteNoise()\n\\(\\hat{\\Delta} = 0\\)\n\\(\\hat{\\Delta} &gt; c\\)\nGeneralized \\(\\chi^2\\)\n\n\nShannon entropy (\\(\\hat{H}\\))\nShannon()\n\\(\\hat{H} = \\log(m!)\\)\n\\(\\hat{H} &lt; c\\)\nGeneralized \\(\\chi^2\\)\n\n\nShannon extropy (\\(\\hat{H}_\\text{ex}\\))\nShannonExtropy()\n\\(\\hat{H}_\\text{ex} = 5\\log(6/5)\\)\n\\(\\hat{H}_\\text{ex} &lt; c\\)\nGeneralized \\(\\chi^2\\)\n\n\n\n\n\nThe first four statistics use a two-sided test. DistanceToWhiteNoise is always non-negative — upper-tail.\nThe entropy statistics decrease under non-uniformity — lower-tail.\nThe test direction determines how bootstrap p-values are computed (see below).\nThe asymptotic critical values and their limiting distributions are derived in Weiß (2022).",
+    "crumbs": [
+      "OPs",
+      "Tutorial for time series ordinal pattern tests"
+    ]
   },
   {
-    "objectID": "reference/rl_sacf_oc.html",
-    "href": "reference/rl_sacf_oc.html",
-    "title": "rl_sacf_oc",
+    "objectID": "page_files/op_tutorial.html#setup",
+    "href": "page_files/op_tutorial.html#setup",
+    "title": "Tutorial for time series ordinal pattern tests",
     "section": "",
-    "text": "rl_sacf_oc\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sacf_oc(\n\nspatialdgp::SpatialDGP, lam, cl, d1::Int, d2::Int, preps::UnitRange, disterror::UnivariateDistribution, distao::Union{UnivariateDistribution,Nothing} )\nCompute the out-of-control run length using the spatial autocorrelation function (SACF). The function returns the run length for a given control limit cl and a given number of repetitions reps.\nThe input arguments are:\n\nspatial_dgp::SpatialDGP: The spatial data generating process (DGP) to use for the SACF function. This can be one of the following: SAR1, SAR11, SAR22, SINAR11, SQMA11, SQINMA11, or BSQMA11.\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\nd1::Int: The first (row) delay for the spatial process.\nd2::Int: The second (column) delay for the spatial process.\np_reps::UnitRange: The number of repetitions to compute the run length. This has to be a unit range of integers to allow for parallel processing, since the function is called by arl_sacf()."
+    "text": "Random.seed!(42)\nn, m, d = 300, 3, 1\nn_pat = n - (m - 1) * d\n\nfmt(r) = (; stat=round(r[1], digits=3), crit=round(r[2], digits=3), reject=r[3])\n\nfmt (generic function with 1 method)",
+    "crumbs": [
+      "OPs",
+      "Tutorial for time series ordinal pattern tests"
+    ]
   },
   {
-    "objectID": "reference/cl_sop_bp.html",
-    "href": "reference/cl_sop_bp.html",
-    "title": "cl_sop_bp",
+    "objectID": "page_files/op_tutorial.html#example-data",
+    "href": "page_files/op_tutorial.html#example-data",
+    "title": "Tutorial for time series ordinal pattern tests",
     "section": "",
-    "text": "cl_sop_bp\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\ncl_sop_bp(\n\nspdgp::ICSP, lam, L0, clinit, w, reps=10000; chartchoice=3, jmin=4, jmax=6, verbose=false )\nCompute the control limit for the EWMA-chart for the BP-statistic. The function returns the control limit for a given average run. The input parameters are:\n\nsp_dgp::ICSTS: The in-control spatial process (ICSTS).\nlam::Float64: A scalar value for lambda for the EWMA chart.\nL0::Float64: The desired average run length.\ncl_init::Float64: The initial value for the control limit.\nw::Int: The window size for the BP-statistic.\nreps::Int: The number of replications to compute the ARL.\nchart_choice::Int: The chart choice for the SOP chart.\njmin: The minimum number of values to change after the decimal point in the control limit.\njmax: The maximum number of values to change after the decimal point in the control limit.\nverbose::Bool: A boolean to indicate whether to print the control limit and ARL for each iteration."
+    "text": "data_iid = randn(n)   # i.i.d. — H₀ is true\n\nφ = 0.5\ndata_ar1 = zeros(n);\ndata_ar1[1] = randn();\nfor t in 2:n\n    data_ar1[t] = φ * data_ar1[t-1] + randn()\nend   # AR(1) — H₀ is false",
+    "crumbs": [
+      "OPs",
+      "Tutorial for time series ordinal pattern tests"
+    ]
   },
   {
-    "objectID": "reference/arl_sacf_bp_ic.html",
-    "href": "reference/arl_sacf_bp_ic.html",
-    "title": "arl_sacf_bp_ic",
+    "objectID": "page_files/op_tutorial.html#asymptotic-testing-test_op",
+    "href": "page_files/op_tutorial.html#asymptotic-testing-test_op",
+    "title": "Tutorial for time series ordinal pattern tests",
     "section": "",
-    "text": "arl_sacf_bp_ic\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\narl_sacf_bp_ic(lam, cl, sp_dgp::ICSP, d1_vec::Vector{Int}, d2_vec::Vector{Int}, reps=10_000)\n\nCompute the in-control average run length (ARL) using the spatial autocorrelation function (SACF) for the BP-statistic. The input arguments are:\n\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\nsp_dgp: The in-control spatial data generating process (DGP) to use for the SACF function.\nd1_vec::Vector{Int}: The first (row) delays for the spatial process.\nd2_vec::Vector{Int}: The second (column) delays for the spatial process.\nreps: The number of repetitions to compute the ARL."
+    "text": "fmt(test_op(data_iid; chart_choice=Persistence(), m=m, d=d))\n\n(stat = 0.016, crit = 0.048, reject = false)\n\n\n\nfmt(test_op(data_ar1; chart_choice=Persistence(), m=m, d=d))\n\n(stat = 0.123, crit = 0.048, reject = true)\n\n\n\n\n\n\nfmt(test_op(data_iid; chart_choice=DistanceToWhiteNoise(), m=m, d=d))\n\n(stat = 0.002, crit = 0.005, reject = false)\n\n\n\nfmt(test_op(data_ar1; chart_choice=DistanceToWhiteNoise(), m=m, d=d))\n\n(stat = 0.011, crit = 0.005, reject = true)\n\n\n\n\n\n\nfmt(test_op(data_iid; chart_choice=Shannon(), m=m, d=d))\n\n(stat = 1.786, crit = 1.777, reject = false)\n\n\n\nfmt(test_op(data_ar1; chart_choice=Shannon(), m=m, d=d))\n\n(stat = 1.759, crit = 1.777, reject = true)\n\n\nThe i.i.d. series is not rejected; the AR(1) series is. The critical value is the same for both series — it depends only on n_pat, m, and alpha, not on the data.",
+    "crumbs": [
+      "OPs",
+      "Tutorial for time series ordinal pattern tests"
+    ]
+  },
+  {
+    "objectID": "page_files/op_tutorial.html#bootstrap-testing-test_op_bootstrap",
+    "href": "page_files/op_tutorial.html#bootstrap-testing-test_op_bootstrap",
+    "title": "Tutorial for time series ordinal pattern tests",
+    "section": "",
+    "text": "test_op_bootstrap() generates the empirical null distribution via bootstrap_op(), then computes the bootstrap critical value and p-value in the correct direction for the chosen statistic. It works for any m — including m &gt; 3 where test_op() has no asymptotic theory.\n\nRandom.seed!(42)\ntest_op_bootstrap(data_ar1, 2_000; chart_choice=Persistence(), m=m, d=d)\n\n\nOPTestResultBoot\n  Chart:            Persistence()\n  Statistic:        0.123\n  ─────────────────────────────\n  Bootstrap  (n_boot = 2000)\n    Critical value: 0.0481\n    p-value:        0.0\n    Reject H₀:      true\n\n\n\nThe bootstrap critical value agrees closely with the asymptotic one shown above. The table below confirms this across all seven statistics.",
+    "crumbs": [
+      "OPs",
+      "Tutorial for time series ordinal pattern tests"
+    ]
+  },
+  {
+    "objectID": "page_files/op_tutorial.html#full-comparison-asymptotic-vs.-bootstrap",
+    "href": "page_files/op_tutorial.html#full-comparison-asymptotic-vs.-bootstrap",
+    "title": "Tutorial for time series ordinal pattern tests",
+    "section": "",
+    "text": "Random.seed!(42)\nchart_list = [\n    (\"Persistence (τ)\", Persistence(), \"two-sided\"),\n    (\"UpDownBalance (β)\", UpDownBalance(), \"two-sided\"),\n    (\"RotationalAsymmetry (γ)\", RotationalAsymmetry(), \"two-sided\"),\n    (\"UpDownScaling (δ)\", UpDownScaling(), \"two-sided\"),\n    (\"DistanceToWhiteNoise (Δ)\", DistanceToWhiteNoise(), \"upper-tail\"),\n    (\"Shannon entropy (H)\", Shannon(), \"lower-tail\"),\n    (\"Shannon extropy (Hex)\", ShannonExtropy(), \"lower-tail\"),\n]\nasymp_res = [test_op(data_ar1; chart_choice=c, m=m, d=d) for (_, c, _) in chart_list]\nboot_res = [test_op_bootstrap(data_ar1, 2_000; chart_choice=c, m=m, d=d) for (_, c, _) in chart_list]\n\n\nDataFrame(\n    Statistic=[t[1] for t in chart_list],\n    Direction=[t[3] for t in chart_list],\n    stat=round.([r[1] for r in asymp_res], digits=3),\n    asymp_crit=round.([r[2] for r in asymp_res], digits=3),\n    boot_crit=round.([r.boot_crit for r in boot_res], digits=3),\n    boot_pval=round.([r.boot_pval for r in boot_res], digits=3),\n    reject=[r[3] for r in asymp_res],\n)\n\n7×7 DataFrame\n\n\n\nRow\nStatistic\nDirection\nstat\nasymp_crit\nboot_crit\nboot_pval\nreject\n\n\n\nString\nString\nFloat64\nFloat64\nFloat64\nFloat64\nBool\n\n\n\n\n1\nPersistence (τ)\ntwo-sided\n0.123\n0.048\n0.048\n0.0\ntrue\n\n\n2\nUpDownBalance (β)\ntwo-sided\n-0.007\n0.066\n0.064\n0.882\nfalse\n\n\n3\nRotationalAsymmetry (γ)\ntwo-sided\n0.007\n0.072\n0.074\n0.871\nfalse\n\n\n4\nUpDownScaling (δ)\ntwo-sided\n-0.013\n0.093\n0.094\n0.796\nfalse\n\n\n5\nDistanceToWhiteNoise (Δ)\nupper-tail\n0.011\n0.005\n0.005\n0.001\ntrue\n\n\n6\nShannon entropy (H)\nlower-tail\n1.759\n1.777\n1.777\n0.002\ntrue\n\n\n7\nShannon extropy (Hex)\nlower-tail\n0.905\n0.909\n0.909\n0.001\ntrue\n\n\n\n\n\n\nAcross all seven statistics the analytical and bootstrap critical values are close, and the bootstrap p-values are consistent with the reject column — confirming that bootstrap_op() is a reliable alternative whenever the limiting distribution is complex or the sample size is small.",
+    "crumbs": [
+      "OPs",
+      "Tutorial for time series ordinal pattern tests"
+    ]
+  },
+  {
+    "objectID": "page_files/op_tutorial.html#references",
+    "href": "page_files/op_tutorial.html#references",
+    "title": "Tutorial for time series ordinal pattern tests",
+    "section": "",
+    "text": "Weiß, Christian H. 2022. “Non-Parametric Tests for Serial Dependence in Time Series Based on Asymptotic Implementations of Ordinal-Pattern Statistics.” Chaos: An Interdisciplinary Journal of Nonlinear Science 32 (9). https://pubs.aip.org/aip/cha/article-abstract/32/9/093107/2835852/Non-parametric-tests-for-serial-dependence-in-time?redirectedFrom=fulltext.",
+    "crumbs": [
+      "OPs",
+      "Tutorial for time series ordinal pattern tests"
+    ]
+  },
+  {
+    "objectID": "page_files/op_replication.html",
+    "href": "page_files/op_replication.html",
+    "title": "Replication",
+    "section": "",
+    "text": "Replication"
+  },
+  {
+    "objectID": "page_files/api_reference.html",
+    "href": "page_files/api_reference.html",
+    "title": "API",
+    "section": "",
+    "text": "API",
+    "crumbs": [
+      "API"
+    ]
+  },
+  {
+    "objectID": "page_files/sop.html",
+    "href": "page_files/sop.html",
+    "title": "Spatial Ordinal Patterns",
+    "section": "",
+    "text": "Spatial Ordinal Patterns\nSpatial ordinal patterns extend the idea of ordinal patterns from time series to spatial data arranged on a grid. Instead of comparing values across time, they compare the relative ordering of values within small spatial neighborhoods (for example a 2×2 block) and encode these order relations as spatial patterns.\nThe frequencies of these patterns summarize the local spatial structure of the data without relying on the exact values themselves. Under spatial independence, the patterns occur with equal probability, so deviations from this uniform distribution can be used for non-parametric tests of spatial dependence. Because the approach only uses ranks, it is robust to outliers and distributional assumptions and can detect complex or nonlinear spatial relationships that traditional measures like spatial autocorrelation might miss.\nStatsOP.jl provides functions for computing spatial ordinal patterns from gridded data and for conducting (sequential) tests based on these patterns. It also enables the replication of several studies listed below.\n\n\n\n\n\nReferences\n\nAdämmer, Philipp, Philipp Wittenberg, Christian H Weiß, and Murat Caner Testik. 2026. “Nonparametric Monitoring of Spatial Dependence.” Technometrics Forthcoming.\n\n\nWeiß, Christian H, and Hee-Young Kim. 2024. “Using Spatial Ordinal Patterns for Non-Parametric Testing of Spatial Dependence.” Spatial Statistics 59: 100800.\n\n\nWeiß, Christian H, and Hee-Young Kim. 2025. “Non-Parametric Entropy Tests for Spatial Dependence.” Computational Statistics, 1–38.",
+    "crumbs": [
+      "SOPs",
+      "Spatial Ordinal Patterns"
+    ]
+  },
+  {
+    "objectID": "page_files/sop_tutorial.html",
+    "href": "page_files/sop_tutorial.html",
+    "title": "Tutorial",
+    "section": "",
+    "text": "Tutorial\nThe tutorials using SOPs will be shown here…\n\n1+1\n\n2"
   },
   {
     "objectID": "reference/PoiBin.html",
@@ -162,129 +177,18 @@
     "text": "PoiBin\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nPoiBin{T &lt;: Real}  &lt;: DiscreteUnivariateDistribution\n\nA struct to define a Poisson-Binomial distribution.\n#| eval: false\ndist = PoiBin(0.5, 5)\nrand(dist)"
   },
   {
-    "objectID": "reference/arl_sop_bp_bootstrap.html",
-    "href": "reference/arl_sop_bp_bootstrap.html",
-    "title": "arl_sop_bp_bootstrap",
+    "objectID": "reference/changepoint_op.html",
+    "href": "reference/changepoint_op.html",
+    "title": "changepoint_op",
     "section": "",
-    "text": "arl_sop_bp_bootstrap\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\narl_sop_bp(\n    p_array::Array{T,3}, lam, cl, w, reps; chart_choice=3\n) where {T&lt;:Real}\n\nCompute the average run length for the BP-EWMA-SOP for a given control limit using bootstraping\nThe input parameters are:\n\np_array::Array{Float64, 3}: A 3D array with the with the relative frequencies of each d1-d2 (delay) combination. The first dimension (rows) is the picture, the second dimension refers to the patterns group (s₁, s₂, or s₃) and the third dimension denotes each d₁-d₂ combination. This matrix will be used for re-sampling.\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nw::Int: An integer value for the number of workers.\nreps::Int: An integer value for the number of repetitions.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4."
+    "text": "changepoint_op\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nchangepoint_op(tsx, tsy; conf_level=0.95, weight=true, bn=log(length(tsx)), op_length::Int=3, d=1)\n\nCompute the changepoint in dependence between two time series based on Schnurr and Dehling (2017) doi:10.1080/01621459.2016.1164706.\n\ntsx: First time series for which the ordinal patterns are counted.\ntsy: Second time series for which the ordinal patterns are counted.\nconf_level::Float64=0.95: Confidence level for the changepoint detection. Default is 0.95.\nweight::Bool=true: Whether to use a weight function. Default is true.\nbn::Float64=log(length(tsx)): Bandwidth for the kernel function. Default is log(length(tsx)).\nop_length::Int=3: Length of the ordinal patterns. Default is 3. Minimum is 2, maximum is 4.\nd::Int=1: Time delay. Default is 1.\n\n\ntsx = rand(100)\ntsy = rand(100)\nchangepoint_op(tsx, tsy; conf_level=0.95, weight=true, bn=log(length(tsx)), op_length=3, d=1)"
   },
   {
-    "objectID": "reference/rl_acf.html",
-    "href": "reference/rl_acf.html",
-    "title": "rl_acf",
+    "objectID": "reference/ZIP.html",
+    "href": "reference/ZIP.html",
+    "title": "ZIP",
     "section": "",
-    "text": "rl_acf\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_acf(lam, cl, p_reps, acf_dgp)\n\nFunction to compute the run length (RL) for a specified DGP using the ACF statistic by XXX.\n\nlam::Float64: Smoothing parameter for the EWMA statistic.\ncl::Float64: Control limit for the ACF statistic.\np_reps::Vector{Int64}: Unit range for number of replications.\nacf_dgp::Union{IC, AR1, TEAR1}: DGP.\n\n\nrl_acf(0.1, 3.0, 10_000, IC(Normal(0, 1)))"
-  },
-  {
-    "objectID": "reference/arl_sop_bp_ic.html",
-    "href": "reference/arl_sop_bp_ic.html",
-    "title": "arl_sop_bp_ic",
-    "section": "",
-    "text": "arl_sop_bp_ic\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\narl_sop_bp_ic(\n\nspatialdgp::ICSP, lam, cl, w::Int, reps=10000; chart_choice=3 )\nComputes the average run length (ARL) for a given in-control spatial DGP, using EWMA-BP-SOP statistics.\nThe input parameters are:\n\nspatial_dgp::ICSP: A struct for the in-control spatial DGP.\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nw::Int: An integer value for the window size for the BP-statistic.\nreps::Int: An integer value for the number of repetitions. The default value is 10,000.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4."
-  },
-  {
-    "objectID": "reference/rl_op.html",
-    "href": "reference/rl_op.html",
-    "title": "rl_op",
-    "section": "",
-    "text": "rl_op\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_op(lam, cl, lookup_array_op, p_reps, op_dgp,\n  op_dgp_dist, chart_choice; d::Union{Int,Vector{Int}}=1, ced=false, ad=100)\n\nFunction to compute run length for ordinal patterns.\n\nlam::Float64: Smoothing parameter for EWMA chart.\ncl::Float64: Control limit for the EWMA chart.\nlookup_array_op: Array to lookup ordinal patterns. Can be created with functioncomputelookuparray_op()`.\np_reps::Vector{Int}: Unit range of repetitions.\nop_dgp::Union{IC, AR1, MA1, MA2, TEAR1, AAR1, QAR1}: DGP.\nop_dgp_dist::UnivariateDistribution: Distribution of the DGP.\nchart_choice::Int: Chart choice (1: XXX, 2: XXX, 3: XXX, 4: XXX, 5: XXX, 6: XXX).\nd::Union{Int,Vector{Int}}=1: Delay vector. Default is 1.\nced::Bool=false: Use conditional expected delay? Default is false.\nad::Int=100: Number of iterations for ced.\n\n\nrl_op(0.1, 3.0, lookup_array_op, 1:10_000, IC(Normal(0, 1)), Normal(0, 1), 1; d=1, ced=false, ad=100)"
-  },
-  {
-    "objectID": "reference/rl_sacf.html",
-    "href": "reference/rl_sacf.html",
-    "title": "rl_sacf",
-    "section": "",
-    "text": "rl_sacf\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sacf(\n\nlam, cl, d1::Int, d2::Int, preps::UnitRange, spatialdgp::ICSP, dist_error::UnivariateDistribution )\nCompute the in-control run length using the spatial autocorrelation function (SACF) for a delay (d1, d2) combination. The function returns the run length for a given control limit cl.\nThe input arguments are:\n\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\nd1::Int: The first (row) delay for the spatial process.\nd2::Int: The second (column) delay for the spatial process.\np_reps::UnitRange: The number of repetitions to compute the run length. This has to be a unit range of integers to allow for parallel processing, since the function is called by arl_sacf().\nspatial_dgp::ICSP: The in-control spatial data generating process (DGP) to use for the SACF function.\ndist_error::UnivariateDistribution: The distribution to use for the error term in the spatial process. This can be any univariate distribution from the Distributions.jl package.\n\n\n\n\n\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sacf(\n\nlam, cl, d1::Int, d2::Int, preps::UnitRange, spatialdgp::SpatialDGP, disterror::UnivariateDistribution, distao::Union{UnivariateDistribution,Nothing} )\nCompute the out-of-control run length using the spatial autocorrelation function (SACF). The function returns the run length for a given control limit cl and a given number of repetitions reps.\nThe input arguments are:\n\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\nd1::Int: The first (row) delay for the spatial process.\nd2::Int: The second (column) delay for the spatial process.\np_reps::UnitRange: The number of repetitions to compute the run length. This has to be a unit range of integers to allow for parallel processing, since the function is called by arl_sacf().\nspatial_dgp::SpatialDGP: The spatial data generating process (DGP) to use for the SACF function. This can be one of the following: SAR1, SAR11, SAR22, SINAR11, SQMA11, SQINMA11, or BSQMA11."
-  },
-  {
-    "objectID": "reference/QAR1.html",
-    "href": "reference/QAR1.html",
-    "title": "QAR1",
-    "section": "",
-    "text": "QAR1\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nQAR1(α::Float64, dist::UnivariateDistribution)\n\nA struct to define a QAR(1) (quadratic AR) process:\n\\(\\qquad X_t=\\alpha \\cdot X_{t-1}^2+\\epsilon_t.\\)\ndist specifies the distribution of \\(\\epsilon\\) using Distributions.jl.\n\nqar1 = QAR1(0.5, Normal(0, 1))",
-    "crumbs": [
-      "API",
-      "Types for ordinal patterns",
-      "QAR1"
-    ]
-  },
-  {
-    "objectID": "reference/crit_val_sacf.html",
-    "href": "reference/crit_val_sacf.html",
-    "title": "crit_val_sacf",
-    "section": "",
-    "text": "crit_val_sacf\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\ncritvalsacf(M, N, alpha)\nComputes the critical value for the SACF of lag 1. The input parameters are:\n\nM::Int64: The number of rows in the data matrix.\nN::Int64: The number of columns in the data matrix.\nalpha::Float64: The significance level.\n\n\nExamples\n#| eval: false\n# compute critical value\ncrit_val_sacf(11, 11, 0.05)"
-  },
-  {
-    "objectID": "reference/compute_p_array.html",
-    "href": "reference/compute_p_array.html",
-    "title": "compute_p_array",
-    "section": "",
-    "text": "compute_p_array\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\ncompute_p_array(data::Array{T,3})\n\nCompute the matrix of p-hat values for a given 3D array of data when the delays are integers. These values are used for bootstrapping."
-  },
-  {
-    "objectID": "reference/chart_stat_sop.html",
-    "href": "reference/chart_stat_sop.html",
-    "title": "chart_stat_sop",
-    "section": "",
-    "text": "chart_stat_sop\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nchart_stat_sop(p_ewma, chart_choice)\n\nCompute the the test statistic for spatial ordinal patterns. The first input is a vector with three values, based on SOP counts. The second input is the chart."
-  },
-  {
-    "objectID": "reference/ICSTS.html",
-    "href": "reference/ICSTS.html",
-    "title": "ICSTS",
-    "section": "",
-    "text": "ICSTS\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nICSP(M_rows, N_cols, dist)\n\nA struct to define an independent and identically distributed (IID) process for in-control\n\nM_rows::Int: The number of rows for the image.\nN_cols::Int: The number of columns for image.\ndist::UnivariateDistribution: A distribution from the Distributions.jl package."
-  },
-  {
-    "objectID": "reference/arl_op.html",
-    "href": "reference/arl_op.html",
-    "title": "arl_op",
-    "section": "",
-    "text": "arl_op\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\narl_op(lam, cl, op_dgp, reps=10_000; chart_choice, d=1, ced=false, ad=100)\n\nFunction to compute the average run length (ARL) for ordinal patterns using the EWMA statistic. The function implements the test statistics by Weiss and Testik (2023), who use a pattern length of 3.\n\nlam::Float64 Smoothing parameter for the EWMA statistic.\ncl::Float64 Control limit for the EWMA statistic.\nop_dgp::Union{IC, AR1, MA1, MA2, TEAR1, AAR1, QAR1} DGP.\nreps::Int64 Number of replications.\nchart_choice::Int\n\n\\(\\widehat{H}^{(d)}=-\\sum_{k=1}^{m!} \\hat{p}_k{ }^{(d)} \\ln \\hat{p}_k{ }^{(d)}\\)\n\\(\\widehat{H}_{\\mathrm{ex}}^{(d)}=-\\sum_{k=1}^{m!}\\left(1-\\hat{p}_k{ }^{(d)}\\right) \\ln \\left(1-\\hat{p}_k{ }^{(d)}\\right)\\)\n\\(\\widehat{\\Delta}^{(d)}=\\sum_{k=1}^{m!}\\left(\\hat{p}_k^{(d)}-1 / m!\\right)^2\\)\n\\(\\hat{\\beta}^{(d)}=\\hat{p}_6^{(d)}-\\hat{p}_1^{(d)}\\)\n\\(\\hat{\\tau}^{(d)}=\\hat{p}_6^{(d)}+\\hat{p}_1^{(d)}-\\frac{1}{3}\\)\n\\(\\hat{\\delta}^{(d)}=\\hat{p}_4^{(d)}+\\hat{p}_5^{(d)}-\\hat{p}_3^{(d)}-\\hat{p}_2^{(d)}\\)\n\nThe patterns are categorized as follows:\n\\(\\qquad p_1 = (3,2,1);  \\quad p_2=(3,1,2);  \\quad p_3 = (2,3,1);\\)\n\\(\\qquad p_4 = (1,3,2);  \\quad p_5 = (2,1,3);  \\quad p_ 6 = (1,2,3)\\)\nd::Union{Int,Vector{Int}}=1: Delay vector. Default is 1. A vector would denote the indices of the observations to use. For example, d = [1, 3, 4] would denote the first, third, and fourth observations.\nced::Bool=false: Use conditional expected delay? Default is false.\nad::Int=100: Number of iterations for ced.\n\n\n# Compute initial values via function cl_op()\n if j == 1 || j == 2\n      cl_init = quantile(stat_op(data, lam[i], j)[1], 0.01)                \n  else\n      cl_init = quantile(stat_op(data, lam[i], j)[1], 0.99)\nend \n\n# Run function\narl_op(0.1, cl_init, IC(Normal(0, 1)), 10_000; chart_choice=1, d=1, ced=false, ad=100)",
-    "crumbs": [
-      "API",
-      "Functions for ordinal patterns",
-      "arl_op"
-    ]
-  },
-  {
-    "objectID": "reference/SINAR11.html",
-    "href": "reference/SINAR11.html",
-    "title": "SINAR11",
-    "section": "",
-    "text": "SINAR11\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nSINAR11(dgp_params, M_rows, N_cols, dist, dist_ao, prerun)\n\nA struct to define a first-order integer spatial autoregressive (SINAR(1, 1)) model:\n\\(\\qquad X_{t_1, t_2}=\\alpha_1 \\circ X_{t_1-1, t_2}+\\alpha_2 \\circ X_{t_1, t_2-1}+\\alpha_3 \\circ X_{t_1-1, t_2-1}+\\varepsilon_{t_1, t_2}.\\)\n\ndgp_params::Tuple(α₁::Float64, α₂::Float64, α₃::Float64) Note that α₁, α₂, and α₃ ∈ [0, 1) and α₁ + α₂ + α₃ &lt; 1 to guarantee stationarity.\nm::Int The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.\nn::Int The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.\nprerun::Int A value to initialize the DGP to guarantee stationarity. These number of rows and columns will be discarded for the final spatial matrix.\ndist::Distribution A distribution for . You can use any univariate distribution from the Distributions.jl package.\ndist_ao::Union{Nothing, Distribution} Nothing or a distribution for additive outliers. For additive outliers you can use any univariate distribution from the Distributions.jl package.\nprerun::Int A value to initialize the DGP to achieve stationarity. These number of rows and columns will be discarded after the initialization.\n\n\nsar11 = SINAR((0.5, 0.3, 0.2), 11, 11, 100)",
-    "crumbs": [
-      "API",
-      "Types for spatial ordinal patterns",
-      "SINAR11"
-    ]
-  },
-  {
-    "objectID": "reference/compute_lookup_array.html",
-    "href": "reference/compute_lookup_array.html",
-    "title": "compute_lookup_array",
-    "section": "",
-    "text": "compute_lookup_array\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\nCompute a 4D array to lookup the index of the sops. The original SOPs are based on ranks. Here we use sortperm which computes the order of the elements in the vector."
-  },
-  {
-    "objectID": "reference/SAR11.html",
-    "href": "reference/SAR11.html",
-    "title": "SAR11",
-    "section": "",
-    "text": "SAR11\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nSAR11(dgp_params, M_rows, N_cols, dist, dist_ao, prerun)\n\nA struct to define a first-order spatial autoregressive (SAR(1, 1)) process:\n\\(\\qquad \\qquad Y_{t_1, t_2}=\\alpha_1 \\cdot Y_{t_1-1, t_2}+\\alpha_2 \\cdot Y_{t_1, t_2-1}+\\alpha_3 \\cdot Y_{t_1-1, t_2-1}+\\varepsilon_{t_1, t_2}\\)\n\nYₜ₁,ₜ₂ = α₁ ⋅ Yₜ₁₋₁,ₜ₂ + α₂ ⋅ Yₜ₁,ₜ₂₋₁ + α₃ ⋅ Yₜ₁₋₁,ₜ₂₋₁ + εₜ₁,ₜ₂\n\n\ndgp_params::Tuple(α₁::Float64, α₂::Float64, α₃::Float64) The requirements to guarantee stationarity for the process are |α₁| &lt; 1, |α₂| &lt; 1, |α₁ + α₂| &lt; 1 - α₃, and |α₁ - α₂| &lt; 1 + α₃.\nm::Int: The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.\nn::Int: The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.\nprerun::Int: A value to initialize the DGP to achieve stationarity. These number of rows and columns will be discarded after the initialization.\ndist::Distribution: A distribution for . You can use any univariate distribution from the Distributions.jl package.\ndist_ao::Union{Nothing, Distribution}: Nothing or a distribution for additive outliers. For additive outliers you can use any univariate distribution from the Distributions.jl package.\nprerun::Int: A value to initialize the DGP to guarantee stationarity. These number of rows and columns will be discarded for the final spatial matrix.\n\n\nsar11 = SAR11((0.5, 0.3, 0.2), 11, 11, Normal(0, 1), nothing, 100)",
-    "crumbs": [
-      "API",
-      "Types for spatial ordinal patterns",
-      "SAR11"
-    ]
-  },
-  {
-    "objectID": "reference/crit_val_sop.html",
-    "href": "reference/crit_val_sop.html",
-    "title": "crit_val_sop",
-    "section": "",
-    "text": "crit_val_sop\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\ncritvalsop(m, n, alpha, chart_choice, approximate::Bool)\nComputes the critical value for the SOP test. Also allows the approximation of the critical value. The input parameters are:\n\nm::Int64: The number of rows in the sop-matrix. Note that the data matrix has dimensions M = m + d₁, where d₁ denotes the row delay.\nn::Int64: The number of columns in the sop-matrix. Note that the data matrix has dimensions N = n + d₂, where d₂ denotes the column delay.\nalpha::Float64: The significance level.\nchart_choice::Int64: The choice of chart.\napproximate::Bool: If true, the approximate critical value is computed. If false, the exact critical value is computed.\n\n\nExamples\n#| eval: false\n# compute approximate critical value for chart 1 \ncrit_val_sop(10, 10, 0.05, 1, true)"
+    "text": "ZIP\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nZIP &lt;: DiscreteUnivariateDistribution\n\nA struct to define a zero-inflated Poisson distribution.\n#| eval: false\ndist = ZIP(5.0, 0.2)\nrand(dist)"
   },
   {
     "objectID": "reference/arl_sacf.html",
@@ -299,25 +203,289 @@
     ]
   },
   {
-    "objectID": "reference/arl_sop_bp.html",
-    "href": "reference/arl_sop_bp.html",
-    "title": "arl_sop_bp",
+    "objectID": "reference/BinomialCvec.html",
+    "href": "reference/BinomialCvec.html",
+    "title": "BinomialCvec",
     "section": "",
-    "text": "arl_sop_bp\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\narl_sop(\n\nlam, cl, spatialdgp::ICSP, d1vec::Vector{Int}, d2vec::Vector{Int}, reps=10000; chart_choice=3 )\nComputes the average run length (ARL) for a given in-control spatial DGP, using EWMA-BP-SOP statistics.\nThe input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nspatial_dgp::ICSP: A struct for the in-control spatial DGP.\nd1_vec::Vector{Int}: A vector with integer values for the first delay (d₁).\nd2_vec::Vector{Int}: A vector with integer values for the second delay (d₂).\nreps::Int: An integer value for the number of repetitions. The default value is 10,000.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4."
+    "text": "BinomialCvec\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nBinomialCvec{T &lt;: Real}  &lt;: DiscreteUnivariateDistribution\n\nA struct to define a binomial distribution, which gets multiplied by a value from vector c_vec.\n`julia-repl dist = BinomialCvec(0.5, [-10; 10]) rand(dist)``"
   },
   {
-    "objectID": "replications/00_old/replication_ukraine.html",
-    "href": "replications/00_old/replication_ukraine.html",
-    "title": "",
+    "objectID": "reference/IC.html",
+    "href": "reference/IC.html",
+    "title": "IC",
     "section": "",
-    "text": "using DataFrames\nusing DataFramesMeta\nusing OrdinalPatterns\nusing Dates\nusing CSV\nusing CategoricalArrays\nusing Plots"
+    "text": "IC\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nIC(dist::UnivariateDistribution)\n\nA struct to define the in-control (IC) process. The struct contains one field, namely dist::UnivariateDistribution, which is the distribution of the in-control process.\n\nic = IC(Normal(0, 1))"
+  },
+  {
+    "objectID": "reference/SQINMA11.html",
+    "href": "reference/SQINMA11.html",
+    "title": "SQINMA11",
+    "section": "",
+    "text": "SQINMA11\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nSQINMA11(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao, prerun)\n\nA struct to define a Spatial quadratic integer moving-average SQINMA(1, 1):\n\\(\\qquad X_{t_1, t_2}=\\beta_1 \\circ \\epsilon_{t_1-1, t_2}^a+\\beta_2 \\circ \\epsilon_{t_1, t_2-1}^b+\\beta_3 \\circ \\epsilon_{t_1-1, t_2-1}^c+\\epsilon_{t_1, t_2}.\\)\nXₜ₁,ₜ₂ = β₁ ⋅ εₜ₁₋₁,ₜ₂ᵃ + β₂ ⋅ εₜ₁,ₜ₂₋₁ᵇ + β₃ ⋅ εₜ₁₋₁,ₜ₂₋₁ᶜ + εₜ₁,ₜ₂\n\ndgp_params::Tuple(β₁::Float64, β₂::Float64, β₃::Float64). Note that β₁, β₂, and β₃ ∈ [0, 1].\neps_params::Tuple(a::Int, b::Int, c::Int). A tuple of the parameters of the DGP, indicating which error terms shall be squared. Note that eps_params ∈ {1, 2}.\nM_rows::Int. The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.\nN_cols::Int. The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.\ndist::Distribution A distribution for . You can use any univariate distribution from the Distributions.jl package.\ndist_ao::Nothing.\nprerun::Int A value to initialize the DGP to achieve stationarity. These number of rows and columns will be discarded after the initialization.\n\n\nsqinma11 = SQINMA11((0.5, 0.3, 0.2), (1, 1, 2), 10, 10, Normal(0, 1), nothing, 1)",
+    "crumbs": [
+      "API",
+      "Types for spatial ordinal patterns",
+      "SQINMA11"
+    ]
+  },
+  {
+    "objectID": "reference/SQMA11.html",
+    "href": "reference/SQMA11.html",
+    "title": "SQMA11",
+    "section": "",
+    "text": "SQMA11\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nSQMA11(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao, prerun)\n\nA struct to define a Spatial quadratic moving-average (SQMA(1, 1)):\n\\(\\qquad  Y_{t_1, t_2}=\\beta_1 \\cdot \\varepsilon_{t_1-1, t_2}^a+\\beta_2 \\cdot \\varepsilon_{t_1, t_2-1}^b+\\beta_3 \\cdot \\varepsilon_{t_1-1, t_2-1}^c+\\varepsilon_{t_1, t_2}\\)\n\ndgp_params::Tuple(β₁::Float64, β₂::Float64, β₃::Float64): A tuple of the parameters of the DGP. The first element is the parameter β₁, the second element is the parameter β₂, and the third element is the parameter β₃.\neps_params::Tuple(a::Int, b::Int, c::Int): A tuple of the parameters of the DGP, indicating which error terms shall be squared. Note that eps_params ∈ {1, 2}.\nM_rows::Int: The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.\nN_cols::Int: The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.\ndist::Distribution A distribution for . You can use any univariate distribution from the Distributions.jl package.\ndist_ao::Nothing.\n\n\nsqma11 = SQMA11((0.5, 0.3, 0.2), (1, 1, 2), 10, 10, Normal(0,1), nothing, 1)",
+    "crumbs": [
+      "API",
+      "Types for spatial ordinal patterns",
+      "SQMA11"
+    ]
+  },
+  {
+    "objectID": "reference/arl_sop_bootstrap.html",
+    "href": "reference/arl_sop_bootstrap.html",
+    "title": "arl_sop_bootstrap",
+    "section": "",
+    "text": "arl_sop_bootstrap\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\narl_sop_bootstrap(p_mat::Array{Float64,2}, lam, cl, reps=10_000; chart_choice=chart_choice)\n\nCompute the average run length (ARL) using a bootstrap approach for a particular delay (d₁-d₂) combination.\nThe input parameters are:\n\np_mat::Array{Float64,2}: A matrix with the values of the relative type frequencies.\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nreps::Int: An integer value for the number of repetitions. The default value is 10,000.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4. The default value is 3."
+  },
+  {
+    "objectID": "reference/compute_p_array.html",
+    "href": "reference/compute_p_array.html",
+    "title": "compute_p_array",
+    "section": "",
+    "text": "compute_p_array\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\ncompute_p_array(data::Array{T,3})\n\nCompute the matrix of p-hat values for a given 3D array of data when the delays are integers. These values are used for bootstrapping."
+  },
+  {
+    "objectID": "reference/cl_op.html",
+    "href": "reference/cl_op.html",
+    "title": "cl_op",
+    "section": "",
+    "text": "cl_op\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\ncl_op(lam, L0, op_dgp, cl_init, reps=10000; chart_choice, jmin=4, jmax=6, verbose=false, d=1, ced=false, ad=100)\n\nFunction to compute the control limit for ordinal patterns.\n\nlam::Float64: Smoothing parameter for the EWMA statistic.\nL0::Float64: In-control ARL.\nop_dgp::Union{IC, AR1, MA1, MA2, TEAR1, AAR1, QAR1}: DGP.\ncl_init::Float64: Initial guess for the control limit.\nreps::Int64: Number of replications.\nchart_choice::Int\n\n\\(\\widehat{H}^{(d)}=-\\sum_{k=1}^{m!} \\hat{p}_k{ }^{(d)} \\ln \\hat{p}_k{ }^{(d)}\\)\n\\(\\widehat{H}_{\\mathrm{ex}}^{(d)}=-\\sum_{k=1}^{m!}\\left(1-\\hat{p}_k{ }^{(d)}\\right) \\ln \\left(1-\\hat{p}_k{ }^{(d)}\\right)\\)\n\\(\\widehat{\\Delta}^{(d)}=\\sum_{k=1}^{m!}\\left(\\hat{p}_k^{(d)}-1 / m!\\right)^2\\)\n\\(\\hat{\\beta}^{(d)}=\\hat{p}_6^{(d)}-\\hat{p}_1^{(d)}\\)\n\\(\\hat{\\tau}^{(d)}=\\hat{p}_6^{(d)}+\\hat{p}_1^{(d)}-\\frac{1}{3}\\)\n\\(\\hat{\\delta}^{(d)}=\\hat{p}_4^{(d)}+\\hat{p}_5^{(d)}-\\hat{p}_3^{(d)}-\\hat{p}_2^{(d)}\\)\n\nThe patterns are categorized as follows:\n\\(\\qquad p_1 = (3,2,1);  \\quad p_2=(3,1,2);  \\quad p_3 = (2,3,1);\\)\n\\(\\qquad p_4 = (1,3,2);  \\quad p_5 = (2,1,3);  \\quad p_ 6 = (1,2,3)\\)\njmin::Int Minimum number of decimals for final control limit to optimize.\njmax::Int Maximum number of decimals for final control limit to optimize.\nverbose::Bool=false Print intermediate results?\nd::Union{Int,Vector{Int}}=1: Delay vector.\nced::Bool=false: Use conditional expected delay? Default is false.\nad::Int=100: Number of iterations for ced.",
+    "crumbs": [
+      "API",
+      "Functions for ordinal patterns",
+      "cl_op"
+    ]
+  },
+  {
+    "objectID": "reference/SAR1.html",
+    "href": "reference/SAR1.html",
+    "title": "SAR1",
+    "section": "",
+    "text": "SAR1\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nSAR1(dgp_params, M_rows, N_cols, dist, dist_ao, margin)\n\nA struct to define a first-order simultaneous autoregressive (SAR(1)) model:\n\\(\\qquad Y_{t_1, t_2}=a_1 \\cdot Y_{t_1-1, t_2}+a_2 \\cdot Y_{t_1, t_2-1}+a_3 \\cdot Y_{t_1, t_2+1}+a_4 \\cdot Y_{t_1+1, t_2}+\\varepsilon_{t_1, t_2}.\\)\nYₜ₁,ₜ₂ = a₁ ⋅ Yₜ₁₋₁,ₜ₂ + a₂ ⋅ Yₜ₁,ₜ₂₋₁ + a₃ ⋅ Yₜ₁,ₜ₂₊₁ + a₄ ⋅ Yₜ₁₊₁,ₜ₂ + εₜ₁,ₜ₂\n\ndgp_params::Tuple{a₁::Float64, a₂::Float64, Float64, Float64}: A tuple of the parameters of the DGP. The first element is the parameter a₁, the second element is the parameter a₂, and the third element is the parameter a₃. a₄.\nM_rows::Int: The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.\nN_cols::Int: The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.\ndist::Distribution: A distribution for . You can use any univariate distribution from the Distributions.jl package.\ndist_ao::Union{Nothing, Distribution}: Nothing or a distribution for additive outliers. For additive outliers you can use any univariate distribution from the Distributions.jl package.\nmargin::Int: The margin for the spatial matrix used for initialization.\n\n\nsar1 = SAR1((0.5, 0.3, 0.2, 0.1), 10, 10, Normal(0, 1), nothing, 20)",
+    "crumbs": [
+      "API",
+      "Types for spatial ordinal patterns",
+      "SAR1"
+    ]
+  },
+  {
+    "objectID": "reference/arl_sop_bp_bootstrap.html",
+    "href": "reference/arl_sop_bp_bootstrap.html",
+    "title": "arl_sop_bp_bootstrap",
+    "section": "",
+    "text": "arl_sop_bp_bootstrap\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\narl_sop_bp(\n    p_array::Array{T,3}, lam, cl, w, reps; chart_choice=3\n) where {T&lt;:Real}\n\nCompute the average run length for the BP-EWMA-SOP for a given control limit using bootstraping\nThe input parameters are:\n\np_array::Array{Float64, 3}: A 3D array with the with the relative frequencies of each d1-d2 (delay) combination. The first dimension (rows) is the picture, the second dimension refers to the patterns group (s₁, s₂, or s₃) and the third dimension denotes each d₁-d₂ combination. This matrix will be used for re-sampling.\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nw::Int: An integer value for the number of workers.\nreps::Int: An integer value for the number of repetitions.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4."
+  },
+  {
+    "objectID": "reference/compute_lookup_array.html",
+    "href": "reference/compute_lookup_array.html",
+    "title": "compute_lookup_array",
+    "section": "",
+    "text": "compute_lookup_array\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\nCompute a 4D array to lookup the index of the sops. The original SOPs are based on ranks. Here we use sortperm which computes the order of the elements in the vector."
+  },
+  {
+    "objectID": "reference/arl_acf.html",
+    "href": "reference/arl_acf.html",
+    "title": "arl_acf",
+    "section": "",
+    "text": "arl_acf\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\narl_acf(lam, cl, acf_dgp, reps=10000)\n\nFunction to compute the average run length (ARL) for a specified DGP using the ACF statistic by XXX.\n\nlam::Float64: Smoothing parameter for the EWMA statistic.\ncl::Float64: Control limit for the ACF statistic.\nacf_dgp::Union{IC, AR1, TEAR1}: DGP.\nreps::Int64: Number of replications.\n\n\narl_acf(0.1, 3.0, IC(Normal(0, 1)), 10000)"
+  },
+  {
+    "objectID": "reference/rl_sop_bootstrap.html",
+    "href": "reference/rl_sop_bootstrap.html",
+    "title": "rl_sop_bootstrap",
+    "section": "",
+    "text": "rl_sop_bootstrap\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sop_bootstrap(lam, cl, reps_range, chart_choice, p_mat::Array{Float64,2})\n\nCompute the run length for a given control limit using bootstraping instead of a theoretical in-control distribution.\nThe input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nreps_range::UnitRange{Int}: A range of integers for the number of repetitions. This has to be a range to be compatible with arl_sop() which uses threading and multi-processing.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\np_mat::Array{Float64,2}: A matrix with the values of the relative frequencies of each d1-d2 (delay) combination. This matrix will be used for re-sampling."
+  },
+  {
+    "objectID": "reference/stat_sacf_bp.html",
+    "href": "reference/stat_sacf_bp.html",
+    "title": "stat_sacf_bp",
+    "section": "",
+    "text": "stat_sacf_bp\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nstat_sacf_bp(\n\ndata::Union{SubArray,Matrix{T}}, d1vec::Vector{Int}, d2vec::Vector{Int} ) where {T&lt;:Real}\nCompute the BP-spatial autocorrelation function (BP-SACF) for multiple delay combinations (d1, d2) for a single picture.\n\ndata: The data matrix.\nd1_vec::Vector{Int}: The vector of first (row) delays for the spatial process.\nd2_vec::Vector{Int}: The vector of second (column) delays for the spatial process.\n\n\n\n\n\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nstat_sacf_bp(lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int}) where {T&lt;:Real}\n\nCompute the EWMA-BP-spatial autocorrelation function (EWMA-BP-SACF) for multiple images.\n\nlam: The smoothing parameter for the SACF.\ndata: The data matrix.\nd1_vec::Vector{Int}: The vector of first (row) delays for the spatial process.\nd2_vec::Vector{Int}: The vector of second (column) delays for the spatial process."
+  },
+  {
+    "objectID": "reference/rl_sop_bp_oc.html",
+    "href": "reference/rl_sop_bp_oc.html",
+    "title": "rl_sop_bp_oc",
+    "section": "",
+    "text": "rl_sop_bp_oc\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sop_bp_oc(\nspatial_dgp::SpatialDGP, lam, cl, w::Int, lookup_array_sop, p_reps::UnitRange,\ndist_error::UnivariateDistribution, dist_ao::Union{Nothing,UnivariateDistribution}, chart_choice\n\n)\nComputes the run length for a given out-of-control DGP, using the EWMA-BP-SOP statistic.\nThe input parameters are:\n\nspatial_dgp::SpatialDGP: A struct for the out-of-control spatial DGP.\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nw::Int: An integer value for the window size for the BP-statistic.\nlookup_array_sop::Array{Int, 2}: A 2D array with the lookup table for the SOPs.\np_reps::UnitRange: A range of integers for the number of repetitions.\ndist_error::UnivariateDistribution: A distribution for the error term.\ndist_ao::Union{Nothing,UnivariateDistribution}: A distribution for the additive outlier.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4."
+  },
+  {
+    "objectID": "reference/cl_sop.html",
+    "href": "reference/cl_sop.html",
+    "title": "cl_sop",
+    "section": "",
+    "text": "cl_sop\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\ncl_sop(\n\nsopdgp::ICSTS, lam, L0, clinit, d1::Int, d2::Int, reps=10000; chartchoice=3, jmin=4, jmax=6, verbose=false )\nCompute the control limit for a given in-control process. The input parameters are:\n\nsop_dgp: The in-control spatial process (ICSTS) to use for the control limit.\nlam::Float64: A scalar value for lambda for the EWMA chart.\nL0::Float64: The desired average run length.\ncl_init::Float64: The initial value for the control limit.\nd1::Int: The first (row) delay for the spatial process.\nd2::Int: The second (column) delay for the spatial process.\nreps::Int: The number of replications to compute the ARL.\nchart_choice::Int: The chart choice for the SOP chart.\njmin: The minimum number of values to change after the decimal point in the control limit.\njmax: The maximum number of values to change after the decimal point in the control limit.\nverbose::Bool: A boolean to indicate whether to print the control limit and ARL for each iteration."
+  },
+  {
+    "objectID": "reference/SINAR11.html",
+    "href": "reference/SINAR11.html",
+    "title": "SINAR11",
+    "section": "",
+    "text": "SINAR11\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nSINAR11(dgp_params, M_rows, N_cols, dist, dist_ao, prerun)\n\nA struct to define a first-order integer spatial autoregressive (SINAR(1, 1)) model:\n\\(\\qquad X_{t_1, t_2}=\\alpha_1 \\circ X_{t_1-1, t_2}+\\alpha_2 \\circ X_{t_1, t_2-1}+\\alpha_3 \\circ X_{t_1-1, t_2-1}+\\varepsilon_{t_1, t_2}.\\)\n\ndgp_params::Tuple(α₁::Float64, α₂::Float64, α₃::Float64) Note that α₁, α₂, and α₃ ∈ [0, 1) and α₁ + α₂ + α₃ &lt; 1 to guarantee stationarity.\nm::Int The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.\nn::Int The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.\nprerun::Int A value to initialize the DGP to guarantee stationarity. These number of rows and columns will be discarded for the final spatial matrix.\ndist::Distribution A distribution for . You can use any univariate distribution from the Distributions.jl package.\ndist_ao::Union{Nothing, Distribution} Nothing or a distribution for additive outliers. For additive outliers you can use any univariate distribution from the Distributions.jl package.\nprerun::Int A value to initialize the DGP to achieve stationarity. These number of rows and columns will be discarded after the initialization.\n\n\nsar11 = SINAR((0.5, 0.3, 0.2), 11, 11, 100)",
+    "crumbs": [
+      "API",
+      "Types for spatial ordinal patterns",
+      "SINAR11"
+    ]
+  },
+  {
+    "objectID": "reference/stat_sacf.html",
+    "href": "reference/stat_sacf.html",
+    "title": "stat_sacf",
+    "section": "",
+    "text": "stat_sacf\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nstat_sacf(data::Union{SubArray,Matrix{T}}, d1::Int, d2::Int) where {T&lt;:Real}\n\nCompute the spatial autocorrelation for a delay combination (d1, d2) for a single picture.\n\ndata: The data matrix.\nd1::Int: The first (row) delay for the spatial process.\nd2::Int: The second (column) delay for the spatial process.\n\n\n\n\n\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nstat_sacf(lam, data::Array{T,3}, d1::Int, d2::Int) where {T&lt;:Real}\n\nCompute the spatial autocorrelation function (SACF) for a delay combination (d1, d2) for multiple images.\n\nlam: The smoothing parameter for the SACF.\ndata: The data matrix.\nd1::Int: The first (row) delay for the spatial process."
+  },
+  {
+    "objectID": "reference/rl_sacf.html",
+    "href": "reference/rl_sacf.html",
+    "title": "rl_sacf",
+    "section": "",
+    "text": "rl_sacf\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sacf(\n\nlam, cl, d1::Int, d2::Int, preps::UnitRange, spatialdgp::ICSP, dist_error::UnivariateDistribution )\nCompute the in-control run length using the spatial autocorrelation function (SACF) for a delay (d1, d2) combination. The function returns the run length for a given control limit cl.\nThe input arguments are:\n\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\nd1::Int: The first (row) delay for the spatial process.\nd2::Int: The second (column) delay for the spatial process.\np_reps::UnitRange: The number of repetitions to compute the run length. This has to be a unit range of integers to allow for parallel processing, since the function is called by arl_sacf().\nspatial_dgp::ICSP: The in-control spatial data generating process (DGP) to use for the SACF function.\ndist_error::UnivariateDistribution: The distribution to use for the error term in the spatial process. This can be any univariate distribution from the Distributions.jl package.\n\n\n\n\n\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sacf(\n\nlam, cl, d1::Int, d2::Int, preps::UnitRange, spatialdgp::SpatialDGP, disterror::UnivariateDistribution, distao::Union{UnivariateDistribution,Nothing} )\nCompute the out-of-control run length using the spatial autocorrelation function (SACF). The function returns the run length for a given control limit cl and a given number of repetitions reps.\nThe input arguments are:\n\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\nd1::Int: The first (row) delay for the spatial process.\nd2::Int: The second (column) delay for the spatial process.\np_reps::UnitRange: The number of repetitions to compute the run length. This has to be a unit range of integers to allow for parallel processing, since the function is called by arl_sacf().\nspatial_dgp::SpatialDGP: The spatial data generating process (DGP) to use for the SACF function. This can be one of the following: SAR1, SAR11, SAR22, SINAR11, SQMA11, SQINMA11, or BSQMA11."
+  },
+  {
+    "objectID": "reference/arl_op.html",
+    "href": "reference/arl_op.html",
+    "title": "arl_op",
+    "section": "",
+    "text": "arl_op\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\narl_op(lam, cl, op_dgp, reps=10_000; chart_choice, d=1, ced=false, ad=100)\n\nFunction to compute the average run length (ARL) for ordinal patterns using the EWMA statistic. The function implements the test statistics by Weiss and Testik (2023), who use a pattern length of 3.\n\nlam::Float64 Smoothing parameter for the EWMA statistic.\ncl::Float64 Control limit for the EWMA statistic.\nop_dgp::Union{IC, AR1, MA1, MA2, TEAR1, AAR1, QAR1} DGP.\nreps::Int64 Number of replications.\nchart_choice::Int\n\n\\(\\widehat{H}^{(d)}=-\\sum_{k=1}^{m!} \\hat{p}_k{ }^{(d)} \\ln \\hat{p}_k{ }^{(d)}\\)\n\\(\\widehat{H}_{\\mathrm{ex}}^{(d)}=-\\sum_{k=1}^{m!}\\left(1-\\hat{p}_k{ }^{(d)}\\right) \\ln \\left(1-\\hat{p}_k{ }^{(d)}\\right)\\)\n\\(\\widehat{\\Delta}^{(d)}=\\sum_{k=1}^{m!}\\left(\\hat{p}_k^{(d)}-1 / m!\\right)^2\\)\n\\(\\hat{\\beta}^{(d)}=\\hat{p}_6^{(d)}-\\hat{p}_1^{(d)}\\)\n\\(\\hat{\\tau}^{(d)}=\\hat{p}_6^{(d)}+\\hat{p}_1^{(d)}-\\frac{1}{3}\\)\n\\(\\hat{\\delta}^{(d)}=\\hat{p}_4^{(d)}+\\hat{p}_5^{(d)}-\\hat{p}_3^{(d)}-\\hat{p}_2^{(d)}\\)\n\nThe patterns are categorized as follows:\n\\(\\qquad p_1 = (3,2,1);  \\quad p_2=(3,1,2);  \\quad p_3 = (2,3,1);\\)\n\\(\\qquad p_4 = (1,3,2);  \\quad p_5 = (2,1,3);  \\quad p_ 6 = (1,2,3)\\)\nd::Union{Int,Vector{Int}}=1: Delay vector. Default is 1. A vector would denote the indices of the observations to use. For example, d = [1, 3, 4] would denote the first, third, and fourth observations.\nced::Bool=false: Use conditional expected delay? Default is false.\nad::Int=100: Number of iterations for ced.\n\n\n# Compute initial values via function cl_op()\n if j == 1 || j == 2\n      cl_init = quantile(stat_op(data, lam[i], j)[1], 0.01)                \n  else\n      cl_init = quantile(stat_op(data, lam[i], j)[1], 0.99)\nend \n\n# Run function\narl_op(0.1, cl_init, IC(Normal(0, 1)), 10_000; chart_choice=1, d=1, ced=false, ad=100)",
+    "crumbs": [
+      "API",
+      "Functions for ordinal patterns",
+      "arl_op"
+    ]
+  },
+  {
+    "objectID": "reference/rl_sop_ic.html",
+    "href": "reference/rl_sop_ic.html",
+    "title": "rl_sop_ic",
+    "section": "",
+    "text": "rl_sop_ic\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sop_ic(lam, cl, lookup_array_sop, reps_range, dist, chart_choice, m, n, d1::Int, d2::Int)\n\nCompute the run length for a given in-control spatial DGP.\nThe input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nlookup_array_sop::Array{Int, 4}: A 4D array with the lookup array for the sops, which will be computed computed using lookup_array_sop = compute_lookup_array_sop().\nreps_range::UnitRange{Int}: A range of integers for the number of repetitions.\ndist::Distribution: A distribution for the error term. Here you can use any univariate distribution from the Distributions.jl package.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\nm::Int: An integer value for the number of rows for the final “SOP” matrix.\nn::Int: An integer value for the number of columns for the final “SOP” matrix.\nd1::Int: An integer value for the first delay (d₁).\nd2::Int: An integer value for the second delay (d₂)."
+  },
+  {
+    "objectID": "reference/count_mv_op.html",
+    "href": "reference/count_mv_op.html",
+    "title": "count_mv_op",
+    "section": "",
+    "text": "count_mv_op\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\ncount_mv_op(tsx, tsy; op_length::Int=3, d=1)\n\nCount the number of ordinal patterns in bins for two time series tsx and tsy. The output will be used to compute the ordinal pattern dependence coefficient by Schnurr and Dehling (2017) doi:10.1080/01621459.2016.1164706.\n\ntsx: First time series for which the ordinal patterns are counted.\ntsy: Second time series for which the ordinal patterns are counted.\nop_length::Int=3: Length of the ordinal patterns. Default is 3. Minimum is 2, maximum is 4.\nd::Int=1: Time delay. Default is 1.\n\n\ntsx = rand(100)\ntsy = rand(100)\ncount_mv_op(tsx, tsy; op_length=3, d=1)"
+  },
+  {
+    "objectID": "reference/MA2.html",
+    "href": "reference/MA2.html",
+    "title": "MA2",
+    "section": "",
+    "text": "MA2\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nMA2(α₁::Float64, α₂::Float64, dist::UnivariateDistribution)\n\nA struct to define an MA(2) process:\n\\(\\qquad X_t = α₁  \\cdot \\epsilon_{t-1} + α₂  \\cdot \\epsilon_{t-2} + \\epsilon_t.\\)\ndist specifies the distribution of \\(\\epsilon\\) using Distributions.jl.\n\nma2 = MA2(0.5, 0.3, Normal(0, 1))",
+    "crumbs": [
+      "API",
+      "Types for ordinal patterns",
+      "MA2"
+    ]
+  },
+  {
+    "objectID": "reference/arl_sop_bp_ic.html",
+    "href": "reference/arl_sop_bp_ic.html",
+    "title": "arl_sop_bp_ic",
+    "section": "",
+    "text": "arl_sop_bp_ic\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\narl_sop_bp_ic(\n\nspatialdgp::ICSP, lam, cl, w::Int, reps=10000; chart_choice=3 )\nComputes the average run length (ARL) for a given in-control spatial DGP, using EWMA-BP-SOP statistics.\nThe input parameters are:\n\nspatial_dgp::ICSP: A struct for the in-control spatial DGP.\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nw::Int: An integer value for the window size for the BP-statistic.\nreps::Int: An integer value for the number of repetitions. The default value is 10,000.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4."
+  },
+  {
+    "objectID": "reference/rl_acf.html",
+    "href": "reference/rl_acf.html",
+    "title": "rl_acf",
+    "section": "",
+    "text": "rl_acf\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_acf(lam, cl, p_reps, acf_dgp)\n\nFunction to compute the run length (RL) for a specified DGP using the ACF statistic by XXX.\n\nlam::Float64: Smoothing parameter for the EWMA statistic.\ncl::Float64: Control limit for the ACF statistic.\np_reps::Vector{Int64}: Unit range for number of replications.\nacf_dgp::Union{IC, AR1, TEAR1}: DGP.\n\n\nrl_acf(0.1, 3.0, 10_000, IC(Normal(0, 1)))"
+  },
+  {
+    "objectID": "reference/compute_lookup_array_sop.html",
+    "href": "reference/compute_lookup_array_sop.html",
+    "title": "compute_lookup_array_sop",
+    "section": "",
+    "text": "compute_lookup_array_sop\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\nCompute a 4D array to lookup the index of the sops. The original SOPs are based on ranks. Here we use sortperm which computes the order of the elements in the vector."
+  },
+  {
+    "objectID": "reference/rl_sacf_oc.html",
+    "href": "reference/rl_sacf_oc.html",
+    "title": "rl_sacf_oc",
+    "section": "",
+    "text": "rl_sacf_oc\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sacf_oc(\n\nspatialdgp::SpatialDGP, lam, cl, d1::Int, d2::Int, preps::UnitRange, disterror::UnivariateDistribution, distao::Union{UnivariateDistribution,Nothing} )\nCompute the out-of-control run length using the spatial autocorrelation function (SACF). The function returns the run length for a given control limit cl and a given number of repetitions reps.\nThe input arguments are:\n\nspatial_dgp::SpatialDGP: The spatial data generating process (DGP) to use for the SACF function. This can be one of the following: SAR1, SAR11, SAR22, SINAR11, SQMA11, SQINMA11, or BSQMA11.\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\nd1::Int: The first (row) delay for the spatial process.\nd2::Int: The second (column) delay for the spatial process.\np_reps::UnitRange: The number of repetitions to compute the run length. This has to be a unit range of integers to allow for parallel processing, since the function is called by arl_sacf()."
+  },
+  {
+    "objectID": "reference/rl_sop_bp_ic.html",
+    "href": "reference/rl_sop_bp_ic.html",
+    "title": "rl_sop_bp_ic",
+    "section": "",
+    "text": "rl_sop_bp_ic\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sop_bp_ic(\n\nspatialdgp::ICSP, lam, cl, lookuparraysop, repsrange, dist, chartchoice, d1vec::Vector{Int}, d2_vec::Vector{Int} )\nComputes the run length for a given in-control spatial DGP, using the EWMA-BP-SOP statistic.\nThe input parameters are:\n\nspatial_dgp::ICSP: A struct for the in-control spatial DGP.\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nlookup_array_sop::Array{Int, 4}: A 4D array with the lookup array for the sops, which will be computed computed using lookup_array_sop = compute_lookup_array_sop().\nreps_range::UnitRange{Int}: A range of integers for the number of repetitions.\ndist::Distribution: A distribution for the error term. Here you can use any univariate distribution from the Distributions.jl package.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\nd1_vec::Vector{Int}: A vector with integer values for the first delay (d₁).\nd2_vec::Vector{Int}: A vector with integer values for the second delay (d₂)."
+  },
+  {
+    "objectID": "reference/TEAR1.html",
+    "href": "reference/TEAR1.html",
+    "title": "TEAR1",
+    "section": "",
+    "text": "TEAR1\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nTEAR1(α::Float64, dist::UnivariateDistribution)\n\nA struct to define a TEAR(1) process:\n\\(\\qquad X_t = B_t^{(\\alpha)} \\cdot X_{t-1}+(1-\\alpha) \\cdot \\epsilon_t.\\)\ndist specifies the distribution of \\(\\epsilon\\) using Distributions.jl.\n\ntear1 = TEAR1(0.5, Normal(0, 1))",
+    "crumbs": [
+      "API",
+      "Types for ordinal patterns",
+      "TEAR1"
+    ]
+  },
+  {
+    "objectID": "reference/compute_p_mat.html",
+    "href": "reference/compute_p_mat.html",
+    "title": "compute_p_mat",
+    "section": "",
+    "text": "compute_p_mat\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\ncompute_p_mat(data::Array{Float64,3})\n\nCompute the matrix of p-hat values for a given 3D array of data. These values are used for bootstrapping."
+  },
+  {
+    "objectID": "reference/ICSP.html",
+    "href": "reference/ICSP.html",
+    "title": "ICSP",
+    "section": "",
+    "text": "ICSP\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nICSP(M_rows, N_cols, dist)\n\nA struct to define an independent and identically distributed (IID) process for in-control\n\nM_rows::Int: The number of rows for the image.\nN_cols::Int: The number of columns for image.\ndist::UnivariateDistribution: A distribution from the Distributions.jl package."
+  },
+  {
+    "objectID": "reference/dependence_op.html",
+    "href": "reference/dependence_op.html",
+    "title": "dependence_op",
+    "section": "",
+    "text": "dependence_op\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\ndependence_op(tsx, tsy; op_length::Int=3, d=1)\n\nCompute the ordinal pattern dependence coefficient by Schnurr and Dehling (2017) doi:10.1080/01621459.2016.1164706."
+  },
+  {
+    "objectID": "reference/arl_sacf_bp_ic.html",
+    "href": "reference/arl_sacf_bp_ic.html",
+    "title": "arl_sacf_bp_ic",
+    "section": "",
+    "text": "arl_sacf_bp_ic\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\narl_sacf_bp_ic(lam, cl, sp_dgp::ICSP, d1_vec::Vector{Int}, d2_vec::Vector{Int}, reps=10_000)\n\nCompute the in-control average run length (ARL) using the spatial autocorrelation function (SACF) for the BP-statistic. The input arguments are:\n\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\nsp_dgp: The in-control spatial data generating process (DGP) to use for the SACF function.\nd1_vec::Vector{Int}: The first (row) delays for the spatial process.\nd2_vec::Vector{Int}: The second (column) delays for the spatial process.\nreps: The number of repetitions to compute the ARL."
+  },
+  {
+    "objectID": "reference/cl_acf.html",
+    "href": "reference/cl_acf.html",
+    "title": "cl_acf",
+    "section": "",
+    "text": "cl_acf\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\nclacf(lam, L0, acfdgp, clinit, preps=10000; jmin=4, jmax=6, verbose=false)\nFunction to compute the control limit for the ACF statistic by XXX.\n\nlam::Float64: Smoothing parameter for the EWMA statistic.\nL0::Float64: In-control ARL.\nacf_dgp::Union{IC, AR1, TEAR1}: DGP.\ncl_init::Float64: Initial guess for the control limit.\np_reps::Int64: Number of replications.\njmin::Int64: Minimum number of iterations.\n\n\n# Compute initial values via quantiles\n\ncl_acf(0.1, 3.0, IC(Normal(0, 1)), cl_init, 10000)"
+  },
+  {
+    "objectID": "reference/cl_sacf_bp.html",
+    "href": "reference/cl_sacf_bp.html",
+    "title": "cl_sacf_bp",
+    "section": "",
+    "text": "cl_sacf_bp\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\ncl_sacf_bp(\n  lam, L0, sp_dgp::ICSP, cl_init, w::Int, reps=10_000; \n  jmin=4, jmax=6, verbose::Bool=false\n)\n\nCompute the control limit for BP-EWMA control chart for multiple delay (d₁-d₂) combinations, using the spatial autocorrelation function (SACF) and an in-control spatial process (ICSP).\nThe function returns the control limit for a given average run.\n\nlam: The smoothing parameter for the EWMA control chart.\nL0: The average run length (ARL) to use for the control limit.\nsp_dgp: The in-control spatial process (ICSP) to use for the control limit.\ncl_init: The initial control limit to use for the control limit.\nd1_vec: The vector of first (row) delays for the spatial process.\nd2_vec: The vector of second (column) delays for the spatial process.\nreps: The number of repetitions to use for the control limit."
   },
   {
     "objectID": "index.html",
     "href": "index.html",
     "title": "StatsOP.jl",
     "section": "",
-    "text": "StatsOP.jl is a Julia package that provides functions to conduct (sequential) tests for time series data, using ordinal patterns. The package builds on the seminal work of Christoph Bandt and Pompe (2002). The package is highly optimized and fast. The package is designed to be easy to use and provides a simple interface to compute ordinal patterns from time series data.\n\n\nThe package is currently not registered and has to be installed manually from GitHub."
+    "text": "StatsOP.jl is a Julia package that provides functions to conduct (sequential) tests for time series data, using ordinal patterns. The package builds on the seminal work of Bandt and Pompe (2002). The package is highly optimized and fast. The package is designed to be easy to use and provides a simple interface to compute ordinal patterns from time series data.\n\n\nThe package is currently not registered and has to be installed manually from GitHub."
   },
   {
     "objectID": "index.html#installation",
@@ -325,122 +493,6 @@
     "title": "StatsOP.jl",
     "section": "",
     "text": "The package is currently not registered and has to be installed manually from GitHub."
-  },
-  {
-    "objectID": "reference.html",
-    "href": "reference.html",
-    "title": "Reference",
-    "section": "",
-    "text": "Reference\nWrite your references here."
-  },
-  {
-    "objectID": "page_files/api_reference.html",
-    "href": "page_files/api_reference.html",
-    "title": "API",
-    "section": "",
-    "text": "API",
-    "crumbs": [
-      "API"
-    ]
-  },
-  {
-    "objectID": "page_files/op_changepoint.html",
-    "href": "page_files/op_changepoint.html",
-    "title": "Changepoint test",
-    "section": "",
-    "text": "Changepoint test\nOrdinalPatterns.jl allows to compute the chanegpoint statistic based on Schnurr and Dehling (2017).\n\nusing RCall\nusing OrdinalPatterns\nusing BenchmarkTools\n\ntsx = rand(100)\ntsy = rand(100)\n\n# R\n@rput tsx tsy\nR\"\"\"\nlibrary(ordinalpattern)\nresult_dep = patterndependence(tsx, tsy)\nresult_dep$patterncoef |&gt; print()\n\nmicrobenchmark::microbenchmark(\n  timing = patterndependence(tsx, tsy, tiesmethod=\"first\"), times = 100\n  )\n\"\"\"\n\n\nchangepoint_op(tsx, tsy, op_length=3)\n\n\n\n\n\n\nReferences\n\nSchnurr, Alexander, and Herold Dehling. 2017. “Testing for Structural Breaks via Ordinal Pattern Dependence.” Journal of the American Statistical Association 112 (518): 706–20. https://doi.org/10.1080/01621459.2016.1164706."
-  },
-  {
-    "objectID": "page_files/op_breakpoint.html",
-    "href": "page_files/op_breakpoint.html",
-    "title": "Breakpoint detection",
-    "section": "",
-    "text": "Breakpoint detection"
-  },
-  {
-    "objectID": "page_files/op_tutorial.html",
-    "href": "page_files/op_tutorial.html",
-    "title": "Tutorial",
-    "section": "",
-    "text": "Tutorial"
-  },
-  {
-    "objectID": "page_files/op_dependence.html",
-    "href": "page_files/op_dependence.html",
-    "title": "Dependency test",
-    "section": "",
-    "text": "Dependency test\nOrdinalPatterns.jl allows to compute the dependency statistic based on Schnurr and Dehling (2017).\n\nusing RCall\nusing OrdinalPatterns\nusing BenchmarkTools\n\ntsx = rand(100)\ntsy = rand(100)\n\n# R\n@rput tsx tsy\nR\"\"\"\nlibrary(ordinalpattern)\nresult_dep = patterndependence(tsx, tsy)\nresult_dep$patterncoef |&gt; print()\n\nmicrobenchmark::microbenchmark(\n  timing = patterndependence(tsx, tsy, tiesmethod=\"first\"), times = 100\n  )\n\"\"\"\n\n\ndependence_op(tsx, tsy; op_length=3, d=1)\n@btime dependence_op(tsx, tsy; op_length=3, d=1)\n\n\nchangepoint_op(tsx, tsy, op_length=3)\n\n\n\n\n\n\nReferences\n\nSchnurr, Alexander, and Herold Dehling. 2017. “Testing for Structural Breaks via Ordinal Pattern Dependence.” Journal of the American Statistical Association 112 (518): 706–20. https://doi.org/10.1080/01621459.2016.1164706."
-  },
-  {
-    "objectID": "page_files/sop.html",
-    "href": "page_files/sop.html",
-    "title": "Spatial Ordinal Patterns",
-    "section": "",
-    "text": "Spatial Ordinal Patterns\nSpatial ordinal patterns extend the idea of ordinal patterns from time series to spatial data arranged on a grid. Instead of comparing values across time, they compare the relative ordering of values within small spatial neighborhoods (for example a 2×2 block) and encode these order relations as spatial patterns.\nThe frequencies of these patterns summarize the local spatial structure of the data without relying on the exact values themselves. Under spatial independence, the patterns occur with equal probability, so deviations from this uniform distribution can be used for non-parametric tests of spatial dependence. Because the approach only uses ranks, it is robust to outliers and distributional assumptions and can detect complex or nonlinear spatial relationships that traditional measures like spatial autocorrelation might miss.\nStatsOP.jl provides functions for computing spatial ordinal patterns from gridded data and for conducting (sequential) tests based on these patterns. It also enables the replication of several studies listed below.\n\n\n\n\n\nReferences\n\nAdämmer, Philipp, Philipp Wittenberg, Christian H Weiß, and Murat Caner Testik. 2026. “Nonparametric Monitoring of Spatial Dependence.” Technometrics Forthcoming.\n\n\nWeiß, Christian H, and Hee-Young Kim. 2024. “Using Spatial Ordinal Patterns for Non-Parametric Testing of Spatial Dependence.” Spatial Statistics 59: 100800.\n\n\n———. 2025. “Non-Parametric Entropy Tests for Spatial Dependence.” Computational Statistics, 1–38.",
-    "crumbs": [
-      "SOPs",
-      "Spatial Ordinal Patterns"
-    ]
-  },
-  {
-    "objectID": "tutorials/tutorial-01.html",
-    "href": "tutorials/tutorial-01.html",
-    "title": "First tutorial",
-    "section": "",
-    "text": "First tutorial\nThis is my first tutorial!"
-  },
-  {
-    "objectID": "page_files/gop_tutorials.html",
-    "href": "page_files/gop_tutorials.html",
-    "title": "Generalized Ordinal Patterns",
-    "section": "",
-    "text": "Generalized Ordinal Patterns\nGeneralized ordinal patterns extend classical ordinal patterns for time-series analysis by allowing ties between observations, which often occur in discrete or rounded data. Instead of simple permutations, they use Cayley permutations to represent the relative ordering of values, including equal ones. This makes it possible to capture the structure of discrete time series without artificially breaking ties.\nThe frequencies of these patterns can be used to test for serial dependence: since their theoretical distribution under independence is not uniform, bootstrap methods are used to obtain valid test statistics. The same idea can be applied in statistical process control (SPC) by monitoring changes in the distribution of generalized ordinal patterns over time, which can signal shifts or emerging dependencies in a process.\nStatsOP.jl provides functions for computing generalized ordinal patterns from time series data and for conducting (sequential) tests based on these patterns. It also enables the replication of several studies listed below.\n\n\n\n\n\nReferences\n\nBandt, Christoph, and Bernd Pompe. 2002. “Permutation Entropy: A Natural Complexity Measure for Time Series.” Physical Review Letters 88 (17). https://doi.org/10.1103/physrevlett.88.174102.\n\n\nBian, Chunhua, Chang Qin, Qianli DY Ma, and Qinghong Shen. 2012. “Modified Permutation-Entropy Analysis of Heartbeat Dynamics.” Physical Review E—Statistical, Nonlinear, and Soft Matter Physics 85 (2): 021906.\n\n\nSchnurr, Alexander, and Svenja Fischer. 2022. “Generalized Ordinal Patterns Allowing for Ties and Their Applications in Hydrology.” Computational Statistics & Data Analysis 171: 107472.\n\n\nUnakafova, Valentina A, and Karsten Keller. 2013. “Efficiently Measuring Complexity on the Basis of Real-World Data.” Entropy 15 (10): 4392–4415.\n\n\nWeiß, Christian H, and Alexander Schnurr. 2024. “Generalized Ordinal Patterns in Discrete-Valued Time Series: Nonparametric Testing for Serial Dependence.” Journal of Nonparametric Statistics 36 (3): 573–99."
-  },
-  {
-    "objectID": "page_files/sop_tutorial.html",
-    "href": "page_files/sop_tutorial.html",
-    "title": "Tutorial",
-    "section": "",
-    "text": "Tutorial\nThe tutorials using SOPs will be shown here…\n\n1+1\n\n2"
-  },
-  {
-    "objectID": "page_files/op_replication.html",
-    "href": "page_files/op_replication.html",
-    "title": "Replication",
-    "section": "",
-    "text": "Replication"
-  },
-  {
-    "objectID": "page_files/installation.html",
-    "href": "page_files/installation.html",
-    "title": "Installation",
-    "section": "",
-    "text": "Installation\nThe package is currently not registered and has to be installed manually from GitHub."
-  },
-  {
-    "objectID": "page_files/sop_replication.html",
-    "href": "page_files/sop_replication.html",
-    "title": "SOP Replication",
-    "section": "",
-    "text": "SOP Replication"
-  },
-  {
-    "objectID": "page_files/op.html",
-    "href": "page_files/op.html",
-    "title": "Ordinal Patterns",
-    "section": "",
-    "text": "Ordinal Patterns\nOrdinal patterns are a useful tool in time series analysis that convert short segments of data into permutations describing their relative order. This transformation makes it easier to study complex dynamics because ordinal patterns are unaffected by strictly monotonic transformations and are robust to outliers.\nOrdinal patterns are well suited for distribution-free tests. In statistical process control (SPC), they can also be used to build nonparametric control charts that monitor processes without requiring specific distributional assumptions.\nStatsOP.jl provides functions for computing ordinal patterns from time series data and for conducting tests based on these patterns. It also enables the replication of several studies listed below.\n\n\n\n\n\nReferences\n\nBandt, Christoph, and Bernd Pompe. 2002. “Permutation Entropy: A Natural Complexity Measure for Time Series.” Physical Review Letters 88 (17). https://doi.org/10.1103/physrevlett.88.174102.\n\n\nBandt, Chstoph, and Faten Shiha. 2007. “Order Patterns in Time Series.” Journal of Time Series Analysis 28 (5): 646–65.\n\n\nKeller, Karsten, Mathieu Sinn, and Jan Emonds. 2007. “Time Series from the Ordinal Viewpoint.” Stochastics and Dynamics 7 (02): 247–72.\n\n\nSchnurr, Alexander, and Herold Dehling. 2017. “Testing for Structural Breaks via Ordinal Pattern Dependence.” Journal of the American Statistical Association 112 (518): 706–20. https://doi.org/10.1080/01621459.2016.1164706.\n\n\nWeiß, Christian H. 2021. “Measuring Dispersion and Serial Dependence in Ordinal Time Series Based on the Cumulative Paired \\(\\phi\\)-Entropy.” Entropy 24 (1): 42. https://www.mdpi.com/1099-4300/24/1/42.\n\n\n———. 2022. “Non-Parametric Tests for Serial Dependence in Time Series Based on Asymptotic Implementations of Ordinal-Pattern Statistics.” Chaos: An Interdisciplinary Journal of Nonlinear Science 32 (9). https://pubs.aip.org/aip/cha/article-abstract/32/9/093107/2835852/Non-parametric-tests-for-serial-dependence-in-time?redirectedFrom=fulltext.\n\n\nWeiß, Christian H, and Murat Caner Testik. 2023. “Nonparametric Control Charts for Monitoring Serial Dependence Based on Ordinal Patterns.” Technometrics 65 (3): 340–50.",
-    "crumbs": [
-      "OPs",
-      "Ordinal Patterns"
-    ]
-  },
-  {
-    "objectID": "tutorials.html",
-    "href": "tutorials.html",
-    "title": "Tutorials",
-    "section": "",
-    "text": "Tutorials\nDescribe your tutorials here."
   },
   {
     "objectID": "replications/00_old/replication_tm.html",
@@ -506,107 +558,25 @@
     "text": "data = rand(50, 50)\n\nstat_sop(data; chart_choice=1)\ndata = rand(100, 100, 200)\nstat_sop(0.1, data; chart_choice=1, add_noise=false)\n\n\n@btime rand(Normal(0, 1));\n@btime rand(TDist(5));\n\n@btime rand(Binomial(10, 0.5));\n@btime rand(Poisson(5));"
   },
   {
-    "objectID": "reference/BinomialCvec.html",
-    "href": "reference/BinomialCvec.html",
-    "title": "BinomialCvec",
+    "objectID": "tutorials.html",
+    "href": "tutorials.html",
+    "title": "Tutorials",
     "section": "",
-    "text": "BinomialCvec\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nBinomialCvec{T &lt;: Real}  &lt;: DiscreteUnivariateDistribution\n\nA struct to define a binomial distribution, which gets multiplied by a value from vector c_vec.\n`julia-repl dist = BinomialCvec(0.5, [-10; 10]) rand(dist)``"
+    "text": "Tutorials\nDescribe your tutorials here."
   },
   {
-    "objectID": "reference/IC.html",
-    "href": "reference/IC.html",
-    "title": "IC",
+    "objectID": "tutorials/tutorial-01.html",
+    "href": "tutorials/tutorial-01.html",
+    "title": "First tutorial",
     "section": "",
-    "text": "IC\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nIC(dist::UnivariateDistribution)\n\nA struct to define the in-control (IC) process. The struct contains one field, namely dist::UnivariateDistribution, which is the distribution of the in-control process.\n\nic = IC(Normal(0, 1))"
+    "text": "First tutorial\nThis is my first tutorial!"
   },
   {
-    "objectID": "reference/cl_sacf_bp.html",
-    "href": "reference/cl_sacf_bp.html",
-    "title": "cl_sacf_bp",
+    "objectID": "replications/00_old/replication_ukraine.html",
+    "href": "replications/00_old/replication_ukraine.html",
+    "title": "",
     "section": "",
-    "text": "cl_sacf_bp\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\ncl_sacf_bp(\n  lam, L0, sp_dgp::ICSP, cl_init, w::Int, reps=10_000; \n  jmin=4, jmax=6, verbose::Bool=false\n)\n\nCompute the control limit for BP-EWMA control chart for multiple delay (d₁-d₂) combinations, using the spatial autocorrelation function (SACF) and an in-control spatial process (ICSP).\nThe function returns the control limit for a given average run.\n\nlam: The smoothing parameter for the EWMA control chart.\nL0: The average run length (ARL) to use for the control limit.\nsp_dgp: The in-control spatial process (ICSP) to use for the control limit.\ncl_init: The initial control limit to use for the control limit.\nd1_vec: The vector of first (row) delays for the spatial process.\nd2_vec: The vector of second (column) delays for the spatial process.\nreps: The number of repetitions to use for the control limit."
-  },
-  {
-    "objectID": "reference/compute_lookup_array_sop.html",
-    "href": "reference/compute_lookup_array_sop.html",
-    "title": "compute_lookup_array_sop",
-    "section": "",
-    "text": "compute_lookup_array_sop\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\nCompute a 4D array to lookup the index of the sops. The original SOPs are based on ranks. Here we use sortperm which computes the order of the elements in the vector."
-  },
-  {
-    "objectID": "reference/ZIP.html",
-    "href": "reference/ZIP.html",
-    "title": "ZIP",
-    "section": "",
-    "text": "ZIP\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nZIP &lt;: DiscreteUnivariateDistribution\n\nA struct to define a zero-inflated Poisson distribution.\n#| eval: false\ndist = ZIP(5.0, 0.2)\nrand(dist)"
-  },
-  {
-    "objectID": "reference/compute_p_array_bp.html",
-    "href": "reference/compute_p_array_bp.html",
-    "title": "compute_p_array_bp",
-    "section": "",
-    "text": "compute_p_array_bp\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\ncomputeparray(data::Array{Float64,3})\nCompute the matrix of p-hat values for a given 3D array of data when the delays are vectors of integers. These values are used for bootstrapping to compute critcial limits for the BP-statistics."
-  },
-  {
-    "objectID": "reference/AR1.html",
-    "href": "reference/AR1.html",
-    "title": "AR1",
-    "section": "",
-    "text": "AR1\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nAR1(α::Float64, dist::UnivariateDistribution)\n\nA struct to define an AR(1) process:\n\\(\\qquad X_t = α  \\cdot X_{t-1} + \\epsilon_t.\\)\ndist specifies the distribution of \\(\\epsilon\\) using Distributions.jl.\n\nar1 = AR1(0.5, Normal(0, 1))",
-    "crumbs": [
-      "API",
-      "Types for ordinal patterns",
-      "AR1"
-    ]
-  },
-  {
-    "objectID": "reference/sop_frequencies.html",
-    "href": "reference/sop_frequencies.html",
-    "title": "sop_frequencies",
-    "section": "",
-    "text": "sop_frequencies\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nsop_frequencies(m::Int, n::Int, lookup_array_sop, n_sops, data, sop)\n\nCompute the frequencies of the spatial ordinal patterns. n_sops has to equal 24, as there are 4! = 24 possible patterns when using a 2x2 grid."
-  },
-  {
-    "objectID": "reference/AAR1.html",
-    "href": "reference/AAR1.html",
-    "title": "AAR1",
-    "section": "",
-    "text": "AAR1\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nAAR1(α::Float64, dist::UnivariateDistribution)\n\nA struct to define a AAR(1) (absolute AR) process:\n\\(\\qquad X_t=\\alpha \\cdot\\left|X_{t-1}\\right|+\\epsilon_t.\\)\ndist specifies the distribution of \\(\\epsilon\\) using Distributions.jl.\n\naar1 = AAR1(0.5, Normal(0, 1))"
-  },
-  {
-    "objectID": "reference/stat_sop.html",
-    "href": "reference/stat_sop.html",
-    "title": "stat_sop",
-    "section": "",
-    "text": "stat_sop\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\nfunction statsop( data::Union{SubArray,Array{T,2}}, d1::Int, d2::Int; chartchoice=3, add_noise::Bool=false ) where {T&lt;:Real}\nComputes the test statistic for a single picture and chosen test statistic. chart_coice is an integer value for the chart choice. The options are 1-4.\n\nExamples\n#| eval: false\ndata = rand(20, 20);\n\nstat_sop(data, 2)\n\n\n\n\n\n\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\nstatsop(data::Array{Float64, 3}, addnoise::Bool, lam::Float64, chart_choice::Int)\nComputes the test statistic for a 3D array of data, a given lambda value, and a given chart choice. The input parameters are:\n\ndata::Array{Float64,3}: A 3D array of data.\nadd_noise::Bool: A boolean value whether to add noise to the data. This is necessary when the matrices consist of count data.\nlam::Float64: A scalar value for lambda.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\n\n\nExamples\n#| eval: false\ndata = rand(20, 20, 10);\nlam = 0.1;\nchart_choice = 2;\n\nstat_sop(data, false, lam, chart_choice)"
-  },
-  {
-    "objectID": "reference/cl_sacf.html",
-    "href": "reference/cl_sacf.html",
-    "title": "cl_sacf",
-    "section": "",
-    "text": "cl_sacf\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\ncl_sacf(\n  sp_dgp::ICSTS, lam, L0, cl_init, d1::Int, d2::Int, reps=10_000;\n\njmin=4, jmax=6, verbose=false )\nCompute the control limit for the exponentially weighted moving average (EWMA) control chart for one delay (d₁-d₂) combination, using the spatial autocorrelation function (SACF) and an in-control spatial process (ICSP).\nThe function returns the control limit for a given average run.\n\nsp_dgp: The in-control spatial process (ICSP) to use for the control limit.\nlam: The smoothing parameter for the EWMA control chart.\nL0: The average run length (ARL) to use for the control limit.\ncl_init: The initial control limit to use for the control limit.\nd1: The first (row) delay for the spatial process.\nd2: The second (column) delay for the spatial process.\nreps: The number of repetitions to use for the control limit.\njmin: The minimum number of values to change after the decimal point in the control limit.\njmax: The maximum number of values to change after the decimal point in the control limit.\nverbose: A boolean to indicate whether to print the control limit and ARL for each iteration.\n\n\n#--- Example\n# Parameters\nlam = 0.1\nL0 = 370\nsp_dgp = ICSP(20, 20, Normal(0, 1))\ncl_init = 0.5\nd1 = 1\nd2 = 1\nreps = 10_000\njmin = 4\njmax = 6"
-  },
-  {
-    "objectID": "reference/count_uv_op.html",
-    "href": "reference/count_uv_op.html",
-    "title": "count_uv_op",
-    "section": "",
-    "text": "count_uv_op\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\ncount_uv_op(ts; op_length::Int=3, d=1)\n\nCount the number of ordinal patterns in bins for a single time series ts.\n\nts::Vector{Float64}: Time series for which the ordinal patterns are counted.\nop_length::Int=3: Length of the ordinal patterns. Default is 3. Minimum is 2, maximum is 4.\nd::Int=1: Time delay. Default is 1.\n\n\nts = rand(100)\ncount_uv_op(ts; op_length=3, d=1)"
-  },
-  {
-    "objectID": "reference/SQMA22.html",
-    "href": "reference/SQMA22.html",
-    "title": "SQMA22",
-    "section": "",
-    "text": "SQMA22\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nSQMA22(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao, prerun)\n\nA struct to define a Spatial quadratic moving-average (SQMA(1, 1)):\n`` Y{t1, t*2} = ^a\n\n ^b\n ^c\n ^d\n ^e\n ^f\n ^g\n ^h\n. ``\n\nYₜ₁,ₜ₂ = β₁ ⋅ εₜ₁₋₁,ₜ₂ᵃ + β₂ ⋅ εₜ₁,ₜ₂₋₁ᵇ + β₃ ⋅ εₜ₁₋₁,ₜ₂₋₁ᶜ + β₄ ⋅ εₜ₁₋₂,ₜ₂ᵈ + β₅ ⋅ εₜ₁,ₜ₂₋₂ᵉ + β₆ ⋅ εₜ₁₋₂,ₜ₂₋₁ᶠ + β₇ ⋅ εₜ₁₋₁,ₜ₂₋₂ᵍ + β₈ ⋅ εₜ₁₋₂,ₜ₂₋₂ʰ + εₜ₁,ₜ₂"
-  },
-  {
-    "objectID": "reference/arl_sop_bootstrap.html",
-    "href": "reference/arl_sop_bootstrap.html",
-    "title": "arl_sop_bootstrap",
-    "section": "",
-    "text": "arl_sop_bootstrap\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\narl_sop_bootstrap(p_mat::Array{Float64,2}, lam, cl, reps=10_000; chart_choice=chart_choice)\n\nCompute the average run length (ARL) using a bootstrap approach for a particular delay (d₁-d₂) combination.\nThe input parameters are:\n\np_mat::Array{Float64,2}: A matrix with the values of the relative type frequencies.\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nreps::Int: An integer value for the number of repetitions. The default value is 10,000.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4. The default value is 3."
+    "text": "using DataFrames\nusing DataFramesMeta\nusing OrdinalPatterns\nusing Dates\nusing CSV\nusing CategoricalArrays\nusing Plots"
   },
   {
     "objectID": "reference/rl_sop.html",
@@ -616,159 +586,11 @@
     "text": "rl_sop\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sop(lam, cl, lookup_array_sop, reps_range, dist, chart_choice, m, n, d1::Int, d2::Int)\n\nCompute the run length for a given in-control spatial DGP.\nThe input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nlookup_array_sop::Array{Int, 4}: A 4D array with the lookup array for the sops, which will be computed computed using lookup_array_sop = compute_lookup_array_sop().\nreps_range::UnitRange{Int}: A range of integers for the number of repetitions.\ndist::Distribution: A distribution for the error term. Here you can use any univariate distribution from the Distributions.jl package.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\nm::Int: An integer value for the number of rows for the final “SOP” matrix.\nn::Int: An integer value for the number of columns for the final “SOP” matrix.\nd1::Int: An integer value for the first delay (d₁).\nd2::Int: An integer value for the second delay (d₂).\n\n\n\n\n\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sop(lam, cl, reps_range, chart_choice, p_mat::Array{Float64,2})\n\nCompute the run length for a given control limit using bootstraping instead of a theoretical in-control distribution.\nThe input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nreps_range::UnitRange{Int}: A range of integers for the number of repetitions. This has to be a range to be compatible with arl_sop() which uses threading and multi-processing.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\np_mat::Array{Float64,2}: A matrix with the values of the relative frequencies of each d1-d2 (delay) combination. This matrix will be used for re-sampling.\n\n\n\n\n\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sop(lam, cl, reps_range, chart_choice, p_array::Array{Float64,3})\n\nCompute the EWMA-BP-SOP run length for a given control limit using bootstraping instead of a theoretical in-control distribution.\nThe input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nreps_range::UnitRange{Int}: A range of integers for the number of repetitions.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\np_array::Array{Float64,3}: A 3D array with the with the relative frequencies for each d1-d2 (delay) combination. The first dimension (rows) is the picture, the second dimension refers to the patterns group (s₁, s₂, or s₃) and the third dimension denotes each d₁-d₂ combination. This array will be used for re-sampling.\n\n\n\n\n\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sop(\n\nlam, cl, lookuparraysop, preps, spatialdgp::SpatialDGP, disterror::UnivariateDistribution, distao::Union{Nothing,UnivariateDistribution}, chart_choice, m, n, d1::Int, d2::Int )\nComputes the run length for a given out-of-control DGP. The input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nlookup_array_sop::Array{Int, 4}: A 4D array with the lookup array for the sops, which will be computed computed using lookup_array_sop = compute_lookup_array_sop().\np_reps::UnitRange{Int}: A range of integers for the number of repetitions.\nspatial_dgp::SpatialDGP: A struct for the out-of-control spatial DGP.\ndist_error::UnivariateDistribution: A distribution for the error term. Here you can use any univariate distribution from the Distributions.jl package.\ndist_ao::Union{Nothing,UnivariateDistribution}: A distribution for the additive outlier.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\nm::Int: An integer value for the number of rows for the final “SOP” matrix.\nn::Int: An integer value for the number of columns for the final “SOP” matrix.\nd1::Int: An integer value for the first delay (d₁).\nd2::Int: An integer value for the second delay (d₂)."
   },
   {
-    "objectID": "reference/arl_sop_oc.html",
-    "href": "reference/arl_sop_oc.html",
-    "title": "arl_sop_oc",
+    "objectID": "reference/chart_stat_sop.html",
+    "href": "reference/chart_stat_sop.html",
+    "title": "chart_stat_sop",
     "section": "",
-    "text": "arl_sop_oc\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\n arl_sop(\n\nspatialdgp::SpatialDGP, lam, cl, d1::Int, d2::Int, reps=10000; chart_choice=3 )\nCompute the average run length (ARL) for a given out-of-control spatial DGP.\nThe input parameters are:\n\nspatial_dgp::SpatialDGP: A struct for the out-of-control spatial DGP.\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nd1::Int: An integer value for the first delay (d₁).\nd2::Int: An integer value for the second delay (d₂).\nreps::Int: An integer value for the number of repetitions. The default value is 10,000.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4. The default value is 3."
-  },
-  {
-    "objectID": "reference/count_mv_op.html",
-    "href": "reference/count_mv_op.html",
-    "title": "count_mv_op",
-    "section": "",
-    "text": "count_mv_op\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\ncount_mv_op(tsx, tsy; op_length::Int=3, d=1)\n\nCount the number of ordinal patterns in bins for two time series tsx and tsy. The output will be used to compute the ordinal pattern dependence coefficient by Schnurr and Dehling (2017) doi:10.1080/01621459.2016.1164706.\n\ntsx: First time series for which the ordinal patterns are counted.\ntsy: Second time series for which the ordinal patterns are counted.\nop_length::Int=3: Length of the ordinal patterns. Default is 3. Minimum is 2, maximum is 4.\nd::Int=1: Time delay. Default is 1.\n\n\ntsx = rand(100)\ntsy = rand(100)\ncount_mv_op(tsx, tsy; op_length=3, d=1)"
-  },
-  {
-    "objectID": "reference/arl_sop.html",
-    "href": "reference/arl_sop.html",
-    "title": "arl_sop",
-    "section": "",
-    "text": "arl_sop\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\narl_sop(lam, cl, sop_dgp::ICSP, d1::Int, d2::Int, reps=10_000; chart_choice=3)\n\nCompute the average run length (ARL) for a given in-control spatial DGP.\nThe input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nsop_dgp::ICSP: A struct for the in-control spatial DGP.\nd1::Int: An integer value for the first delay (d₁).\nd2::Int: An integer value for the second delay (d₂).\nreps::Int: An integer value for the number of repetitions. The default value is 10,000.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4. The default value is 3.\n\n\n\n\n\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\narl_sop(lam, cl, p_mat::Array{Float64,2}, reps=10_000)\n\nCompute the average run length (ARL) using a bootstrap approach for a particular delay (d₁-d₂) combination.\nThe input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\np_mat::Array{Float64,2}: A matrix with the relative frequencies for a particular delay (d₁-d₂) combination. This matrix will be used for re-sampling. The matrix has to be computed by compute_p_array().\nreps::Int: An integer value for the number of repetitions. The default value is 10,000.\n\n\n\n\n\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\narl_sop(lam, cl, p_array::Array{Float64,3}, reps=10_000; chart_choice=3)\n\nCompute the average run length for the BP-EWMA-SOP for a given control limit using bootstraping instead of a theoretical in-control distribution.\nThe input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\np_array::Array{Float64, 3}: A 3D array with the with the relative frequencies of each d1-d2 (delay) combination. The first dimension (rows) is the picture, the second dimension refers to the patterns group (s₁, s₂, or s₃) and the third dimension denotes each d₁-d₂ combination. This matrix will be used for re-sampling.\nreps::Int: An integer value for the number of repetitions.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\n\n\n\n\n\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\n arl_sop(\n\nlam, cl, spatialdgp::SpatialDGP, d1::Int, d2::Int, reps=10000; chart_choice=3 )\nCompute the average run length (ARL) for a given out-of-control spatial DGP.\nThe input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nspatial_dgp::SpatialDGP: A struct for the out-of-control spatial DGP.\nd1::Int: An integer value for the first delay (d₁).\nd2::Int: An integer value for the second delay (d₂).\nreps::Int: An integer value for the number of repetitions. The default value is 10,000.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4. The default value is 3.",
-    "crumbs": [
-      "API",
-      "Functions for spatial ordinal patterns",
-      "arl_sop"
-    ]
-  },
-  {
-    "objectID": "reference/arl_sacf_oc.html",
-    "href": "reference/arl_sacf_oc.html",
-    "title": "arl_sacf_oc",
-    "section": "",
-    "text": "arl_sacf_oc\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\narl_sacf_oc(sp_dgp::SpatialDGP, lam, cl, d1::Int, d2::Int, reps=10_000)\n\nCompute the in-control average run length (ARL) using the spatial autocorrelation function (SACF) for a delay (d1, d2) combination and an out-of-control process.\nThe input arguments are:\n\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\nsp_dgp: The spatial data generating process (DGP) to use for the SACF function. This can be one of the following: SAR1, SAR11, SAR22, SINAR11, SQMA11, SQINMA11, or BSQMA11.\nd1::Int: The first (row) delay for the spatial process.\nd2::Int: The second (column) delay for the spatial process.\nreps: The number of repetitions to compute the ARL."
-  },
-  {
-    "objectID": "reference/cl_acf.html",
-    "href": "reference/cl_acf.html",
-    "title": "cl_acf",
-    "section": "",
-    "text": "cl_acf\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\nclacf(lam, L0, acfdgp, clinit, preps=10000; jmin=4, jmax=6, verbose=false)\nFunction to compute the control limit for the ACF statistic by XXX.\n\nlam::Float64: Smoothing parameter for the EWMA statistic.\nL0::Float64: In-control ARL.\nacf_dgp::Union{IC, AR1, TEAR1}: DGP.\ncl_init::Float64: Initial guess for the control limit.\np_reps::Int64: Number of replications.\njmin::Int64: Minimum number of iterations.\n\n\n# Compute initial values via quantiles\n\ncl_acf(0.1, 3.0, IC(Normal(0, 1)), cl_init, 10000)"
-  },
-  {
-    "objectID": "reference/rl_sacf_ic.html",
-    "href": "reference/rl_sacf_ic.html",
-    "title": "rl_sacf_ic",
-    "section": "",
-    "text": "rl_sacf_ic\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sacf_ic(\nspatial_dgp::ICSP, lam, cl, d1::Int, d2::Int, p_reps::UnitRange, dist_error::UnivariateDistribution\n\n)\nCompute the in-control run length using the spatial autocorrelation function (SACF) for a delay (d1, d2) combination. The function returns the run length for a given control limit cl.\nThe input arguments are:\n\nspatial_dgp::ICSP: The in-control spatial data generating process (DGP) to use for the SACF function.\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\nd1::Int: The first (row) delay for the spatial process.\nd2::Int: The second (column) delay for the spatial process.\np_reps::UnitRange: The number of repetitions to compute the run length.\ndist_error::UnivariateDistribution: The distribution to use for the error term."
-  },
-  {
-    "objectID": "reference/BinomialC.html",
-    "href": "reference/BinomialC.html",
-    "title": "BinomialC",
-    "section": "",
-    "text": "BinomialC\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nBinomialC{T &lt;: Real}  &lt;: DiscreteUnivariateDistribution\n\nA struct to define a binomial distribution, which gets multiplied by a constant c.\n`julia-repl dist = BinomialC(0.5, 2) rand(dist)``"
-  },
-  {
-    "objectID": "reference/rl_sacf_bp_ic.html",
-    "href": "reference/rl_sacf_bp_ic.html",
-    "title": "rl_sacf_bp_ic",
-    "section": "",
-    "text": "rl_sacf_bp_ic\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sacf_bp_ic(\n\nlam, cl, spdgp::ICSP, d1vec::Vector{Int}, d2vec::Vector{Int}, preps::UnitRange, dist_error::UnivariateDistribution )\nCompute the out-of-control run length using the spatial autocorrelation function (SACF) for the BP-statistic. The function returns the run length for a given control limit cl and a given number of repetitions reps. The input arguments are:\n\nsp_dgp::ICSP: The in-control spatial data generating process (DGP) to use for the SACF function.\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\nd1_vec::Vector{Int}: The first (row) delays for the spatial process.\nd2_vec::Vector{Int}: The second (column) delays for the spatial process.\np_reps::UnitRange: The number of repetitions to compute the run length. This has to be a unit range of integers to allow for parallel processing, since the function is called by arl_sacf().\ndist_error::UnivariateDistribution: The distribution to use for the error term in the spatial process. This can be any univariate distribution from the Distributions.jl package."
-  },
-  {
-    "objectID": "reference/ICTS.html",
-    "href": "reference/ICTS.html",
-    "title": "ICTS",
-    "section": "",
-    "text": "ICTS\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nIC(dist::UnivariateDistribution)\n\nA struct to define the in-control (IC) process. The struct contains one field, namely dist::UnivariateDistribution, which is the distribution of the in-control process.\n\nic = IC(Normal(0, 1))"
-  },
-  {
-    "objectID": "reference/rl_sop_bp_oc.html",
-    "href": "reference/rl_sop_bp_oc.html",
-    "title": "rl_sop_bp_oc",
-    "section": "",
-    "text": "rl_sop_bp_oc\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sop_bp_oc(\nspatial_dgp::SpatialDGP, lam, cl, w::Int, lookup_array_sop, p_reps::UnitRange,\ndist_error::UnivariateDistribution, dist_ao::Union{Nothing,UnivariateDistribution}, chart_choice\n\n)\nComputes the run length for a given out-of-control DGP, using the EWMA-BP-SOP statistic.\nThe input parameters are:\n\nspatial_dgp::SpatialDGP: A struct for the out-of-control spatial DGP.\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nw::Int: An integer value for the window size for the BP-statistic.\nlookup_array_sop::Array{Int, 2}: A 2D array with the lookup table for the SOPs.\np_reps::UnitRange: A range of integers for the number of repetitions.\ndist_error::UnivariateDistribution: A distribution for the error term.\ndist_ao::Union{Nothing,UnivariateDistribution}: A distribution for the additive outlier.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4."
-  },
-  {
-    "objectID": "reference/TEAR1.html",
-    "href": "reference/TEAR1.html",
-    "title": "TEAR1",
-    "section": "",
-    "text": "TEAR1\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nTEAR1(α::Float64, dist::UnivariateDistribution)\n\nA struct to define a TEAR(1) process:\n\\(\\qquad X_t = B_t^{(\\alpha)} \\cdot X_{t-1}+(1-\\alpha) \\cdot \\epsilon_t.\\)\ndist specifies the distribution of \\(\\epsilon\\) using Distributions.jl.\n\ntear1 = TEAR1(0.5, Normal(0, 1))",
-    "crumbs": [
-      "API",
-      "Types for ordinal patterns",
-      "TEAR1"
-    ]
-  },
-  {
-    "objectID": "reference/SQMA11.html",
-    "href": "reference/SQMA11.html",
-    "title": "SQMA11",
-    "section": "",
-    "text": "SQMA11\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nSQMA11(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao, prerun)\n\nA struct to define a Spatial quadratic moving-average (SQMA(1, 1)):\n\\(\\qquad  Y_{t_1, t_2}=\\beta_1 \\cdot \\varepsilon_{t_1-1, t_2}^a+\\beta_2 \\cdot \\varepsilon_{t_1, t_2-1}^b+\\beta_3 \\cdot \\varepsilon_{t_1-1, t_2-1}^c+\\varepsilon_{t_1, t_2}\\)\n\ndgp_params::Tuple(β₁::Float64, β₂::Float64, β₃::Float64): A tuple of the parameters of the DGP. The first element is the parameter β₁, the second element is the parameter β₂, and the third element is the parameter β₃.\neps_params::Tuple(a::Int, b::Int, c::Int): A tuple of the parameters of the DGP, indicating which error terms shall be squared. Note that eps_params ∈ {1, 2}.\nM_rows::Int: The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.\nN_cols::Int: The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.\ndist::Distribution A distribution for . You can use any univariate distribution from the Distributions.jl package.\ndist_ao::Nothing.\n\n\nsqma11 = SQMA11((0.5, 0.3, 0.2), (1, 1, 2), 10, 10, Normal(0,1), nothing, 1)",
-    "crumbs": [
-      "API",
-      "Types for spatial ordinal patterns",
-      "SQMA11"
-    ]
-  },
-  {
-    "objectID": "reference/stat_sacf_bp.html",
-    "href": "reference/stat_sacf_bp.html",
-    "title": "stat_sacf_bp",
-    "section": "",
-    "text": "stat_sacf_bp\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nstat_sacf_bp(\n\ndata::Union{SubArray,Matrix{T}}, d1vec::Vector{Int}, d2vec::Vector{Int} ) where {T&lt;:Real}\nCompute the BP-spatial autocorrelation function (BP-SACF) for multiple delay combinations (d1, d2) for a single picture.\n\ndata: The data matrix.\nd1_vec::Vector{Int}: The vector of first (row) delays for the spatial process.\nd2_vec::Vector{Int}: The vector of second (column) delays for the spatial process.\n\n\n\n\n\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nstat_sacf_bp(lam, data::Array{T,3}, d1_vec::Vector{Int}, d2_vec::Vector{Int}) where {T&lt;:Real}\n\nCompute the EWMA-BP-spatial autocorrelation function (EWMA-BP-SACF) for multiple images.\n\nlam: The smoothing parameter for the SACF.\ndata: The data matrix.\nd1_vec::Vector{Int}: The vector of first (row) delays for the spatial process.\nd2_vec::Vector{Int}: The vector of second (column) delays for the spatial process."
-  },
-  {
-    "objectID": "reference/rl_sop_bp_ic.html",
-    "href": "reference/rl_sop_bp_ic.html",
-    "title": "rl_sop_bp_ic",
-    "section": "",
-    "text": "rl_sop_bp_ic\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sop_bp_ic(\n\nspatialdgp::ICSP, lam, cl, lookuparraysop, repsrange, dist, chartchoice, d1vec::Vector{Int}, d2_vec::Vector{Int} )\nComputes the run length for a given in-control spatial DGP, using the EWMA-BP-SOP statistic.\nThe input parameters are:\n\nspatial_dgp::ICSP: A struct for the in-control spatial DGP.\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nlookup_array_sop::Array{Int, 4}: A 4D array with the lookup array for the sops, which will be computed computed using lookup_array_sop = compute_lookup_array_sop().\nreps_range::UnitRange{Int}: A range of integers for the number of repetitions.\ndist::Distribution: A distribution for the error term. Here you can use any univariate distribution from the Distributions.jl package.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\nd1_vec::Vector{Int}: A vector with integer values for the first delay (d₁).\nd2_vec::Vector{Int}: A vector with integer values for the second delay (d₂)."
-  },
-  {
-    "objectID": "reference/stat_sacf.html",
-    "href": "reference/stat_sacf.html",
-    "title": "stat_sacf",
-    "section": "",
-    "text": "stat_sacf\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nstat_sacf(data::Union{SubArray,Matrix{T}}, d1::Int, d2::Int) where {T&lt;:Real}\n\nCompute the spatial autocorrelation for a delay combination (d1, d2) for a single picture.\n\ndata: The data matrix.\nd1::Int: The first (row) delay for the spatial process.\nd2::Int: The second (column) delay for the spatial process.\n\n\n\n\n\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nstat_sacf(lam, data::Array{T,3}, d1::Int, d2::Int) where {T&lt;:Real}\n\nCompute the spatial autocorrelation function (SACF) for a delay combination (d1, d2) for multiple images.\n\nlam: The smoothing parameter for the SACF.\ndata: The data matrix.\nd1::Int: The first (row) delay for the spatial process."
-  },
-  {
-    "objectID": "reference/rl_sacf_bp.html",
-    "href": "reference/rl_sacf_bp.html",
-    "title": "rl_sacf_bp",
-    "section": "",
-    "text": "rl_sacf_bp\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sacf_bp(\n\nlam, cl, d1vec::Vector{Int}, d2vec::Vector{Int}, preps::UnitRange, spatialdgp::SpatialDGP, disterror::UnivariateDistribution, distao::Union{UnivariateDistribution,Nothing} )\nCompute the out-of-control run length using the spatial autocorrelation function (SACF) for the BP-statistic. The function returns the run length for a given control limit cl and a given number of repetitions reps. The input arguments are:\n\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\nw::Int: The window size for the BP-statistic.’\np_reps::UnitRange: The number of repetitions to compute the run length. This has to be a unit range of integers to allow for parallel processing, since the function is called by arl_sacf().\nspatial_dgp::SpatialDGP: The spatial data generating process (DGP) to use for the SACF function. This can be one of the following: SAR1, SAR11, SAR22, SINAR11, SQMA11, SQINMA11, or BSQMA11.\ndist_error::UnivariateDistribution: The distribution to use for the error term in the spatial process. This can be any univariate distribution from the Distributions.jl package.\ndist_ao::Union{UnivariateDistribution,Nothing}: The distribution to use for the additive outlier term in the spatial process. This can be any univariate , distribution from the Distributions.jl package or Nothing."
-  },
-  {
-    "objectID": "reference/sacf_11.html",
-    "href": "reference/sacf_11.html",
-    "title": "sacf_11",
-    "section": "",
-    "text": "sacf_11\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nsacf_11(data, cdata, cx_t_cx_t1, cdata_sq)\n\nCompute the spatial autocorrelation function (SACF) for a given matrix data. The function returns the SACF for the first lag (ρ(1, 1)). The input arguments are:\n\ndata: A matrix of size M x N.\ncdata: A matrix of size M x N to store the demeaned data.\ncx_t_cx_t1: A matrix of size M x N to store the element-wise multiplication of the current and lagged data."
-  },
-  {
-    "objectID": "reference/ICSP.html",
-    "href": "reference/ICSP.html",
-    "title": "ICSP",
-    "section": "",
-    "text": "ICSP\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nICSP(M_rows, N_cols, dist)\n\nA struct to define an independent and identically distributed (IID) process for in-control\n\nM_rows::Int: The number of rows for the image.\nN_cols::Int: The number of columns for image.\ndist::UnivariateDistribution: A distribution from the Distributions.jl package."
-  },
-  {
-    "objectID": "reference/SAR22.html",
-    "href": "reference/SAR22.html",
-    "title": "SAR22",
-    "section": "",
-    "text": "SAR22\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nSAR22(dgp_params, M_rows, N_cols, dist, dist_ao, prerun)\n\nA struct to define a first-order spatial autoregressive (SAR(1, 1)) process:\n\\(\\qquad \\qquad Y_{t_1, t_2} =                \\alpha_1 \\cdot Y_{t_1-1, t_2}              + \\alpha_2 \\cdot Y_{t_1,   t_2-1}              + \\alpha_3 \\cdot Y_{t_1-1, t_2-1}              + \\alpha_4 \\cdot Y_{t_1-2, t_2}              + \\alpha_5 \\cdot Y_{t_1,   t_2-2}              + \\alpha_6 \\cdot Y_{t_1-2, t_2-1}              + \\alpha_7 \\cdot Y_{t_1-1, t_2-2}              + \\alpha_8 \\cdot Y_{t_1-2, t_2-2}              + \\varepsilon_{t_1, t_2}.\\)\n\n        Yₜ₁ = α₁ ⋅ Yₜ₁₋₁ + \n              α₂ ⋅ Yₜ₁,ₜ₂₋₁ + \n              α₃ ⋅ Yₜ₁₋₁,ₜ₂₋₁ + \n              α₄ ⋅ Yₜ₁₋₂,ₜ₂ + \n              α₅ ⋅ Yₜ₁,ₜ₂₋₂ + \n              α₆ ⋅ Yₜ₁₋₂,ₜ₂₋₁ + \n              α₇ ⋅ Yₜ₁₋₁,ₜ₂₋₂ + \n              α₈ ⋅ Yₜ₁₋₂,ₜ₂₋₂ + \n              εₜ₁,ₜ₂"
-  },
-  {
-    "objectID": "reference/changepoint_op.html",
-    "href": "reference/changepoint_op.html",
-    "title": "changepoint_op",
-    "section": "",
-    "text": "changepoint_op\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nchangepoint_op(tsx, tsy; conf_level=0.95, weight=true, bn=log(length(tsx)), op_length::Int=3, d=1)\n\nCompute the changepoint in dependence between two time series based on Schnurr and Dehling (2017) doi:10.1080/01621459.2016.1164706.\n\ntsx: First time series for which the ordinal patterns are counted.\ntsy: Second time series for which the ordinal patterns are counted.\nconf_level::Float64=0.95: Confidence level for the changepoint detection. Default is 0.95.\nweight::Bool=true: Whether to use a weight function. Default is true.\nbn::Float64=log(length(tsx)): Bandwidth for the kernel function. Default is log(length(tsx)).\nop_length::Int=3: Length of the ordinal patterns. Default is 3. Minimum is 2, maximum is 4.\nd::Int=1: Time delay. Default is 1.\n\n\ntsx = rand(100)\ntsy = rand(100)\nchangepoint_op(tsx, tsy; conf_level=0.95, weight=true, bn=log(length(tsx)), op_length=3, d=1)"
+    "text": "chart_stat_sop\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nchart_stat_sop(p_ewma, chart_choice)\n\nCompute the the test statistic for spatial ordinal patterns. The first input is a vector with three values, based on SOP counts. The second input is the chart."
   },
   {
     "objectID": "reference/MA1.html",
@@ -790,15 +612,307 @@
     "text": "arl_sop_ic\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\narl_sop_ic(sop_dgp::ICSP, lam, cl, d1::Int, d2::Int, reps=10_000; chart_choice=3)\n\nCompute the average run length (ARL) for a given in-control spatial DGP.\nThe input parameters are:\n\nsop_dgp::ICSP: A struct for the in-control spatial DGP.\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nd1::Int: An integer value for the first delay (d₁).\nd2::Int: An integer value for the second delay (d₂).\nreps::Int: An integer value for the number of repetitions. The default value is 10,000.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4. The default value is 3."
   },
   {
-    "objectID": "reference/MA2.html",
-    "href": "reference/MA2.html",
-    "title": "MA2",
+    "objectID": "reference/BSQMA11.html",
+    "href": "reference/BSQMA11.html",
+    "title": "BSQMA11",
     "section": "",
-    "text": "MA2\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nMA2(α₁::Float64, α₂::Float64, dist::UnivariateDistribution)\n\nA struct to define an MA(2) process:\n\\(\\qquad X_t = α₁  \\cdot \\epsilon_{t-1} + α₂  \\cdot \\epsilon_{t-2} + \\epsilon_t.\\)\ndist specifies the distribution of \\(\\epsilon\\) using Distributions.jl.\n\nma2 = MA2(0.5, 0.3, Normal(0, 1))",
+    "text": "BSQMA11\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nBSQMA11(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao)\n\nA struct to define a bilateral spatial quadratic moving-average (BSQMA(1, 1)) process:\nY{t1, t2}=b1 ^a+b2 ^b+b3 ^c+b*4 ^d+,\nYₜ₁,ₜ₂ = b₁ ⋅ εₜ₁₋₁,ₜ₂₋₁ᵃ + b₂ ⋅ εₜ₁₊₁,ₜ₂₋₁ᵇ + b₃ ⋅ εₜ₁₊₁,ₜ₂₊₁ᶜ + b₄ ⋅ εₜ₁₋₁,ₜ₂₊₁ᵈ + εₜ₁,ₜ₂\n\ndgp_params::Tuple{Float64, Float64, Float64, Float64}: A tuple of the parameters of the DGP. The parameters correspond to b₁, b₂, b₃ and b₄, respectively.\neps_params::Tuple{Int, Int, Int, Int}: A tuple of the parameters of the DGP, indicating which error terms shall be squared. Note that eps_params ∈ {1, 2}.\nM_rows::Int: The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.\nN_cols::Int: The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.\ndist::Distribution: A distribution for . You can use any univariate distribution from the Distributions.jl package.\ndist_ao::Nothing: Nothing.\n\n\nbsqma11 = BSQMA11((0.5, 0.3, 0.2, 0.1), (1, 1, 2, 2), 10, 10, Normal(0, 1), nothing)"
+  },
+  {
+    "objectID": "reference/compute_p_array_bp.html",
+    "href": "reference/compute_p_array_bp.html",
+    "title": "compute_p_array_bp",
+    "section": "",
+    "text": "compute_p_array_bp\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\ncomputeparray(data::Array{Float64,3})\nCompute the matrix of p-hat values for a given 3D array of data when the delays are vectors of integers. These values are used for bootstrapping to compute critcial limits for the BP-statistics."
+  },
+  {
+    "objectID": "reference/sacf.html",
+    "href": "reference/sacf.html",
+    "title": "sacf",
+    "section": "",
+    "text": "sacf\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nsacf(X_centered, d1::Int, d2::Int)\n\n\nX_centered: The centered (de-meaned) data matrix.\nd1::Int: The first (row) delay for the spatial process.\nd2::Int: The second (column) delay for the spatial process."
+  },
+  {
+    "objectID": "reference/BinomialC.html",
+    "href": "reference/BinomialC.html",
+    "title": "BinomialC",
+    "section": "",
+    "text": "BinomialC\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nBinomialC{T &lt;: Real}  &lt;: DiscreteUnivariateDistribution\n\nA struct to define a binomial distribution, which gets multiplied by a constant c.\n`julia-repl dist = BinomialC(0.5, 2) rand(dist)``"
+  },
+  {
+    "objectID": "reference/SAR22.html",
+    "href": "reference/SAR22.html",
+    "title": "SAR22",
+    "section": "",
+    "text": "SAR22\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nSAR22(dgp_params, M_rows, N_cols, dist, dist_ao, prerun)\n\nA struct to define a first-order spatial autoregressive (SAR(1, 1)) process:\n\\(\\qquad \\qquad Y_{t_1, t_2} =                \\alpha_1 \\cdot Y_{t_1-1, t_2}              + \\alpha_2 \\cdot Y_{t_1,   t_2-1}              + \\alpha_3 \\cdot Y_{t_1-1, t_2-1}              + \\alpha_4 \\cdot Y_{t_1-2, t_2}              + \\alpha_5 \\cdot Y_{t_1,   t_2-2}              + \\alpha_6 \\cdot Y_{t_1-2, t_2-1}              + \\alpha_7 \\cdot Y_{t_1-1, t_2-2}              + \\alpha_8 \\cdot Y_{t_1-2, t_2-2}              + \\varepsilon_{t_1, t_2}.\\)\n\n        Yₜ₁ = α₁ ⋅ Yₜ₁₋₁ + \n              α₂ ⋅ Yₜ₁,ₜ₂₋₁ + \n              α₃ ⋅ Yₜ₁₋₁,ₜ₂₋₁ + \n              α₄ ⋅ Yₜ₁₋₂,ₜ₂ + \n              α₅ ⋅ Yₜ₁,ₜ₂₋₂ + \n              α₆ ⋅ Yₜ₁₋₂,ₜ₂₋₁ + \n              α₇ ⋅ Yₜ₁₋₁,ₜ₂₋₂ + \n              α₈ ⋅ Yₜ₁₋₂,ₜ₂₋₂ + \n              εₜ₁,ₜ₂"
+  },
+  {
+    "objectID": "reference/crit_val_sop.html",
+    "href": "reference/crit_val_sop.html",
+    "title": "crit_val_sop",
+    "section": "",
+    "text": "crit_val_sop\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\ncritvalsop(m, n, alpha, chart_choice, approximate::Bool)\nComputes the critical value for the SOP test. Also allows the approximation of the critical value. The input parameters are:\n\nm::Int64: The number of rows in the sop-matrix. Note that the data matrix has dimensions M = m + d₁, where d₁ denotes the row delay.\nn::Int64: The number of columns in the sop-matrix. Note that the data matrix has dimensions N = n + d₂, where d₂ denotes the column delay.\nalpha::Float64: The significance level.\nchart_choice::Int64: The choice of chart.\napproximate::Bool: If true, the approximate critical value is computed. If false, the exact critical value is computed.\n\n\nExamples\n#| eval: false\n# compute approximate critical value for chart 1 \ncrit_val_sop(10, 10, 0.05, 1, true)"
+  },
+  {
+    "objectID": "reference/arl_sacf_oc.html",
+    "href": "reference/arl_sacf_oc.html",
+    "title": "arl_sacf_oc",
+    "section": "",
+    "text": "arl_sacf_oc\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\narl_sacf_oc(sp_dgp::SpatialDGP, lam, cl, d1::Int, d2::Int, reps=10_000)\n\nCompute the in-control average run length (ARL) using the spatial autocorrelation function (SACF) for a delay (d1, d2) combination and an out-of-control process.\nThe input arguments are:\n\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\nsp_dgp: The spatial data generating process (DGP) to use for the SACF function. This can be one of the following: SAR1, SAR11, SAR22, SINAR11, SQMA11, SQINMA11, or BSQMA11.\nd1::Int: The first (row) delay for the spatial process.\nd2::Int: The second (column) delay for the spatial process.\nreps: The number of repetitions to compute the ARL."
+  },
+  {
+    "objectID": "reference/rl_sacf_ic.html",
+    "href": "reference/rl_sacf_ic.html",
+    "title": "rl_sacf_ic",
+    "section": "",
+    "text": "rl_sacf_ic\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sacf_ic(\nspatial_dgp::ICSP, lam, cl, d1::Int, d2::Int, p_reps::UnitRange, dist_error::UnivariateDistribution\n\n)\nCompute the in-control run length using the spatial autocorrelation function (SACF) for a delay (d1, d2) combination. The function returns the run length for a given control limit cl.\nThe input arguments are:\n\nspatial_dgp::ICSP: The in-control spatial data generating process (DGP) to use for the SACF function.\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\nd1::Int: The first (row) delay for the spatial process.\nd2::Int: The second (column) delay for the spatial process.\np_reps::UnitRange: The number of repetitions to compute the run length.\ndist_error::UnivariateDistribution: The distribution to use for the error term."
+  },
+  {
+    "objectID": "reference/rl_sop_bp.html",
+    "href": "reference/rl_sop_bp.html",
+    "title": "rl_sop_bp",
+    "section": "",
+    "text": "rl_sop_bp\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sop_bp(\n\nlam, cl, lookuparraysop, spatialdgp::ICSP, repsrange, dist, chartchoice, d1vec::Vector{Int}, d2_vec::Vector{Int} )\nComputes the run length for a given in-control spatial DGP, using the EWMA-BP-SOP statistic.\nThe input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nlookup_array_sop::Array{Int, 4}: A 4D array with the lookup array for the sops, which will be computed computed using lookup_array_sop = compute_lookup_array_sop().\nspatial_dgp::ICSP: A struct for the in-control spatial DGP.\nreps_range::UnitRange{Int}: A range of integers for the number of repetitions.\ndist::Distribution: A distribution for the error term. Here you can use any univariate distribution from the Distributions.jl package.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\nd1_vec::Vector{Int}: A vector with integer values for the first delay (d₁).\nd2_vec::Vector{Int}: A vector with integer values for the second delay (d₂).\n\n\n\n\n\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sop_bp(\n\nlam, cl, lookuparraysop, preps, spatialdgp::SpatialDGP, disterror::UnivariateDistribution, distao::Union{Nothing,UnivariateDistribution}, chartchoice, d1vec::Vector{Int}, d2_vec::Vector{Int} )\nComputes the run length for a given out-of-control DGP, using the EWMA-BP-SOP statistic.\nThe input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nlookup_array_sop::Array{Int, 4}: A 4D array with the lookup array for the sops, which will be computed computed using lookup_array_sop = compute_lookup_array_sop().\np_reps::UnitRange{Int}: A range of integers for the number of repetitions.\nspatial_dgp::SpatialDGP: A struct for the out-of-control spatial DGP.\ndist_error::UnivariateDistribution: A distribution for the error term. Here you can use any univariate distribution from the Distributions.jl package.\ndist_ao::Union{Nothing,UnivariateDistribution}: A distribution for the additive outlier.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\nd1_vec::Vector{Int}: A vector with integer values for the first delay (d₁).\nd2_vec::Vector{Int}: A vector with integer values for the second delay (d₂)."
+  },
+  {
+    "objectID": "reference/stat_sop.html",
+    "href": "reference/stat_sop.html",
+    "title": "stat_sop",
+    "section": "",
+    "text": "stat_sop\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\nfunction statsop( data::Union{SubArray,Array{T,2}}, d1::Int, d2::Int; chartchoice=3, add_noise::Bool=false ) where {T&lt;:Real}\nComputes the test statistic for a single picture and chosen test statistic. chart_coice is an integer value for the chart choice. The options are 1-4.\n\nExamples\n#| eval: false\ndata = rand(20, 20);\n\nstat_sop(data, 2)\n\n\n\n\n\n\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\nstatsop(data::Array{Float64, 3}, addnoise::Bool, lam::Float64, chart_choice::Int)\nComputes the test statistic for a 3D array of data, a given lambda value, and a given chart choice. The input parameters are:\n\ndata::Array{Float64,3}: A 3D array of data.\nadd_noise::Bool: A boolean value whether to add noise to the data. This is necessary when the matrices consist of count data.\nlam::Float64: A scalar value for lambda.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\n\n\nExamples\n#| eval: false\ndata = rand(20, 20, 10);\nlam = 0.1;\nchart_choice = 2;\n\nstat_sop(data, false, lam, chart_choice)"
+  },
+  {
+    "objectID": "reference/arl_sop.html",
+    "href": "reference/arl_sop.html",
+    "title": "arl_sop",
+    "section": "",
+    "text": "arl_sop\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\narl_sop(lam, cl, sop_dgp::ICSP, d1::Int, d2::Int, reps=10_000; chart_choice=3)\n\nCompute the average run length (ARL) for a given in-control spatial DGP.\nThe input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nsop_dgp::ICSP: A struct for the in-control spatial DGP.\nd1::Int: An integer value for the first delay (d₁).\nd2::Int: An integer value for the second delay (d₂).\nreps::Int: An integer value for the number of repetitions. The default value is 10,000.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4. The default value is 3.\n\n\n\n\n\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\narl_sop(lam, cl, p_mat::Array{Float64,2}, reps=10_000)\n\nCompute the average run length (ARL) using a bootstrap approach for a particular delay (d₁-d₂) combination.\nThe input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\np_mat::Array{Float64,2}: A matrix with the relative frequencies for a particular delay (d₁-d₂) combination. This matrix will be used for re-sampling. The matrix has to be computed by compute_p_array().\nreps::Int: An integer value for the number of repetitions. The default value is 10,000.\n\n\n\n\n\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\narl_sop(lam, cl, p_array::Array{Float64,3}, reps=10_000; chart_choice=3)\n\nCompute the average run length for the BP-EWMA-SOP for a given control limit using bootstraping instead of a theoretical in-control distribution.\nThe input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\np_array::Array{Float64, 3}: A 3D array with the with the relative frequencies of each d1-d2 (delay) combination. The first dimension (rows) is the picture, the second dimension refers to the patterns group (s₁, s₂, or s₃) and the third dimension denotes each d₁-d₂ combination. This matrix will be used for re-sampling.\nreps::Int: An integer value for the number of repetitions.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\n\n\n\n\n\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\n arl_sop(\n\nlam, cl, spatialdgp::SpatialDGP, d1::Int, d2::Int, reps=10000; chart_choice=3 )\nCompute the average run length (ARL) for a given out-of-control spatial DGP.\nThe input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nspatial_dgp::SpatialDGP: A struct for the out-of-control spatial DGP.\nd1::Int: An integer value for the first delay (d₁).\nd2::Int: An integer value for the second delay (d₂).\nreps::Int: An integer value for the number of repetitions. The default value is 10,000.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4. The default value is 3.",
+    "crumbs": [
+      "API",
+      "Functions for spatial ordinal patterns",
+      "arl_sop"
+    ]
+  },
+  {
+    "objectID": "reference/SAR11.html",
+    "href": "reference/SAR11.html",
+    "title": "SAR11",
+    "section": "",
+    "text": "SAR11\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nSAR11(dgp_params, M_rows, N_cols, dist, dist_ao, prerun)\n\nA struct to define a first-order spatial autoregressive (SAR(1, 1)) process:\n\\(\\qquad \\qquad Y_{t_1, t_2}=\\alpha_1 \\cdot Y_{t_1-1, t_2}+\\alpha_2 \\cdot Y_{t_1, t_2-1}+\\alpha_3 \\cdot Y_{t_1-1, t_2-1}+\\varepsilon_{t_1, t_2}\\)\n\nYₜ₁,ₜ₂ = α₁ ⋅ Yₜ₁₋₁,ₜ₂ + α₂ ⋅ Yₜ₁,ₜ₂₋₁ + α₃ ⋅ Yₜ₁₋₁,ₜ₂₋₁ + εₜ₁,ₜ₂\n\n\ndgp_params::Tuple(α₁::Float64, α₂::Float64, α₃::Float64) The requirements to guarantee stationarity for the process are |α₁| &lt; 1, |α₂| &lt; 1, |α₁ + α₂| &lt; 1 - α₃, and |α₁ - α₂| &lt; 1 + α₃.\nm::Int: The number of rows for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals m + 1.\nn::Int: The number of columns for the final “SOP” matrix. Note that the final spatial matrix (“picture”) equals n + 1.\nprerun::Int: A value to initialize the DGP to achieve stationarity. These number of rows and columns will be discarded after the initialization.\ndist::Distribution: A distribution for . You can use any univariate distribution from the Distributions.jl package.\ndist_ao::Union{Nothing, Distribution}: Nothing or a distribution for additive outliers. For additive outliers you can use any univariate distribution from the Distributions.jl package.\nprerun::Int: A value to initialize the DGP to guarantee stationarity. These number of rows and columns will be discarded for the final spatial matrix.\n\n\nsar11 = SAR11((0.5, 0.3, 0.2), 11, 11, Normal(0, 1), nothing, 100)",
+    "crumbs": [
+      "API",
+      "Types for spatial ordinal patterns",
+      "SAR11"
+    ]
+  },
+  {
+    "objectID": "reference/arl_sop_bp.html",
+    "href": "reference/arl_sop_bp.html",
+    "title": "arl_sop_bp",
+    "section": "",
+    "text": "arl_sop_bp\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\narl_sop(\n\nlam, cl, spatialdgp::ICSP, d1vec::Vector{Int}, d2vec::Vector{Int}, reps=10000; chart_choice=3 )\nComputes the average run length (ARL) for a given in-control spatial DGP, using EWMA-BP-SOP statistics.\nThe input parameters are:\n\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nspatial_dgp::ICSP: A struct for the in-control spatial DGP.\nd1_vec::Vector{Int}: A vector with integer values for the first delay (d₁).\nd2_vec::Vector{Int}: A vector with integer values for the second delay (d₂).\nreps::Int: An integer value for the number of repetitions. The default value is 10,000.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4."
+  },
+  {
+    "objectID": "reference/AR1.html",
+    "href": "reference/AR1.html",
+    "title": "AR1",
+    "section": "",
+    "text": "AR1\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nAR1(α::Float64, dist::UnivariateDistribution)\n\nA struct to define an AR(1) process:\n\\(\\qquad X_t = α  \\cdot X_{t-1} + \\epsilon_t.\\)\ndist specifies the distribution of \\(\\epsilon\\) using Distributions.jl.\n\nar1 = AR1(0.5, Normal(0, 1))",
     "crumbs": [
       "API",
       "Types for ordinal patterns",
-      "MA2"
+      "AR1"
     ]
+  },
+  {
+    "objectID": "reference/cl_sop_bp.html",
+    "href": "reference/cl_sop_bp.html",
+    "title": "cl_sop_bp",
+    "section": "",
+    "text": "cl_sop_bp\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\ncl_sop_bp(\n\nspdgp::ICSP, lam, L0, clinit, w, reps=10000; chartchoice=3, jmin=4, jmax=6, verbose=false )\nCompute the control limit for the EWMA-chart for the BP-statistic. The function returns the control limit for a given average run. The input parameters are:\n\nsp_dgp::ICSTS: The in-control spatial process (ICSTS).\nlam::Float64: A scalar value for lambda for the EWMA chart.\nL0::Float64: The desired average run length.\ncl_init::Float64: The initial value for the control limit.\nw::Int: The window size for the BP-statistic.\nreps::Int: The number of replications to compute the ARL.\nchart_choice::Int: The chart choice for the SOP chart.\njmin: The minimum number of values to change after the decimal point in the control limit.\njmax: The maximum number of values to change after the decimal point in the control limit.\nverbose::Bool: A boolean to indicate whether to print the control limit and ARL for each iteration."
+  },
+  {
+    "objectID": "reference/cl_sacf.html",
+    "href": "reference/cl_sacf.html",
+    "title": "cl_sacf",
+    "section": "",
+    "text": "cl_sacf\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\ncl_sacf(\n  sp_dgp::ICSTS, lam, L0, cl_init, d1::Int, d2::Int, reps=10_000;\n\njmin=4, jmax=6, verbose=false )\nCompute the control limit for the exponentially weighted moving average (EWMA) control chart for one delay (d₁-d₂) combination, using the spatial autocorrelation function (SACF) and an in-control spatial process (ICSP).\nThe function returns the control limit for a given average run.\n\nsp_dgp: The in-control spatial process (ICSP) to use for the control limit.\nlam: The smoothing parameter for the EWMA control chart.\nL0: The average run length (ARL) to use for the control limit.\ncl_init: The initial control limit to use for the control limit.\nd1: The first (row) delay for the spatial process.\nd2: The second (column) delay for the spatial process.\nreps: The number of repetitions to use for the control limit.\njmin: The minimum number of values to change after the decimal point in the control limit.\njmax: The maximum number of values to change after the decimal point in the control limit.\nverbose: A boolean to indicate whether to print the control limit and ARL for each iteration.\n\n\n#--- Example\n# Parameters\nlam = 0.1\nL0 = 370\nsp_dgp = ICSP(20, 20, Normal(0, 1))\ncl_init = 0.5\nd1 = 1\nd2 = 1\nreps = 10_000\njmin = 4\njmax = 6"
+  },
+  {
+    "objectID": "reference/rl_sacf_bp.html",
+    "href": "reference/rl_sacf_bp.html",
+    "title": "rl_sacf_bp",
+    "section": "",
+    "text": "rl_sacf_bp\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sacf_bp(\n\nlam, cl, d1vec::Vector{Int}, d2vec::Vector{Int}, preps::UnitRange, spatialdgp::SpatialDGP, disterror::UnivariateDistribution, distao::Union{UnivariateDistribution,Nothing} )\nCompute the out-of-control run length using the spatial autocorrelation function (SACF) for the BP-statistic. The function returns the run length for a given control limit cl and a given number of repetitions reps. The input arguments are:\n\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\nw::Int: The window size for the BP-statistic.’\np_reps::UnitRange: The number of repetitions to compute the run length. This has to be a unit range of integers to allow for parallel processing, since the function is called by arl_sacf().\nspatial_dgp::SpatialDGP: The spatial data generating process (DGP) to use for the SACF function. This can be one of the following: SAR1, SAR11, SAR22, SINAR11, SQMA11, SQINMA11, or BSQMA11.\ndist_error::UnivariateDistribution: The distribution to use for the error term in the spatial process. This can be any univariate distribution from the Distributions.jl package.\ndist_ao::Union{UnivariateDistribution,Nothing}: The distribution to use for the additive outlier term in the spatial process. This can be any univariate , distribution from the Distributions.jl package or Nothing."
+  },
+  {
+    "objectID": "reference/arl_sop_oc.html",
+    "href": "reference/arl_sop_oc.html",
+    "title": "arl_sop_oc",
+    "section": "",
+    "text": "arl_sop_oc\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\n arl_sop(\n\nspatialdgp::SpatialDGP, lam, cl, d1::Int, d2::Int, reps=10000; chart_choice=3 )\nCompute the average run length (ARL) for a given out-of-control spatial DGP.\nThe input parameters are:\n\nspatial_dgp::SpatialDGP: A struct for the out-of-control spatial DGP.\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nd1::Int: An integer value for the first delay (d₁).\nd2::Int: An integer value for the second delay (d₂).\nreps::Int: An integer value for the number of repetitions. The default value is 10,000.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4. The default value is 3."
+  },
+  {
+    "objectID": "reference/sop_frequencies.html",
+    "href": "reference/sop_frequencies.html",
+    "title": "sop_frequencies",
+    "section": "",
+    "text": "sop_frequencies\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nsop_frequencies(m::Int, n::Int, lookup_array_sop, n_sops, data, sop)\n\nCompute the frequencies of the spatial ordinal patterns. n_sops has to equal 24, as there are 4! = 24 possible patterns when using a 2x2 grid."
+  },
+  {
+    "objectID": "reference/cl_sop_bootstrap.html",
+    "href": "reference/cl_sop_bootstrap.html",
+    "title": "cl_sop_bootstrap",
+    "section": "",
+    "text": "cl_sop_bootstrap\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\ncl_sop_bootstrap(\n\ndata::Array{T,3}, lam, L0, clinit, d1, d2, reps=10000; chart_choice=3, jmin=3, jmax=7, verbose=false )\nCompute the SOP control limit for the EWMA-chart based on bootstraping. The function returns the control limit for a given average run.\nThe input parameters are:\n\ndata::Array{T,3}: A 3D-array containing the data for the EWMA-chart.\nlam::Real: The smoothing parameter for the EWMA-chart.\nL0::Real: The average run length for the EWMA-chart.\ncl_init::Real: The initial value for the control limit.\nd1::Int: The first dimension of the data array.\nd2::Int: The second dimension of the data array.\nreps::Int=10_000: The number of bootstrap replications.\nchart_choice::Int: The choice of the chart for the EWMA-chart. The default is 3.\njmin: The minimum number of values to change after the decimal point in the control limit.\njmax: The maximum number of values to change after the decimal point in the control limit.\nverbose::Bool: A boolean to indicate whether to print the control limit and ARL for each iteration."
+  },
+  {
+    "objectID": "reference/arl_sacf_bp_oc.html",
+    "href": "reference/arl_sacf_bp_oc.html",
+    "title": "arl_sacf_bp_oc",
+    "section": "",
+    "text": "arl_sacf_bp_oc\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\narl_sacf_bp_oc(spatial_dgp::SpatialDGP, lam, cl, w::Int, reps=10_000)\n\nCompute the out-of-control average run length (ARL) using the spatial autocorrelation function (SACF) for the BP-statistic. The function returns the ARL for a given control limit cl and a given number of repetitions reps. The input arguments are:\n\nspatial_dgp::SpatialDGP: The spatial data generating process (DGP) to use for the SACF function. This can be one of the following: SAR1, SAR11, SAR22, SINAR11, SQMA11, SQINMA11, or BSQMA11.\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\nd1_vec::Vector{Int}: The first (row) delays for the spatial process.\nd2_vec::Vector{Int}: The second (column) delays for the spatial process.\nreps: The number of repetitions to compute the ARL."
+  },
+  {
+    "objectID": "reference/AAR1.html",
+    "href": "reference/AAR1.html",
+    "title": "AAR1",
+    "section": "",
+    "text": "AAR1\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nAAR1(α::Float64, dist::UnivariateDistribution)\n\nA struct to define a AAR(1) (absolute AR) process:\n\\(\\qquad X_t=\\alpha \\cdot\\left|X_{t-1}\\right|+\\epsilon_t.\\)\ndist specifies the distribution of \\(\\epsilon\\) using Distributions.jl.\n\naar1 = AAR1(0.5, Normal(0, 1))"
+  },
+  {
+    "objectID": "reference/crit_val_sacf.html",
+    "href": "reference/crit_val_sacf.html",
+    "title": "crit_val_sacf",
+    "section": "",
+    "text": "crit_val_sacf\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\ncritvalsacf(M, N, alpha)\nComputes the critical value for the SACF of lag 1. The input parameters are:\n\nM::Int64: The number of rows in the data matrix.\nN::Int64: The number of columns in the data matrix.\nalpha::Float64: The significance level.\n\n\nExamples\n#| eval: false\n# compute critical value\ncrit_val_sacf(11, 11, 0.05)"
+  },
+  {
+    "objectID": "reference/sacf_11.html",
+    "href": "reference/sacf_11.html",
+    "title": "sacf_11",
+    "section": "",
+    "text": "sacf_11\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nsacf_11(data, cdata, cx_t_cx_t1, cdata_sq)\n\nCompute the spatial autocorrelation function (SACF) for a given matrix data. The function returns the SACF for the first lag (ρ(1, 1)). The input arguments are:\n\ndata: A matrix of size M x N.\ncdata: A matrix of size M x N to store the demeaned data.\ncx_t_cx_t1: A matrix of size M x N to store the element-wise multiplication of the current and lagged data."
+  },
+  {
+    "objectID": "reference/ICTS.html",
+    "href": "reference/ICTS.html",
+    "title": "ICTS",
+    "section": "",
+    "text": "ICTS\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nIC(dist::UnivariateDistribution)\n\nA struct to define the in-control (IC) process. The struct contains one field, namely dist::UnivariateDistribution, which is the distribution of the in-control process.\n\nic = IC(Normal(0, 1))"
+  },
+  {
+    "objectID": "reference/rl_sop_oc.html",
+    "href": "reference/rl_sop_oc.html",
+    "title": "rl_sop_oc",
+    "section": "",
+    "text": "rl_sop_oc\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sop_oc(\n\nspatialdgp::SpatialDGP, lam, cl, lookuparraysop, preps::UnitRange{Int}, disterror::UnivariateDistribution, distao::Union{Nothing,UnivariateDistribution}, chart_choice, m, n, d1::Int, d2::Int )\nComputes the run length for a given out-of-control DGP. The input parameters are:\n\nspatial_dgp::SpatialDGP: A struct for the out-of-control spatial DGP.\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nlookup_array_sop::Array{Int, 4}: A 4D array with the lookup array for the sops, which will be computed computed using lookup_array_sop = compute_lookup_array_sop().\np_reps::UnitRange{Int}: A range of integers for the number of repetitions.\ndist_error::UnivariateDistribution: A distribution for the error term. Here you can use any univariate distribution from the Distributions.jl package.\ndist_ao::Union{Nothing,UnivariateDistribution}: A distribution for the additive outlier.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4.\nm::Int: An integer value for the number of rows for the final “SOP” matrix.\nn::Int: An integer value for the number of columns for the final “SOP” matrix.\nd1::Int: An integer value for the first delay (d₁).\nd2::Int: An integer value for the second delay (d₂)."
+  },
+  {
+    "objectID": "reference/rl_sacf_bp_ic.html",
+    "href": "reference/rl_sacf_bp_ic.html",
+    "title": "rl_sacf_bp_ic",
+    "section": "",
+    "text": "rl_sacf_bp_ic\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sacf_bp_ic(\n\nlam, cl, spdgp::ICSP, d1vec::Vector{Int}, d2vec::Vector{Int}, preps::UnitRange, dist_error::UnivariateDistribution )\nCompute the out-of-control run length using the spatial autocorrelation function (SACF) for the BP-statistic. The function returns the run length for a given control limit cl and a given number of repetitions reps. The input arguments are:\n\nsp_dgp::ICSP: The in-control spatial data generating process (DGP) to use for the SACF function.\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\nd1_vec::Vector{Int}: The first (row) delays for the spatial process.\nd2_vec::Vector{Int}: The second (column) delays for the spatial process.\np_reps::UnitRange: The number of repetitions to compute the run length. This has to be a unit range of integers to allow for parallel processing, since the function is called by arl_sacf().\ndist_error::UnivariateDistribution: The distribution to use for the error term in the spatial process. This can be any univariate distribution from the Distributions.jl package."
+  },
+  {
+    "objectID": "reference/ICSTS.html",
+    "href": "reference/ICSTS.html",
+    "title": "ICSTS",
+    "section": "",
+    "text": "ICSTS\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nICSP(M_rows, N_cols, dist)\n\nA struct to define an independent and identically distributed (IID) process for in-control\n\nM_rows::Int: The number of rows for the image.\nN_cols::Int: The number of columns for image.\ndist::UnivariateDistribution: A distribution from the Distributions.jl package."
+  },
+  {
+    "objectID": "reference/rl_sop_bp_bootstrap.html",
+    "href": "reference/rl_sop_bp_bootstrap.html",
+    "title": "rl_sop_bp_bootstrap",
+    "section": "",
+    "text": "rl_sop_bp_bootstrap\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_sop_bp_bootstrap(p_array::Array{T,3}, lam, cl, reps_range, chart_choice, ) where {T&lt;:Real}\n\nCompute the EWMA-BP-SOP run length for a given control limit using bootstraping.\nThe input parameters are:\n\np_array::Array{Float64,3}: A 3D array with the with the relative frequencies for each d1-d2 (delay) combination. The first dimension (rows) is the picture, the second dimension refers to the patterns group (s₁, s₂, or s₃) and the third dimension denotes each d₁-d₂ combination. This array will be used for re-sampling.\nlam::Float64: A scalar value for lambda for the EWMA chart.\ncl::Float64: A scalar value for the control limit.\nreps_range::UnitRange{Int}: A range of integers for the number of repetitions.\nchart_choice::Int: An integer value for the chart choice. The options are 1-4."
+  },
+  {
+    "objectID": "reference/QAR1.html",
+    "href": "reference/QAR1.html",
+    "title": "QAR1",
+    "section": "",
+    "text": "QAR1\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nQAR1(α::Float64, dist::UnivariateDistribution)\n\nA struct to define a QAR(1) (quadratic AR) process:\n\\(\\qquad X_t=\\alpha \\cdot X_{t-1}^2+\\epsilon_t.\\)\ndist specifies the distribution of \\(\\epsilon\\) using Distributions.jl.\n\nqar1 = QAR1(0.5, Normal(0, 1))",
+    "crumbs": [
+      "API",
+      "Types for ordinal patterns",
+      "QAR1"
+    ]
+  },
+  {
+    "objectID": "reference/arl_sacf_ic.html",
+    "href": "reference/arl_sacf_ic.html",
+    "title": "arl_sacf_ic",
+    "section": "",
+    "text": "arl_sacf_ic\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\narlsacfic(lam, cl, spatialdgp::ICSTS, d1::Int, d2::Int, reps=10000)\nCompute the in-control average run length (ARL), using the spatial autocorrelation function (SACF) for a delay (d1, d2) combination. The function returns the ARL for a given control limit cl and a given number of repetitions reps.\nThe input arguments are:\n\nspatial_dgp: The in-control spatial data generating process (DGP) to use for the SACF function.\nlam: The smoothing parameter for the exponentially weighted moving average (EWMA) control chart.\ncl: The control limit for the EWMA control chart.\nd1::Int: The first (row) delay for the spatial process.\nd2::Int: The second (column) delay for the spatial process.\nreps: The number of repetitions to compute the ARL."
+  },
+  {
+    "objectID": "reference/SQMA22.html",
+    "href": "reference/SQMA22.html",
+    "title": "SQMA22",
+    "section": "",
+    "text": "SQMA22\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nSQMA22(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao, prerun)\n\nA struct to define a Spatial quadratic moving-average (SQMA(1, 1)):\n`` Y{t1, t*2} = ^a\n\n ^b\n ^c\n ^d\n ^e\n ^f\n ^g\n ^h\n. ``\n\nYₜ₁,ₜ₂ = β₁ ⋅ εₜ₁₋₁,ₜ₂ᵃ + β₂ ⋅ εₜ₁,ₜ₂₋₁ᵇ + β₃ ⋅ εₜ₁₋₁,ₜ₂₋₁ᶜ + β₄ ⋅ εₜ₁₋₂,ₜ₂ᵈ + β₅ ⋅ εₜ₁,ₜ₂₋₂ᵉ + β₆ ⋅ εₜ₁₋₂,ₜ₂₋₁ᶠ + β₇ ⋅ εₜ₁₋₁,ₜ₂₋₂ᵍ + β₈ ⋅ εₜ₁₋₂,ₜ₂₋₂ʰ + εₜ₁,ₜ₂"
+  },
+  {
+    "objectID": "reference/count_uv_op.html",
+    "href": "reference/count_uv_op.html",
+    "title": "count_uv_op",
+    "section": "",
+    "text": "count_uv_op\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\ncount_uv_op(ts; op_length::Int=3, d=1)\n\nCount the number of ordinal patterns in bins for a single time series ts.\n\nts::Vector{Float64}: Time series for which the ordinal patterns are counted.\nop_length::Int=3: Length of the ordinal patterns. Default is 3. Minimum is 2, maximum is 4.\nd::Int=1: Time delay. Default is 1.\n\n\nts = rand(100)\ncount_uv_op(ts; op_length=3, d=1)"
+  },
+  {
+    "objectID": "reference/rl_op.html",
+    "href": "reference/rl_op.html",
+    "title": "rl_op",
+    "section": "",
+    "text": "rl_op\n\n\n\n\n\n\nNotedocblock\n\n\n\n\n\n\nrl_op(lam, cl, lookup_array_op, p_reps, op_dgp,\n  op_dgp_dist, chart_choice; d::Union{Int,Vector{Int}}=1, ced=false, ad=100)\n\nFunction to compute run length for ordinal patterns.\n\nlam::Float64: Smoothing parameter for EWMA chart.\ncl::Float64: Control limit for the EWMA chart.\nlookup_array_op: Array to lookup ordinal patterns. Can be created with functioncomputelookuparray_op()`.\np_reps::Vector{Int}: Unit range of repetitions.\nop_dgp::Union{IC, AR1, MA1, MA2, TEAR1, AAR1, QAR1}: DGP.\nop_dgp_dist::UnivariateDistribution: Distribution of the DGP.\nchart_choice::Int: Chart choice (1: XXX, 2: XXX, 3: XXX, 4: XXX, 5: XXX, 6: XXX).\nd::Union{Int,Vector{Int}}=1: Delay vector. Default is 1.\nced::Bool=false: Use conditional expected delay? Default is false.\nad::Int=100: Number of iterations for ced.\n\n\nrl_op(0.1, 3.0, lookup_array_op, 1:10_000, IC(Normal(0, 1)), Normal(0, 1), 1; d=1, ced=false, ad=100)"
+  },
+  {
+    "objectID": "reference.html",
+    "href": "reference.html",
+    "title": "Reference",
+    "section": "",
+    "text": "Reference\nWrite your references here."
+  },
+  {
+    "objectID": "page_files/op_dependence.html",
+    "href": "page_files/op_dependence.html",
+    "title": "Dependency test",
+    "section": "",
+    "text": "Dependency test\nOrdinalPatterns.jl allows to compute the dependency statistic based on Schnurr and Dehling (2017).\n\nusing RCall\nusing OrdinalPatterns\nusing BenchmarkTools\n\ntsx = rand(100)\ntsy = rand(100)\n\n# R\n@rput tsx tsy\nR\"\"\"\nlibrary(ordinalpattern)\nresult_dep = patterndependence(tsx, tsy)\nresult_dep$patterncoef |&gt; print()\n\nmicrobenchmark::microbenchmark(\n  timing = patterndependence(tsx, tsy, tiesmethod=\"first\"), times = 100\n  )\n\"\"\"\n\n\ndependence_op(tsx, tsy; op_length=3, d=1)\n@btime dependence_op(tsx, tsy; op_length=3, d=1)\n\n\nchangepoint_op(tsx, tsy, op_length=3)\n\n\n\n\n\n\nReferences\n\nSchnurr, Alexander, and Herold Dehling. 2017. “Testing for Structural Breaks via Ordinal Pattern Dependence.” Journal of the American Statistical Association 112 (518): 706–20. https://doi.org/10.1080/01621459.2016.1164706."
+  },
+  {
+    "objectID": "page_files/op.html",
+    "href": "page_files/op.html",
+    "title": "Ordinal Patterns",
+    "section": "",
+    "text": "Ordinal Patterns\nOrdinal patterns are a useful tool in time series analysis that convert short segments of data into permutations describing their relative order. This transformation makes it easier to study complex dynamics because ordinal patterns are unaffected by strictly monotonic transformations and are robust to outliers.\nOrdinal patterns are well suited for distribution-free tests. In statistical process control (SPC), they can also be used to build nonparametric control charts that monitor processes without requiring specific distributional assumptions.\nStatsOP.jl provides functions for computing ordinal patterns from time series data and for conducting tests based on these patterns. It also enables the replication of several studies listed below.\n\n\n\n\n\nReferences\n\nBandt, Christoph, and Bernd Pompe. 2002. “Permutation Entropy: A Natural Complexity Measure for Time Series.” Physical Review Letters 88 (17). https://doi.org/10.1103/physrevlett.88.174102.\n\n\nBandt, Chstoph, and Faten Shiha. 2007. “Order Patterns in Time Series.” Journal of Time Series Analysis 28 (5): 646–65.\n\n\nKeller, Karsten, Mathieu Sinn, and Jan Emonds. 2007. “Time Series from the Ordinal Viewpoint.” Stochastics and Dynamics 7 (02): 247–72.\n\n\nSchnurr, Alexander, and Herold Dehling. 2017. “Testing for Structural Breaks via Ordinal Pattern Dependence.” Journal of the American Statistical Association 112 (518): 706–20. https://doi.org/10.1080/01621459.2016.1164706.\n\n\nWeiß, Christian H. 2021. “Measuring Dispersion and Serial Dependence in Ordinal Time Series Based on the Cumulative Paired \\(\\phi\\)-Entropy.” Entropy 24 (1): 42. https://www.mdpi.com/1099-4300/24/1/42.\n\n\nWeiß, Christian H. 2022. “Non-Parametric Tests for Serial Dependence in Time Series Based on Asymptotic Implementations of Ordinal-Pattern Statistics.” Chaos: An Interdisciplinary Journal of Nonlinear Science 32 (9). https://pubs.aip.org/aip/cha/article-abstract/32/9/093107/2835852/Non-parametric-tests-for-serial-dependence-in-time?redirectedFrom=fulltext.\n\n\nWeiß, Christian H, and Murat Caner Testik. 2023. “Nonparametric Control Charts for Monitoring Serial Dependence Based on Ordinal Patterns.” Technometrics 65 (3): 340–50.",
+    "crumbs": [
+      "OPs",
+      "Ordinal Patterns"
+    ]
+  },
+  {
+    "objectID": "page_files/op_breakpoint.html",
+    "href": "page_files/op_breakpoint.html",
+    "title": "Breakpoint detection",
+    "section": "",
+    "text": "Breakpoint detection"
+  },
+  {
+    "objectID": "page_files/gop_tutorials.html",
+    "href": "page_files/gop_tutorials.html",
+    "title": "Generalized Ordinal Patterns",
+    "section": "",
+    "text": "Generalized Ordinal Patterns\nGeneralized ordinal patterns extend classical ordinal patterns for time-series analysis by allowing ties between observations, which often occur in discrete or rounded data. Instead of simple permutations, they use Cayley permutations to represent the relative ordering of values, including equal ones. This makes it possible to capture the structure of discrete time series without artificially breaking ties.\nThe frequencies of these patterns can be used to test for serial dependence: since their theoretical distribution under independence is not uniform, bootstrap methods are used to obtain valid test statistics. The same idea can be applied in statistical process control (SPC) by monitoring changes in the distribution of generalized ordinal patterns over time, which can signal shifts or emerging dependencies in a process.\nStatsOP.jl provides functions for computing generalized ordinal patterns from time series data and for conducting (sequential) tests based on these patterns. It also enables the replication of several studies listed below.\n\n\n\n\n\nReferences\n\nBandt, Christoph, and Bernd Pompe. 2002. “Permutation Entropy: A Natural Complexity Measure for Time Series.” Physical Review Letters 88 (17). https://doi.org/10.1103/physrevlett.88.174102.\n\n\nBian, Chunhua, Chang Qin, Qianli DY Ma, and Qinghong Shen. 2012. “Modified Permutation-Entropy Analysis of Heartbeat Dynamics.” Physical Review E—Statistical, Nonlinear, and Soft Matter Physics 85 (2): 021906.\n\n\nSchnurr, Alexander, and Svenja Fischer. 2022. “Generalized Ordinal Patterns Allowing for Ties and Their Applications in Hydrology.” Computational Statistics & Data Analysis 171: 107472.\n\n\nUnakafova, Valentina A, and Karsten Keller. 2013. “Efficiently Measuring Complexity on the Basis of Real-World Data.” Entropy 15 (10): 4392–415.\n\n\nWeiß, Christian H, and Alexander Schnurr. 2024. “Generalized Ordinal Patterns in Discrete-Valued Time Series: Nonparametric Testing for Serial Dependence.” Journal of Nonparametric Statistics 36 (3): 573–99."
+  },
+  {
+    "objectID": "page_files/sop_replication.html",
+    "href": "page_files/sop_replication.html",
+    "title": "SOP Replication",
+    "section": "",
+    "text": "SOP Replication"
   }
 ]
