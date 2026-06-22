@@ -113,7 +113,53 @@ function _common_chart_calculations(ts, chart_type; m::Int=3, d::Int=1, alpha=0.
 end
 
 
-# --- 3. Implementation of test_op() ---
+# --- 3. Result type for asymptotic test ---
+
+struct OPTestResult{C}
+  chart::C
+  stat::Float64
+  asymp_crit::Float64
+  asymp_pval::Float64
+  asymp_reject::Bool
+end
+
+function Base.show(io::IO, r::OPTestResult)
+  println(io, "OPTestResult")
+  println(io, "  Chart:            ", r.chart)
+  println(io, "  Statistic:        ", round(r.stat,       digits=4))
+  println(io, "  ─────────────────────────────")
+  println(io, "  Asymptotic test")
+  println(io, "    Critical value: ", round(r.asymp_crit, digits=4))
+  println(io, "    p-value:        ", round(r.asymp_pval, digits=4))
+  print(io,   "    Reject H₀:      ", r.asymp_reject)
+end
+
+# --- 4. Asymptotic p-value computation ---
+
+# Shared generalized chi-squared null (m=3 case for Δ, H, Hex)
+const _gc_op = GeneralizedChisq(
+  [(2 + sqrt(2)) / 12, 2 / 15, 1 / 10, (2 - sqrt(2)) / 12],
+  ones(4), zeros(4), 0.0, 0.0
+)
+
+function _asymp_pval(chart, stat::Float64, n_pat::Int, m::Int)::Float64
+  if chart isa Union{Persistence, UpDownBalance, RotationalAsymmetry, UpDownScaling}
+    se = chart isa Persistence         ? sqrt(8 / 45 / n_pat) :
+         chart isa UpDownBalance       ? sqrt(1 / 3  / n_pat) :
+         chart isa RotationalAsymmetry ? sqrt(2 / 5  / n_pat) : sqrt(2 / 3 / n_pat)
+    return 2.0 * (1.0 - cdf(Normal(), abs(stat) / se))
+  elseif chart isa DistanceToWhiteNoise
+    T = n_pat * stat
+    return m == 2 ? 1.0 - cdf(Chisq(1), T) : 1.0 - cdf(_gc_op, T)
+  elseif chart isa Shannon
+    T = m == 2 ? 6 * n_pat * (log(2) - stat) : n_pat * (log(6) - stat) / 3
+    return m == 2 ? 1.0 - cdf(Chisq(1), T) : 1.0 - cdf(_gc_op, T)
+  else  # ShannonExtropy (m=3 only)
+    return 1.0 - cdf(_gc_op, 5 * n_pat * (5 * log(6 / 5) - stat) / 3)
+  end
+end
+
+# --- 5. Implementation of test_op() ---
 
 # Dispatch on chart type to determine rejection direction
 reject(::Union{Shannon,ShannonExtropy}, test_stat, crit_val) = test_stat < crit_val
@@ -121,8 +167,10 @@ reject(::DistanceToWhiteNoise, test_stat, crit_val) = test_stat > crit_val
 reject(::Union{UpDownBalance,Persistence,RotationalAsymmetry,UpDownScaling}, test_stat, crit_val) = abs(test_stat) > crit_val
 
 function test_op(ts; chart_choice, m::Int=3, d::Int=1, alpha=0.05)
+  n_pat = length(ts) - (m - 1) * d
   test_stat, crit_val = _common_chart_calculations(ts, chart_choice; m=m, d=d, alpha=alpha)
-  return (test_stat, crit_val, reject(chart_choice, test_stat, crit_val))
+  p_val = _asymp_pval(chart_choice, test_stat, n_pat, m)
+  return OPTestResult(chart_choice, test_stat, crit_val, p_val, reject(chart_choice, test_stat, crit_val))
 end
 
 

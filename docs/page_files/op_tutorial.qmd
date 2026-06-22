@@ -1,1 +1,198 @@
-# Tutorial
+---
+engine: julia
+julia:
+  exeflags: ["--project=../."]
+---
+
+# Tutorial for time series ordinal pattern tests
+
+## Libraries
+
+```{julia}
+#| output: false
+#| message: false
+using StatsOP, Random, Statistics, DataFrames
+```
+
+## Hypothesis Testing with Ordinal Patterns
+
+An ordinal pattern test asks whether the frequencies of rank permutations in a time series are consistent with an i.i.d. (white noise) process. For a series $x_1, \ldots, x_n$, overlapping windows of length $m$ are each mapped to the permutation that describes the relative order of the values. The resulting pattern frequency distribution is summarised by a scalar test statistic. Under $H_0$ (i.i.d.) that distribution is uniform across all $m!$ patterns, so the statistic has a known or bootstrap-approximated null distribution.
+
+
+
+## Key functions
+
+The key functions in  `StatsOP.jl` for testing time series regarding dependence using ordinal patterns are:
+
+- **Computing the statistic**
+    - `stat_op(data; chart_choice, m=3, d=1)` — computes the chosen test statistic from the observed pattern frequencies.
+        - Returns `[test_statistic, pattern_frequencies]`.
+        - `chart_choice`: one of 
+            - `Persistence()`
+            - `UpDownBalance()`
+            - `RotationalAsymmetry()`
+            - `UpDownScaling()`
+            -  `DistanceToWhiteNoise()`
+            - `Shannon()`
+            -  `ShannonExtropy()`.
+        - `m`: pattern length (window size) 
+        - `d`: delay between observations within a window.
+
+- **Asymptotic inference**
+    - `test_op(data; chart_choice, m=3, d=1, alpha=0.05)`
+        - Returns an `OPTestResult` with the test statistic, critical value, p-value, and reject decision.
+        - Critical value, p-value, and rejection direction are chosen automatically from `chart_choice`.
+        - `alpha`: significance level.
+        - Relies on asymptotic limiting distributions; currently supports `m = 2` and `m = 3` only.
+
+
+- **Bootstrap inference**
+    - `bootstrap_op(data, n_boot; chart_choice, m=3, d=1, block_size=1)`
+        - Returns a length-`n_boot` vector of resampled statistics under $H_0$.
+        - `n_boot`: number of bootstrap replications.
+        - `block_size = 1`: standard i.i.d. bootstrap. `block_size > 1`: block bootstrap that preserves local serial structure.
+        - Works for any `m`.
+
+    - `test_op_bootstrap(data, n_boot; chart_choice, m=3, d=1, alpha=0.05, block_size=1)`
+        - Returns an `OPTestResultBoot` struct with the observed statistic, bootstrap critical value, bootstrap p-value, and reject decision.
+        - Handles the correct bootstrap direction (two-sided, upper-tail, lower-tail) automatically.
+        - `alpha`: significance level. `block_size`: as in `bootstrap_op()`.
+        - Works for any `m` — the only inference option when `m > 3`.
+
+## Available chart statistics
+
+Seven chart statistics are available. They differ in what they measure, the direction of the rejection region, and the limiting distribution under $H_0$.
+
+::: {style="font-size: 0.82em;"}
+
+| Statistic | Constructor | Under $H_0$ | Reject $H_0$ when | Distribution |
+|:----------|:------------|:-----------:|:-----------------:|:------------:|
+| Persistence ($\hat{\tau}$) | `Persistence()` | $\hat{\tau} = 0$ | $\lvert\hat{\tau}\rvert > c$ | Normal |
+| UpDownBalance ($\hat{\beta}$) | `UpDownBalance()` | $\hat{\beta} = 0$ | $\lvert\hat{\beta}\rvert > c$ | Normal |
+| RotationalAsymmetry ($\hat{\gamma}$) | `RotationalAsymmetry()` | $\hat{\gamma} = 0$ | $\lvert\hat{\gamma}\rvert > c$ | Normal |
+| UpDownScaling ($\hat{\delta}$) | `UpDownScaling()` | $\hat{\delta} = 0$ | $\lvert\hat{\delta}\rvert > c$ | Normal |
+| DistanceToWhiteNoise ($\hat{\Delta}$) | `DistanceToWhiteNoise()` | $\hat{\Delta} = 0$ | $\hat{\Delta} > c$ | Generalized $\chi^2$ |
+| Shannon entropy ($\hat{H}$) | `Shannon()` | $\hat{H} = \log(m!)$ | $\hat{H} < c$ | Generalized $\chi^2$ |
+| Shannon extropy ($\hat{H}_\text{ex}$) | `ShannonExtropy()` | $\hat{H}_\text{ex} = 5\log(6/5)$ | $\hat{H}_\text{ex} < c$ | Generalized $\chi^2$ |
+
+: {tbl-colwidths="[22,20,14,17,18]"}
+
+:::
+
+- The first four statistics use a **two-sided** test. `DistanceToWhiteNoise` is always
+non-negative — **upper-tail**. 
+- The entropy statistics decrease under non-uniformity — **lower-tail**.
+- The test direction determines how bootstrap p-values are computed (see below).
+- The asymptotic critical values and their limiting distributions are derived in @weiss2022.
+
+## Setup
+
+```{julia}
+Random.seed!(42)
+n, m, d = 300, 3, 1
+n_pat = n - (m - 1) * d
+
+```
+
+## Example data
+
+```{julia}
+data_iid = randn(n)   # i.i.d. — H₀ is true
+
+φ = 0.5
+data_ar1 = zeros(n);
+data_ar1[1] = randn();
+for t in 2:n
+    data_ar1[t] = φ * data_ar1[t-1] + randn()
+end   # AR(1) — H₀ is false
+```
+
+## Asymptotic testing: `test_op()`
+
+### Two-sided — Persistence
+
+```{julia}
+test_op(data_iid; chart_choice=Persistence(), m=m, d=d)
+```
+
+```{julia}
+test_op(data_ar1; chart_choice=Persistence(), m=m, d=d)
+```
+
+### Upper-tail — DistanceToWhiteNoise
+
+```{julia}
+test_op(data_iid; chart_choice=DistanceToWhiteNoise(), m=m, d=d)
+```
+
+```{julia}
+test_op(data_ar1; chart_choice=DistanceToWhiteNoise(), m=m, d=d)
+```
+
+### Lower-tail — Shannon entropy
+
+```{julia}
+test_op(data_iid; chart_choice=Shannon(), m=m, d=d)
+```
+
+```{julia}
+test_op(data_ar1; chart_choice=Shannon(), m=m, d=d)
+```
+
+The i.i.d. series is not rejected; the AR(1) series is. The critical value is the same for both
+series — it depends only on `n_pat`, `m`, and `alpha`, not on the data.
+
+## Bootstrap testing: `test_op_bootstrap()`
+
+`test_op_bootstrap()` generates the empirical null distribution via `bootstrap_op()`,
+then computes the bootstrap critical value and p-value in the correct direction for the
+chosen statistic. It works for any `m` — including `m > 3` where `test_op()` has no
+asymptotic theory.
+
+```{julia}
+Random.seed!(42)
+test_op_bootstrap(data_ar1, 2_000; chart_choice=Persistence(), m=m, d=d)
+```
+
+The bootstrap critical value agrees closely with the asymptotic one shown above. The table
+below confirms this across all seven statistics.
+
+## Full comparison: asymptotic vs. bootstrap
+
+```{julia}
+#| output: false
+Random.seed!(42)
+chart_list = [
+    ("Persistence (τ)", Persistence(), "two-sided"),
+    ("UpDownBalance (β)", UpDownBalance(), "two-sided"),
+    ("RotationalAsymmetry (γ)", RotationalAsymmetry(), "two-sided"),
+    ("UpDownScaling (δ)", UpDownScaling(), "two-sided"),
+    ("DistanceToWhiteNoise (Δ)", DistanceToWhiteNoise(), "upper-tail"),
+    ("Shannon entropy (H)", Shannon(), "lower-tail"),
+    ("Shannon extropy (Hex)", ShannonExtropy(), "lower-tail"),
+]
+asymp_res = [test_op(data_ar1; chart_choice=c, m=m, d=d) for (_, c, _) in chart_list]
+boot_res = [test_op_bootstrap(data_ar1, 2_000; chart_choice=c, m=m, d=d) for (_, c, _) in chart_list]
+```
+
+```{julia}
+DataFrame(
+    Statistic=[t[1] for t in chart_list],
+    Direction=[t[3] for t in chart_list],
+    stat=round.([r.stat for r in asymp_res], digits=3),
+    asymp_crit=round.([r.asymp_crit for r in asymp_res], digits=3),
+    asymp_pval=round.([r.asymp_pval for r in asymp_res], digits=3),
+    boot_crit=round.([r.boot_crit for r in boot_res], digits=3),
+    boot_pval=round.([r.boot_pval for r in boot_res], digits=3),
+    reject=[r.asymp_reject for r in asymp_res],
+)
+```
+
+Across all seven statistics the analytical and bootstrap critical values are close, and the
+bootstrap p-values are consistent with the `reject` column — confirming that `bootstrap_op()`
+is a reliable alternative whenever the limiting distribution is complex or the sample size is small.
+
+## References
+
+::: {#refs}
+:::

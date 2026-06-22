@@ -72,7 +72,11 @@ export arl_op_ic,
   rl_op_ic,
   rl_op_oc,
   stat_op,
-  test_op
+  test_op,
+  OPTestResult
+
+# op/op_bootstrap_functions.jl
+export bootstrap_op, test_op_bootstrap, OPTestResultBoot
 
 # ---------------------------------------------#
 # ACF related functions and structs to export  #
@@ -117,6 +121,9 @@ export abort_criterium_gop,
 
 # gop/gop_stat_functions.jl
 export stat_gop
+
+# gop/gop_bootstrap_functions.jl
+export bootstrap_gop
 
 # ---------------------------------------------#
 # SOP related functions and structs to export  #
@@ -198,9 +205,16 @@ export stat_sop
 # sop/sop_stat_bp_functions.jl
 export stat_sop_bp
 
+# sop/sop_bootstrap_functions.jl
+export bootstrap_sop, test_sop_bootstrap, SOPTestResultBoot
+
+# sop/sop_bp_bootstrap_functions.jl
+export bootstrap_sop_bp
+
 # sop/sop_test_functions.jl
 export crit_val_sop,
-  test_sop
+  test_sop,
+  SOPTestResult
 
 # ---------------------------------------------#
 # SACF related functions and structs to export #
@@ -231,6 +245,18 @@ export crit_val_sacf,
 
 # sacf/sacf_stat_bp_functions.jl
 export stat_sacf_bp
+
+# sacf/sacf_bootstrap_functions.jl
+export bootstrap_sacf, bootstrap_sacf_bp,
+  test_sacf_bootstrap, test_sacf_bp_bootstrap,
+  SACFTestResultBoot, SACFBPTestResultBoot
+
+# sacf/sacf_test_functions.jl
+export crit_val_sacf_bp,
+  test_sacf,
+  test_sacf_bp,
+  SACFTestResult,
+  SACFBPTestResult
 
 # ---------------------------------------------#
 # Kappa related functions and structs to export#
@@ -279,6 +305,7 @@ include("op/op_stat_functions.jl")
 include("op/op_stat_bp_functions.jl")
 include("op/op_test_functions.jl")
 include("op/op_help_functions.jl")
+include("op/op_bootstrap_functions.jl")
 
 # ACF files
 include("acf/acf_arl_ic_functions.jl")
@@ -295,6 +322,7 @@ include("gop/gop_arl_oc_functions.jl")
 include("gop/gop_cl_functions.jl")
 include("gop/gop_help_functions.jl")
 include("gop/gop_stat_functions.jl")
+include("gop/gop_bootstrap_functions.jl")
 
 # ---------------------------------------------#
 # SOP related functions and structs to include #
@@ -319,6 +347,8 @@ include("sop/sop_bp_cl_bootstrap_functions.jl")
 # ---
 include("sop/sop_stat_functions.jl")
 include("sop/sop_stat_bp_functions.jl")
+include("sop/sop_bootstrap_functions.jl")
+include("sop/sop_bp_bootstrap_functions.jl")
 include("sop/sop_test_functions.jl")
 
 # SACFs
@@ -330,6 +360,8 @@ include("sacf/sacf_cl_functions.jl")
 include("sacf/sacf_cl_bp_functions.jl")
 include("sacf/sacf_stat_functions.jl")
 include("sacf/sacf_stat_bp_functions.jl")
+include("sacf/sacf_bootstrap_functions.jl")
+include("sacf/sacf_test_functions.jl")
 
 # Kappa scripts
 include("kappa_procs/kappa_information_measures.jl")

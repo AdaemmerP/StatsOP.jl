@@ -108,7 +108,7 @@ function rl_sop_oc(
     sop = zeros(4)
 
     # indices for sum of frequencies
-    index_sop = create_index_sop(refinement)
+    index_sop = create_index_sop(refinement=refinement)
 
     # pre-allocate
     # mat:    matrix for the final values of the spatial DGP
@@ -221,7 +221,7 @@ function rl_sop_oc(
     sop = zeros(4)
 
     # indices for sum of frequencies
-    index_sop = create_index_sop(refinement)
+    index_sop = create_index_sop(refinement=refinement)
 
     # pre-allocate
     # mat:    matrix for the final values of the spatial DGP
@@ -312,7 +312,7 @@ function rl_sop_oc(
     sop_freq = zeros(Int, 24) # factorial(4)
     win = zeros(Int, 4)
     data = zeros(M, N)
-    if isnothing(refinement)
+    if refinement == false
         # classical approach
         p_hat = zeros(3)
         p_ewma = zeros(3)
@@ -414,7 +414,7 @@ function rl_sop_oc(
     sop_freq = zeros(Int, 24) # factorial(4)
     win = zeros(Int, 4)
     data = zeros(M, N)
-    if isnothing(refinement)
+    if refinement == false
         # classical approach
         p_hat = zeros(3)
         p_ewma = zeros(3)
@@ -516,7 +516,7 @@ function rl_sop_oc(
     sop_freq = zeros(Int, 24) # factorial(4)
     win = zeros(Int, 4)
     data = zeros(M, N)
-    if isnothing(refinement)
+    if refinement == false
         # classical approach
         p_hat = zeros(3)
         p_ewma = zeros(3)

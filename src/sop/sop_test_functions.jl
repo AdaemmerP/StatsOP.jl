@@ -154,6 +154,45 @@ end
 
 
 
+# --- Result type for SOP asymptotic test ---
+
+struct SOPTestResult{C}
+  chart::C
+  stat::Float64
+  asymp_crit::Float64
+  asymp_pval::Float64
+  asymp_reject::Bool
+end
+
+function Base.show(io::IO, r::SOPTestResult)
+  println(io, "SOPTestResult")
+  println(io, "  Chart:            ", r.chart)
+  println(io, "  Statistic:        ", round(r.stat,       digits=4))
+  println(io, "  ─────────────────────────────")
+  println(io, "  Asymptotic test")
+  println(io, "    Critical value: ", round(r.asymp_crit, digits=4))
+  println(io, "    p-value:        ", round(r.asymp_pval, digits=4))
+  print(io,   "    Reject H₀:      ", r.asymp_reject)
+end
+
+# GenChisq null distributions for entropy-chart p-values
+_gc_sop(::Bool)          = GeneralizedChisq([2/5, 16/45],              ones(2),      zeros(2), 0.0, 0.0)
+_gc_sop(::RotationType)  = GeneralizedChisq([1/5, 8/45, 13/90, 2/15], ones(4),      zeros(4), 0.0, 0.0)
+_gc_sop(::DirectionType) = GeneralizedChisq([4/15, 1/5, 8/45, 19/630],[1, 1, 2, 1], zeros(4), 0.0, 0.0)
+_gc_sop(::DiagonalType)  = GeneralizedChisq([1/5, 8/45, 19/126, 4/45],ones(4),      zeros(4), 0.0, 0.0)
+
+# Asymptotic p-value for any chart type.
+# For Tau/Kappa (Normal): derive SE from crit_val.
+# For entropy charts (GenChisq): m_pat * n_pat * test_stat ~ GenChisq under H₀.
+function _sop_asymp_pval(chart_choice, test_stat, crit_val, refinement, alpha, m_pat, n_pat)
+  if chart_choice isa Union{TauHat, KappaHat, TauTilde, KappaTilde}
+    z_alpha = quantile(Normal(0, 1), 1 - alpha / 2)
+    return 2.0 * (1.0 - cdf(Normal(), abs(test_stat) * z_alpha / crit_val))
+  else
+    return 1.0 - cdf(_gc_sop(refinement), m_pat * n_pat * test_stat)
+  end
+end
+
 # ---- User-facing wrapper ----
 function test_sop(
   data, alpha, d1::Int, d2::Int;
@@ -173,18 +212,15 @@ function test_sop(
 )
   M = size(data, 1)
   N = size(data, 2)
-
-  # Compute critical value
-  crit_val = crit_val_sop(M, N, alpha, d1, d2, chart_choice, refinement)
-
-  # Compute test statistic (no rescaling needed)
+  m_pat = M - d1
+  n_pat = N - d2
+  crit_val  = crit_val_sop(M, N, alpha, d1, d2, chart_choice, refinement)
   test_stat = stat_sop(data, d1, d2; chart_choice=chart_choice, refinement=refinement, add_noise=add_noise)[1]
-
-  # Two-sided test
-  return (test_stat, crit_val, abs(test_stat) > crit_val)
+  p_val     = _sop_asymp_pval(chart_choice, test_stat, crit_val, refinement, alpha, m_pat, n_pat)
+  return SOPTestResult(chart_choice, test_stat, crit_val, p_val, abs(test_stat) > crit_val)
 end
 
-# ---- Internal Method 2: Entropy - one-sided test, rescaling needed ----
+# ---- Internal Method 2: Entropy - one-sided (upper-tail) test, rescaling needed ----
 function test_sop(
   data, alpha, d1::Int, d2::Int,
   chart_choice::Union{Shannon,ShannonExtropy,DistanceToWhiteNoise};
@@ -193,20 +229,13 @@ function test_sop(
 )
   M = size(data, 1)
   N = size(data, 2)
-  m = M - d1
-  n = N - d2
-
-  # Compute critical value
-  crit_val = crit_val_sop(M, N, alpha, d1, d2, chart_choice, refinement)
-
-  # Compute p_vec, raw statistic, rescale, multiply by m*n
-  raw = stat_sop(data, d1, d2; chart_choice=chart_choice, refinement=refinement, add_noise=add_noise)
-  val = raw[1]
-  q = length(raw[2])
-  test_stat = m * n * rescale_sop(val, q, chart_choice)
-
-  # One-sided test
-  return (test_stat, crit_val, test_stat > crit_val)
+  m_pat = M - d1
+  n_pat = N - d2
+  crit_val  = crit_val_sop(M, N, alpha, d1, d2, chart_choice, refinement)
+  raw       = stat_sop(data, d1, d2; chart_choice=chart_choice, refinement=refinement, add_noise=add_noise)
+  test_stat = m_pat * n_pat * rescale_sop(raw[1], length(raw[2]), chart_choice)
+  p_val     = _sop_asymp_pval(chart_choice, test_stat, crit_val, refinement, alpha, m_pat, n_pat)
+  return SOPTestResult(chart_choice, test_stat, crit_val, p_val, test_stat > crit_val)
 end
 
 

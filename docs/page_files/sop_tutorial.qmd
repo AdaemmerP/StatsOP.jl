@@ -4,11 +4,184 @@ julia:
   exeflags: ["--project=../."]
 ---
 
-# Tutorial
-        
-The tutorials using SOPs will be shown here...
+# Tutorial for spatial ordinal pattern tests
 
+## Libraries
 
 ```{julia}
-1+1
-```    
+#| output: false
+#| message: false
+using StatsOP, Random, Statistics, DataFrames
+```
+
+## Hypothesis Testing with Spatial Ordinal Patterns
+
+A spatial ordinal pattern (SOP) test asks whether the frequencies of rank permutations in a 2D image are consistent with a spatially i.i.d. process. For an $M \times N$ image, overlapping $2 \times 2$ windows at delays $(d_1, d_2)$ are each mapped to the permutation that describes the relative order of the four values. The resulting frequency distribution is summarised by a scalar test statistic. Under $H_0$ (spatial white noise) that distribution is uniform across all $4! = 24$ patterns.
+
+`StatsOP.jl` provides:
+
+- **Computing the statistic**
+    - `stat_sop()` — computes the chosen test statistic from the observed pattern frequencies.
+- **Asymptotic inference**
+    - `test_sop()` — compares the statistic to an analytical critical value. Supports all image sizes.
+- **Bootstrap inference**
+    - `bootstrap_sop()` — generates the empirical null distribution by 2D resampling.
+    - `test_sop_bootstrap()` — combines statistic computation and bootstrap inference in one call.
+
+## Key functions
+
+- **`stat_sop(data, d1, d2; chart_choice, refinement=false)`**
+
+    - Returns `[test_statistic, pattern_frequencies]`.
+    - `data`: the 2D image (`Matrix`). `d1`: row delay. `d2`: column delay.
+    - `chart_choice`: one of `TauTilde()`, `TauHat()`, `KappaTilde()`, `KappaHat()`, `DistanceToWhiteNoise()`, `Shannon()`, `ShannonExtropy()`.
+    - `refinement`: `false` for classical types, or `RotationType()`, `DirectionType()`, `DiagonalType()`.
+
+- **`test_sop(data, alpha, d1, d2; chart_choice, refinement=false)`**
+
+    - Returns an `SOPTestResult` with the test statistic, critical value, p-value, and reject decision.
+    - Note: `alpha` is the **second positional argument** (unlike `test_op` where it is a keyword).
+    - Critical value, p-value, and rejection direction are chosen automatically from `chart_choice`.
+
+- **`bootstrap_sop(data, n_boot, d1, d2; chart_choice, refinement=false, block_size=1)`**
+
+    - Returns a length-`n_boot` vector of resampled statistics under $H_0$.
+    - `block_size > 1`: 2D block bootstrap that preserves spatial structure.
+
+- **`test_sop_bootstrap(data, n_boot, d1, d2; chart_choice, refinement=false, alpha=0.05, block_size=1)`**
+
+    - Returns an `SOPTestResultBoot` struct with the bootstrap critical value, p-value, and reject decision.
+    - For Tau/Kappa charts: two-sided bootstrap using the raw statistic.
+    - For entropy charts: the bootstrap null distribution is built on the same standardised scale used internally by `test_sop`, so the bootstrap and asymptotic critical values are directly comparable.
+
+## Available chart statistics
+
+Seven chart statistics are available. They differ in what they measure and the direction of the rejection region.
+
+::: {style="font-size: 0.82em;"}
+
+| Statistic | Constructor | Under $H_0$ | Reject $H_0$ when | Distribution |
+|:----------|:------------|:-----------:|:-----------------:|:------------:|
+| $\hat{\tau}$ (TauTilde) | `TauTilde()` | $\hat{\tau} = 0$ | $\lvert\hat{\tau}\rvert > c$ | Normal |
+| $\hat{\tau}_1$ (TauHat) | `TauHat()` | $\hat{\tau}_1 = 0$ | $\lvert\hat{\tau}_1\rvert > c$ | Normal |
+| $\hat{\kappa}$ (KappaTilde) | `KappaTilde()` | $\hat{\kappa} = 0$ | $\lvert\hat{\kappa}\rvert > c$ | Normal |
+| $\hat{\kappa}_1$ (KappaHat) | `KappaHat()` | $\hat{\kappa}_1 = 0$ | $\lvert\hat{\kappa}_1\rvert > c$ | Normal |
+| DistanceToWhiteNoise ($\hat{\Delta}$) | `DistanceToWhiteNoise()` | $\hat{\Delta} = 0$ | $\hat{\Delta} > c$ | Generalized $\chi^2$ |
+| Shannon entropy ($\hat{H}$) | `Shannon()` | $\hat{H} = \log(3)$ | $\hat{H} > c$ | Generalized $\chi^2$ |
+| Shannon extropy ($\hat{H}_\text{ex}$) | `ShannonExtropy()` | $\hat{H}_\text{ex} = \cdots$ | $\hat{H}_\text{ex} > c$ | Generalized $\chi^2$ |
+
+: {tbl-colwidths="[22,20,14,17,18]"}
+
+:::
+
+- The four Tau/Kappa statistics use a **two-sided** test (signed deviation from zero).
+- The three entropy statistics undergo an internal standardisation that converts them to **upper-tail** tests — both `test_sop` and `test_sop_bootstrap` apply this standardisation consistently, so their critical values sit on the same scale and can be compared directly.
+- The asymptotic critical values and limiting distributions are derived in @weiss2022.
+
+## Setup
+
+```{julia}
+Random.seed!(42)
+M, N = 20, 20   # image dimensions
+d1, d2 = 1, 1     # row and column delays
+```
+
+## Example data
+
+```{julia}
+data_iid = randn(M, N)   # spatial white noise — H₀ is true
+
+φ = 0.4
+data_sar = zeros(M, N)
+data_sar[1, :] .= randn(N);
+data_sar[:, 1] .= randn(M);
+for i in 2:M, j in 2:N
+    data_sar[i, j] = φ * (data_sar[i-1, j] + data_sar[i, j-1]) / 2 + randn()
+end   # SAR-type process — H₀ is false
+```
+
+## Asymptotic testing: `test_sop()`
+
+### Two-sided — TauTilde
+
+```{julia}
+test_sop(data_iid, 0.05, d1, d2; chart_choice=TauTilde())
+```
+
+```{julia}
+test_sop(data_sar, 0.05, d1, d2; chart_choice=TauTilde())
+```
+
+### Upper-tail — DistanceToWhiteNoise
+
+```{julia}
+test_sop(data_iid, 0.05, d1, d2; chart_choice=DistanceToWhiteNoise())
+```
+
+```{julia}
+test_sop(data_sar, 0.05, d1, d2; chart_choice=DistanceToWhiteNoise())
+```
+
+### Upper-tail — Shannon entropy
+
+```{julia}
+test_sop(data_iid, 0.05, d1, d2; chart_choice=Shannon())
+```
+
+```{julia}
+test_sop(data_sar, 0.05, d1, d2; chart_choice=Shannon())
+```
+
+The white-noise image is not rejected; the SAR image is. The critical value depends on the image dimensions `M`, `N`, the delays `d1`, `d2`, and `alpha` — not on the data.
+
+## Bootstrap testing: `test_sop_bootstrap()`
+
+`test_sop_bootstrap()` generates the empirical null distribution via 2D resampling of the
+observed image and computes the bootstrap critical value and p-value in the correct direction.
+
+```{julia}
+Random.seed!(42)
+test_sop_bootstrap(data_sar, 2_000, d1, d2; chart_choice=TauTilde())
+```
+
+The bootstrap critical value agrees closely with the asymptotic one shown above.
+
+## Full comparison: asymptotic vs. bootstrap
+
+```{julia}
+#| output: false
+#| cache: false
+Random.seed!(42)
+chart_list = [
+    ("TauTilde (τ̃)", TauTilde(), "two-sided"),
+    ("TauHat (τ̂)", TauHat(), "two-sided"),
+    ("KappaTilde (κ̃)", KappaTilde(), "two-sided"),
+    ("KappaHat (κ̂)", KappaHat(), "two-sided"),
+    ("DistanceToWhiteNoise (Δ)", DistanceToWhiteNoise(), "upper-tail"),
+    ("Shannon entropy (H)", Shannon(), "upper-tail"),
+    ("Shannon extropy (Hex)", ShannonExtropy(), "upper-tail"),
+]
+asymp_res = [test_sop(data_sar, 0.05, d1, d2; chart_choice=c) for (_, c, _) in chart_list]
+boot_res = [test_sop_bootstrap(data_sar, 2_000, d1, d2; chart_choice=c) for (_, c, _) in chart_list]
+```
+
+```{julia}
+#| cache: false
+DataFrame(
+    Statistic=[t[1] for t in chart_list],
+    Direction=[t[3] for t in chart_list],
+    asymp_crit=round.([r.asymp_crit for r in asymp_res], digits=3),
+    asymp_pval=round.([r.asymp_pval for r in asymp_res], digits=3),
+    boot_crit=round.([r.boot_crit for r in boot_res], digits=3),
+    boot_pval=round.([r.boot_pval for r in boot_res], digits=3),
+    reject=[r.asymp_reject for r in asymp_res],
+)
+```
+
+The asymptotic and bootstrap critical values are in close agreement across all statistics,
+and the bootstrap p-values are consistent with the `reject` column.
+
+## References
+
+::: {#refs}
+:::
