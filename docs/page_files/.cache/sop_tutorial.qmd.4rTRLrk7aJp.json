@@ -1,0 +1,491 @@
+{
+    "cells": [
+        {
+            "id": "1",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "---\n",
+                "engine: julia\n",
+                "julia:\n",
+                "  exeflags: [\"--project=../.\"]\n",
+                "---\n",
+                "\n",
+                "# Tutorial for spatial ordinal pattern tests\n",
+                "\n",
+                "## Libraries"
+            ]
+        },
+        {
+            "id": "2",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "#| output: false\n",
+                "#| message: false\n",
+                "using StatsOP, Random, Statistics, DataFrames"
+            ],
+            "outputs": [
+                {
+                    "output_type": "stream",
+                    "name": "stdout",
+                    "text": "\u001b[32m\u001b[1mPrecompiling\u001b[22m\u001b[39m packages...\n   2033.5 ms\u001b[32m  ✓ \u001b[39mStatsOP\n  1 dependency successfully precompiled in 2 seconds. 116 already precompiled.\n"
+                }
+            ],
+            "execution_count": 1
+        },
+        {
+            "id": "3",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "## Hypothesis Testing with Spatial Ordinal Patterns\n",
+                "\n",
+                "A spatial ordinal pattern (SOP) test asks whether the frequencies of rank permutations in a 2D image are consistent with a spatially i.i.d. process. For an $M \\times N$ image, overlapping $2 \\times 2$ windows at delays $(d_1, d_2)$ are each mapped to the permutation that describes the relative order of the four values. The resulting frequency distribution is summarised by a scalar test statistic. Under $H_0$ (spatial white noise) that distribution is uniform across all $4! = 24$ patterns.\n",
+                "\n",
+                "`StatsOP.jl` provides:\n",
+                "\n",
+                "- **Computing the statistic**\n",
+                "    - `stat_sop()` — computes the chosen test statistic from the observed pattern frequencies.\n",
+                "- **Asymptotic inference**\n",
+                "    - `test_sop()` — compares the statistic to an analytical critical value. Supports all image sizes.\n",
+                "- **Bootstrap inference**\n",
+                "    - `bootstrap_sop()` — generates the empirical null distribution by 2D resampling.\n",
+                "    - `test_sop_bootstrap()` — combines statistic computation and bootstrap inference in one call.\n",
+                "\n",
+                "## Key functions\n",
+                "\n",
+                "- **`stat_sop(data, d1, d2; chart_choice, refinement=false)`**\n",
+                "\n",
+                "    - Returns `[test_statistic, pattern_frequencies]`.\n",
+                "    - `data`: the 2D image (`Matrix`). `d1`: row delay. `d2`: column delay.\n",
+                "    - `chart_choice`: one of `TauTilde()`, `TauHat()`, `KappaTilde()`, `KappaHat()`, `DistanceToWhiteNoise()`, `Shannon()`, `ShannonExtropy()`.\n",
+                "    - `refinement`: `false` for classical types, or `RotationType()`, `DirectionType()`, `DiagonalType()`.\n",
+                "\n",
+                "- **`test_sop(data, alpha, d1, d2; chart_choice, refinement=false)`**\n",
+                "\n",
+                "    - Returns an `SOPTestResult` with the test statistic, critical value, p-value, and reject decision.\n",
+                "    - Note: `alpha` is the **second positional argument** (unlike `test_op` where it is a keyword).\n",
+                "    - Critical value, p-value, and rejection direction are chosen automatically from `chart_choice`.\n",
+                "\n",
+                "- **`bootstrap_sop(data, n_boot, d1, d2; chart_choice, refinement=false, block_size=1)`**\n",
+                "\n",
+                "    - Returns a length-`n_boot` vector of resampled statistics under $H_0$.\n",
+                "    - `block_size > 1`: 2D block bootstrap that preserves spatial structure.\n",
+                "\n",
+                "- **`test_sop_bootstrap(data, n_boot, d1, d2; chart_choice, refinement=false, alpha=0.05, block_size=1)`**\n",
+                "\n",
+                "    - Returns an `SOPTestResultBoot` struct with the bootstrap critical value, p-value, and reject decision.\n",
+                "    - For Tau/Kappa charts: two-sided bootstrap using the raw statistic.\n",
+                "    - For entropy charts: the bootstrap null distribution is built on the same standardised scale used internally by `test_sop`, so the bootstrap and asymptotic critical values are directly comparable.\n",
+                "\n",
+                "## Available chart statistics\n",
+                "\n",
+                "Seven chart statistics are available. They differ in what they measure and the direction of the rejection region.\n",
+                "\n",
+                "::: {style=\"font-size: 0.82em;\"}\n",
+                "\n",
+                "| Statistic | Constructor | Under $H_0$ | Reject $H_0$ when | Distribution |\n",
+                "|:----------|:------------|:-----------:|:-----------------:|:------------:|\n",
+                "| $\\hat{\\tau}$ (TauTilde) | `TauTilde()` | $\\hat{\\tau} = 0$ | $\\lvert\\hat{\\tau}\\rvert > c$ | Normal |\n",
+                "| $\\hat{\\tau}_1$ (TauHat) | `TauHat()` | $\\hat{\\tau}_1 = 0$ | $\\lvert\\hat{\\tau}_1\\rvert > c$ | Normal |\n",
+                "| $\\hat{\\kappa}$ (KappaTilde) | `KappaTilde()` | $\\hat{\\kappa} = 0$ | $\\lvert\\hat{\\kappa}\\rvert > c$ | Normal |\n",
+                "| $\\hat{\\kappa}_1$ (KappaHat) | `KappaHat()` | $\\hat{\\kappa}_1 = 0$ | $\\lvert\\hat{\\kappa}_1\\rvert > c$ | Normal |\n",
+                "| DistanceToWhiteNoise ($\\hat{\\Delta}$) | `DistanceToWhiteNoise()` | $\\hat{\\Delta} = 0$ | $\\hat{\\Delta} > c$ | Generalized $\\chi^2$ |\n",
+                "| Shannon entropy ($\\hat{H}$) | `Shannon()` | $\\hat{H} = \\log(3)$ | $\\hat{H} > c$ | Generalized $\\chi^2$ |\n",
+                "| Shannon extropy ($\\hat{H}_\\text{ex}$) | `ShannonExtropy()` | $\\hat{H}_\\text{ex} = \\cdots$ | $\\hat{H}_\\text{ex} > c$ | Generalized $\\chi^2$ |\n",
+                "\n",
+                ": {tbl-colwidths=\"[22,20,14,17,18]\"}\n",
+                "\n",
+                ":::\n",
+                "\n",
+                "- The four Tau/Kappa statistics use a **two-sided** test (signed deviation from zero).\n",
+                "- The three entropy statistics undergo an internal standardisation that converts them to **upper-tail** tests — both `test_sop` and `test_sop_bootstrap` apply this standardisation consistently, so their critical values sit on the same scale and can be compared directly.\n",
+                "- The asymptotic critical values and limiting distributions are derived in @weiss2022.\n",
+                "\n",
+                "## Setup"
+            ]
+        },
+        {
+            "id": "4",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "Random.seed!(42)\n",
+                "M, N = 20, 20   # image dimensions\n",
+                "d1, d2 = 1, 1     # row and column delays"
+            ],
+            "outputs": [
+                {
+                    "output_type": "execute_result",
+                    "execution_count": 1,
+                    "data": {
+                        "text/plain": "(1, 1)"
+                    },
+                    "metadata": {
+                    }
+                }
+            ],
+            "execution_count": 1
+        },
+        {
+            "id": "5",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "## Example data"
+            ]
+        },
+        {
+            "id": "6",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "data_iid = randn(M, N)   # spatial white noise — H₀ is true\n",
+                "\n",
+                "φ = 0.4\n",
+                "data_sar = zeros(M, N)\n",
+                "data_sar[1, :] .= randn(N);\n",
+                "data_sar[:, 1] .= randn(M);\n",
+                "for i in 2:M, j in 2:N\n",
+                "    data_sar[i, j] = φ * (data_sar[i-1, j] + data_sar[i, j-1]) / 2 + randn()\n",
+                "end   # SAR-type process — H₀ is false"
+            ],
+            "outputs": [
+            ],
+            "execution_count": 1
+        },
+        {
+            "id": "7",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "## Asymptotic testing: `test_sop()`\n",
+                "\n",
+                "### Two-sided — TauTilde"
+            ]
+        },
+        {
+            "id": "8",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "test_sop(data_iid, 0.05, d1, d2; chart_choice=TauTilde())"
+            ],
+            "outputs": [
+                {
+                    "output_type": "execute_result",
+                    "execution_count": 1,
+                    "data": {
+                        "text/plain": "SOPTestResult\n  Chart:            \u001b[31m\u001b[1mTauTilde\u001b[22m\u001b[39m\u001b[31m\u001b[1m(\u001b[22m\u001b[39m\u001b[31m\u001b[1m)\u001b[22m\u001b[39m\n  Statistic:        -0.0148\n  ─────────────────────────────\n  Asymptotic test\n    Critical value: 0.053\n    p-value:        0.5851\n    Reject H₀:      false"
+                    },
+                    "metadata": {
+                    }
+                }
+            ],
+            "execution_count": 1
+        },
+        {
+            "id": "9",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+            ]
+        },
+        {
+            "id": "10",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "test_sop(data_sar, 0.05, d1, d2; chart_choice=TauTilde())"
+            ],
+            "outputs": [
+                {
+                    "output_type": "execute_result",
+                    "execution_count": 1,
+                    "data": {
+                        "text/plain": "SOPTestResult\n  Chart:            \u001b[31m\u001b[1mTauTilde\u001b[22m\u001b[39m\u001b[31m\u001b[1m(\u001b[22m\u001b[39m\u001b[31m\u001b[1m)\u001b[22m\u001b[39m\n  Statistic:        -0.1034\n  ─────────────────────────────\n  Asymptotic test\n    Critical value: 0.053\n    p-value:        0.0001\n    Reject H₀:      true"
+                    },
+                    "metadata": {
+                    }
+                }
+            ],
+            "execution_count": 1
+        },
+        {
+            "id": "11",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "### Upper-tail — DistanceToWhiteNoise"
+            ]
+        },
+        {
+            "id": "12",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "test_sop(data_iid, 0.05, d1, d2; chart_choice=DistanceToWhiteNoise())"
+            ],
+            "outputs": [
+                {
+                    "output_type": "execute_result",
+                    "execution_count": 1,
+                    "data": {
+                        "text/plain": "SOPTestResult\n  Chart:            \u001b[33m\u001b[1mDistanceToWhiteNoise\u001b[22m\u001b[39m\u001b[33m\u001b[1m(\u001b[22m\u001b[39m\u001b[33m\u001b[1m)\u001b[22m\u001b[39m\n  Statistic:        2.1182\n  ─────────────────────────────\n  Asymptotic test\n    Critical value: 0.0063\n    p-value:        -0.0\n    Reject H₀:      true"
+                    },
+                    "metadata": {
+                    }
+                }
+            ],
+            "execution_count": 1
+        },
+        {
+            "id": "13",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+            ]
+        },
+        {
+            "id": "14",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "test_sop(data_sar, 0.05, d1, d2; chart_choice=DistanceToWhiteNoise())"
+            ],
+            "outputs": [
+                {
+                    "output_type": "execute_result",
+                    "execution_count": 1,
+                    "data": {
+                        "text/plain": "SOPTestResult\n  Chart:            \u001b[33m\u001b[1mDistanceToWhiteNoise\u001b[22m\u001b[39m\u001b[33m\u001b[1m(\u001b[22m\u001b[39m\u001b[33m\u001b[1m)\u001b[22m\u001b[39m\n  Statistic:        5.7913\n  ─────────────────────────────\n  Asymptotic test\n    Critical value: 0.0063\n    p-value:        -0.0\n    Reject H₀:      true"
+                    },
+                    "metadata": {
+                    }
+                }
+            ],
+            "execution_count": 1
+        },
+        {
+            "id": "15",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "### Upper-tail — Shannon entropy"
+            ]
+        },
+        {
+            "id": "16",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "test_sop(data_iid, 0.05, d1, d2; chart_choice=Shannon())"
+            ],
+            "outputs": [
+                {
+                    "output_type": "execute_result",
+                    "execution_count": 1,
+                    "data": {
+                        "text/plain": "SOPTestResult\n  Chart:            \u001b[33m\u001b[1mShannon\u001b[22m\u001b[39m\u001b[33m\u001b[1m(\u001b[22m\u001b[39m\u001b[39mbase\u001b[39m = \u001b[39m2\u001b[33m\u001b[1m)\u001b[22m\u001b[39m\n  Statistic:        2.0836\n  ─────────────────────────────\n  Asymptotic test\n    Critical value: 0.0063\n    p-value:        -0.0\n    Reject H₀:      true"
+                    },
+                    "metadata": {
+                    }
+                }
+            ],
+            "execution_count": 1
+        },
+        {
+            "id": "17",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+            ]
+        },
+        {
+            "id": "18",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "test_sop(data_sar, 0.05, d1, d2; chart_choice=Shannon())"
+            ],
+            "outputs": [
+                {
+                    "output_type": "execute_result",
+                    "execution_count": 1,
+                    "data": {
+                        "text/plain": "SOPTestResult\n  Chart:            \u001b[33m\u001b[1mShannon\u001b[22m\u001b[39m\u001b[33m\u001b[1m(\u001b[22m\u001b[39m\u001b[39mbase\u001b[39m = \u001b[39m2\u001b[33m\u001b[1m)\u001b[22m\u001b[39m\n  Statistic:        6.1744\n  ─────────────────────────────\n  Asymptotic test\n    Critical value: 0.0063\n    p-value:        0.0\n    Reject H₀:      true"
+                    },
+                    "metadata": {
+                    }
+                }
+            ],
+            "execution_count": 1
+        },
+        {
+            "id": "19",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "The white-noise image is not rejected; the SAR image is. The critical value depends on the image dimensions `M`, `N`, the delays `d1`, `d2`, and `alpha` — not on the data.\n",
+                "\n",
+                "## Bootstrap testing: `test_sop_bootstrap()`\n",
+                "\n",
+                "`test_sop_bootstrap()` generates the empirical null distribution via 2D resampling of the\n",
+                "observed image and computes the bootstrap critical value and p-value in the correct direction."
+            ]
+        },
+        {
+            "id": "20",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "Random.seed!(42)\n",
+                "test_sop_bootstrap(data_sar, 2_000, d1, d2; chart_choice=TauTilde())"
+            ],
+            "outputs": [
+                {
+                    "output_type": "execute_result",
+                    "execution_count": 1,
+                    "data": {
+                        "text/plain": "SOPTestResultBoot\n  Chart:            \u001b[31m\u001b[1mTauTilde\u001b[22m\u001b[39m\u001b[31m\u001b[1m(\u001b[22m\u001b[39m\u001b[31m\u001b[1m)\u001b[22m\u001b[39m\n  Statistic:        -0.1034\n  ─────────────────────────────\n  Bootstrap  (n_boot = 2000)\n    Critical value: 0.0536\n    p-value:        0.0\n    Reject H₀:      true"
+                    },
+                    "metadata": {
+                    }
+                }
+            ],
+            "execution_count": 1
+        },
+        {
+            "id": "21",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "The bootstrap critical value agrees closely with the asymptotic one shown above.\n",
+                "\n",
+                "## Full comparison: asymptotic vs. bootstrap"
+            ]
+        },
+        {
+            "id": "22",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "#| output: false\n",
+                "#| cache: false\n",
+                "Random.seed!(42)\n",
+                "chart_list = [\n",
+                "    (\"TauTilde (τ̃)\", TauTilde(), \"two-sided\"),\n",
+                "    (\"TauHat (τ̂)\", TauHat(), \"two-sided\"),\n",
+                "    (\"KappaTilde (κ̃)\", KappaTilde(), \"two-sided\"),\n",
+                "    (\"KappaHat (κ̂)\", KappaHat(), \"two-sided\"),\n",
+                "    (\"DistanceToWhiteNoise (Δ)\", DistanceToWhiteNoise(), \"upper-tail\"),\n",
+                "    (\"Shannon entropy (H)\", Shannon(), \"upper-tail\"),\n",
+                "    (\"Shannon extropy (Hex)\", ShannonExtropy(), \"upper-tail\"),\n",
+                "]\n",
+                "asymp_res = [test_sop(data_sar, 0.05, d1, d2; chart_choice=c) for (_, c, _) in chart_list]\n",
+                "boot_res = [test_sop_bootstrap(data_sar, 2_000, d1, d2; chart_choice=c) for (_, c, _) in chart_list]"
+            ],
+            "outputs": [
+                {
+                    "output_type": "execute_result",
+                    "execution_count": 1,
+                    "data": {
+                        "text/plain": "7-element Vector{SOPTestResultBoot}:\n SOPTestResultBoot\n  Chart:            \u001b[31m\u001b[1mTauTilde\u001b[22m\u001b[39m\u001b[31m\u001b[1m(\u001b[22m\u001b[39m\u001b[31m\u001b[1m)\u001b[22m\u001b[39m\n  Statistic:        -0.1034\n  ─────────────────────────────\n  Bootstrap  (n_boot = 2000)\n    Critical value: 0.0536\n    p-value:        0.0\n    Reject H₀:      true\n SOPTestResultBoot\n  Chart:            \u001b[31m\u001b[1mTauHat\u001b[22m\u001b[39m\u001b[31m\u001b[1m(\u001b[22m\u001b[39m\u001b[31m\u001b[1m)\u001b[22m\u001b[39m\n  Statistic:        0.0517\n  ─────────────────────────────\n  Bootstrap  (n_boot = 2000)\n    Critical value: 0.0517\n    p-value:        0.055\n    Reject H₀:      false\n SOPTestResultBoot\n  Chart:            \u001b[31m\u001b[1mKappaTilde\u001b[22m\u001b[39m\u001b[31m\u001b[1m(\u001b[22m\u001b[39m\u001b[31m\u001b[1m)\u001b[22m\u001b[39m\n  Statistic:        0.0\n  ─────────────────────────────\n  Bootstrap  (n_boot = 2000)\n    Critical value: 0.0859\n    p-value:        1.0\n    Reject H₀:      false\n SOPTestResultBoot\n  Chart:            \u001b[31m\u001b[1mKappaHat\u001b[22m\u001b[39m\u001b[31m\u001b[1m(\u001b[22m\u001b[39m\u001b[31m\u001b[1m)\u001b[22m\u001b[39m\n  Statistic:        0.1551\n  ─────────────────────────────\n  Bootstrap  (n_boot = 2000)\n    Critical value: 0.0886\n    p-value:        0.001\n    Reject H₀:      true\n SOPTestResultBoot\n  Chart:            \u001b[33m\u001b[1mDistanceToWhiteNoise\u001b[22m\u001b[39m\u001b[33m\u001b[1m(\u001b[22m\u001b[39m\u001b[33m\u001b[1m)\u001b[22m\u001b[39m\n  Statistic:        0.016\n  ─────────────────────────────\n  Bootstrap  (n_boot = 2000)\n    Critical value: 0.0064\n    p-value:        0.0\n    Reject H₀:      true\n SOPTestResultBoot\n  Chart:            \u001b[33m\u001b[1mShannon\u001b[22m\u001b[39m\u001b[33m\u001b[1m(\u001b[22m\u001b[39m\u001b[39mbase\u001b[39m = \u001b[39m2\u001b[33m\u001b[1m)\u001b[22m\u001b[39m\n  Statistic:        0.0171\n  ─────────────────────────────\n  Bootstrap  (n_boot = 2000)\n    Critical value: 0.0065\n    p-value:        0.001\n    Reject H₀:      true\n SOPTestResultBoot\n  Chart:            \u001b[33m\u001b[1mShannonExtropy\u001b[22m\u001b[39m\u001b[33m\u001b[1m(\u001b[22m\u001b[39m\u001b[39mbase\u001b[39m = \u001b[39m2\u001b[33m\u001b[1m)\u001b[22m\u001b[39m\n  Statistic:        0.0157\n  ─────────────────────────────\n  Bootstrap  (n_boot = 2000)\n    Critical value: 0.0061\n    p-value:        0.0\n    Reject H₀:      true"
+                    },
+                    "metadata": {
+                    }
+                }
+            ],
+            "execution_count": 1
+        },
+        {
+            "id": "23",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+            ]
+        },
+        {
+            "id": "24",
+            "cell_type": "code",
+            "metadata": {
+            },
+            "source": [
+                "#| cache: false\n",
+                "DataFrame(\n",
+                "    Statistic=[t[1] for t in chart_list],\n",
+                "    Direction=[t[3] for t in chart_list],\n",
+                "    asymp_crit=round.([r.asymp_crit for r in asymp_res], digits=3),\n",
+                "    asymp_pval=round.([r.asymp_pval for r in asymp_res], digits=3),\n",
+                "    boot_crit=round.([r.boot_crit for r in boot_res], digits=3),\n",
+                "    boot_pval=round.([r.boot_pval for r in boot_res], digits=3),\n",
+                "    reject=[r.asymp_reject for r in asymp_res],\n",
+                ")"
+            ],
+            "outputs": [
+                {
+                    "output_type": "execute_result",
+                    "execution_count": 1,
+                    "data": {
+                        "text/plain": "\u001b[1m7×7 DataFrame\u001b[0m\n\u001b[1m Row \u001b[0m│\u001b[1m Statistic                \u001b[0m\u001b[1m Direction  \u001b[0m\u001b[1m asymp_crit \u001b[0m\u001b[1m asymp_pval \u001b[0m\u001b[1m boot_crit\u001b[0m ⋯\n\u001b[1m     \u001b[0m│\u001b[90m String                   \u001b[0m\u001b[90m String     \u001b[0m\u001b[90m Float64    \u001b[0m\u001b[90m Float64    \u001b[0m\u001b[90m Float64  \u001b[0m ⋯\n─────┼──────────────────────────────────────────────────────────────────────────\n   1 │ TauTilde (τ̃)              two-sided        0.053       0.0        0.054 ⋯\n   2 │ TauHat (τ̂)                two-sided        0.051       0.046      0.052\n   3 │ KappaTilde (κ̃)            two-sided        0.087       1.0        0.086\n   4 │ KappaHat (κ̂)              two-sided        0.091       0.001      0.089\n   5 │ DistanceToWhiteNoise (Δ)  upper-tail       0.006      -0.0        0.006 ⋯\n   6 │ Shannon entropy (H)       upper-tail       0.006       0.0        0.007\n   7 │ Shannon extropy (Hex)     upper-tail       0.006      -0.0        0.006\n\u001b[36m                                                               2 columns omitted\u001b[0m",
+                        "text/html": "<div><div style = \"float: left;\"><span>7×7 DataFrame</span></div><div style = \"clear: both;\"></div></div><div class = \"data-frame\" style = \"overflow-x: scroll;\"><table class = \"data-frame\" style = \"margin-bottom: 6px;\"><thead><tr class = \"columnLabelRow\"><th class = \"stubheadLabel\" style = \"font-weight: bold; text-align: right;\">Row</th><th style = \"text-align: left;\">Statistic</th><th style = \"text-align: left;\">Direction</th><th style = \"text-align: left;\">asymp_crit</th><th style = \"text-align: left;\">asymp_pval</th><th style = \"text-align: left;\">boot_crit</th><th style = \"text-align: left;\">boot_pval</th><th style = \"text-align: left;\">reject</th></tr><tr class = \"columnLabelRow\"><th class = \"stubheadLabel\" style = \"font-weight: bold; text-align: right;\"></th><th title = \"String\" style = \"text-align: left;\">String</th><th title = \"String\" style = \"text-align: left;\">String</th><th title = \"Float64\" style = \"text-align: left;\">Float64</th><th title = \"Float64\" style = \"text-align: left;\">Float64</th><th title = \"Float64\" style = \"text-align: left;\">Float64</th><th title = \"Float64\" style = \"text-align: left;\">Float64</th><th title = \"Bool\" style = \"text-align: left;\">Bool</th></tr></thead><tbody><tr class = \"dataRow\"><td class = \"rowLabel\" style = \"font-weight: bold; text-align: right;\">1</td><td style = \"text-align: left;\">TauTilde (τ̃)</td><td style = \"text-align: left;\">two-sided</td><td style = \"text-align: right;\">0.053</td><td style = \"text-align: right;\">0.0</td><td style = \"text-align: right;\">0.054</td><td style = \"text-align: right;\">0.0</td><td style = \"text-align: right;\">true</td></tr><tr class = \"dataRow\"><td class = \"rowLabel\" style = \"font-weight: bold; text-align: right;\">2</td><td style = \"text-align: left;\">TauHat (τ̂)</td><td style = \"text-align: left;\">two-sided</td><td style = \"text-align: right;\">0.051</td><td style = \"text-align: right;\">0.046</td><td style = \"text-align: right;\">0.052</td><td style = \"text-align: right;\">0.055</td><td style = \"text-align: right;\">true</td></tr><tr class = \"dataRow\"><td class = \"rowLabel\" style = \"font-weight: bold; text-align: right;\">3</td><td style = \"text-align: left;\">KappaTilde (κ̃)</td><td style = \"text-align: left;\">two-sided</td><td style = \"text-align: right;\">0.087</td><td style = \"text-align: right;\">1.0</td><td style = \"text-align: right;\">0.086</td><td style = \"text-align: right;\">1.0</td><td style = \"text-align: right;\">false</td></tr><tr class = \"dataRow\"><td class = \"rowLabel\" style = \"font-weight: bold; text-align: right;\">4</td><td style = \"text-align: left;\">KappaHat (κ̂)</td><td style = \"text-align: left;\">two-sided</td><td style = \"text-align: right;\">0.091</td><td style = \"text-align: right;\">0.001</td><td style = \"text-align: right;\">0.089</td><td style = \"text-align: right;\">0.001</td><td style = \"text-align: right;\">true</td></tr><tr class = \"dataRow\"><td class = \"rowLabel\" style = \"font-weight: bold; text-align: right;\">5</td><td style = \"text-align: left;\">DistanceToWhiteNoise (Δ)</td><td style = \"text-align: left;\">upper-tail</td><td style = \"text-align: right;\">0.006</td><td style = \"text-align: right;\">-0.0</td><td style = \"text-align: right;\">0.006</td><td style = \"text-align: right;\">0.0</td><td style = \"text-align: right;\">true</td></tr><tr class = \"dataRow\"><td class = \"rowLabel\" style = \"font-weight: bold; text-align: right;\">6</td><td style = \"text-align: left;\">Shannon entropy (H)</td><td style = \"text-align: left;\">upper-tail</td><td style = \"text-align: right;\">0.006</td><td style = \"text-align: right;\">0.0</td><td style = \"text-align: right;\">0.007</td><td style = \"text-align: right;\">0.001</td><td style = \"text-align: right;\">true</td></tr><tr class = \"dataRow\"><td class = \"rowLabel\" style = \"font-weight: bold; text-align: right;\">7</td><td style = \"text-align: left;\">Shannon extropy (Hex)</td><td style = \"text-align: left;\">upper-tail</td><td style = \"text-align: right;\">0.006</td><td style = \"text-align: right;\">-0.0</td><td style = \"text-align: right;\">0.006</td><td style = \"text-align: right;\">0.0</td><td style = \"text-align: right;\">true</td></tr></tbody></table></div>",
+                        "text/latex": "\\begin{tabular}{r|ccccccc}\n\t& Statistic & Direction & asymp\\_crit & asymp\\_pval & boot\\_crit & boot\\_pval & \\\\\n\t\\hline\n\t& String & String & Float64 & Float64 & Float64 & Float64 & \\\\\n\t\\hline\n\t1 & TauTilde (τ̃) & two-sided & 0.053 & 0.0 & 0.054 & 0.0 & $\\dots$ \\\\\n\t2 & TauHat (τ̂) & two-sided & 0.051 & 0.046 & 0.052 & 0.055 & $\\dots$ \\\\\n\t3 & KappaTilde (κ̃) & two-sided & 0.087 & 1.0 & 0.086 & 1.0 & $\\dots$ \\\\\n\t4 & KappaHat (κ̂) & two-sided & 0.091 & 0.001 & 0.089 & 0.001 & $\\dots$ \\\\\n\t5 & DistanceToWhiteNoise (Δ) & upper-tail & 0.006 & -0.0 & 0.006 & 0.0 & $\\dots$ \\\\\n\t6 & Shannon entropy (H) & upper-tail & 0.006 & 0.0 & 0.007 & 0.001 & $\\dots$ \\\\\n\t7 & Shannon extropy (Hex) & upper-tail & 0.006 & -0.0 & 0.006 & 0.0 & $\\dots$ \\\\\n\\end{tabular}\n"
+                    },
+                    "metadata": {
+                    }
+                }
+            ],
+            "execution_count": 1
+        },
+        {
+            "id": "25",
+            "cell_type": "markdown",
+            "metadata": {
+            },
+            "source": [
+                "\n",
+                "The asymptotic and bootstrap critical values are in close agreement across all statistics,\n",
+                "and the bootstrap p-values are consistent with the `reject` column.\n",
+                "\n",
+                "## References\n",
+                "\n",
+                "::: {#refs}\n",
+                ":::"
+            ]
+        }
+    ],
+    "timestamp": "2026-06-01T19:17:28.595",
+    "file": "/home/adaemmerp/Dropbox/Greifswald/Forschung/Mit_PWitten_CWeiss/StatsOP/docs/page_files/sop_tutorial.qmd",
+    "qnr_schema_version": "1.0.0"
+}
