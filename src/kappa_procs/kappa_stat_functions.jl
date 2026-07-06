@@ -1,4 +1,19 @@
 
+"""
+    stat_kappa(data, lam, dist_null, chart_choice)
+
+Compute the sequence of EWMA-smoothed κ chart statistics for the discrete-valued time
+series `data`; see [`chart_stat_qual`](@ref).
+
+- `data::Vector{<:Real}`: discrete-valued time series.
+- `lam::Float64`: smoothing parameter of the EWMA statistic.
+- `dist_null`: in-control (null) distribution; its support and probabilities initialize
+  the recursion.
+- `chart_choice`: one of [`KappaN1`](@ref)`()`, [`KappaN2`](@ref)`()`,
+  [`KappaO1`](@ref)`()`, [`KappaO2`](@ref)`()`.
+
+Returns a vector with one chart statistic per time step.
+"""
 function stat_kappa(
   data::Vector{T}, lam, dist_null, chart_choice::KappaN1
 ) where T<:Real

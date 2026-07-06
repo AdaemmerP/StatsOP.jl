@@ -1,21 +1,23 @@
 
 """
-     arl_sop(
-  spatial_dgp::SpatialDGP, lam, cl, d1::Int, d2::Int, reps=10_000; chart_choice=3
-)
+    arl_sop_oc(spatial_dgp, lam, cl, d1, d2, reps=10_000; chart_choice=TauTilde(),
+      refinement=false, rl_max=typemax(Int))
 
-Compute the average run length (ARL) for a given out-of-control spatial DGP. 
-  
-The input parameters are:
+Compute the out-of-control average run length (ARL) of the EWMA chart based on spatial
+ordinal patterns (SOPs) via simulation. The computation is multithreaded.
 
-- `spatial_dgp::SpatialDGP`: A struct for the out-of-control spatial DGP.
-- `lam::Float64`: A scalar value for lambda for the EWMA chart.
-- `cl::Float64`: A scalar value for the control limit.
-- `d1::Int`: An integer value for the first delay (d₁).
-- `d2::Int`: An integer value for the second delay (d₂).
-- `reps::Int`: An integer value for the number of repetitions. The default value is 10,000.
-- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
-The default value is 3.
+- `spatial_dgp::SpatialDGP`: out-of-control spatial DGP.
+- `lam::Float64`: smoothing parameter of the EWMA statistic.
+- `cl::Float64`: control limit of the chart.
+- `d1::Int`, `d2::Int`: row and column delays.
+- `reps::Int=10_000`: number of replications.
+- `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`,
+  [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`.
+- `refinement`: `false` for the classical SOP classification, or one of
+  [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`.
+- `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
+
+Returns the tuple `(ARL, standard error)`.
 """
 function arl_sop_oc(
     spatial_dgp::SpatialDGP,

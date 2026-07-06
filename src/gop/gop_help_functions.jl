@@ -1,6 +1,14 @@
 
-# Competition ranking ("1224" ranking) 
-# Code is based on StatsBase.jl
+"""
+    competerank!(rks, x, ix)
+
+Compute the competition ranking ("1224" ranking) of the data vector `x` in-place. The
+implementation is based on `StatsBase.competerank`.
+
+- `rks::AbstractArray`: vector that is filled with the resulting ranks.
+- `x::AbstractArray`: data vector.
+- `ix::AbstractArray`: work vector for `sortperm!`; must have the same length as `x`.
+"""
 function competerank!(
     rks::AbstractArray, # vector for final ranks
     x::AbstractArray, # data vector
@@ -31,7 +39,13 @@ function competerank!(
     # return rks
 end
 
-#--- Lookup function for GOPs
+"""
+    compute_lookup_array_gop()
+
+Compute the `3×3×3` lookup array that maps a competition-ranking vector (see
+[`competerank!`](@ref)) of length 3 to the index (1–13) of the corresponding generalized
+ordinal pattern (GOP); see Equations (2) and (4) in Weiß and Schnurr (2024).
+"""
 function compute_lookup_array_gop()
 
     # Construct all possible ordinal patterns, Equation (2), page 574, 
@@ -110,6 +124,18 @@ function get_bounds(d::DiscreteUnivariateDistribution)::Tuple{Int,Int}
     end
 end
 
+"""
+    fill_p0!(p0, dist_null)
+
+Fill the vector `p0` (length 13) in-place with the in-control distribution of the
+generalized ordinal patterns (GOPs) implied by the marginal distribution `dist_null`;
+see Proposition 2.3 in Weiß and Schnurr (2024).
+
+- `p0`: vector of length 13 that is overwritten with the in-control GOP probabilities.
+- `dist_null::DiscreteUnivariateDistribution`: in-control (null) distribution.
+
+Returns `p0`.
+"""
 function fill_p0!(p0, dist_null)
 
     # 1. Determine support boundaries
@@ -202,8 +228,13 @@ end
 #     p0[1:6] .= val_tmp
 # end
 
-# --- Function to select abort criterium --- #
-# see Equation (18) and Equation (20), page 7 in the paper
+"""
+    abort_criterium_gop(stat, cl, chart_choice)
+
+Return `true` if the GOP chart statistic `stat` violates the control limit `cl` (i.e. the
+chart signals an alarm) for the given chart choice ([`D_Chart`](@ref)`()`, `G_Chart()`, or
+`Persistence()`). See Equations (18) and (20) in Weiß and Schnurr (2024).
+"""
 function abort_criterium_gop(stat, cl, ::Union{D_Chart,G_Chart,Persistence})
 
     # D-chart: Equation (18), page 7 in the paper      

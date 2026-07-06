@@ -1,6 +1,21 @@
 
 
-# Function to compute average run length for ordinal patterns
+"""
+    arl_kappa_ic(qual_dgp, lam, cl, reps; chart_choice, rl_max=typemax(Int))
+
+Compute the in-control average run length (ARL) of the EWMA κ-chart for qualitative
+processes via simulation. The computation is multithreaded.
+
+- `qual_dgp`: in-control DGP (e.g. `DiscreteDGPIC`).
+- `lam::Float64`: smoothing parameter of the EWMA statistic.
+- `cl::Float64`: control limit of the chart.
+- `reps::Int`: number of replications.
+- `chart_choice`: one of [`KappaN1`](@ref)`()`, [`KappaN2`](@ref)`()`,
+  [`KappaO1`](@ref)`()`, [`KappaO2`](@ref)`()`.
+- `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
+
+Returns the tuple `(ARL, standard error)`.
+"""
 function arl_kappa_ic(
   qual_dgp, lam, cl, reps; chart_choice, rl_max::Int=typemax(Int)
 )
@@ -131,6 +146,25 @@ end
 # ---------------------------------------------------------------------#
 # Comparison of all charts
 # ---------------------------------------------------------------------#
+"""
+    rl_kappa_ic(lam, cl, p_reps, qual_dgp, qual_dgp_dist, chart_choice,
+      rl_max=typemax(Int))
+
+Compute in-control run lengths of the EWMA κ-chart for a chunk of replications. This is
+the single-threaded worker used by [`arl_kappa_ic`](@ref). Methods exist for the chart
+choices [`KappaN1`](@ref)`()`, [`KappaN2`](@ref)`()`, [`KappaO1`](@ref)`()`, and
+[`KappaO2`](@ref)`()`.
+
+- `lam::Float64`: smoothing parameter of the EWMA statistic.
+- `cl::Float64`: control limit of the chart.
+- `p_reps`: range of replication indices to process.
+- `qual_dgp`: in-control DGP.
+- `qual_dgp_dist`: marginal distribution of `qual_dgp`.
+- `chart_choice`: chart choice (see above).
+- `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
+
+Returns a vector of run lengths.
+"""
 function rl_kappa_ic(
   lam, cl, p_reps, qual_dgp, qual_dgp_dist, chart_choice::KappaN1, rl_max::Int=typemax(Int)
 )

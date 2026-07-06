@@ -6,10 +6,11 @@ abstract type SpatialDGP end
 #   In-control spatial process (ICSP)          #
 # ---------------------------------------------#
 """
-    ICSP(M_rows, N_cols, dist)
+    ICSTS(M_rows, N_cols, dist)
 
-A struct to define an independent and identically distributed (IID) process for in-control
-  
+A struct to define an independent and identically distributed (IID) in-control spatial
+process.
+
 - `M_rows::Int`: The number of rows for the image.
 - `N_cols::Int`: The number of columns for image.
 - `dist::UnivariateDistribution`: A distribution from the Distributions.jl package.

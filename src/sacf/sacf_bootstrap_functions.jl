@@ -91,6 +91,19 @@ end
 # ------------------------------------------------------------------------------
 # 3. BOOTSTRAP TEST
 # ------------------------------------------------------------------------------
+"""
+    SACFTestResultBoot
+
+Result of the bootstrap test based on the spatial autocorrelation function
+[`test_sacf_bootstrap`](@ref).
+
+Fields:
+- `stat::Float64`: value of the test statistic.
+- `boot_crit::Float64`: bootstrap critical value.
+- `boot_pval::Float64`: bootstrap p-value.
+- `boot_reject::Bool`: whether the null hypothesis is rejected at the chosen level.
+- `n_boot::Int`: number of bootstrap replications.
+"""
 struct SACFTestResultBoot
   stat::Float64
   boot_crit::Float64
@@ -109,6 +122,19 @@ function Base.show(io::IO, r::SACFTestResultBoot)
   print(io,   "    Reject H₀:      ", r.boot_reject)
 end
 
+"""
+    SACFBPTestResultBoot
+
+Result of the bootstrap Box-Pierce type test based on the spatial autocorrelation
+function [`test_sacf_bp_bootstrap`](@ref).
+
+Fields:
+- `stat::Float64`: value of the test statistic.
+- `boot_crit::Float64`: bootstrap critical value.
+- `boot_pval::Float64`: bootstrap p-value.
+- `boot_reject::Bool`: whether the null hypothesis is rejected at the chosen level.
+- `n_boot::Int`: number of bootstrap replications.
+"""
 struct SACFBPTestResultBoot
   stat::Float64
   boot_crit::Float64

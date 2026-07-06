@@ -30,28 +30,6 @@ function qup22_sop_value(refinement::DiagonalType, alpha)
 end
 
 
-"""
-  crit_val_sop(m, n, alpha, chart_choice, approximate::Bool)
-
-Computes the critical value for the SOP test. Also allows the approximation of 
-  the critical value. The input parameters are:
-
-- `m::Int64`: The number of rows in the sop-matrix. Note that the data matrix has 
-dimensions `M = m + d₁`, where `d₁` denotes the row delay.
-- `n::Int64`: The number of columns in the sop-matrix. Note that the data matrix 
-has dimensions `N = n + d₂`, where `d₂` denotes the column delay.
-- `alpha::Float64`: The significance level.
-- `chart_choice::Int64`: The choice of chart. 
-- `approximate::Bool`: If `true`, the approximate critical value is computed. 
-If `false`, the exact critical value is computed.
-
-# Examples
-```julia-repl
-# compute approximate critical value for chart 1 
-crit_val_sop(10, 10, 0.05, 1, true)
-```
-"""
-
 # --- 3. Multiple Dispatch Implementation of crit_val_sop() ---
 
 # ==========================================================================
@@ -61,6 +39,29 @@ crit_val_sop(10, 10, 0.05, 1, true)
 # 2. Information metrics (fixed critical values, ignore 'approximate')
 # ==========================================================================
 
+"""
+    crit_val_sop(M, N, alpha, d1, d2, chart_choice, refinement=false)
+
+Compute the critical value for the asymptotic test based on spatial ordinal patterns
+(SOPs); see [`test_sop`](@ref).
+
+- `M::Int`: number of rows of the data matrix. The SOP matrix has `m = M - d1` rows.
+- `N::Int`: number of columns of the data matrix. The SOP matrix has `n = N - d2` columns.
+- `alpha::Float64`: significance level.
+- `d1::Int`: row delay.
+- `d2::Int`: column delay.
+- `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`,
+  [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`, `Shannon()`, `ShannonExtropy()`,
+  `DistanceToWhiteNoise()`.
+- `refinement`: `false` for the classical SOP classification, or one of
+  [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`
+  (only for the entropy-type charts).
+
+# Examples
+```julia-repl
+crit_val_sop(11, 11, 0.05, 1, 1, TauHat())
+```
+"""
 function crit_val_sop(M, N, alpha, d1::Int, d2::Int, ::TauHat, ::Bool=false)
   m = M - d1
   n = N - d2
@@ -156,6 +157,18 @@ end
 
 # --- Result type for SOP asymptotic test ---
 
+"""
+    SOPTestResult
+
+Result of the asymptotic test based on spatial ordinal patterns [`test_sop`](@ref).
+
+Fields:
+- `chart`: the chart choice the test was computed for.
+- `stat::Float64`: value of the test statistic.
+- `asymp_crit::Float64`: asymptotic critical value.
+- `asymp_pval::Float64`: asymptotic p-value.
+- `asymp_reject::Bool`: whether the null hypothesis is rejected at the chosen level.
+"""
 struct SOPTestResult{C}
   chart::C
   stat::Float64
@@ -193,7 +206,27 @@ function _sop_asymp_pval(chart_choice, test_stat, crit_val, refinement, alpha, m
   end
 end
 
-# ---- User-facing wrapper ----
+"""
+    test_sop(data, alpha, d1, d2; chart_choice, refinement=false, add_noise=false)
+
+Perform the asymptotic hypothesis test for spatial dependence based on spatial ordinal
+patterns (SOPs) and return a [`SOPTestResult`](@ref) with the test statistic, the
+asymptotic critical value, the p-value, and the reject decision.
+
+- `data`: data matrix (spatial field).
+- `alpha`: significance level.
+- `d1::Int`: row delay.
+- `d2::Int`: column delay.
+- `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`,
+  [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()` (two-sided test), or `Shannon()`,
+  `ShannonExtropy()`, `DistanceToWhiteNoise()` (one-sided, upper-tail test with
+  rescaled statistic).
+- `refinement`: `false` for the classical SOP classification, or one of
+  [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`
+  (only for the entropy-type charts).
+- `add_noise::Bool=false`: add uniform noise to the data to break ties (recommended for
+  discrete-valued data).
+"""
 function test_sop(
   data, alpha, d1::Int, d2::Int;
   chart_choice,

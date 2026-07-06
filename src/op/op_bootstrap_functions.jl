@@ -49,6 +49,21 @@ end
 # ------------------------------------------------------------------------------
 # 3. BOOTSTRAP WRAPPER
 # ------------------------------------------------------------------------------
+"""
+    bootstrap_op(data, n_boot; chart_choice, m=3, d=1, block_size=1)
+
+Compute the bootstrap distribution of the ordinal-pattern chart statistic for the time
+series `data` and return a vector of `n_boot` bootstrap statistics.
+
+- `data::Vector{Float64}`: the time series.
+- `n_boot::Int`: number of bootstrap replications.
+- `chart_choice`: one of `Shannon()`, `ShannonExtropy()`, `DistanceToWhiteNoise()`,
+  `UpDownBalance()`, `Persistence()`, `RotationalAsymmetry()`, `UpDownScaling()`.
+- `m=3`: length of the ordinal patterns.
+- `d=1`: delay between observations of a pattern.
+- `block_size::Int=1`: block length for the resampling. `1` corresponds to an i.i.d.
+  bootstrap; values `> 1` yield a moving-block bootstrap that preserves serial dependence.
+"""
 function bootstrap_op(
   data::Vector{Float64},
   n_boot::Int;
@@ -88,6 +103,19 @@ end
 # ------------------------------------------------------------------------------
 # 4. BOOTSTRAP TEST
 # ------------------------------------------------------------------------------
+"""
+    OPTestResultBoot
+
+Result of the bootstrap ordinal-pattern test [`test_op_bootstrap`](@ref).
+
+Fields:
+- `chart`: the chart choice the test was computed for.
+- `stat::Float64`: value of the test statistic.
+- `boot_crit::Float64`: bootstrap critical value.
+- `boot_pval::Float64`: bootstrap p-value.
+- `boot_reject::Bool`: whether the null hypothesis is rejected at the chosen level.
+- `n_boot::Int`: number of bootstrap replications.
+"""
 struct OPTestResultBoot{C}
   chart::C
   stat::Float64

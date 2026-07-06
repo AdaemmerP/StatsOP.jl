@@ -1,18 +1,22 @@
 
 """
-    arl_sop_bootstrap(p_mat::Array{Float64,2}, lam, cl, reps=10_000; chart_choice=chart_choice)
+    arl_sop_bootstrap(p_mat, lam, cl, reps=10_000; chart_choice=TauTilde(),
+      refinement=false, rl_max=typemax(Int))
 
-Compute the average run length (ARL) using a bootstrap approach  for a particular
-delay (d₁-d₂) combination. 
-
-The input parameters are:
+Compute the average run length (ARL) using a bootstrap approach for a particular
+delay (d₁-d₂) combination. The computation is multithreaded.
 
 - `p_mat::Array{Float64,2}`: A matrix with the values of the relative type frequencies.
 - `lam::Float64`: A scalar value for lambda for the EWMA chart.
 - `cl::Float64`: A scalar value for the control limit.
 - `reps::Int`: An integer value for the number of repetitions. The default value is 10,000.
-- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
-The default value is 3.
+- `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`,
+  [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`.
+- `refinement`: `false` for the classical SOP classification, or one of
+  [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`.
+- `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
+
+Returns the tuple `(ARL, standard error)`.
 """
 function arl_sop_bootstrap(
   p_mat::Array{Float64,2}, lam, cl, reps=10_000; chart_choice=TauTilde(), refinement=false, rl_max::Int=typemax(Int)
@@ -36,20 +40,26 @@ end
 
 
 """
-    rl_sop_bootstrap(lam, cl, reps_range, chart_choice, p_mat::Array{Float64,2})
+    rl_sop_bootstrap(p_mat, lam, cl, reps_range, chart_choice, refinement=false,
+      rl_max=typemax(Int))
 
-Compute the run length for a given control limit using bootstraping instead 
-of a theoretical in-control distribution.
+Compute run lengths for a given control limit using bootstrapping instead of a
+theoretical in-control distribution, for a chunk of replications. This is the
+single-threaded worker used by [`arl_sop_bootstrap`](@ref).
 
-The input parameters are:
-
+- `p_mat::Array{Float64,2}`: A matrix with the values of the relative frequencies
+of each d1-d2 (delay) combination. This matrix will be used for re-sampling.
 - `lam::Float64`: A scalar value for lambda for the EWMA chart.
 - `cl::Float64`: A scalar value for the control limit.
-- `reps_range::UnitRange{Int}`: A range of integers for the number of repetitions. 
-This has to be a range to be compatible with `arl_sop()` which uses threading and multi-processing.
-- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
-- `p_mat::Array{Float64,2}`: A matrix with the values of the relative frequencies 
-of each d1-d2 (delay) combination. This matrix will be used for re-sampling.
+- `reps_range::UnitRange{Int}`: A range of integers for the number of repetitions.
+This has to be a range to be compatible with `arl_sop_bootstrap()` which uses threading.
+- `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`,
+  [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`.
+- `refinement`: `false` for the classical SOP classification, or one of
+  [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`.
+- `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
+
+Returns a vector of run lengths.
 """
 function rl_sop_bootstrap(p_mat::Array{Float64,2}, lam, cl, reps_range::UnitRange{Int}, chart_choice, refinement=false, rl_max::Int=typemax(Int))
 

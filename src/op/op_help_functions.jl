@@ -20,7 +20,13 @@ function abort_criterium_op(stat, cl, ::Union{UpDownBalance,Persistence,Rotation
 
 end
 
-# Function to add noise for discrete distributions
+"""
+    add_noise!(vec, dist)
+
+Add standard-uniform noise to each element of `vec` in-place if `dist` is a
+`DiscreteDistribution`, in order to break ties before computing ordinal patterns. If
+`dist` is a `ContinuousDistribution`, `vec` is returned unchanged.
+"""
 function add_noise!(vec, ::DiscreteDistribution)
   for i in axes(vec, 1)
     vec[i] += rand()

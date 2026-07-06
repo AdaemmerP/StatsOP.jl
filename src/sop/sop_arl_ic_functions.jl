@@ -1,19 +1,23 @@
 
 """
-    arl_sop_ic(sop_dgp::ICSP, lam, cl, d1::Int, d2::Int, reps=10_000; chart_choice=3)
+    arl_sop_ic(sop_dgp, lam, cl, d1, d2, reps=10_000; chart_choice=TauTilde(),
+      refinement=false, rl_max=typemax(Int))
 
-Compute the average run length (ARL) for a given in-control spatial DGP. 
-  
-The input parameters are:
+Compute the in-control average run length (ARL) of the EWMA chart based on spatial
+ordinal patterns (SOPs) via simulation. The computation is multithreaded.
 
-- `sop_dgp::ICSP`: A struct for the in-control spatial DGP.
-- `lam::Float64`: A scalar value for lambda for the EWMA chart.
-- `cl::Float64`: A scalar value for the control limit.
-- `d1::Int`: An integer value for the first delay (d₁).
-- `d2::Int`: An integer value for the second delay (d₂).
-- `reps::Int`: An integer value for the number of repetitions. The default value is 10,000.
-- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4. 
-The default value is 3.
+- `sop_dgp::ICSTS`: in-control spatial DGP.
+- `lam::Float64`: smoothing parameter of the EWMA statistic.
+- `cl::Float64`: control limit of the chart.
+- `d1::Int`, `d2::Int`: row and column delays.
+- `reps::Int=10_000`: number of replications.
+- `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`,
+  [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`.
+- `refinement`: `false` for the classical SOP classification, or one of
+  [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`.
+- `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
+
+Returns the tuple `(ARL, standard error)`.
 """
 function arl_sop_ic(
   sop_dgp::ICSTS, lam, cl, d1::Int, d2::Int, reps=10_000;
@@ -52,24 +56,29 @@ end
 
 
 """
-    rl_sop_ic(lam, cl, lookup_array_sop, reps_range, dist, chart_choice, m, n, d1::Int, d2::Int)
+    rl_sop_ic(lam, cl, lookup_array_sop, reps_range, dist, chart_choice, refinement,
+      m, n, d1, d2, rl_max=typemax(Int))
 
-Compute the run length for a given in-control spatial DGP. 
-  
-The input parameters are:
+Compute in-control run lengths of the EWMA chart based on spatial ordinal patterns
+(SOPs) for a chunk of replications. This is the single-threaded worker used by
+[`arl_sop_ic`](@ref).
 
 - `lam::Float64`: A scalar value for lambda for the EWMA chart.
 - `cl::Float64`: A scalar value for the control limit.
-- `lookup_array_sop::Array{Int, 4}`: A 4D array with the lookup array for the sops, 
-which will be computed computed using `lookup_array_sop = compute_lookup_array_sop()`. 
+- `lookup_array_sop::Array{Int, 4}`: A 4D array with the lookup array for the sops,
+which will be computed using `lookup_array_sop = compute_lookup_array_sop()`.
 - `reps_range::UnitRange{Int}`: A range of integers for the number of repetitions.
-- `dist::Distribution`: A distribution for the error term. Here you can use any 
+- `dist::Distribution`: A distribution for the error term. Here you can use any
 univariate distribution from the `Distributions.jl` package.
-- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
+- `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`,
+  [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`.
+- `refinement`: `false` for the classical SOP classification, or one of
+  [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`.
 - `m::Int`: An integer value for the number of rows for the final "SOP" matrix.
 - `n::Int`: An integer value for the number of columns for the final "SOP" matrix.
 - `d1::Int`: An integer value for the first delay (d₁).
 - `d2::Int`: An integer value for the second delay (d₂).
+- `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
 """
 function rl_sop_ic(
   lam, cl, lookup_array_sop, reps_range::UnitRange{Int}, dist, chart_choice, refinement, m, n, d1::Int, d2::Int, rl_max::Int=typemax(Int)

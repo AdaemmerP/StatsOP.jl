@@ -1,6 +1,26 @@
 
 
-# Function to compute average run length for ordinal patterns
+"""
+    arl_gop_oc(gop_dgp, null_dist, lam, cl, reps; chart_choice, d=1, ced=false, ad=100,
+      rl_max=typemax(Int))
+
+Compute the out-of-control average run length (ARL) of the EWMA chart based on
+generalized ordinal patterns (GOPs) via simulation. The computation is multithreaded.
+
+- `gop_dgp`: out-of-control DGP.
+- `null_dist`: in-control (null) distribution used to compute the in-control GOP
+  distribution.
+- `lam::Float64`: smoothing parameter of the EWMA statistic.
+- `cl::Float64`: control limit of the chart.
+- `reps::Int`: number of replications.
+- `chart_choice`: [`D_Chart`](@ref)`()` or `Persistence()`.
+- `d=1`: delay between observations of a pattern.
+- `ced::Bool=false`: use conditional expected delay initialization.
+- `ad::Int=100`: number of in-control iterations for `ced`.
+- `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
+
+Returns the tuple `(ARL, standard error)`.
+"""
 function arl_gop_oc(
   gop_dgp, null_dist, lam, cl, reps; chart_choice, d=1, ced=false, ad=100, rl_max::Int=typemax(Int)
 )
@@ -26,7 +46,30 @@ function arl_gop_oc(
   return (mean(rlvec), std(rlvec) / sqrt(reps))
 end
 
-#--- Run-length method for D-Chart
+"""
+    rl_gop_oc(lam, cl, lookup_array_gop, p_reps, gop_dgp, gop_dgp_dist, null_dist,
+      chart_choice, d, ced, ad, rl_max=typemax(Int))
+
+Compute out-of-control run lengths of the EWMA chart based on generalized ordinal
+patterns (GOPs) for a chunk of replications. This is the single-threaded worker used by
+[`arl_gop_oc`](@ref).
+
+- `lam::Float64`: smoothing parameter of the EWMA statistic.
+- `cl::Float64`: control limit of the chart.
+- `lookup_array_gop`: lookup array from [`compute_lookup_array_gop`](@ref).
+- `p_reps`: range of replication indices to process.
+- `gop_dgp`: out-of-control DGP.
+- `gop_dgp_dist`: marginal distribution of `gop_dgp`.
+- `null_dist`: in-control (null) distribution used to compute the in-control GOP
+  distribution.
+- `chart_choice`: [`D_Chart`](@ref)`()` or `Persistence()`.
+- `d::Int`: delay between observations of a pattern.
+- `ced::Bool`: use conditional expected delay initialization.
+- `ad::Int`: number of in-control iterations for `ced`.
+- `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
+
+Returns a vector of run lengths.
+"""
 function rl_gop_oc(
   lam, cl, lookup_array_gop, p_reps, gop_dgp, gop_dgp_dist, null_dist,
   chart_choice::Union{D_Chart,Persistence}, d::Int, ced::Bool, ad::Int, rl_max::Int=typemax(Int)

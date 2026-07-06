@@ -1,5 +1,31 @@
 
-# Compute test SOP-BP-statistic for one picture
+"""
+    stat_sop_bp(data, w; chart_choice=TauTilde(), refinement=false, add_noise=false,
+      noise_dist=Uniform(0, 1))
+    stat_sop_bp(data, lam, w; chart_choice=TauTilde(), refinement=false, add_noise=false,
+      noise_dist=Uniform(0, 1), stat_ic=0.0, type_freq_init=1/3)
+
+Compute the Box-Pierce (BP) type statistic for spatial ordinal patterns (SOPs), which
+aggregates the squared chart statistics over all delay combinations
+`(d1, d2) ∈ {1,…,w} × {1,…,w}`.
+
+The first method computes the statistic for a single image (matrix) and returns a
+scalar. The second method processes a sequence of images (a 3-dimensional array, third
+dimension = time) and applies EWMA smoothing with parameter `lam`, returning the vector
+of sequentially computed chart statistics.
+
+- `data`: data matrix (single image) or 3-dimensional array (image sequence).
+- `lam::Float64`: smoothing parameter of the EWMA statistic.
+- `w::Int`: window size; delays `1:w` in both directions are used.
+- `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`,
+  [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`.
+- `refinement`: `false` for the classical SOP classification, or one of
+  [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`.
+- `add_noise::Bool=false`: add noise from `noise_dist` to the data to break ties.
+- `noise_dist::UnivariateDistribution=Uniform(0, 1)`: noise distribution.
+- `stat_ic`, `type_freq_init`: initial values of the EWMA statistic and the type
+  frequencies (second method only).
+"""
 function stat_sop_bp(
   data::Union{SubArray,Array{T,2}},
   w::Int;

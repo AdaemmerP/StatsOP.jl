@@ -1,48 +1,31 @@
 
 """
-    arl_op_ic( op_dgp, lam, cl, reps=10_000; chart_choice, d=1, ced=false, ad=100)
+    arl_op_ic(op_dgp, lam, cl, reps=10_000; chart_choice, d=1, m=3, ced=false, ad=100,
+      rl_max=typemax(Int))
 
-Function to compute the average run length (ARL) for ordinal patterns using the EWMA statistic. The function implements the test statistics by Weiss and Testik (2023), who use a pattern length of 3. 
+Compute the in-control average run length (ARL) of the EWMA chart based on ordinal
+patterns via simulation, following Weiß and Testik (2023). The computation is
+multithreaded.
 
-* `op_dgp::Union{AR1, MA1, MA2, TEAR1, AAR1, QAR1}` DGP.
-* `lam::Float64` Smoothing parameter for the EWMA statistic.
-* `cl::Float64` Control limit for the EWMA statistic.
-* `reps::Int64` Number of replications.
-* `chart_choice::Int` 
-  1. ``\\widehat{H}^{(d)}=-\\sum_{k=1}^{m_fact} \\hat{p}_k{ }^{(d)} \\ln \\hat{p}_k{ }^{(d)}``
-  2. ``\\widehat{H}_{\\mathrm{ex}}^{(d)}=-\\sum_{k=1}^{m_fact}\\left(1-\\hat{p}_k{ }^{(d)}\\right) \\ln \\left(1-\\hat{p}_k{ }^{(d)}\\right)``
-  3. ``\\widehat{\\Delta}^{(d)}=\\sum_{k=1}^{m_fact}\\left(\\hat{p}_k^{(d)}-1 / m_fact\\right)^2``
-  4. ``\\hat{\\beta}^{(d)}=\\hat{p}_6^{(d)}-\\hat{p}_1^{(d)}``
-  5. ``\\hat{\\tau}^{(d)}=\\hat{p}_6^{(d)}+\\hat{p}_1^{(d)}-\\frac{1}{3}``
-  6. ``\\hat{\\delta}^{(d)}=\\hat{p}_4^{(d)}+\\hat{p}_5^{(d)}-\\hat{p}_3^{(d)}-\\hat{p}_2^{(d)}``
+- `op_dgp::Union{ContinuousDGPIC,DiscreteDGPIC}`: in-control DGP.
+- `lam::Float64`: smoothing parameter of the EWMA statistic.
+- `cl::Float64`: control limit of the chart.
+- `reps::Int=10_000`: number of replications.
+- `chart_choice`: one of `Shannon()`, `ShannonExtropy()`, `DistanceToWhiteNoise()`,
+  `UpDownBalance()`, `Persistence()`, `RotationalAsymmetry()`, `UpDownScaling()`
+  (see [`chart_stat_op`](@ref)).
+- `d::Int=1`: delay between observations of a pattern.
+- `m::Int=3`: length of the ordinal patterns.
+- `ced::Bool=false`: use conditional expected delay initialization.
+- `ad::Int=100`: number of in-control iterations for `ced`.
+- `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
 
-  The patterns are categorized as follows:
-
-  ``
-  \\qquad p_1 = (3,2,1);  \\quad p_2=(3,1,2);  \\quad p_3 = (2,3,1); 
-  ``
-
-  ``
-  \\qquad p_4 = (1,3,2);  \\quad p_5 = (2,1,3);  \\quad p_ 6 = (1,2,3)
-  ``
-
-* `d::Union{Int,Vector{Int}}=1`: Delay vector. Default is 1. A vector would denote the indices of the observations to use. For example, 
-`d = [1, 3, 4]` would denote the first, third, and fourth observations.
-* `ced::Bool=false`: Use conditional expected delay? Default is false.
-* `ad::Int=100`: Number of iterations for ced.
+Returns the tuple `(ARL, standard error)`.
 
 ```julia
-# Compute initial values via function cl_op()
- if j == 1 || j == 2
-      cl_init = quantile(stat_op(data, lam[i], j)[1], 0.01)                
-  else
-      cl_init = quantile(stat_op(data, lam[i], j)[1], 0.99)
-end 
-
-# Run function
-arl_op(
-  0.1, cl_init, IC(Normal(0, 1)), 10_000; chart_choice=1, d=1, ced=false, ad=100
-  )
+arl_op_ic(
+  ContinuousDGPIC(Normal(0, 1)), 0.1, 0.3, 10_000; chart_choice=Shannon(), d=1
+)
 ```
 """
 function arl_op_ic(
@@ -72,25 +55,25 @@ end
 
 
 """
-    rl_op_ic(lam, cl, lookup_array_op, p_reps, op_dgp,
-      op_dgp_dist, chart_choice; d::Union{Int,Vector{Int}}=1, ced=false, ad=100)
+    rl_op_ic(op_dgp, lam, cl, p_reps, op_dgp_dist, chart_choice; d=1, m, ced=false,
+      ad=100, rl_max=typemax(Int))
 
-Function to compute run length for ordinal patterns. 
-  
-- `lam::Float64`: Smoothing parameter for EWMA chart.
-- `cl::Float64`: Control limit for the EWMA chart.
-- `lookup_array_op: Array to lookup ordinal patterns. Can be created with function `compute_lookup_array_op()`.
-- `p_reps::Vector{Int}`: Unit range of repetitions.
-- `op_dgp::Union{IC, AR1, MA1, MA2, TEAR1, AAR1, QAR1}`: DGP.
-- `op_dgp_dist::UnivariateDistribution`: Distribution of the DGP.
-- `chart_choice::Int`: Chart choice (1: XXX, 2: XXX, 3: XXX, 4: XXX, 5: XXX, 6: XXX).
-- `d::Union{Int,Vector{Int}}=1`: Delay vector. Default is 1.
-- `ced::Bool=false`: Use conditional expected delay? Default is false.
-- `ad::Int=100`: Number of iterations for ced. 
+Compute in-control run lengths of the EWMA chart based on ordinal patterns for a chunk
+of replications. This is the single-threaded worker used by [`arl_op_ic`](@ref).
 
-```julia
-rl_op(0.1, 3.0, lookup_array_op, 1:10_000, IC(Normal(0, 1)), Normal(0, 1), 1; d=1, ced=false, ad=100)
-```
+- `op_dgp::Union{ContinuousDGPIC,DiscreteDGPIC}`: in-control DGP.
+- `lam::Float64`: smoothing parameter of the EWMA statistic.
+- `cl::Float64`: control limit of the chart.
+- `p_reps`: range of replication indices to process.
+- `op_dgp_dist`: distribution of the DGP.
+- `chart_choice`: chart choice (see [`chart_stat_op`](@ref)).
+- `d::Int=1`: delay between observations of a pattern.
+- `m::Int`: length of the ordinal patterns.
+- `ced::Bool=false`: use conditional expected delay initialization.
+- `ad::Int=100`: number of in-control iterations for `ced`.
+- `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
+
+Returns a vector of run lengths.
 """
 function rl_op_ic(
   op_dgp::Union{ContinuousDGPIC,DiscreteDGPIC}, lam, cl, p_reps,

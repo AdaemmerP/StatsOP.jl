@@ -70,8 +70,31 @@
 
 # end
 
-# Function that uses the lehmer code to compute the ordinal pattern
-function stat_op(data; chart_choice, m::Int=3, d::Int=1, add_noise::Bool=false)
+"""
+    stat_op(data; chart_choice, m=3, d=1, add_noise=false)
+    stat_op(data, lam; chart_choice, m=3, d=1, add_noise=false)
+
+Compute the ordinal-pattern chart statistic for the time series `data`. The ordinal
+patterns are indexed via the Lehmer code (see [`perm_to_lehm_idx!`](@ref)).
+
+The first method computes the statistic once for the whole series and returns the vector
+`[stat, p_rel]`, where `stat` is the chart statistic and `p_rel` the vector of relative
+ordinal-pattern frequencies.
+
+The second method additionally applies EWMA smoothing with parameter `lam` (Equation (5)
+in Weiß and Testik (2023)) and returns the tuple `(stats_all, p_rel)`, where `stats_all`
+contains the sequentially computed EWMA chart statistics.
+
+- `data`: time series (vector).
+- `lam::Float64`: smoothing parameter of the EWMA statistic.
+- `chart_choice`: one of `Shannon()`, `ShannonExtropy()`, `DistanceToWhiteNoise()`,
+  `UpDownBalance()`, `Persistence()`, `RotationalAsymmetry()`, `UpDownScaling()`.
+- `m::Int=3`: length of the ordinal patterns.
+- `d::Int=1`: delay between observations of a pattern.
+- `add_noise::Bool=false`: add uniform noise to `data` to break ties (recommended for
+  discrete-valued series).
+"""
+function stat_op(data; chart_choice, m::Int=3, d::Int=1, add_noise::Bool=false) # uses the lehmer code to compute the ordinal pattern
 
   # pre-allocate
   m_fact = factorial(m)

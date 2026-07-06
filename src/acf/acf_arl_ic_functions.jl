@@ -1,4 +1,23 @@
 
+"""
+    arl_acf_ic(lam, cl, acf_dgp, reps; ced=false, ad=100, rl_max=typemax(Int))
+    arl_acf_ic(lam, cl, acf_dgp, reps, acf_version; ced=false, ad=100, rl_max=typemax(Int))
+
+Compute the in-control average run length (ARL) of the EWMA lag-1 autocorrelation (ACF)
+chart via simulation. The computation is multithreaded.
+
+- `lam::Float64`: smoothing parameter of the EWMA statistic.
+- `cl::Float64`: control limit of the ACF chart.
+- `acf_dgp`: in-control DGP (e.g. `ContinuousDGPIC`).
+- `reps::Int`: number of replications.
+- `acf_version::Int`: version of the ACF statistic (see [`stat_acf`](@ref)); the method
+  without this argument uses version 1.
+- `ced::Bool=false`: use conditional expected delay initialization.
+- `ad::Int=100`: number of in-control iterations for `ced`.
+- `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
+
+Returns the tuple `(ARL, standard error)`.
+"""
 function arl_acf_ic(lam, cl, acf_dgp, reps; ced=false, ad=100, rl_max::Int=typemax(Int))
 
   # Number of chunks for load balancing
@@ -126,18 +145,23 @@ end
 
 
 """
-    rl_acf(lam, cl, p_reps, acf_dgp)
+    rl_acf_ic(lam, cl, p_reps, acf_dgp, acf_dgp_dist, acf_version; ced=false, ad=100,
+      rl_max=typemax(Int))
 
-Function to compute the run length (RL) for a specified DGP using the ACF statistic by XXX.
-  
-- `lam::Float64`: Smoothing parameter for the EWMA statistic.
-- `cl::Float64`: Control limit for the ACF statistic.
-- `p_reps::Vector{Int64}`: Unit range for number of replications.
-- `acf_dgp::Union{IC, AR1, TEAR1}`: DGP.
+Compute in-control run lengths of the EWMA lag-1 autocorrelation (ACF) chart for a chunk
+of replications. This is the single-threaded worker used by [`arl_acf_ic`](@ref).
 
-```julia
-rl_acf(0.1, 3.0, 10_000, IC(Normal(0, 1)))
-```
+- `lam::Float64`: smoothing parameter of the EWMA statistic.
+- `cl::Float64`: control limit of the ACF chart.
+- `p_reps`: range of replication indices to process.
+- `acf_dgp`: in-control DGP.
+- `acf_dgp_dist`: innovation distribution of `acf_dgp`.
+- `acf_version::Int`: version of the ACF statistic (see [`stat_acf`](@ref)).
+- `ced::Bool=false`: use conditional expected delay initialization.
+- `ad::Int=100`: number of in-control iterations for `ced`.
+- `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
+
+Returns a vector of run lengths.
 """
 function rl_acf_ic(lam, cl, p_reps, acf_dgp, acf_dgp_dist, acf_version; ced=false, ad=100, rl_max::Int=typemax(Int))
 

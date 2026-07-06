@@ -115,6 +115,18 @@ end
 
 # --- 3. Result type for asymptotic test ---
 
+"""
+    OPTestResult
+
+Result of the asymptotic ordinal-pattern test [`test_op`](@ref).
+
+Fields:
+- `chart`: the chart choice the test was computed for.
+- `stat::Float64`: value of the test statistic.
+- `asymp_crit::Float64`: asymptotic critical value.
+- `asymp_pval::Float64`: asymptotic p-value.
+- `asymp_reject::Bool`: whether the null hypothesis is rejected at the chosen level.
+"""
 struct OPTestResult{C}
   chart::C
   stat::Float64
@@ -166,6 +178,24 @@ reject(::Union{Shannon,ShannonExtropy}, test_stat, crit_val) = test_stat < crit_
 reject(::DistanceToWhiteNoise, test_stat, crit_val) = test_stat > crit_val
 reject(::Union{UpDownBalance,Persistence,RotationalAsymmetry,UpDownScaling}, test_stat, crit_val) = abs(test_stat) > crit_val
 
+"""
+    test_op(ts; chart_choice, m=3, d=1, alpha=0.05)
+
+Perform the asymptotic hypothesis test for serial dependence based on ordinal patterns
+and return an [`OPTestResult`](@ref) containing the test statistic, the asymptotic
+critical value, the p-value, and the reject decision.
+
+- `ts`: the time series.
+- `chart_choice`: one of `Shannon()`, `ShannonExtropy()`, `DistanceToWhiteNoise()`,
+  `UpDownBalance()`, `Persistence()`, `RotationalAsymmetry()`, `UpDownScaling()`.
+  Asymptotic theory is available for `m = 3` (and `m = 2` for `Shannon()`,
+  `DistanceToWhiteNoise()`, and `UpDownBalance()`).
+- `m::Int=3`: length of the ordinal patterns.
+- `d::Int=1`: delay between observations of a pattern.
+- `alpha=0.05`: significance level.
+
+For pattern lengths without asymptotic theory, use [`test_op_bootstrap`](@ref).
+"""
 function test_op(ts; chart_choice, m::Int=3, d::Int=1, alpha=0.05)
   n_pat = length(ts) - (m - 1) * d
   test_stat, crit_val = _common_chart_calculations(ts, chart_choice; m=m, d=d, alpha=alpha)

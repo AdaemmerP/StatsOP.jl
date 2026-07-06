@@ -3,7 +3,23 @@
 #                        Use information measures and lehmer                   #
 ################################################################################
 
-# Function to compute test statistics for BP-OP and BL-OP tests 
+"""
+    stat_op_bp(data; chart_choice, m=3, w=3, ljung_box=false)
+
+Compute the Box-Pierce (BP) type test statistic for ordinal patterns, which aggregates
+the chart statistics over the delays `d = 1, …, w`.
+
+- `data`: the time series.
+- `chart_choice`: one of `Shannon()`, `ShannonExtropy()`, `DistanceToWhiteNoise()`,
+  `UpDownBalance()`, `Persistence()`, `RotationalAsymmetry()`, `UpDownScaling()`.
+- `m::Int=3`: length of the ordinal patterns.
+- `w=3`: maximal delay; the individual statistics for delays `1:w` are aggregated.
+- `ljung_box::Bool=false`: if `true`, use Ljung-Box (BL) weights
+  (delay-specific numbers of patterns) instead of the constant Box-Pierce weight.
+
+Returns the aggregated test statistic. Critical values are provided by
+[`crit_val_op_bp`](@ref).
+"""
 function stat_op_bp(data; chart_choice, m::Int=3, w=3, ljung_box::Bool=false)
 
     # Compute lookup array and number of ops
@@ -99,7 +115,19 @@ function stat_op_bp(data; chart_choice, m::Int=3, w=3, ljung_box::Bool=false)
 end # end of function
 
 
-# Function to compute critical values -> 
+"""
+    crit_val_op_bp(; chart_choice, w, m, alpha=0.05)
+
+Return the critical value for the Box-Pierce type ordinal-pattern test statistic computed
+by [`stat_op_bp`](@ref).
+
+- `chart_choice`: one of `Shannon()`, `ShannonExtropy()`, `DistanceToWhiteNoise()`,
+  `UpDownBalance()`, `Persistence()`, `RotationalAsymmetry()`, `UpDownScaling()`.
+- `w`: maximal delay used in the test statistic (supported values depend on the chart).
+- `m`: length of the ordinal patterns (`2` or `3`, depending on the chart).
+- `alpha=0.05`: significance level. For the Shannon-, extropy- and Δ-charts with `m = 3`,
+  tabulated values for `alpha = 0.05` are used.
+"""
 function crit_val_op_bp(; chart_choice, w, m, alpha=0.05)
 
     # ---------------------------------------------------------------------------#

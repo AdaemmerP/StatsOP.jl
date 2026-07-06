@@ -1,5 +1,7 @@
 
 """
+    compute_lookup_array_sop()
+
 Compute a 4D array to lookup the index of the sops. The original SOPs are based on ranks. Here we use sortperm which computes the order of the elements in the vector.
 """
 function compute_lookup_array_sop()
@@ -26,11 +28,12 @@ end
 
 
 """
-Create and return the index of the sops for sortperm values. 
-The type frequencies are based on the ranks of the sops, but we use sortperm to 
-compute the order of the elements in the vector. 
+    create_index_sop(; refinement)
+
+Create and return the index of the sops for sortperm values.
+The type frequencies are based on the ranks of the sops, but we use sortperm to
+compute the order of the elements in the vector.
 """
-# Function that returns SOP indices for sortperm values
 function create_index_sop(; refinement)
 
   # @assert refinement in 0:3 "refinement must be in 0:3"
@@ -144,9 +147,11 @@ end
 
 
 """
-compute_p_array(data::Array{Float64,3})
+    compute_p_array_bp(data, w; chart_choice, refinement, add_noise=false)
 
-Compute the matrix of p-hat values for a given 3D array of data when the delays are vectors of integers. These values are used for bootstrapping to compute critcial limits for the BP-statistics. 
+Compute the array of p-hat values for a given 3D array of data for all delay
+combinations `(d1, d2) ∈ {1,…,w} × {1,…,w}`. These values are used for bootstrapping to
+compute critical limits for the BP-statistics (see [`arl_sop_bp_bootstrap`](@ref)).
 """
 function compute_p_array_bp(data::Array{T,3}, w::Int; chart_choice, refinement::Union{Bool,RefinedType}, add_noise=false) where {T<:Real}
 
@@ -213,7 +218,22 @@ function compute_p_array_bp(data::Array{T,3}, w::Int; chart_choice, refinement::
 end
 
 
-#--- Compute absolute frequencies of sops
+"""
+    sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
+
+Count the absolute frequencies of the spatial ordinal patterns (SOPs) of the data matrix
+`data` in-place.
+
+- `m`, `n`: number of SOP rows (`m = M - d1`) and columns (`n = N - d2`).
+- `d1`, `d2`: row and column delays.
+- `lookup_array_sop`: lookup array from [`compute_lookup_array_sop`](@ref).
+- `data`: data matrix.
+- `sop`: work vector of length 4 holding the current 2×2 window values.
+- `win`: work vector of length 4 for `sortperm!`.
+- `sop_freq`: vector of length 24 that the pattern counts are added to.
+
+Returns `sop_freq`.
+"""
 function sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
   # Loop through data to fill sop vector

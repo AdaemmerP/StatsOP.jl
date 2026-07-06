@@ -1,23 +1,25 @@
 
 """
-    arl_sop_bp(
-        p_array::Array{T,3}, lam, cl, w, reps; chart_choice=3
-    ) where {T<:Real}
+    arl_sop_bp_bootstrap(p_array, lam, cl, w, reps; chart_choice=TauTilde(),
+      rl_max=typemax(Int))
 
-Compute the average run length for the BP-EWMA-SOP for a given control limit 
-  using bootstraping
+Compute the average run length (ARL) of the EWMA chart based on the Box-Pierce type
+statistic for spatial ordinal patterns (SOPs) by bootstrapping from pre-computed SOP
+type frequencies. The computation is multithreaded.
 
-The input parameters are:
+- `p_array::Array{Float64, 3}`: 3-dimensional array with the relative SOP type
+  frequencies for each delay combination. The first dimension is the picture, the second
+  the pattern group (s₁, s₂, s₃), and the third the d₁-d₂ combination. This array is
+  used for resampling; it can be computed with [`compute_p_array_bp`](@ref).
+- `lam::Float64`: smoothing parameter of the EWMA statistic.
+- `cl::Float64`: control limit of the chart.
+- `w::Int`: window size of the BP statistic.
+- `reps::Int`: number of replications.
+- `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`,
+  [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`.
+- `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
 
-- `p_array::Array{Float64, 3}`: A 3D array with the with the relative frequencies 
-of each d1-d2 (delay) combination. The first dimension (rows) is the picture, the 
-second dimension refers to the patterns group (s₁, s₂, or s₃) and the third dimension 
-denotes each d₁-d₂ combination. This matrix will be used for re-sampling.
-- `lam::Float64`: A scalar value for lambda for the EWMA chart.
-- `cl::Float64`: A scalar value for the control limit.
-- `w::Int`: An integer value for the number of workers.
-- `reps::Int`: An integer value for the number of repetitions.
-- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
+Returns the tuple `(ARL, standard error)`.
 """
 function arl_sop_bp_bootstrap(
     p_array::Array{T,3}, lam, cl, w, reps; chart_choice=TauTilde(), rl_max::Int=typemax(Int)
@@ -41,20 +43,23 @@ end
 
 
 """
-    rl_sop_bp_bootstrap(p_array::Array{T,3}, lam, cl, reps_range, chart_choice, ) where {T<:Real}
+    rl_sop_bp_bootstrap(p_array, lam, cl, reps_range, chart_choice,
+      rl_max=typemax(Int))
 
-Compute the EWMA-BP-SOP run length for a given control limit using bootstraping.
+Compute run lengths of the EWMA chart based on the Box-Pierce type statistic for spatial
+ordinal patterns (SOPs) by bootstrapping, for a chunk of replications. This is the
+single-threaded worker used by [`arl_sop_bp_bootstrap`](@ref).
 
-The input parameters are:
+- `p_array::Array{Float64,3}`: 3-dimensional array with the relative SOP type
+  frequencies for each delay combination (see [`arl_sop_bp_bootstrap`](@ref)).
+- `lam::Float64`: smoothing parameter of the EWMA statistic.
+- `cl::Float64`: control limit of the chart.
+- `reps_range::UnitRange{Int}`: range of replication indices to process.
+- `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`,
+  [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`.
+- `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
 
-- `p_array::Array{Float64,3}`: A 3D array with the with the relative frequencies for 
-each d1-d2 (delay) combination. The first dimension (rows) is the picture, the second
-dimension refers to the patterns group (s₁, s₂, or s₃) and the third dimension denotes
-each d₁-d₂ combination. This array will be used for re-sampling.
-- `lam::Float64`: A scalar value for lambda for the EWMA chart.
-- `cl::Float64`: A scalar value for the control limit.
-- `reps_range::UnitRange{Int}`: A range of integers for the number of repetitions.
-- `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
+Returns a vector of run lengths.
 """
 function rl_sop_bp_bootstrap(
     p_array::Array{T,3}, lam, cl, reps_range::UnitRange, chart_choice, rl_max::Int=typemax(Int)

@@ -1,5 +1,22 @@
 
-# Function to compute average run length for ordinal patterns
+"""
+    arl_kappa_oc(qual_dgp, qual_null_dist, lam, cl, reps; chart_choice,
+      rl_max=typemax(Int))
+
+Compute the out-of-control average run length (ARL) of the EWMA κ-chart for qualitative
+processes via simulation. The computation is multithreaded.
+
+- `qual_dgp`: out-of-control DGP.
+- `qual_null_dist`: in-control (null) distribution used to initialize the recursion.
+- `lam::Float64`: smoothing parameter of the EWMA statistic.
+- `cl::Float64`: control limit of the chart.
+- `reps::Int`: number of replications.
+- `chart_choice`: one of [`KappaN1`](@ref)`()`, [`KappaN2`](@ref)`()`,
+  [`KappaO1`](@ref)`()`, [`KappaO2`](@ref)`()`.
+- `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
+
+Returns the tuple `(ARL, standard error)`.
+"""
 function arl_kappa_oc(
   qual_dgp, qual_null_dist, lam, cl, reps; chart_choice, rl_max::Int=typemax(Int)
 )
@@ -228,6 +245,26 @@ end
 # ---------------------------------------------------------------------#
 # Comparison of all charts
 # ---------------------------------------------------------------------#
+"""
+    rl_kappa_oc(lam, cl, p_reps, qual_dgp, qual_dgp_dist, qual_null_dist, chart_choice,
+      rl_max=typemax(Int))
+
+Compute out-of-control run lengths of the EWMA κ-chart for a chunk of replications. This
+is the single-threaded worker used by [`arl_kappa_oc`](@ref). Methods exist for the chart
+choices [`KappaN1`](@ref)`()`, [`KappaN2`](@ref)`()`, [`KappaO1`](@ref)`()`, and
+[`KappaO2`](@ref)`()`.
+
+- `lam::Float64`: smoothing parameter of the EWMA statistic.
+- `cl::Float64`: control limit of the chart.
+- `p_reps`: range of replication indices to process.
+- `qual_dgp`: out-of-control DGP.
+- `qual_dgp_dist`: marginal distribution of `qual_dgp`.
+- `qual_null_dist`: in-control (null) distribution used to initialize the recursion.
+- `chart_choice`: chart choice (see above).
+- `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
+
+Returns a vector of run lengths.
+"""
 function rl_kappa_oc(
   lam, cl, p_reps, qual_dgp, qual_dgp_dist, qual_null_dist, chart_choice::KappaN1, rl_max::Int=typemax(Int)
 )

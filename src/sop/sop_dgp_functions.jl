@@ -1,6 +1,16 @@
 
 
-# Method to initialize matrix for SAR(1,1) with continuous errors
+"""
+    init_mat!(dgp, dist_error, mat)
+
+Initialize the data matrix `mat` in-place for a spatial DGP by setting its first row(s)
+and column(s) to the marginal mean of the process. Methods exist for `SAR11`, `SINAR11`
+(mean rounded to an integer), and `SAR22` (first two rows/columns).
+
+- `dgp`: spatial DGP (`SAR11`, `SINAR11`, or `SAR22`).
+- `dist_error`: innovation (error) distribution of the process.
+- `mat`: data matrix to initialize.
+"""
 function init_mat!(dgp::SAR11, dist_error, mat)
 
   μ = mean(dist_error)
@@ -48,7 +58,14 @@ function init_mat!(dgp::SAR22, dist_error, mat)
 
 end
 
-# Compute once matrix for SAR(1) process
+"""
+    build_sar1_matrix(dgp::SAR1)
+
+Build the inverse system matrix ``(B - I)^{-1}`` of the (margin-extended) SAR(1) process
+`dgp`, where `B` contains the four neighbor coefficients of the process. The matrix is
+computed once and then reused when simulating the SAR(1) field via
+[`fill_mat_dgp_sop!`](@ref).
+"""
 function build_sar1_matrix(dgp::SAR1)
 
   margin = dgp.margin
@@ -93,7 +110,24 @@ function build_sar1_matrix(dgp::SAR1)
 
 end
 
-# Method to fill data matrix for SAR(1) without additive outliers
+"""
+    fill_mat_dgp_sop!(dgp, dist_error, dist_ao, mat, mat_ao, ...)
+
+Fill the data matrix in-place with one realization of the spatial DGP `dgp` and return a
+view of the field without the margin. Methods exist for all spatial DGPs (`SAR1`,
+`SAR11`, `SINAR11`, `SAR22`, `SQMA11`, `SQMA22`, `SQINMA11`, `BSQMA11`, `ICSTS`, …), each
+with and without additive outliers.
+
+- `dgp`: spatial DGP struct holding the dimensions and model parameters.
+- `dist_error`: innovation (error) distribution.
+- `dist_ao`: distribution of the additive outliers, or `nothing` for the outlier-free
+  method.
+- remaining arguments: pre-allocated matrices/vectors used as work buffers; their number
+  and types depend on the DGP (see the individual methods).
+
+Returns a view of the filled data matrix restricted to the `M_rows × N_cols` field of
+interest (margins removed).
+"""
 function fill_mat_dgp_sop!(
   dgp::SAR1, dist_error::UnivariateDistribution, dist_ao::Nothing, mat, mat_ao::Matrix{Float64}, vec_ar::Vector{Float64}, vec_ar2::Vector{Float64}, mat2::Matrix{Float64}
 )

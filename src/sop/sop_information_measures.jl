@@ -1,17 +1,87 @@
 
-# Build concrete types for information measures for SOPs
+"""
+    TauHat()
+
+Chart choice for spatial ordinal patterns (SOPs): the statistic
+``\\hat{\\tau} = \\hat{p}_1 - 1/3``, based on the relative frequency of the first SOP
+type.
+"""
 struct TauHat <: ComplexityEstimator end
+
+"""
+    KappaHat()
+
+Chart choice for spatial ordinal patterns (SOPs): the statistic
+``\\hat{\\kappa} = \\hat{p}_2 - \\hat{p}_3``, the difference of the relative frequencies
+of the second and third SOP type.
+"""
 struct KappaHat <: ComplexityEstimator end
+
+"""
+    TauTilde()
+
+Chart choice for spatial ordinal patterns (SOPs): the statistic
+``\\tilde{\\tau} = \\tilde{p}_3 - 1/3``, based on the third type frequency of the
+refined SOP classification.
+"""
 struct TauTilde <: ComplexityEstimator end
+
+"""
+    KappaTilde()
+
+Chart choice for spatial ordinal patterns (SOPs): the statistic
+``\\tilde{\\kappa} = \\tilde{p}_1 - \\tilde{p}_2``, the difference of the first and
+second type frequencies of the refined SOP classification.
+"""
 struct KappaTilde <: ComplexityEstimator end
 
-# Build Refinement Types
+"""
+    RefinedType
+
+Abstract supertype for the refined classification schemes of spatial ordinal patterns
+(SOPs); see Weiß and Kim (2025). Concrete subtypes are [`RotationType`](@ref),
+[`DirectionType`](@ref), and [`DiagonalType`](@ref).
+"""
 abstract type RefinedType end
+
+"""
+    RotationType()
+
+Refined SOP classification that groups spatial ordinal patterns by rotational symmetry;
+see Weiß and Kim (2025).
+"""
 struct RotationType <: RefinedType end
+
+"""
+    DirectionType()
+
+Refined SOP classification that groups spatial ordinal patterns by direction; see Weiß
+and Kim (2025).
+"""
 struct DirectionType <: RefinedType end
+
+"""
+    DiagonalType()
+
+Refined SOP classification that groups spatial ordinal patterns by their diagonal
+behavior; see Weiß and Kim (2025).
+"""
 struct DiagonalType <: RefinedType end
 
 
+"""
+    chart_stat_sop(p_vec, chart_choice)
+
+Compute the chart statistic of a spatial ordinal pattern (SOP) distribution `p_vec` for
+the given chart choice.
+
+- `p_vec`: vector of (relative) SOP type frequencies.
+- `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`,
+  [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`, `Shannon()`, `ShannonExtropy()`,
+  `DistanceToWhiteNoise()`.
+
+Returns the value of the chart statistic.
+"""
 function chart_stat_sop(p_vec, ::TauHat)
   return p_vec[1] - 1.0 / 3.0
 end

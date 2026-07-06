@@ -2,6 +2,18 @@
 
 # Under H₀: MN/2 * bp_stat → Chisq(K), where K = 2w(w+1).
 # Reject when MN/2 * bp_stat > χ²_{K, 1-α}, i.e. bp_stat > 2/(MN) * χ²_{K, 1-α}.
+"""
+    crit_val_sacf_bp(M, N, w, alpha)
+
+Compute the critical value of the Box-Pierce type test based on the spatial
+autocorrelation function (SACF); see [`test_sacf_bp`](@ref). Under the null hypothesis,
+`M * N / 2` times the BP statistic is asymptotically `Chisq(K)` distributed with
+`K = 2w(w + 1)` degrees of freedom.
+
+- `M`, `N`: dimensions of the data matrix.
+- `w::Int`: window size; delays up to `w` in each direction are used.
+- `alpha`: significance level.
+"""
 function crit_val_sacf_bp(M, N, w, alpha)
   K = 2 * w * (w + 1)
   return 2 / (M * N) * quantile(Chisq(K), 1 - alpha)
@@ -9,6 +21,18 @@ end
 
 # --- Result types ---
 
+"""
+    SACFTestResult
+
+Result of the asymptotic test based on the spatial autocorrelation function
+[`test_sacf`](@ref).
+
+Fields:
+- `stat::Float64`: value of the test statistic.
+- `asymp_crit::Float64`: asymptotic critical value.
+- `asymp_pval::Float64`: asymptotic p-value.
+- `asymp_reject::Bool`: whether the null hypothesis is rejected at the chosen level.
+"""
 struct SACFTestResult
   stat::Float64
   asymp_crit::Float64
@@ -26,6 +50,18 @@ function Base.show(io::IO, r::SACFTestResult)
   print(io,   "    Reject H₀:      ", r.asymp_reject)
 end
 
+"""
+    SACFBPTestResult
+
+Result of the asymptotic Box-Pierce type test based on the spatial autocorrelation
+function [`test_sacf_bp`](@ref).
+
+Fields:
+- `stat::Float64`: value of the test statistic.
+- `asymp_crit::Float64`: asymptotic critical value.
+- `asymp_pval::Float64`: asymptotic p-value.
+- `asymp_reject::Bool`: whether the null hypothesis is rejected at the chosen level.
+"""
 struct SACFBPTestResult
   stat::Float64
   asymp_crit::Float64
@@ -66,6 +102,18 @@ end
 
 # --- User-facing test functions ---
 
+"""
+    test_sacf(data, d1, d2; alpha=0.05)
+
+Perform the asymptotic two-sided test for spatial dependence at delay `(d1, d2)` based
+on the spatial autocorrelation function (SACF) and return a [`SACFTestResult`](@ref)
+with the test statistic, the asymptotic critical value, the p-value, and the reject
+decision.
+
+- `data::Matrix{<:Real}`: data matrix (spatial field).
+- `d1::Int`, `d2::Int`: row and column delays.
+- `alpha=0.05`: significance level.
+"""
 function test_sacf(data::Matrix{<:Real}, d1::Int, d2::Int; alpha=0.05)
   M, N      = size(data)
   test_stat = stat_sacf(data, d1, d2)
@@ -74,6 +122,18 @@ function test_sacf(data::Matrix{<:Real}, d1::Int, d2::Int; alpha=0.05)
   return SACFTestResult(test_stat, crit_val, p_val, abs(test_stat) > crit_val)
 end
 
+"""
+    test_sacf_bp(data, w; alpha=0.05)
+
+Perform the asymptotic Box-Pierce type test for spatial dependence based on the spatial
+autocorrelation function (SACF), aggregating the squared SACF values over all delays up
+to `w`, and return a [`SACFBPTestResult`](@ref) with the test statistic, the asymptotic
+critical value, the p-value, and the reject decision.
+
+- `data::Matrix{<:Real}`: data matrix (spatial field).
+- `w::Int`: window size; delays up to `w` in each direction are used.
+- `alpha=0.05`: significance level.
+"""
 function test_sacf_bp(data::Matrix{<:Real}, w::Int; alpha=0.05)
   M, N      = size(data)
   test_stat = stat_sacf_bp(data, w)

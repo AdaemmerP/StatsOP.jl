@@ -1,12 +1,66 @@
 
+"""
+    DistanceToWhiteNoise()
+
+Chart choice for the Δ-chart. The statistic measures the squared Euclidean distance of the
+ordinal-pattern distribution to the uniform distribution obtained under white noise. See
+Equation (3) in Weiß and Testik (2023).
+"""
 struct DistanceToWhiteNoise <: InformationMeasure end
+
+"""
+    UpDownBalance()
+
+Chart choice for the β-chart (up-down balance) by Bandt (2019), Equation (3). For pattern
+length `m = 3`, the statistic is ``\\hat{\\beta} = \\hat{p}_1 - \\hat{p}_6``, based on the
+relative frequencies of the decreasing and increasing patterns.
+"""
 struct UpDownBalance <: ComplexityEstimator end
+
+"""
+    Persistence()
+
+Chart choice for the τ-chart (persistence) by Bandt (2019), Equation (4). For pattern
+length `m = 3`, the statistic is ``\\hat{\\tau} = \\hat{p}_1 + \\hat{p}_6 - 1/3``, based on
+the relative frequencies of the two monotone patterns.
+"""
 struct Persistence <: ComplexityEstimator end
+
+"""
+    RotationalAsymmetry()
+
+Chart choice for the γ-chart (rotational asymmetry) by Bandt (2019), Equation (5). For
+pattern length `m = 3`, the statistic is
+``\\hat{\\gamma} = \\hat{p}_3 + \\hat{p}_5 - \\hat{p}_2 - \\hat{p}_4``.
+"""
 struct RotationalAsymmetry <: ComplexityEstimator end
+
+"""
+    UpDownScaling()
+
+Chart choice for the δ-chart (up-down scaling) by Bandt (2019), Equation (6). For pattern
+length `m = 3`, the statistic is
+``\\hat{\\delta} = \\hat{p}_2 + \\hat{p}_3 - \\hat{p}_4 - \\hat{p}_5``.
+"""
 struct UpDownScaling <: ComplexityEstimator end
 
-# H-chart: Equation (3), page 342, Weiss and Testik (2023)
-function chart_stat_op(p_vec, ::Shannon)
+"""
+    chart_stat_op(p_vec, chart_choice)
+
+Compute the (in-control) chart statistic of an ordinal-pattern distribution `p_vec` for the
+given chart choice.
+
+- `p_vec`: vector of (relative) ordinal-pattern frequencies of length `m!`, ordered by
+  their Lehmer index (see [`perm_to_lehm_idx`](@ref)).
+- `chart_choice`: one of `Shannon()`, `ShannonExtropy()`, `DistanceToWhiteNoise()`,
+  `UpDownBalance()`, `Persistence()`, `RotationalAsymmetry()`, `UpDownScaling()`.
+
+Returns the value of the chart statistic. The Shannon and Shannon-extropy statistics
+follow Equation (3) in Weiß and Testik (2023); the β-, τ-, γ- and δ-statistics follow
+Equations (3)–(6) in Bandt (2019) and require `m = 3` (`UpDownBalance` also supports
+`m = 2`).
+"""
+function chart_stat_op(p_vec, ::Shannon) # H-chart: Equation (3), page 342, Weiss and Testik (2023)
   value = 0.0
   for i in axes(p_vec, 1)
     p_vec[i] > 0 && (value -= p_vec[i] * log(p_vec[i])) # to avoid log(0)

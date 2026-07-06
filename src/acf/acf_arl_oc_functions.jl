@@ -120,6 +120,22 @@
 
 
 
+"""
+    arl_acf_oc(lam, cl, acf_dgp, dist_null, reps, acf_version; rl_max=typemax(Int))
+
+Compute the out-of-control average run length (ARL) of the EWMA lag-1 autocorrelation
+(ACF) chart via simulation. The computation is multithreaded.
+
+- `lam::Float64`: smoothing parameter of the EWMA statistic.
+- `cl::Float64`: control limit of the ACF chart.
+- `acf_dgp`: out-of-control DGP (e.g. `AR1`, `TEAR1`).
+- `dist_null`: in-control (null) distribution used to center and scale the statistic.
+- `reps::Int`: number of replications.
+- `acf_version::Int`: version of the ACF statistic (see [`stat_acf`](@ref)).
+- `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
+
+Returns the tuple `(ARL, standard error)`.
+"""
 function arl_acf_oc(lam, cl, acf_dgp, dist_null, reps, acf_version; rl_max::Int=typemax(Int))
 
   # Number of chunks for load balancing
@@ -140,18 +156,22 @@ end
 
 
 """
-    rl_acf(lam, cl, p_reps, acf_dgp)
+    rl_acf_oc(lam, cl, p_reps, acf_dgp, acf_dgp_dist, dist_null, acf_version,
+      rl_max=typemax(Int))
 
-Function to compute the run length (RL) for a specified DGP using the ACF statistic by XXX.
-  
-- `lam::Float64`: Smoothing parameter for the EWMA statistic.
-- `cl::Float64`: Control limit for the ACF statistic.
-- `p_reps::Vector{Int64}`: Unit range for number of replications.
-- `acf_dgp::Union{IC, AR1, TEAR1}`: DGP.
+Compute out-of-control run lengths of the EWMA lag-1 autocorrelation (ACF) chart for a
+chunk of replications. This is the single-threaded worker used by [`arl_acf_oc`](@ref).
 
-```julia
-rl_acf(0.1, 3.0, 10_000, IC(Normal(0, 1)))
-```
+- `lam::Float64`: smoothing parameter of the EWMA statistic.
+- `cl::Float64`: control limit of the ACF chart.
+- `p_reps`: range of replication indices to process.
+- `acf_dgp`: out-of-control DGP (e.g. `AR1`, `TEAR1`).
+- `acf_dgp_dist`: innovation distribution of `acf_dgp`.
+- `dist_null`: in-control (null) distribution used to center and scale the statistic.
+- `acf_version::Int`: version of the ACF statistic (see [`stat_acf`](@ref)).
+- `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
+
+Returns a vector of run lengths.
 """
 function rl_acf_oc(lam, cl, p_reps, acf_dgp, acf_dgp_dist, dist_null, acf_version, rl_max::Int=typemax(Int))
 

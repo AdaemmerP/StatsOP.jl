@@ -83,8 +83,8 @@ export bootstrap_op, test_op_bootstrap, OPTestResultBoot
 # ---------------------------------------------#
 
 # acf/acf_arl_ic_functions.jl
-export arl_acf,
-  rl_acf
+export arl_acf_ic,
+  rl_acf_ic
 
 # acf/acf_arl_oc_functions.jl
 export arl_acf_oc

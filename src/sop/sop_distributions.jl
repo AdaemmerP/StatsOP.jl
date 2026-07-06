@@ -120,7 +120,18 @@ ZIP(λ::Real, ω::Real) = ZIP(promote(λ, ω)...)
 Base.rand(d::ZIP) = rand(Binomial(1, 1 - d.ω)) * rand(Poisson(d.λ / (1 - d.ω)))
 Statistics.mean(d::ZIP) = d.λ
 
-# struct for BinNorm
+"""
+    BinNorm(μ₁, μ₂, σ₁, σ₂)
+
+A binormal (two-component Gaussian mixture) distribution with equal weights: with
+probability 1/2 a draw comes from `Normal(μ₁, σ₁)` and with probability 1/2 from
+`Normal(μ₂, σ₂)`.
+
+```julia-repl
+dist = BinNorm(0.0, 3.0, 1.0, 2.0)
+rand(dist)
+```
+"""
 struct BinNorm{T<:Real} <: ContinuousUnivariateDistribution where {T}
   μ₁::T
   μ₂::T
