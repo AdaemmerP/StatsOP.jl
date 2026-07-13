@@ -78,6 +78,9 @@ export arl_op_ic,
 # op/op_bootstrap_functions.jl
 export bootstrap_op, test_op_bootstrap, OPTestResultBoot
 
+# op/op_surrogate_functions.jl (implementation in ext/StatsOPTimeseriesSurrogatesExt.jl)
+export test_op_surrogate, OPTestResultSurrogate
+
 # ---------------------------------------------#
 # ACF related functions and structs to export  #
 # ---------------------------------------------#
@@ -306,6 +309,7 @@ include("op/op_stat_bp_functions.jl")
 include("op/op_test_functions.jl")
 include("op/op_help_functions.jl")
 include("op/op_bootstrap_functions.jl")
+include("op/op_surrogate_functions.jl")
 
 # ACF files
 include("acf/acf_arl_ic_functions.jl")
