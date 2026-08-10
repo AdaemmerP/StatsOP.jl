@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.37">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -12,10 +12,13 @@
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
 */
-code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -74,10 +77,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-d79cc886e93ce7678d5ca7b1d806e280.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-cdbe6dcccf04b86544a8f382d8a2e92c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -189,23 +192,51 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div id="callout-1" class="callout-1-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
-<div id="2" class="cell" data-execution_count="0">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cl_sop_bp</span>(</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<p>sp<em>dgp::ICSP, lam, L0, cl</em>init, w, reps=10<em>000; chart</em>choice=3, jmin=4, jmax=6, verbose=false )</p>
-<p>Compute the control limit for the EWMA-chart for the BP-statistic. The function returns the control limit for a given average run. The input parameters are:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cl_sop_bp</span>(sp_dgp<span class="op">::</span><span class="dt">ICSTS</span>, lam, L0, cl_init, w;</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>          reps_final, reps_bracket, bracket_step,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>          arl_truncation_factor, chart_choice, refinement,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>          verbose, cl_tol, seed)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Compute the critical limit <code>cl</code> for a BP-EWMA control chart based on spatial ordinal patterns (SOP) such that the in-control ARL equals <code>L0</code>.</p>
+<p>The search proceeds in two phases:</p>
+<ol type="1">
+<li><strong>Bracketing</strong>: A coarse Monte Carlo estimate (using <code>reps_bracket</code> replications) steps away from <code>cl_init</code> in increments of <code>bracket_step</code> until an interval <code>[a, b]</code> is found where the ARL crosses <code>L0</code>.</li>
+<li><strong>Refinement</strong>: The ITP root-finding algorithm narrows the bracket to within <code>cl_tol</code> using full Monte Carlo estimates (<code>reps_final</code> replications). Using a fixed <code>seed</code> ensures the ARL function behaves smoothly across evaluations within a single call. With large <code>reps_final</code>, the result is accurate regardless of which seed is used. Pass <code>seed=nothing</code> (default) for independent results across calls, or fix the seed for reproducibility.</li>
+</ol>
+<section id="arguments" class="level3">
+<h3 class="anchored" data-anchor-id="arguments">Arguments</h3>
 <ul>
-<li><code>sp_dgp::ICSTS</code>: The in-control spatial process (ICSTS).</li>
-<li><code>lam::Float64</code>: A scalar value for lambda for the EWMA chart.</li>
-<li><code>L0::Float64</code>: The desired average run length.</li>
-<li><code>cl_init::Float64</code>: The initial value for the control limit.</li>
-<li><code>w::Int</code>: The window size for the BP-statistic.</li>
-<li><code>reps::Int</code>: The number of replications to compute the ARL.</li>
-<li><code>chart_choice::Int</code>: The chart choice for the SOP chart.</li>
-<li><code>jmin</code>: The minimum number of values to change after the decimal point in the control limit.</li>
-<li><code>jmax</code>: The maximum number of values to change after the decimal point in the control limit.</li>
-<li><code>verbose::Bool</code>: A boolean to indicate whether to print the control limit and ARL for each iteration.</li>
+<li><code>sp_dgp::ICSTS</code>: Data-generating process under the in-control distribution.</li>
+<li><code>lam</code>: EWMA smoothing parameter λ ∈ (0, 1].</li>
+<li><code>L0</code>: Target in-control ARL.</li>
+<li><code>cl_init</code>: Initial guess for the critical limit.</li>
+<li><code>w</code>: Window size for the BP-statistic.</li>
 </ul>
+</section>
+<section id="keyword-arguments" class="level3">
+<h3 class="anchored" data-anchor-id="keyword-arguments">Keyword Arguments</h3>
+<ul>
+<li><code>reps_final=10_000</code>: Replications used during the ITP refinement phase.</li>
+<li><code>reps_bracket=1_000</code>: Replications used during the bracketing phase.</li>
+<li><code>bracket_step=0.001</code>: Step size for the bracketing search.</li>
+<li><code>arl_truncation_factor=50</code>: Individual simulation runs are capped at <code>arl_truncation_factor * L0</code> steps during bracketing.</li>
+<li><code>chart_choice=TauTilde()</code>: Control chart statistic to use.</li>
+<li><code>refinement=nothing</code>: Whether to apply a refined chart computation.</li>
+<li><code>cl_tol=1e-4</code>: Absolute convergence tolerance on <code>cl</code> for the ITP phase.</li>
+<li><code>seed=nothing</code>: Random seed for reproducibility.</li>
+<li><code>verbose=false</code>: If <code>true</code>, prints progress information at each evaluation.</li>
+</ul>
+</section>
+<section id="returns" class="level3">
+<h3 class="anchored" data-anchor-id="returns">Returns</h3>
+<ul>
+<li><code>cl::Float64</code>: The critical limit achieving an in-control ARL of <code>L0</code>.</li>
+</ul>
+</section>
+<section id="example" class="level3">
+<h3 class="anchored" data-anchor-id="example">Example</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>sp_dgp <span class="op">=</span> <span class="fu">ICSTS</span>(<span class="fl">20</span>, <span class="fl">20</span>, <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>))</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>cl <span class="op">=</span> <span class="fu">cl_sop_bp</span>(sp_dgp, <span class="fl">0.1</span>, <span class="fl">370.0</span>, <span class="fl">2.5</span>, <span class="fl">3</span>; reps_final<span class="op">=</span><span class="fl">50_000</span>, seed<span class="op">=</span><span class="fl">42</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
 </div>
 </div>
 </div>

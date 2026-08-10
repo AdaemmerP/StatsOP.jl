@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.37">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -12,16 +12,54 @@
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
 */
-code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -39,10 +77,10 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-d79cc886e93ce7678d5ca7b1d806e280.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-cdbe6dcccf04b86544a8f382d8a2e92c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -154,15 +192,23 @@ ul.task-list li input[type="checkbox"] {
 </div>
 <div id="callout-1" class="callout-1-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
-<p>function stat<em>sop( data::Union{SubArray,Array{T,2}}, d1::Int, d2::Int; chart</em>choice=3, add_noise::Bool=false ) where {T&lt;:Real}</p>
-<p>Computes the test statistic for a single picture and chosen test statistic. <code>chart_coice</code> is an integer value for the chart choice. The options are 1-4.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stat_sop</span>(data, d1, d2; chart_choice, refinement<span class="op">=</span><span class="cn">false</span>, add_noise<span class="op">=</span><span class="cn">false</span>,</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  noise_dist<span class="op">=</span><span class="fu">Uniform</span>(<span class="fl">0</span>, <span class="fl">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Compute the test statistic based on spatial ordinal patterns (SOPs) for a single picture (matrix). Returns the tuple <code>(stat, p_hat)</code> with the chart statistic and the vector of relative SOP type frequencies.</p>
+<ul>
+<li><code>data::Union{SubArray,Array{T,2}}</code>: A 2D array of data.</li>
+<li><code>d1::Int</code>: The delay value for the rows.</li>
+<li><code>d2::Int</code>: The delay value for the columns.</li>
+<li><code>chart_choice</code>: one of <a href="@ref"><code>TauHat</code></a><code>()</code>, <a href="@ref"><code>KappaHat</code></a><code>()</code>, <a href="@ref"><code>TauTilde</code></a><code>()</code>, <a href="@ref"><code>KappaTilde</code></a><code>()</code>, <code>Shannon()</code>, <code>ShannonExtropy()</code>, <code>DistanceToWhiteNoise()</code>.</li>
+<li><code>refinement</code>: <code>false</code> for the classical SOP classification, or one of <a href="@ref"><code>RotationType</code></a><code>()</code>, <a href="@ref"><code>DirectionType</code></a><code>()</code>, <a href="@ref"><code>DiagonalType</code></a><code>()</code>.</li>
+<li><code>add_noise::Bool</code>: A boolean value to add noise to the data.</li>
+<li><code>noise_dist::UnivariateDistribution</code>: The distribution for the noise.</li>
+</ul>
 <section id="examples" class="level3">
 <h3 class="anchored" data-anchor-id="examples">Examples</h3>
-<pre class="{julia-repl}"><code>#| eval: false
-data = rand(20, 20);
+<pre class="julia-repl"><code>data = rand(20, 20);
 
-stat_sop(data, 2)
-</code></pre>
+stat_sop(data, 1, 1; chart_choice=TauTilde())</code></pre>
 </section>
 </div>
 </div>
@@ -180,24 +226,20 @@ stat_sop(data, 2)
 </div>
 <div id="callout-2" class="callout-2-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
-<p>stat<em>sop(data::Array{Float64, 3}, add</em>noise::Bool, lam::Float64, chart_choice::Int)</p>
-<p>Computes the test statistic for a 3D array of data, a given lambda value, and a given chart choice. The input parameters are:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stat_sop</span>(data, lam, d1, d2; chart_choice<span class="op">=</span><span class="fu">TauTilde</span>(), refinement<span class="op">=</span><span class="cn">false</span>,</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  add_noise<span class="op">=</span><span class="cn">false</span>, noise_dist<span class="op">=</span><span class="fu">Uniform</span>(<span class="fl">0</span>, <span class="fl">1</span>), type_freq_init<span class="op">=</span><span class="fl">1</span><span class="op">/</span><span class="fl">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Compute the sequence of EWMA-smoothed test statistics based on spatial ordinal patterns (SOPs) for a 3D array of data (image sequence, third dimension = time).</p>
 <ul>
-<li><p><code>data::Array{Float64,3}</code>: A 3D array of data.</p></li>
-<li><p><code>add_noise::Bool</code>: A boolean value whether to add noise to the data. This is necessary when the matrices consist of count data.</p></li>
-<li><p><code>lam::Float64</code>: A scalar value for lambda.</p></li>
-<li><p><code>chart_choice::Int</code>: An integer value for the chart choice. The options are 1-4.</p></li>
+<li><code>data::Array{Float64,3}</code>: A 3D array of data.</li>
+<li><code>lam::Float64</code>: The lambda value for the EWMA.</li>
+<li><code>d1::Int</code>: The delay value for the rows.</li>
+<li><code>d2::Int</code>: The delay value for the columns.</li>
+<li><code>chart_choice</code>: one of <a href="@ref"><code>TauHat</code></a><code>()</code>, <a href="@ref"><code>KappaHat</code></a><code>()</code>, <a href="@ref"><code>TauTilde</code></a><code>()</code>, <a href="@ref"><code>KappaTilde</code></a><code>()</code>.</li>
+<li><code>refinement</code>: <code>false</code> for the classical SOP classification, or one of <a href="@ref"><code>RotationType</code></a><code>()</code>, <a href="@ref"><code>DirectionType</code></a><code>()</code>, <a href="@ref"><code>DiagonalType</code></a><code>()</code>.</li>
+<li><code>add_noise::Bool</code>: A boolean value to add noise to the data.</li>
+<li><code>noise_dist::UnivariateDistribution</code>: The distribution for the noise.</li>
+<li><code>type_freq_init::Union{Float64,Array{Float64,2}}</code>: The initial type frequencies.</li>
 </ul>
-<section id="examples-1" class="level3">
-<h3 class="anchored" data-anchor-id="examples-1">Examples</h3>
-<pre class="{julia-repl}"><code>#| eval: false
-data = rand(20, 20, 10);
-lam = 0.1;
-chart_choice = 2;
-
-stat_sop(data, false, lam, chart_choice)
-</code></pre>
-</section>
 </div>
 </div>
 </div>
