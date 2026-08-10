@@ -18,20 +18,13 @@ import PrecompileTools
 @reexport using Distributions
 @reexport using ComplexityMeasures: Shannon, ShannonExtropy
 
-# -----------------------------------------------#
-#  General helper functions and structs to export #
-# -----------------------------------------------#
-
-# algorithms_and_types/lehmer_function.jl
-export perm_to_lehm_idx,
-  perm_to_lehm_idx!
-
 # ---------------------------------------------#
 # OP related functions and structs  to export  #
 # ---------------------------------------------#
 
 # op/op_dgp_structs.jl
-export AR1,
+export AAR1,
+  AR1,
   BAR1,
   ContinuousDGPIC,
   DAR1,
@@ -56,9 +49,6 @@ export chart_stat_op,
 # op/op_stat_bp_functions.jl
 export crit_val_op_bp,
   stat_op_bp
-
-# op/op_help_functions.jl
-export add_noise!
 
 # op/op_arl_ic_functions.jl, op_arl_oc_functions.jl, op_cl_functions.jl,
 # op_dependence.jl, op_stat_functions.jl, op_test_functions.jl
@@ -117,16 +107,14 @@ export arl_gop_oc,
 export cl_gop
 
 # gop/gop_help_functions.jl
-export abort_criterium_gop,
-  competerank!,
-  compute_lookup_array_gop,
-  fill_p0!
+# Required as a positional argument of the exported `rl_gop_ic` / `rl_gop_oc`.
+export compute_lookup_array_gop
 
 # gop/gop_stat_functions.jl
 export stat_gop
 
 # gop/gop_bootstrap_functions.jl
-export bootstrap_gop
+export test_gop_bootstrap
 
 # ---------------------------------------------#
 # SOP related functions and structs to export  #
@@ -161,16 +149,11 @@ export BinNorm,
   PoiBin,
   ZIP
 
-# sop/sop_dgp_functions.jl
-export build_sar1_matrix,
-  fill_mat_dgp_sop!,
-  init_mat!
-
 # sop/sop_help_functions.jl
-export compute_lookup_array_sop,
-  compute_p_array,
-  compute_p_array_bp,
-  sop_frequencies!
+# Required to build the `p_mat` / `p_array` arguments of the exported
+# `arl_sop_bootstrap` / `arl_sop_bp_bootstrap`.
+export compute_p_array,
+  compute_p_array_bp
 
 # sop/sop_arl_ic_functions.jl
 export arl_sop_ic

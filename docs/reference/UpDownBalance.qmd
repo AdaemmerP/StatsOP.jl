@@ -1,0 +1,20 @@
+---
+engine: markdown
+---
+
+# UpDownBalance {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+UpDownBalance()
+```
+Chart choice for the β-chart (up-down balance) by Bandt (2019), Equation (3). For pattern length `m = 3`, the statistic is $\hat{\beta} = \hat{p}_1 - \hat{p}_6$, based on the relative frequencies of the decreasing and increasing patterns.
+ 
+
+
+:::
+    
+

@@ -1,0 +1,39 @@
+---
+engine: markdown
+---
+
+# arl_op_ic {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+arl_op_ic(op_dgp, lam, cl, reps=10_000; chart_choice, d=1, m=3, ced=false, ad=100,
+  rl_max=typemax(Int))
+```
+Compute the in-control average run length (ARL) of the EWMA chart based on ordinal patterns via simulation, following Weiß and Testik (2023). The computation is multithreaded.
+ 
+  * `op_dgp::Union{ContinuousDGPIC,DiscreteDGPIC}`: in-control DGP.
+  * `lam::Float64`: smoothing parameter of the EWMA statistic.
+  * `cl::Float64`: control limit of the chart.
+  * `reps::Int=10_000`: number of replications.
+  * `chart_choice`: one of `Shannon()`, `ShannonExtropy()`, `DistanceToWhiteNoise()`, `UpDownBalance()`, `Persistence()`, `RotationalAsymmetry()`, `UpDownScaling()` (see [`chart_stat_op`](@ref)).
+  * `d::Int=1`: delay between observations of a pattern.
+  * `m::Int=3`: length of the ordinal patterns.
+  * `ced::Bool=false`: use conditional expected delay initialization.
+  * `ad::Int=100`: number of in-control iterations for `ced`.
+  * `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
+Returns the tuple `(ARL, standard error)`.
+ 
+
+```julia
+arl_op_ic(
+  ContinuousDGPIC(Normal(0, 1)), 0.1, 0.3, 10_000; chart_choice=Shannon(), d=1
+)
+```
+
+
+:::
+    
+

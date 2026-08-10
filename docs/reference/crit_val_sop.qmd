@@ -1,5 +1,5 @@
 ---
-engine: julia
+engine: markdown
 ---
 
 # crit_val_sop {#sec-doc}
@@ -7,32 +7,26 @@ engine: julia
 
 ::: {.callout-note appearance="simple" title="docblock" collapse=false}    
 
-crit*val*sop(m, n, alpha, chart_choice, approximate::Bool)
+
+```julia
+crit_val_sop(M, N, alpha, d1, d2, chart_choice, refinement=false)
+```
+Compute the critical value for the asymptotic test based on spatial ordinal patterns (SOPs); see [`test_sop`](@ref).
  
-Computes the critical value for the SOP test. Also allows the approximation of    the critical value. The input parameters are:
- 
-  * `m::Int64`: The number of rows in the sop-matrix. Note that the data matrix has
-dimensions `M = m + d₁`, where `d₁` denotes the row delay.
- 
-  * `n::Int64`: The number of columns in the sop-matrix. Note that the data matrix
-has dimensions `N = n + d₂`, where `d₂` denotes the column delay.
- 
-  * `alpha::Float64`: The significance level.
-  * `chart_choice::Int64`: The choice of chart.
-  * `approximate::Bool`: If `true`, the approximate critical value is computed.
-If `false`, the exact critical value is computed.
- 
+  * `M::Int`: number of rows of the data matrix. The SOP matrix has `m = M - d1` rows.
+  * `N::Int`: number of columns of the data matrix. The SOP matrix has `n = N - d2` columns.
+  * `alpha::Float64`: significance level.
+  * `d1::Int`: row delay.
+  * `d2::Int`: column delay.
+  * `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`, [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`, `Shannon()`, `ShannonExtropy()`, `DistanceToWhiteNoise()`.
+  * `refinement`: `false` for the classical SOP classification, or one of [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()` (only for the entropy-type charts).
 
 ### Examples
     
 
-```{julia-repl}
-#| eval: false
-# compute approximate critical value for chart 1 
-crit_val_sop(10, 10, 0.05, 1, true)
-
+```julia-repl
+crit_val_sop(11, 11, 0.05, 1, 1, TauHat())
 ```
-
 
 
 :::

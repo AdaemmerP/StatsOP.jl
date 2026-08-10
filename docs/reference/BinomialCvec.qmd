@@ -1,5 +1,5 @@
 ---
-engine: julia
+engine: markdown
 ---
 
 # BinomialCvec {#sec-doc}
@@ -8,12 +8,9 @@ engine: julia
 ::: {.callout-note appearance="simple" title="docblock" collapse=false}    
 
 
-```{julia}
-#| eval: false
+```julia
 BinomialCvec{T <: Real}  <: DiscreteUnivariateDistribution
-
 ```
-
 A struct to define a binomial distribution, which gets multiplied by a value from vector `c_vec`. 
  
 `julia-repl dist = BinomialCvec(0.5, [-10; 10]) rand(dist)``

@@ -1,0 +1,20 @@
+---
+engine: markdown
+---
+
+# KappaN2 {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+KappaN2()
+```
+Variant 2 of the nominal κ-chart ([`KappaN`](@ref)); the marginal probabilities are kept fixed at their in-control values and only the agreement statistic is smoothed.
+ 
+
+
+:::
+    
+

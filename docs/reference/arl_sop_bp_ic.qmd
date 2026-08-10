@@ -1,5 +1,5 @@
 ---
-engine: julia
+engine: markdown
 ---
 
 # arl_sop_bp_ic {#sec-doc}
@@ -8,24 +8,22 @@ engine: julia
 ::: {.callout-note appearance="simple" title="docblock" collapse=false}    
 
 
-```{julia}
-#| eval: false
-arl_sop_bp_ic(
-
+```julia
+arl_sop_bp_ic(spatial_dgp, lam, cl, w, reps=1_000; chart_choice=TauTilde(),
+  refinement=false, rl_max=typemax(Int))
 ```
-
-spatial*dgp::ICSP, lam, cl, w::Int, reps=10*000; chart_choice=3 )
+Compute the in-control average run length (ARL) of the EWMA chart based on the Box-Pierce type statistic for spatial ordinal patterns (SOPs) via simulation. The computation is multithreaded.
  
-Computes the average run length (ARL) for a given in-control spatial DGP, using  EWMA-BP-SOP statistics.
- 
-The input parameters are:
- 
-  * `spatial_dgp::ICSP`: A struct for the in-control spatial DGP.
+  * `spatial_dgp::ICSTS`: in-control spatial DGP.
   * `lam::Float64`: A scalar value for lambda for the EWMA chart.
   * `cl::Float64`: A scalar value for the control limit.
   * `w::Int`: An integer value for the window size for the BP-statistic.
-  * `reps::Int`: An integer value for the number of repetitions. The default value is 10,000.
-  * `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
+  * `reps::Int`: An integer value for the number of repetitions. The default value is 1,000.
+  * `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`, [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`.
+  * `refinement`: `false` for the classical SOP classification, or one of [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`.
+  * `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
+Returns the tuple `(ARL, standard error)`.
+ 
 
 
 :::

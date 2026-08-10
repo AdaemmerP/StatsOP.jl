@@ -1,0 +1,20 @@
+---
+engine: markdown
+---
+
+# KappaO2 {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+KappaO2()
+```
+Variant 2 of the ordinal κ-chart ([`KappaO`](@ref)); the marginal probabilities are kept fixed at their in-control values and only the agreement statistic is smoothed.
+ 
+
+
+:::
+    
+

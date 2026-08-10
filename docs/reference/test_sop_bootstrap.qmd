@@ -1,0 +1,26 @@
+---
+engine: markdown
+---
+
+# test_sop_bootstrap {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+test_sop_bootstrap(data, n_boot, d1, d2; chart_choice, refinement, alpha, block_size)
+```
+Compute a bootstrap hypothesis test for spatial ordinal patterns and return an `SOPTestResultBoot` with the bootstrap critical value, p-value, and reject decision.
+ 
+For Tau/Kappa charts the raw statistic is used. For entropy charts (`Shannon`, `ShannonExtropy`, `DistanceToWhiteNoise`) the same `rescale_sop` transformation used by `test_sop` is applied so that the bootstrap critical value is on the same scale as the asymptotic critical value and the two can be compared directly.
+ 
+  * `data`: the 2D image (M × N matrix).
+  * `n_boot`: number of bootstrap replications.
+  * `d1`, `d2`: row and column delays.
+  * `block_size`: set `> 1` for a 2D block bootstrap that preserves spatial dependencies.
+
+
+:::
+    
+

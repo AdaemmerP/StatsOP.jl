@@ -1,0 +1,28 @@
+---
+engine: markdown
+---
+
+# bootstrap_sacf {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+bootstrap_sacf(
+  data::Matrix{T}, n_boot::Int, d1::Int, d2::Int;
+  block_size::Int=1
+) where {T<:Real}
+```
+Generate a bootstrap distribution of the SACF statistic for a single spatial image.
+ 
+  * `data`: The 2D image (M × N matrix).
+  * `n_boot`: Number of bootstrap replications.
+  * `d1::Int`: Row delay for the SACF.
+  * `d2::Int`: Column delay for the SACF.
+  * `block_size`: Set > 1 to use 2D block bootstrap and preserve spatial dependencies.
+
+
+:::
+    
+

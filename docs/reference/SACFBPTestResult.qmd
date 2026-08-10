@@ -1,0 +1,26 @@
+---
+engine: markdown
+---
+
+# SACFBPTestResult {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+SACFBPTestResult
+```
+Result of the asymptotic Box-Pierce type test based on the spatial autocorrelation function [`test_sacf_bp`](@ref).
+ 
+Fields:
+ 
+  * `stat::Float64`: value of the test statistic.
+  * `asymp_crit::Float64`: asymptotic critical value.
+  * `asymp_pval::Float64`: asymptotic p-value.
+  * `asymp_reject::Bool`: whether the null hypothesis is rejected at the chosen level.
+
+
+:::
+    
+

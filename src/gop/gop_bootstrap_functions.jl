@@ -1,4 +1,4 @@
-export bootstrap_gop
+export test_gop_bootstrap
 
 # ------------------------------------------------------------------------------
 # 1. BUFFER MANAGEMENT
@@ -65,7 +65,7 @@ end
 # 3. BOOTSTRAP WRAPPER
 # ------------------------------------------------------------------------------
 """
-    bootstrap_gop(
+    test_gop_bootstrap(
       data::Vector{Float64}, n_boot::Int,
       null_dist::DiscreteUnivariateDistribution, lam::Float64;
       chart_choice, m::Int=3, d::Int=1,
@@ -80,7 +80,7 @@ Generate a bootstrap distribution of the GOP statistic.
 - `lam`: EWMA smoothing parameter.
 - `block_size`: Set > 1 to use block bootstrap and preserve time-series dependencies.
 """
-function bootstrap_gop(
+function test_gop_bootstrap(
   data::Vector{Float64},
   n_boot::Int,
   null_dist::DiscreteUnivariateDistribution,

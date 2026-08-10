@@ -1,0 +1,30 @@
+---
+engine: markdown
+---
+
+# bootstrap_sop {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+bootstrap_sop(
+  data::Matrix{<:Real}, n_boot::Int, d1::Int, d2::Int;
+  chart_choice=TauTilde(), refinement=false, block_size::Int=1
+)
+```
+Generate a bootstrap distribution of the SOP statistic for a single spatial image.
+ 
+  * `data`: The 2D image (M × N matrix).
+  * `n_boot`: Number of bootstrap replications.
+  * `d1::Int`: Row delay.
+  * `d2::Int`: Column delay.
+  * `chart_choice`: The chart statistic type (e.g. `TauTilde()`, `KappaTilde()`).
+  * `refinement`: `false` for classical types, or a `RefinedType` instance.
+  * `block_size`: Set > 1 to use 2D block bootstrap and preserve spatial dependencies.
+
+
+:::
+    
+

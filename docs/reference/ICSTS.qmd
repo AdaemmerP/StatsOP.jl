@@ -1,5 +1,5 @@
 ---
-engine: julia
+engine: markdown
 ---
 
 # ICSTS {#sec-doc}
@@ -8,13 +8,10 @@ engine: julia
 ::: {.callout-note appearance="simple" title="docblock" collapse=false}    
 
 
-```{julia}
-#| eval: false
-ICSP(M_rows, N_cols, dist)
-
+```julia
+ICSTS(M_rows, N_cols, dist)
 ```
-
-A struct to define an independent and identically distributed (IID) process for in-control
+A struct to define an independent and identically distributed (IID) in-control spatial process.
  
   * `M_rows::Int`: The number of rows for the image.
   * `N_cols::Int`: The number of columns for image.

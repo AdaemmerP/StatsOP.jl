@@ -1,0 +1,33 @@
+---
+engine: markdown
+---
+
+# arl_gop_oc {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+arl_gop_oc(gop_dgp, null_dist, lam, cl, reps; chart_choice, d=1, ced=false, ad=100,
+  rl_max=typemax(Int))
+```
+Compute the out-of-control average run length (ARL) of the EWMA chart based on generalized ordinal patterns (GOPs) via simulation. The computation is multithreaded.
+ 
+  * `gop_dgp`: out-of-control DGP.
+  * `null_dist`: in-control (null) distribution used to compute the in-control GOP distribution.
+  * `lam::Float64`: smoothing parameter of the EWMA statistic.
+  * `cl::Float64`: control limit of the chart.
+  * `reps::Int`: number of replications.
+  * `chart_choice`: [`D_Chart`](@ref)`()` or `Persistence()`.
+  * `d=1`: delay between observations of a pattern.
+  * `ced::Bool=false`: use conditional expected delay initialization.
+  * `ad::Int=100`: number of in-control iterations for `ced`.
+  * `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
+Returns the tuple `(ARL, standard error)`.
+ 
+
+
+:::
+    
+

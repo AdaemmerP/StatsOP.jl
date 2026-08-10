@@ -1,5 +1,5 @@
 ---
-engine: julia
+engine: markdown
 ---
 
 # SQMA22 {#sec-doc}
@@ -8,12 +8,9 @@ engine: julia
 ::: {.callout-note appearance="simple" title="docblock" collapse=false}    
 
 
-```{julia}
-#| eval: false
+```julia
 SQMA22(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao, prerun)
-
 ```
-
 A struct to define a Spatial quadratic moving-average (SQMA(1, 1)):
  
 ``   \quad \quad Y*{t*1, t*2} =    \beta*1 \cdot \varepsilon*{t*1-1, t_2}^a 

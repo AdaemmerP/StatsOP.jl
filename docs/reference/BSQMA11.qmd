@@ -1,5 +1,5 @@
 ---
-engine: julia
+engine: markdown
 ---
 
 # BSQMA11 {#sec-doc}
@@ -8,12 +8,9 @@ engine: julia
 ::: {.callout-note appearance="simple" title="docblock" collapse=false}    
 
 
-```{julia}
-#| eval: false
+```julia
 BSQMA11(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao)
-
 ```
-
 A struct to define a bilateral spatial quadratic moving-average (BSQMA(1, 1)) process:
  
 Y*{t*1, t*2}=b*1 \cdot \varepsilon*{t*1-1, t*2-1}^a+b*2 \cdot \varepsilon*{t*1+1, t*2-1}^b+b*3 \cdot \varepsilon*{t*1+1, t*2+1}^c+b*4 \cdot \varepsilon*{t*1-1, t*2+1}^d+\varepsilon*{t*1, t*2},
@@ -27,12 +24,9 @@ Yₜ₁,ₜ₂ = b₁ ⋅ εₜ₁₋₁,ₜ₂₋₁ᵃ +           b₂ ⋅ ε
   * `dist::Distribution`: A distribution for \varepsilon*{t*1, t_2}. You can use any univariate distribution from the `Distributions.jl` package.
   * `dist_ao::Nothing`: Nothing.
 
-```{julia}
-#| eval: false
+```julia
 bsqma11 = BSQMA11((0.5, 0.3, 0.2, 0.1), (1, 1, 2, 2), 10, 10, Normal(0, 1), nothing)
-
 ```
-
 
 
 :::

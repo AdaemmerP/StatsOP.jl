@@ -1,0 +1,29 @@
+---
+engine: markdown
+---
+
+# sop_frequencies! {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
+```
+Count the absolute frequencies of the spatial ordinal patterns (SOPs) of the data matrix `data` in-place.
+ 
+  * `m`, `n`: number of SOP rows (`m = M - d1`) and columns (`n = N - d2`).
+  * `d1`, `d2`: row and column delays.
+  * `lookup_array_sop`: lookup array from [`compute_lookup_array_sop`](@ref).
+  * `data`: data matrix.
+  * `sop`: work vector of length 4 holding the current 2×2 window values.
+  * `win`: work vector of length 4 for `sortperm!`.
+  * `sop_freq`: vector of length 24 that the pattern counts are added to.
+Returns `sop_freq`.
+ 
+
+
+:::
+    
+

@@ -1,5 +1,5 @@
 ---
-engine: julia
+engine: markdown
 ---
 
 # sacf {#sec-doc}
@@ -8,12 +8,9 @@ engine: julia
 ::: {.callout-note appearance="simple" title="docblock" collapse=false}    
 
 
-```{julia}
-#| eval: false
+```julia
 sacf(X_centered, d1::Int, d2::Int)
-
 ```
-
   * `X_centered`: The centered (de-meaned) data matrix.
   * `d1::Int`: The first (row) delay for the spatial process.
   * `d2::Int`: The second (column) delay for the spatial process.

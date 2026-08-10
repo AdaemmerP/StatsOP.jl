@@ -90,10 +90,10 @@ end
   fill!(mat, 0)
 
   if dgp isa SAR11 || dgp isa SINAR11
-    init_mat!(dgp, dist_error, mat)
+    StatsOP.init_mat!(dgp, dist_error, mat)
   end
 
-  data .= fill_mat_dgp_sop!(dgp, dist_error, dist_ao, mat, mat_ao, mat_ma)
+  data .= StatsOP.fill_mat_dgp_sop!(dgp, dist_error, dist_ao, mat, mat_ao, mat_ma)
 
   # compute sacf statistic
   X_centered .= data .- mean(data)
@@ -150,7 +150,7 @@ end
   m = dgp.M_rows - 1
   n = dgp.N_cols - 1
 
-  data .= fill_mat_dgp_sop!(dgp, dist_error, dist_ao, mat, mat_ao, vec_ar, vec_ar2, mat2)
+  data .= StatsOP.fill_mat_dgp_sop!(dgp, dist_error, dist_ao, mat, mat_ao, vec_ar, vec_ar2, mat2)
 
   # compute test statistic
   sop_stat_1 = stat_sop(data, d1, d2; chart_choice=1, add_noise=false)
@@ -877,7 +877,7 @@ for (i, dgp_param) in enumerate(dgp_params)
     X_centered = similar(data)
 
     # pre-allocate SOPs
-    mat = build_sar1_matrix(dgp) # will be done only once
+    mat = StatsOP.build_sar1_matrix(dgp) # will be done only once
     mat_ao = zeros((M + 2 * margin), (N + 2 * margin))
     vec_ar = zeros((M + 2 * margin) * (N + 2 * margin))
     vec_ar2 = similar(vec_ar)
@@ -952,7 +952,7 @@ for (i, dgp_param) in enumerate(dgp_params)
     X_centered = similar(data)
 
     # pre-allocate SOPs
-    mat = build_sar1_matrix(dgp) # will be done only once
+    mat = StatsOP.build_sar1_matrix(dgp) # will be done only once
     mat_ao = zeros((M + 2 * margin), (N + 2 * margin))
     vec_ar = zeros((M + 2 * margin) * (N + 2 * margin))
     vec_ar2 = similar(vec_ar)
@@ -1029,7 +1029,7 @@ for (i, dgp_param) in enumerate(dgp_params)
     X_centered = similar(data)
 
     # pre-allocate SOPs
-    mat = build_sar1_matrix(dgp) # will be done only once
+    mat = StatsOP.build_sar1_matrix(dgp) # will be done only once
     mat_ao = zeros((M + 2 * margin), (N + 2 * margin))
     vec_ar = zeros((M + 2 * margin) * (N + 2 * margin))
     vec_ar2 = similar(vec_ar)

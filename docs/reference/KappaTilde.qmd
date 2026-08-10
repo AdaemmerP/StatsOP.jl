@@ -1,0 +1,20 @@
+---
+engine: markdown
+---
+
+# KappaTilde {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+KappaTilde()
+```
+Chart choice for spatial ordinal patterns (SOPs): the statistic $\tilde{\kappa} = \tilde{p}_1 - \tilde{p}_2$, the difference of the first and second type frequencies of the refined SOP classification.
+ 
+
+
+:::
+    
+

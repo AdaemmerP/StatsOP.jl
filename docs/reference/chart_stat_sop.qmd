@@ -1,5 +1,5 @@
 ---
-engine: julia
+engine: markdown
 ---
 
 # chart_stat_sop {#sec-doc}
@@ -8,13 +8,14 @@ engine: julia
 ::: {.callout-note appearance="simple" title="docblock" collapse=false}    
 
 
-```{julia}
-#| eval: false
-chart_stat_sop(p_ewma, chart_choice)
-
+```julia
+chart_stat_sop(p_vec, chart_choice)
 ```
-
-Compute the the test statistic for spatial ordinal patterns. The first input is  a vector with three values, based on SOP counts. The second input is the chart.     
+Compute the chart statistic of a spatial ordinal pattern (SOP) distribution `p_vec` for the given chart choice.
+ 
+  * `p_vec`: vector of (relative) SOP type frequencies.
+  * `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`, [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`, `Shannon()`, `ShannonExtropy()`, `DistanceToWhiteNoise()`.
+Returns the value of the chart statistic.
  
 
 

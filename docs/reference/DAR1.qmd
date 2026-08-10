@@ -1,0 +1,38 @@
+---
+engine: markdown
+---
+
+# DAR1 {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+DAR1(α, dist, add_noise)
+```
+**D**iscrete **A**uto**R**egressive process of order 1.
+ 
+The DAR(1) model is a simple discrete-valued time series model defined by: $X_t = B_t X_{t-1} +  (1 - B_t) \epsilon_t$ where:
+ 
+  * $$
+    B_t
+    $$
+
+    is an i.i.d. Bernoulli random variable with parameter $\alpha$.
+  * $$
+    \epsilon_t
+    $$
+
+    is an independent sequence of random variables (the innovation).
+
+### Fields
+    
+  * `α::Float64`: The autoregressive parameter (probability of selecting the previous value). Must be in $(0, 1)$.
+  * `dist::DiscreteUnivariateDistribution`: The distribution of the innovation term $\epsilon_t$.
+  * `add_noise::Bool`: Flag to add small noise.
+
+
+:::
+    
+

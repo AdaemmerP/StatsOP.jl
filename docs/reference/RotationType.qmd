@@ -1,0 +1,20 @@
+---
+engine: markdown
+---
+
+# RotationType {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+RotationType()
+```
+Refined SOP classification that groups spatial ordinal patterns by rotational symmetry; see Weiß and Kim (2025).
+ 
+
+
+:::
+    
+

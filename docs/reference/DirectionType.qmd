@@ -1,0 +1,20 @@
+---
+engine: markdown
+---
+
+# DirectionType {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+DirectionType()
+```
+Refined SOP classification that groups spatial ordinal patterns by direction; see Weiß and Kim (2025).
+ 
+
+
+:::
+    
+

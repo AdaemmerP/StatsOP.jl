@@ -1,0 +1,20 @@
+---
+engine: markdown
+---
+
+# create_index_sop {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+create_index_sop(; refinement)
+```
+Create and return the index of the sops for sortperm values. The type frequencies are based on the ranks of the sops, but we use sortperm to compute the order of the elements in the vector.
+ 
+
+
+:::
+    
+

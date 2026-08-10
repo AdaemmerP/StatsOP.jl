@@ -1,0 +1,30 @@
+---
+engine: markdown
+---
+
+# stat_acf {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+stat_acf(data, lam, null_dist, acf_version)
+```
+Compute the sequence of EWMA-smoothed lag-1 autocorrelation (ACF) chart statistics for the time series `data`.
+ 
+  * `data`: the time series.
+  * `lam::Float64`: smoothing parameter of the EWMA statistic.
+  * `null_dist`: in-control (null) distribution; its mean and variance are used to center and scale the statistic.
+  * `acf_version::Int`: version of the ACF statistic:
+
+    1. EWMA of the centered cross products, scaled by an EWMA of the centered squares.
+    2. EWMA of the raw cross products, centered and scaled by EWMA estimates of the mean and the raw second moment.
+    3. EWMA of the centered cross products, scaled by the in-control variance.
+Returns a vector with one chart statistic per time step.
+ 
+
+
+:::
+    
+

@@ -1,5 +1,5 @@
 ---
-engine: julia
+engine: markdown
 ---
 
 # cl_sacf_bp {#sec-doc}
@@ -8,26 +8,49 @@ engine: julia
 ::: {.callout-note appearance="simple" title="docblock" collapse=false}    
 
 
-```{julia}
-#| eval: false
-cl_sacf_bp(
-  lam, L0, sp_dgp::ICSP, cl_init, w::Int, reps=10_000; 
-  jmin=4, jmax=6, verbose::Bool=false
-)
-
+```julia
+cl_sacf_bp(sp_dgp::ICSTS, lam, L0, cl_init, w::Int;
+           reps_final, reps_bracket, bracket_step,
+           arl_truncation_factor, verbose, cl_tol, seed)
 ```
+Compute the critical limit `cl` for a BP-EWMA control chart based on the spatial autocorrelation function (SACF) such that the in-control ARL equals `L0`.
+ 
+The search proceeds in two phases:
+ 
+1. **Bracketing**: A coarse Monte Carlo estimate (using `reps_bracket` replications) steps away from `cl_init` in increments of `bracket_step` until an interval `[a, b]` is found where the ARL crosses `L0`.
+2. **Refinement**: The ITP root-finding algorithm narrows the bracket to within `cl_tol` using full Monte Carlo estimates (`reps_final` replications).
+Using a fixed `seed` ensures the ARL function behaves smoothly across evaluations within a single call. With large `reps_final`, the result is accurate regardless of which seed is used. Pass `seed=nothing` (default) for independent results across calls, or fix the seed for reproducibility.
+ 
 
-Compute the control limit for BP-EWMA control chart for multiple delay (d₁-d₂) combinations,  using the spatial autocorrelation function (SACF) and an in-control spatial process (ICSP). 
- 
-The function returns the control limit for a given average run.
- 
-  * `lam`: The smoothing parameter for the EWMA control chart.
-  * `L0`: The average run length (ARL) to use for the control limit.
-  * `sp_dgp`: The in-control spatial process (ICSP) to use for the control limit.
-  * `cl_init`: The initial control limit to use for the control limit.
-  * `d1_vec`: The vector of first (row) delays for the spatial process.
-  * `d2_vec`: The vector of second (column) delays for the spatial process.
-  * `reps`: The number of repetitions to use for the control limit.
+### Arguments
+    
+  * `sp_dgp::ICSTS`: Data-generating process under the in-control distribution.
+  * `lam`: EWMA smoothing parameter λ ∈ (0, 1].
+  * `L0`: Target in-control ARL.
+  * `cl_init`: Initial guess for the critical limit.
+  * `w::Int`: Window size for the BP-statistic.
+
+### Keyword Arguments
+    
+  * `reps_final=10_000`: Replications used during the ITP refinement phase.
+  * `reps_bracket=1_000`: Replications used during the bracketing phase.
+  * `bracket_step=0.01`: Step size for the bracketing search.
+  * `arl_truncation_factor=50`: Individual simulation runs are capped at `arl_truncation_factor * L0` steps during bracketing.
+  * `cl_tol=1e-4`: Absolute convergence tolerance on `cl` for the ITP phase.
+  * `seed=nothing`: Random seed for reproducibility.
+  * `verbose=false`: If `true`, prints progress information at each evaluation.
+
+### Returns
+    
+  * `cl::Float64`: The critical limit achieving an in-control ARL of `L0`.
+
+### Example
+    
+
+```julia
+sp_dgp = ICSTS(20, 20, Normal(0, 1))
+cl = cl_sacf_bp(sp_dgp, 0.1, 370.0, 0.5, 3; reps_final=50_000, seed=42)
+```
 
 
 :::

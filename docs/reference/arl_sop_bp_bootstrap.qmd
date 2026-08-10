@@ -1,5 +1,5 @@
 ---
-engine: julia
+engine: markdown
 ---
 
 # arl_sop_bp_bootstrap {#sec-doc}
@@ -8,26 +8,21 @@ engine: julia
 ::: {.callout-note appearance="simple" title="docblock" collapse=false}    
 
 
-```{julia}
-#| eval: false
-arl_sop_bp(
-    p_array::Array{T,3}, lam, cl, w, reps; chart_choice=3
-) where {T<:Real}
-
+```julia
+arl_sop_bp_bootstrap(p_array, lam, cl, w, reps; chart_choice=TauTilde(),
+  rl_max=typemax(Int))
 ```
-
-Compute the average run length for the BP-EWMA-SOP for a given control limit    using bootstraping
+Compute the average run length (ARL) of the EWMA chart based on the Box-Pierce type statistic for spatial ordinal patterns (SOPs) by bootstrapping from pre-computed SOP type frequencies. The computation is multithreaded.
  
-The input parameters are:
+  * `p_array::Array{Float64, 3}`: 3-dimensional array with the relative SOP type frequencies for each delay combination. The first dimension is the picture, the second the pattern group (s₁, s₂, s₃), and the third the d₁-d₂ combination. This array is used for resampling; it can be computed with [`compute_p_array_bp`](@ref).
+  * `lam::Float64`: smoothing parameter of the EWMA statistic.
+  * `cl::Float64`: control limit of the chart.
+  * `w::Int`: window size of the BP statistic.
+  * `reps::Int`: number of replications.
+  * `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`, [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`.
+  * `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
+Returns the tuple `(ARL, standard error)`.
  
-  * `p_array::Array{Float64, 3}`: A 3D array with the with the relative frequencies
-of each d1-d2 (delay) combination. The first dimension (rows) is the picture, the  second dimension refers to the patterns group (s₁, s₂, or s₃) and the third dimension  denotes each d₁-d₂ combination. This matrix will be used for re-sampling.
- 
-  * `lam::Float64`: A scalar value for lambda for the EWMA chart.
-  * `cl::Float64`: A scalar value for the control limit.
-  * `w::Int`: An integer value for the number of workers.
-  * `reps::Int`: An integer value for the number of repetitions.
-  * `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.
 
 
 :::

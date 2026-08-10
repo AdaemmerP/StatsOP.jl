@@ -1,0 +1,34 @@
+---
+engine: markdown
+---
+
+# rl_op_ic {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+rl_op_ic(op_dgp, lam, cl, p_reps, op_dgp_dist, chart_choice; d=1, m, ced=false,
+  ad=100, rl_max=typemax(Int))
+```
+Compute in-control run lengths of the EWMA chart based on ordinal patterns for a chunk of replications. This is the single-threaded worker used by [`arl_op_ic`](@ref).
+ 
+  * `op_dgp::Union{ContinuousDGPIC,DiscreteDGPIC}`: in-control DGP.
+  * `lam::Float64`: smoothing parameter of the EWMA statistic.
+  * `cl::Float64`: control limit of the chart.
+  * `p_reps`: range of replication indices to process.
+  * `op_dgp_dist`: distribution of the DGP.
+  * `chart_choice`: chart choice (see [`chart_stat_op`](@ref)).
+  * `d::Int=1`: delay between observations of a pattern.
+  * `m::Int`: length of the ordinal patterns.
+  * `ced::Bool=false`: use conditional expected delay initialization.
+  * `ad::Int=100`: number of in-control iterations for `ced`.
+  * `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
+Returns a vector of run lengths.
+ 
+
+
+:::
+    
+

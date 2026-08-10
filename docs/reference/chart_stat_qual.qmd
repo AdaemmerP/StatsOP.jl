@@ -1,0 +1,23 @@
+---
+engine: markdown
+---
+
+# chart_stat_qual {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+chart_stat_qual(q, Q, chart_choice)
+```
+Compute the κ (Cohen's kappa type) chart statistic for qualitative processes, $(Q - \sum_i q_i^2) / \sum_i q_i (1 - q_i)$.
+ 
+  * `q`: vector of (smoothed) category probabilities.
+  * `Q`: (smoothed) probability of agreement between consecutive observations.
+  * `chart_choice`: one of [`KappaN`](@ref)`()`, [`KappaO`](@ref)`()`, [`KappaN1`](@ref)`()`, [`KappaN2`](@ref)`()`, [`KappaO1`](@ref)`()`, [`KappaO2`](@ref)`()`.
+
+
+:::
+    
+

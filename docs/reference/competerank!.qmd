@@ -1,0 +1,23 @@
+---
+engine: markdown
+---
+
+# competerank! {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+competerank!(rks, x, ix)
+```
+Compute the competition ranking ("1224" ranking) of the data vector `x` in-place. The implementation is based on `StatsBase.competerank`.
+ 
+  * `rks::AbstractArray`: vector that is filled with the resulting ranks.
+  * `x::AbstractArray`: data vector.
+  * `ix::AbstractArray`: work vector for `sortperm!`; must have the same length as `x`.
+
+
+:::
+    
+

@@ -60,8 +60,7 @@ transform of one — making this a nonlinearity test rather than a generic depen
 - `alpha`: significance level (default `0.05`).
 - `rng`: random number generator used for the surrogate generation.
 
-!!! note
-    This function is provided as a package extension: it becomes available once
-    TimeseriesSurrogates.jl is loaded, i.e. after `using TimeseriesSurrogates`.
+**Note:** This function is provided as a package extension: it becomes available once
+TimeseriesSurrogates.jl is loaded, i.e. after `using TimeseriesSurrogates`.
 """
 function test_op_surrogate end

@@ -1,0 +1,59 @@
+---
+engine: markdown
+---
+
+# cl_gop {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+cl_gop(gop_dgp, lam, L0, cl_init;
+       reps_final, reps_bracket, bracket_step,
+       arl_truncation_factor, chart_choice, d,
+       verbose, cl_tol, seed)
+```
+Compute the critical limit `cl` for an EWMA control chart based on generalized ordinal patterns (GOP) such that the in-control ARL equals `L0`.
+ 
+The search proceeds in two phases:
+ 
+1. **Bracketing**: A coarse Monte Carlo estimate (using `reps_bracket` replications) steps away from `cl_init` in increments of `bracket_step` until an interval `[a, b]` is found where the ARL crosses `L0`.
+2. **Refinement**: The ITP root-finding algorithm narrows the bracket to within `cl_tol` using full Monte Carlo estimates (`reps_final` replications).
+Using a fixed `seed` ensures the ARL function behaves smoothly across evaluations within a single call. With large `reps_final`, the result is accurate regardless of which seed is used. Pass `seed=nothing` (default) for independent results across calls, or fix the seed for reproducibility.
+ 
+
+### Arguments
+    
+  * `gop_dgp`: Data-generating process under the in-control distribution.
+  * `lam`: EWMA smoothing parameter λ ∈ (0, 1].
+  * `L0`: Target in-control ARL.
+  * `cl_init`: Initial guess for the critical limit.
+
+### Keyword Arguments
+    
+  * `reps_final=10_000`: Replications used during the ITP refinement phase.
+  * `reps_bracket=1_000`: Replications used during the bracketing phase.
+  * `bracket_step=0.01`: Step size for the bracketing search.
+  * `arl_truncation_factor=50`: Individual simulation runs are capped at `arl_truncation_factor * L0` steps during bracketing.
+  * `chart_choice`: Control chart statistic to use. Required.
+  * `d=1`: Delay value.
+  * `cl_tol=1e-4`: Absolute convergence tolerance on `cl` for the ITP phase.
+  * `seed=nothing`: Random seed for reproducibility.
+  * `verbose=false`: If `true`, prints progress information at each evaluation.
+
+### Returns
+    
+  * `cl::Float64`: The critical limit achieving an in-control ARL of `L0`.
+
+### Example
+    
+
+```julia
+cl = cl_gop(gop_dgp, 0.1, 370.0, 2.5; chart_choice=D_Chart(), reps_final=50_000, seed=42)
+```
+
+
+:::
+    
+

@@ -1,5 +1,5 @@
 ---
-engine: julia
+engine: markdown
 ---
 
 # SQMA11 {#sec-doc}
@@ -8,12 +8,9 @@ engine: julia
 ::: {.callout-note appearance="simple" title="docblock" collapse=false}    
 
 
-```{julia}
-#| eval: false
+```julia
 SQMA11(dgp_params, eps_params, M_rows, N_cols, dist, dist_ao, prerun)
-
 ```
-
 A struct to define a Spatial quadratic moving-average (SQMA(1, 1)):
  
 $\qquad  Y_{t_1, t_2}=\beta_1 \cdot \varepsilon_{t_1-1, t_2}^a+\beta_2 \cdot \varepsilon_{t_1, t_2-1}^b+\beta_3 \cdot \varepsilon_{t_1-1, t_2-1}^c+\varepsilon_{t_1, t_2}$
@@ -25,12 +22,9 @@ $\qquad  Y_{t_1, t_2}=\beta_1 \cdot \varepsilon_{t_1-1, t_2}^a+\beta_2 \cdot \va
   * `dist::Distribution` A distribution for \varepsilon*{t*1, t_2}. You can use any univariate distribution from the `Distributions.jl` package.
   * `dist_ao::Nothing`.
 
-```{julia}
-#| eval: false
+```julia
 sqma11 = SQMA11((0.5, 0.3, 0.2), (1, 1, 2), 10, 10, Normal(0,1), nothing, 1)
-
 ```
-
 
 
 :::

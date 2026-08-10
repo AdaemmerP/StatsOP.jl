@@ -1,0 +1,24 @@
+---
+engine: markdown
+---
+
+# fill_p0! {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+fill_p0!(p0, dist_null)
+```
+Fill the vector `p0` (length 13) in-place with the in-control distribution of the generalized ordinal patterns (GOPs) implied by the marginal distribution `dist_null`; see Proposition 2.3 in Weiß and Schnurr (2024).
+ 
+  * `p0`: vector of length 13 that is overwritten with the in-control GOP probabilities.
+  * `dist_null::DiscreteUnivariateDistribution`: in-control (null) distribution.
+Returns `p0`.
+ 
+
+
+:::
+    
+

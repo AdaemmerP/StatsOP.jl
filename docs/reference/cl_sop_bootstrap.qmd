@@ -1,5 +1,5 @@
 ---
-engine: julia
+engine: markdown
 ---
 
 # cl_sop_bootstrap {#sec-doc}
@@ -8,29 +8,54 @@ engine: julia
 ::: {.callout-note appearance="simple" title="docblock" collapse=false}    
 
 
-```{julia}
-#| eval: false
-cl_sop_bootstrap(
-
+```julia
+cl_sop_bootstrap(data::Array{T,3}, lam, L0, cl_init, d1, d2;
+                 reps_final, reps_bracket, bracket_step,
+                 arl_truncation_factor, chart_choice,
+                 verbose, cl_tol, seed) where {T<:Real}
 ```
+Compute the critical limit `cl` for an EWMA-SOP control chart using a bootstrap approach, such that the in-control ARL equals `L0`.
+ 
+Relative type frequencies are pre-computed once from `data` before the search, so all ARL evaluations reuse the same empirical distribution.
+ 
+The search proceeds in two phases:
+ 
+1. **Bracketing**: A coarse Monte Carlo estimate (using `reps_bracket` replications) steps away from `cl_init` in increments of `bracket_step` until an interval `[a, b]` is found where the ARL crosses `L0`.
+2. **Refinement**: The ITP root-finding algorithm narrows the bracket to within `cl_tol` using full Monte Carlo estimates (`reps_final` replications).
+Using a fixed `seed` ensures the ARL function behaves smoothly across evaluations within a single call. With large `reps_final`, the result is accurate regardless of which seed is used. Pass `seed=nothing` (default) for independent results across calls, or fix the seed for reproducibility.
+ 
 
-data::Array{T,3}, lam, L0, cl*init, d1, d2, reps=10*000;   chart_choice=3, jmin=3, jmax=7, verbose=false )
- 
-Compute the SOP control limit for the EWMA-chart based on bootstraping. The function returns the control limit for a given average run.
- 
-The input parameters are:
- 
-  * `data::Array{T,3}`: A 3D-array containing the data for the EWMA-chart.
-  * `lam::Real`: The smoothing parameter for the EWMA-chart.
-  * `L0::Real`: The average run length for the EWMA-chart.
-  * `cl_init::Real`: The initial value for the control limit.
-  * `d1::Int`: The first dimension of the data array.
-  * `d2::Int`: The second dimension of the data array.
-  * `reps::Int=10_000`: The number of bootstrap replications.
-  * `chart_choice::Int`: The choice of the chart for the EWMA-chart. The default is 3.
-  * `jmin`: The minimum number of values to change after the decimal point in the control limit.
-  * `jmax`: The maximum number of values to change after the decimal point in the control limit.
-  * `verbose::Bool`: A boolean to indicate whether to print the control limit and ARL for each iteration.
+### Arguments
+    
+  * `data::Array{T,3}`: 3D array of images used to compute the empirical relative type frequencies for bootstrapping.
+  * `lam`: EWMA smoothing parameter λ ∈ (0, 1].
+  * `L0`: Target in-control ARL.
+  * `cl_init`: Initial guess for the critical limit.
+  * `d1`: First delay dimension.
+  * `d2`: Second delay dimension.
+
+### Keyword Arguments
+    
+  * `reps_final=10_000`: Replications used during the ITP refinement phase.
+  * `reps_bracket=1_000`: Replications used during the bracketing phase.
+  * `bracket_step=0.001`: Step size for the bracketing search.
+  * `arl_truncation_factor=50`: Individual simulation runs are capped at `arl_truncation_factor * L0` steps during bracketing.
+  * `chart_choice=TauTilde()`: Control chart statistic to use.
+  * `refinement=false`: Whether to apply a refined chart computation.
+  * `cl_tol=1e-4`: Absolute convergence tolerance on `cl` for the ITP phase.
+  * `seed=nothing`: Random seed for reproducibility.
+  * `verbose=false`: If `true`, prints progress information at each evaluation.
+
+### Returns
+    
+  * `cl::Float64`: The critical limit achieving an in-control ARL of `L0`.
+
+### Example
+    
+
+```julia
+cl = cl_sop_bootstrap(data, 0.1, 370.0, 2.5, 3, 5; reps_final=50_000, seed=42)
+```
 
 
 :::

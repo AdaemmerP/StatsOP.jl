@@ -1,0 +1,25 @@
+---
+engine: markdown
+---
+
+# BinNorm {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+BinNorm(μ₁, μ₂, σ₁, σ₂)
+```
+A binormal (two-component Gaussian mixture) distribution with equal weights: with probability 1/2 a draw comes from `Normal(μ₁, σ₁)` and with probability 1/2 from `Normal(μ₂, σ₂)`.
+ 
+
+```julia-repl
+dist = BinNorm(0.0, 3.0, 1.0, 2.0)
+rand(dist)
+```
+
+
+:::
+    
+

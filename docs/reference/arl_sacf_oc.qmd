@@ -1,5 +1,5 @@
 ---
-engine: julia
+engine: markdown
 ---
 
 # arl_sacf_oc {#sec-doc}
@@ -8,12 +8,9 @@ engine: julia
 ::: {.callout-note appearance="simple" title="docblock" collapse=false}    
 
 
-```{julia}
-#| eval: false
+```julia
 arl_sacf_oc(sp_dgp::SpatialDGP, lam, cl, d1::Int, d2::Int, reps=10_000)
-
 ```
-
 Compute the in-control average run length (ARL) using the spatial autocorrelation  function (SACF) for a delay (d1, d2) combination and an out-of-control process. 
  
 The input arguments are: 

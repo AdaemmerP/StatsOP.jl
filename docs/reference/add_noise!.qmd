@@ -1,0 +1,20 @@
+---
+engine: markdown
+---
+
+# add_noise! {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+add_noise!(vec, dist)
+```
+Add standard-uniform noise to each element of `vec` in-place if `dist` is a `DiscreteDistribution`, in order to break ties before computing ordinal patterns. If `dist` is a `ContinuousDistribution`, `vec` is returned unchanged.
+ 
+
+
+:::
+    
+

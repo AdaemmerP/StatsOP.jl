@@ -1,5 +1,5 @@
 ---
-engine: julia
+engine: markdown
 ---
 
 # SAR1 {#sec-doc}
@@ -8,12 +8,9 @@ engine: julia
 ::: {.callout-note appearance="simple" title="docblock" collapse=false}    
 
 
-```{julia}
-#| eval: false
+```julia
 SAR1(dgp_params, M_rows, N_cols, dist, dist_ao, margin)
-
 ```
-
 A struct to define a first-order simultaneous autoregressive (SAR(1)) model:    
  
 $\qquad Y_{t_1, t_2}=a_1 \cdot Y_{t_1-1, t_2}+a_2 \cdot Y_{t_1, t_2-1}+a_3 \cdot Y_{t_1, t_2+1}+a_4 \cdot Y_{t_1+1, t_2}+\varepsilon_{t_1, t_2}.$
@@ -27,12 +24,9 @@ Yₜ₁,ₜ₂ = a₁ ⋅ Yₜ₁₋₁,ₜ₂ +           a₂ ⋅ Yₜ₁,ₜ�
   * `dist_ao::Union{Nothing, Distribution}`: Nothing or a distribution for additive outliers. For additive outliers you can use any univariate distribution from the `Distributions.jl` package.
   * `margin::Int`: The margin for the spatial matrix used for initialization.
 
-```{julia}
-#| eval: false
+```julia
 sar1 = SAR1((0.5, 0.3, 0.2, 0.1), 10, 10, Normal(0, 1), nothing, 20) 
-
 ```
-
 
 
 :::

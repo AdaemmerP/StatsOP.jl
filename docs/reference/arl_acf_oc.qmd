@@ -1,0 +1,29 @@
+---
+engine: markdown
+---
+
+# arl_acf_oc {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+arl_acf_oc(lam, cl, acf_dgp, dist_null, reps, acf_version; rl_max=typemax(Int))
+```
+Compute the out-of-control average run length (ARL) of the EWMA lag-1 autocorrelation (ACF) chart via simulation. The computation is multithreaded.
+ 
+  * `lam::Float64`: smoothing parameter of the EWMA statistic.
+  * `cl::Float64`: control limit of the ACF chart.
+  * `acf_dgp`: out-of-control DGP (e.g. `AR1`, `TEAR1`).
+  * `dist_null`: in-control (null) distribution used to center and scale the statistic.
+  * `reps::Int`: number of replications.
+  * `acf_version::Int`: version of the ACF statistic (see [`stat_acf`](@ref)).
+  * `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
+Returns the tuple `(ARL, standard error)`.
+ 
+
+
+:::
+    
+

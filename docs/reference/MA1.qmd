@@ -1,5 +1,5 @@
 ---
-engine: julia
+engine: markdown
 ---
 
 # MA1 {#sec-doc}
@@ -8,12 +8,9 @@ engine: julia
 ::: {.callout-note appearance="simple" title="docblock" collapse=false}    
 
 
-```{julia}
-#| eval: false
+```julia
 MA1(α::Float64, dist::UnivariateDistribution)
-
 ```
-
 A struct to define an MA(1) process:        
  
 $\qquad X_t = α  \cdot \epsilon_{t-1} + \epsilon_t.$
@@ -21,12 +18,9 @@ $\qquad X_t = α  \cdot \epsilon_{t-1} + \epsilon_t.$
 `dist` specifies the distribution of $\epsilon$ using `Distributions.jl`. 
  
 
-```{julia}
-#| eval: false
+```julia
 ma1 = MA1(0.5, Normal(0, 1))
-
 ```
-
 
 
 :::

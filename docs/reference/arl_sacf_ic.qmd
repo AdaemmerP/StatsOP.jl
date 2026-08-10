@@ -1,5 +1,5 @@
 ---
-engine: julia
+engine: markdown
 ---
 
 # arl_sacf_ic {#sec-doc}
@@ -7,8 +7,10 @@ engine: julia
 
 ::: {.callout-note appearance="simple" title="docblock" collapse=false}    
 
-arl*sacf*ic(lam, cl, spatial*dgp::ICSTS, d1::Int, d2::Int, reps=10*000)
- 
+
+```julia
+arl_sacf_ic(lam, cl, spatial_dgp::ICSTS, d1::Int, d2::Int, reps=10_000)
+```
 Compute the in-control average run length (ARL), using the spatial autocorrelation  function (SACF) for a delay (d1, d2) combination. The function returns the ARL  for a given control limit `cl` and a given number of repetitions `reps`. 
  
 The input arguments are:

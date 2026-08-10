@@ -1,0 +1,24 @@
+---
+engine: markdown
+---
+
+# ContinuousDGPIC {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+ContinuousDGPIC(dist::UnivariateContinuousDistribution)
+```
+A struct to define a continuous in-control (IC) process. The struct contains one field, namely `dist::UnivariateContinuousDistribution`, which is the distribution of the in-control process.
+ 
+
+```julia
+ic = ContinuousDGPIC(Normal(0, 1))
+```
+
+
+:::
+    
+

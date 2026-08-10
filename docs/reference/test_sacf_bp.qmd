@@ -1,0 +1,23 @@
+---
+engine: markdown
+---
+
+# test_sacf_bp {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+test_sacf_bp(data, w; alpha=0.05)
+```
+Perform the asymptotic Box-Pierce type test for spatial dependence based on the spatial autocorrelation function (SACF), aggregating the squared SACF values over all delays up to `w`, and return a [`SACFBPTestResult`](@ref) with the test statistic, the asymptotic critical value, the p-value, and the reject decision.
+ 
+  * `data::Matrix{<:Real}`: data matrix (spatial field).
+  * `w::Int`: window size; delays up to `w` in each direction are used.
+  * `alpha=0.05`: significance level.
+
+
+:::
+    
+

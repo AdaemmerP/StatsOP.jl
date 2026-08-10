@@ -1,0 +1,20 @@
+---
+engine: markdown
+---
+
+# DiagonalType {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+DiagonalType()
+```
+Refined SOP classification that groups spatial ordinal patterns by their diagonal behavior; see Weiß and Kim (2025).
+ 
+
+
+:::
+    
+

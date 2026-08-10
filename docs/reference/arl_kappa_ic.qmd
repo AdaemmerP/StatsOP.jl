@@ -1,0 +1,28 @@
+---
+engine: markdown
+---
+
+# arl_kappa_ic {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+arl_kappa_ic(qual_dgp, lam, cl, reps; chart_choice, rl_max=typemax(Int))
+```
+Compute the in-control average run length (ARL) of the EWMA κ-chart for qualitative processes via simulation. The computation is multithreaded.
+ 
+  * `qual_dgp`: in-control DGP (e.g. `DiscreteDGPIC`).
+  * `lam::Float64`: smoothing parameter of the EWMA statistic.
+  * `cl::Float64`: control limit of the chart.
+  * `reps::Int`: number of replications.
+  * `chart_choice`: one of [`KappaN1`](@ref)`()`, [`KappaN2`](@ref)`()`, [`KappaO1`](@ref)`()`, [`KappaO2`](@ref)`()`.
+  * `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
+Returns the tuple `(ARL, standard error)`.
+ 
+
+
+:::
+    
+

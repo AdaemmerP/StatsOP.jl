@@ -1,0 +1,27 @@
+---
+engine: markdown
+---
+
+# bootstrap_sacf_bp {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+bootstrap_sacf_bp(
+  data::Matrix{T}, n_boot::Int, w::Int;
+  block_size::Int=1
+) where {T<:Real}
+```
+Generate a bootstrap distribution of the BP-SACF statistic for a single spatial image.
+ 
+  * `data`: The 2D image (M × N matrix).
+  * `n_boot`: Number of bootstrap replications.
+  * `w::Int`: Window size for the BP-statistic.
+  * `block_size`: Set > 1 to use 2D block bootstrap and preserve spatial dependencies.
+
+
+:::
+    
+

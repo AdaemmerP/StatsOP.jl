@@ -1,5 +1,5 @@
 ---
-engine: julia
+engine: markdown
 ---
 
 # arl_sacf_bp_oc {#sec-doc}
@@ -8,12 +8,9 @@ engine: julia
 ::: {.callout-note appearance="simple" title="docblock" collapse=false}    
 
 
-```{julia}
-#| eval: false
+```julia
 arl_sacf_bp_oc(spatial_dgp::SpatialDGP, lam, cl, w::Int, reps=10_000)
-
 ```
-
 Compute the out-of-control average run length (ARL) using the spatial autocorrelation  function (SACF) for the BP-statistic. The function returns the ARL for a given control limit `cl` and a given number of repetitions `reps`. The input arguments are:
  
   * `spatial_dgp::SpatialDGP`: The spatial data generating process (DGP) to use for

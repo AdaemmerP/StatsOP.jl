@@ -1,0 +1,29 @@
+---
+engine: markdown
+---
+
+# perm_to_lehm_idx {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+perm_to_lehm_idx(P::Vector{<:Integer}) -> Int
+```
+Converts a permutation vector `P` into its 0-based lexicographical index. This is the in-place version. 
+ 
+
+### Arguments
+    
+  * `P`: A permutation vector (e.g., [3, 1, 2]).
+  * `used`: A vector to track used elements (should be initialized to zeros of length equal to the maximum element in `P`).
+
+### Returns
+    
+  * The 0-based index of the permutation.
+
+
+:::
+    
+

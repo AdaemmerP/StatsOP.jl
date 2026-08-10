@@ -1,0 +1,29 @@
+---
+engine: markdown
+---
+
+# OPTestResultSurrogate {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+OPTestResultSurrogate
+```
+Result of the surrogate-data ordinal-pattern test [`test_op_surrogate`](@ref).
+ 
+Fields:
+ 
+  * `chart`: the chart choice the test was computed for.
+  * `method`: the surrogate method the reference ensemble was generated with.
+  * `stat::Float64`: value of the test statistic.
+  * `surr_crit::Float64`: surrogate critical value.
+  * `surr_pval::Float64`: surrogate p-value.
+  * `surr_reject::Bool`: whether the null hypothesis is rejected at the chosen level.
+  * `n_surrogates::Int`: number of surrogate replications.
+
+
+:::
+    
+

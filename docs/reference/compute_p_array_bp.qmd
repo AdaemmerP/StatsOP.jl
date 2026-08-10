@@ -1,5 +1,5 @@
 ---
-engine: julia
+engine: markdown
 ---
 
 # compute_p_array_bp {#sec-doc}
@@ -7,9 +7,11 @@ engine: julia
 
 ::: {.callout-note appearance="simple" title="docblock" collapse=false}    
 
-compute*p*array(data::Array{Float64,3})
- 
-Compute the matrix of p-hat values for a given 3D array of data when the delays are vectors of integers. These values are used for bootstrapping to compute critcial limits for the BP-statistics. 
+
+```julia
+compute_p_array_bp(data, w; chart_choice, refinement, add_noise=false)
+```
+Compute the array of p-hat values for a given 3D array of data for all delay combinations `(d1, d2) ∈ {1,…,w} × {1,…,w}`. These values are used for bootstrapping to compute critical limits for the BP-statistics (see [`arl_sop_bp_bootstrap`](@ref)).
  
 
 

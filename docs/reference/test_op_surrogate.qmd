@@ -1,0 +1,32 @@
+---
+engine: markdown
+---
+
+# test_op_surrogate {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+test_op_surrogate(data, method, n_surrogates; chart_choice, m=3, d=1, alpha=0.05, rng)
+```
+Compute a surrogate-data hypothesis test for ordinal patterns and return an `OPTestResultSurrogate` with the surrogate critical value, p-value, and reject decision.
+ 
+Unlike `test_op()` and `test_op_bootstrap()`, which test against an i.i.d. null, the null hypothesis here is determined by the surrogate method: e.g. `RandomFourier()` tests against a stationary linear Gaussian process, and `AAFT()`/`IAAFT()` against a monotonic static transform of one — making this a nonlinearity test rather than a generic dependence test.
+ 
+  * `data`: the time series.
+  * `method`: a surrogate method from TimeseriesSurrogates.jl, e.g. `RandomFourier()`, `AAFT()`, `IAAFT()`, `RandomShuffle()`.
+  * `n_surrogates`: number of surrogate replications.
+  * `chart_choice`: one of `Persistence()`, `UpDownBalance()`, `RotationalAsymmetry()`, `UpDownScaling()`, `DistanceToWhiteNoise()`, `Shannon()`, `ShannonExtropy()`.
+  * `m=3`: length of the ordinal patterns.
+  * `d=1`: delay between observations of a pattern.
+  * `alpha`: significance level (default `0.05`).
+  * `rng`: random number generator used for the surrogate generation.
+**Note:** This function is provided as a package extension: it becomes available once TimeseriesSurrogates.jl is loaded, i.e. after `using TimeseriesSurrogates`.
+ 
+
+
+:::
+    
+

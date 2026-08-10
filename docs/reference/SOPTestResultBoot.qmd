@@ -1,0 +1,28 @@
+---
+engine: markdown
+---
+
+# SOPTestResultBoot {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+SOPTestResultBoot
+```
+Result of the bootstrap test based on spatial ordinal patterns [`test_sop_bootstrap`](@ref).
+ 
+Fields:
+ 
+  * `chart`: the chart choice the test was computed for.
+  * `stat::Float64`: value of the test statistic.
+  * `boot_crit::Float64`: bootstrap critical value.
+  * `boot_pval::Float64`: bootstrap p-value.
+  * `boot_reject::Bool`: whether the null hypothesis is rejected at the chosen level.
+  * `n_boot::Int`: number of bootstrap replications.
+
+
+:::
+    
+

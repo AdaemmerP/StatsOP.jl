@@ -87,7 +87,7 @@ end
 
 
 """
-  crit_val_sacf(M, N, alpha)
+    crit_val_sacf(M, N, alpha)
 
 Computes the critical value for the SACF of lag 1. The input parameters are:
 

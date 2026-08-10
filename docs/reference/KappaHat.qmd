@@ -1,0 +1,20 @@
+---
+engine: markdown
+---
+
+# KappaHat {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+KappaHat()
+```
+Chart choice for spatial ordinal patterns (SOPs): the statistic $\hat{\kappa} = \hat{p}_2 - \hat{p}_3$, the difference of the relative frequencies of the second and third SOP type.
+ 
+
+
+:::
+    
+

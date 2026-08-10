@@ -1,6 +1,6 @@
 
 """
-   arl_sacf_ic(lam, cl, spatial_dgp::ICSTS, d1::Int, d2::Int, reps=10_000)
+    arl_sacf_ic(lam, cl, spatial_dgp::ICSTS, d1::Int, d2::Int, reps=10_000)
 
 Compute the in-control average run length (ARL), using the spatial autocorrelation 
 function (SACF) for a delay (d1, d2) combination. The function returns the ARL 

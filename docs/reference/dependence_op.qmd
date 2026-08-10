@@ -1,5 +1,5 @@
 ---
-engine: julia
+engine: markdown
 ---
 
 # dependence_op {#sec-doc}
@@ -8,12 +8,9 @@ engine: julia
 ::: {.callout-note appearance="simple" title="docblock" collapse=false}    
 
 
-```{julia}
-#| eval: false
-dependence_op(tsx, tsy; op_length::Int=3, d=1)
-
+```julia
+dependence_op(tsx, tsy; m::Int=3, d=1)
 ```
-
 Compute the ordinal pattern dependence coefficient by Schnurr and Dehling (2017) <doi:10.1080/01621459.2016.1164706>.
  
 

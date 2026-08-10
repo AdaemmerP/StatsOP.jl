@@ -47,13 +47,15 @@ website:
         - page_files/api_reference.qmd
         - section: "Types for ordinal patterns"
           contents:
+            - reference/AAR1.qmd
             - reference/AR1.qmd
             - reference/MA1.qmd
             - reference/MA2.qmd
             - reference/TEAR1.qmd
             - reference/QAR1.qmd
         - section: "Types for generalized ordinal patterns"
-          contents:  
+          contents:
+            - reference/D_Chart.qmd
         - section: "Types for spatial ordinal patterns"
           contents:
             - reference/SAR11.qmd
@@ -63,12 +65,23 @@ website:
             - reference/SQMA11.qmd
         - section: "Functions for ordinal patterns"
           contents:
-            - reference/arl_op.qmd
-            - reference/cl_op.qmd    
+            - reference/arl_op_ic.qmd
+            - reference/arl_op_oc.qmd
+            - reference/cl_op.qmd
+        - section: "Functions for generalized ordinal patterns"
+          contents:
+            - reference/arl_gop_ic.qmd
+            - reference/arl_gop_oc.qmd
+            - reference/cl_gop.qmd
+            - reference/stat_gop.qmd
+            - reference/chart_stat_gop.qmd
+            - reference/test_gop_bootstrap.qmd
         - section: "Functions for spatial ordinal patterns"
           contents:
-            - reference/arl_sop.qmd
-            - reference/arl_sacf.qmd
+            - reference/arl_sop_ic.qmd
+            - reference/arl_sop_oc.qmd
+            - reference/arl_sacf_ic.qmd
+            - reference/arl_sacf_oc.qmd
     - title: "SOPs"
       style: "docked"
       background: light

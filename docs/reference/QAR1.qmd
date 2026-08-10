@@ -1,5 +1,5 @@
 ---
-engine: julia
+engine: markdown
 ---
 
 # QAR1 {#sec-doc}
@@ -8,12 +8,9 @@ engine: julia
 ::: {.callout-note appearance="simple" title="docblock" collapse=false}    
 
 
-```{julia}
-#| eval: false
+```julia
 QAR1(α::Float64, dist::UnivariateDistribution)
-
 ```
-
 A struct to define a QAR(1) (quadratic AR) process:
  
 $\qquad X_t=\alpha \cdot X_{t-1}^2+\epsilon_t.$
@@ -21,12 +18,9 @@ $\qquad X_t=\alpha \cdot X_{t-1}^2+\epsilon_t.$
 `dist` specifies the distribution of $\epsilon$ using `Distributions.jl`.
  
 
-```{julia}
-#| eval: false
+```julia
 qar1 = QAR1(0.5, Normal(0, 1))
-
 ```
-
 
 
 :::

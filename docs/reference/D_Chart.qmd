@@ -1,0 +1,20 @@
+---
+engine: markdown
+---
+
+# D_Chart {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+D_Chart()
+```
+Chart choice for the D-chart based on generalized ordinal patterns (GOPs). The statistic is the squared Euclidean distance between the estimated GOP distribution and the in-control GOP distribution; see Weiß and Schnurr (2024).
+ 
+
+
+:::
+    
+

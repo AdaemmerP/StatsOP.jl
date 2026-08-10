@@ -1,0 +1,20 @@
+---
+engine: markdown
+---
+
+# find_effective_support {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+find_effective_support(dist::Distribution; p_low=1e-6, p_high=1-1e-6, max_extra=100)
+```
+Calculates a practical integer range [lb, ub] for distributions with infinite support  (like Skellam, Poisson, or NegativeBinomial) where the probability mass outside  this range is less than `p_low` and `1 - p_high`.
+ 
+
+
+:::
+    
+

@@ -1,0 +1,20 @@
+---
+engine: markdown
+---
+
+# KappaO {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+KappaO()
+```
+Chart choice for the κ-chart based on Cohen's kappa for serial dependence in qualitative (ordinal) processes.
+ 
+
+
+:::
+    
+

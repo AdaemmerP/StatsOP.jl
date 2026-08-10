@@ -1,0 +1,24 @@
+---
+engine: markdown
+---
+
+# DiscreteDGPIC {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+DiscreteDGPIC(dist::UnivariateDistribution)
+```
+A struct to define a discrete in-control (IC) process. The struct contains one field, namely `dist::UnivariateDistribution`, which is the distribution of the in-control process.
+ 
+
+```julia
+ic = DiscreteDGPIC(Poisson(5))
+```
+
+
+:::
+    
+

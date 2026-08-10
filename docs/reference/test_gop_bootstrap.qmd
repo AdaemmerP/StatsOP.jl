@@ -1,0 +1,30 @@
+---
+engine: markdown
+---
+
+# test_gop_bootstrap {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+test_gop_bootstrap(
+  data::Vector{Float64}, n_boot::Int,
+  null_dist::DiscreteUnivariateDistribution, lam::Float64;
+  chart_choice, m::Int=3, d::Int=1,
+  block_size::Int=1, reduce=maximum
+)
+```
+Generate a bootstrap distribution of the GOP statistic.
+ 
+  * `data`: The in-control time series.
+  * `n_boot`: Number of bootstrap replications.
+  * `null_dist`: The null (in-control) discrete distribution.
+  * `lam`: EWMA smoothing parameter.
+  * `block_size`: Set > 1 to use block bootstrap and preserve time-series dependencies.
+
+
+:::
+    
+

@@ -1,0 +1,38 @@
+---
+engine: markdown
+---
+
+# INAR1 {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+INAR1(α, dist, add_noise)
+```
+First-Order **I**nteger **N**umerated **A**uto**R**egressive Process.
+ 
+The INAR(1) model for a time series $X_t$ is defined by: $X_t = \alpha \circ X_{t-1} + \epsilon_t$ where:
+ 
+  * $$
+    \alpha \circ X_{t-1}
+    $$
+
+    is a **thinning operator** (e.g., binomial thinning).
+  * $$
+    \epsilon_t
+    $$
+
+    is an independent sequence of random variables (the innovation).
+
+### Fields
+    
+  * `α::Float64`: The autoregressive parameter (thinning probability). Must be in $(0, 1)$.
+  * `dist::DiscreteUnivariateDistribution`: The distribution of the innovation term $\epsilon_t$.
+  * `add_noise::Bool`: Flag indicating whether a small amount of uniform noise should be added to the process (usually for simulating continuous-like observations from a discrete process).
+
+
+:::
+    
+

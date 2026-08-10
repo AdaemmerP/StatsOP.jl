@@ -1,5 +1,5 @@
 ---
-engine: julia
+engine: markdown
 ---
 
 # rl_sacf_ic {#sec-doc}
@@ -8,13 +8,10 @@ engine: julia
 ::: {.callout-note appearance="simple" title="docblock" collapse=false}    
 
 
-```{julia}
-#| eval: false
+```julia
 rl_sacf_ic(
 spatial_dgp::ICSP, lam, cl, d1::Int, d2::Int, p_reps::UnitRange, dist_error::UnivariateDistribution
-
 ```
-
 )
  
 Compute the in-control run length using the spatial autocorrelation function (SACF) for a delay (d1, d2) combination. The function returns the run length for a given control limit `cl`.

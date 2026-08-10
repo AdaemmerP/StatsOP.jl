@@ -1,0 +1,31 @@
+---
+engine: markdown
+---
+
+# arl_acf_ic {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+arl_acf_ic(lam, cl, acf_dgp, reps; ced=false, ad=100, rl_max=typemax(Int))
+arl_acf_ic(lam, cl, acf_dgp, reps, acf_version; ced=false, ad=100, rl_max=typemax(Int))
+```
+Compute the in-control average run length (ARL) of the EWMA lag-1 autocorrelation (ACF) chart via simulation. The computation is multithreaded.
+ 
+  * `lam::Float64`: smoothing parameter of the EWMA statistic.
+  * `cl::Float64`: control limit of the ACF chart.
+  * `acf_dgp`: in-control DGP (e.g. `ContinuousDGPIC`).
+  * `reps::Int`: number of replications.
+  * `acf_version::Int`: version of the ACF statistic (see [`stat_acf`](@ref)); the method without this argument uses version 1.
+  * `ced::Bool=false`: use conditional expected delay initialization.
+  * `ad::Int=100`: number of in-control iterations for `ced`.
+  * `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
+Returns the tuple `(ARL, standard error)`.
+ 
+
+
+:::
+    
+

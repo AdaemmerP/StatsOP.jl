@@ -1,0 +1,20 @@
+---
+engine: markdown
+---
+
+# UpDownScaling {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+UpDownScaling()
+```
+Chart choice for the δ-chart (up-down scaling) by Bandt (2019), Equation (6). For pattern length `m = 3`, the statistic is $\hat{\delta} = \hat{p}_2 + \hat{p}_3 - \hat{p}_4 - \hat{p}_5$.
+ 
+
+
+:::
+    
+

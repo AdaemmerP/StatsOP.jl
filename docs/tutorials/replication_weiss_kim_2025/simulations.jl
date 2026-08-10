@@ -35,10 +35,10 @@ addprocs(5)
   fill!(mat, 0)
 
   if dgp isa SAR11 || dgp isa SINAR11
-    init_mat!(dgp, dist_error, mat)
+    StatsOP.init_mat!(dgp, dist_error, mat)
   end
 
-  data .= fill_mat_dgp_sop!(dgp, dist_error, dist_ao, mat, mat_ao, mat_ma)
+  data .= StatsOP.fill_mat_dgp_sop!(dgp, dist_error, dist_ao, mat, mat_ao, mat_ma)
 
   # check whether to add noise
   if dist_error isa DiscreteUnivariateDistribution

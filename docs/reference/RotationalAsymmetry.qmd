@@ -1,0 +1,20 @@
+---
+engine: markdown
+---
+
+# RotationalAsymmetry {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+RotationalAsymmetry()
+```
+Chart choice for the γ-chart (rotational asymmetry) by Bandt (2019), Equation (5). For pattern length `m = 3`, the statistic is $\hat{\gamma} = \hat{p}_3 + \hat{p}_5 - \hat{p}_2 - \hat{p}_4$.
+ 
+
+
+:::
+    
+

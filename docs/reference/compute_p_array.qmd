@@ -1,5 +1,5 @@
 ---
-engine: julia
+engine: markdown
 ---
 
 # compute_p_array {#sec-doc}
@@ -8,12 +8,9 @@ engine: julia
 ::: {.callout-note appearance="simple" title="docblock" collapse=false}    
 
 
-```{julia}
-#| eval: false
+```julia
 compute_p_array(data::Array{T,3})
-
 ```
-
 Compute the matrix of p-hat values for a given 3D array of data when the delays are integers. These values are used for bootstrapping. 
  
 

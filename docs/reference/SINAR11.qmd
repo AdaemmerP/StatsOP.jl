@@ -1,5 +1,5 @@
 ---
-engine: julia
+engine: markdown
 ---
 
 # SINAR11 {#sec-doc}
@@ -8,12 +8,9 @@ engine: julia
 ::: {.callout-note appearance="simple" title="docblock" collapse=false}    
 
 
-```{julia}
-#| eval: false
+```julia
 SINAR11(dgp_params, M_rows, N_cols, dist, dist_ao, prerun)
-
 ```
-
 A struct to define a first-order integer spatial autoregressive (SINAR(1, 1)) model:
  
 $\qquad X_{t_1, t_2}=\alpha_1 \circ X_{t_1-1, t_2}+\alpha_2 \circ X_{t_1, t_2-1}+\alpha_3 \circ X_{t_1-1, t_2-1}+\varepsilon_{t_1, t_2}.$ 
@@ -26,12 +23,9 @@ $\qquad X_{t_1, t_2}=\alpha_1 \circ X_{t_1-1, t_2}+\alpha_2 \circ X_{t_1, t_2-1}
   * `dist_ao::Union{Nothing, Distribution}` Nothing or a distribution for additive outliers. For additive outliers you can use any univariate distribution from the `Distributions.jl` package.
   * `prerun::Int` A value to initialize the DGP to achieve stationarity. These number of rows and columns will be discarded after the initialization.
 
-```{julia}
-#| eval: false
+```julia
 sar11 = SINAR((0.5, 0.3, 0.2), 11, 11, 100)
-
 ```
-
 
 
 :::

@@ -1,0 +1,31 @@
+---
+engine: markdown
+---
+
+# arl_sop_bp_oc {#sec-doc}
+    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+
+```julia
+arl_sop_bp_oc(spatial_dgp, lam, cl, w, reps=1_000; chart_choice=TauTilde(),
+  refinement=nothing, rl_max=typemax(Int))
+```
+Compute the out-of-control average run length (ARL) of the EWMA chart based on the Box-Pierce type statistic for spatial ordinal patterns (SOPs) via simulation. The computation is multithreaded.
+ 
+  * `spatial_dgp::SpatialDGP`: out-of-control spatial DGP.
+  * `lam::Float64`: smoothing parameter of the EWMA statistic.
+  * `cl::Float64`: control limit of the chart.
+  * `w::Int`: window size of the BP statistic; delays `1:w` in both directions are used.
+  * `reps::Int=1_000`: number of replications.
+  * `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`, [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`.
+  * `refinement`: `nothing` for the classical SOP classification, or one of [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`.
+  * `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
+Returns the tuple `(ARL, standard error)`.
+ 
+
+
+:::
+    
+

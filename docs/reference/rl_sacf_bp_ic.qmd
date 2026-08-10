@@ -1,5 +1,5 @@
 ---
-engine: julia
+engine: markdown
 ---
 
 # rl_sacf_bp_ic {#sec-doc}
@@ -8,12 +8,9 @@ engine: julia
 ::: {.callout-note appearance="simple" title="docblock" collapse=false}    
 
 
-```{julia}
-#| eval: false
+```julia
 rl_sacf_bp_ic(
-
 ```
-
 lam, cl, sp*dgp::ICSP, d1*vec::Vector{Int}, d2*vec::Vector{Int}, p*reps::UnitRange, dist_error::UnivariateDistribution )
  
 Compute the out-of-control run length using the spatial autocorrelation function  (SACF) for the BP-statistic. The function returns the run length for a given control    limit `cl` and a given number of repetitions `reps`. The input arguments are:
