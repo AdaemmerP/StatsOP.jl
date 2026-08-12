@@ -8,7 +8,9 @@ my_tests = ["test_frequencies.jl",
   "test_op_surrogate.jl",
   "test_cl_functions.jl",
   "test_fill_p_hat.jl",
-  "test_stat_sop_bp.jl"]
+  "test_stat_sop_bp.jl",
+  "test_acf_test_functions.jl",
+  "test_acf_bootstrap_functions.jl"]
 
 println("Running tests:")
 

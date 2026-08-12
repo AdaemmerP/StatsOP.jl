@@ -87,6 +87,14 @@ export cl_acf
 
 # acf/acf_stat_functions.jl
 export stat_acf
+
+# acf/acf_test_functions.jl
+export crit_val_acf,
+  test_acf,
+  ACFTestResult
+
+# acf/acf_bootstrap_functions.jl
+export bootstrap_acf, test_acf_bootstrap, ACFTestResultBoot
 # ----------------------------------------------#
 #  GOP related functions and structs to export  #
 # ----------------------------------------------#
@@ -299,6 +307,8 @@ include("acf/acf_arl_ic_functions.jl")
 include("acf/acf_arl_oc_functions.jl")
 include("acf/acf_cl_functions.jl")
 include("acf/acf_stat_functions.jl")
+include("acf/acf_test_functions.jl")
+include("acf/acf_bootstrap_functions.jl")
 
 # ----------------------------------------------#
 #  GOP related functions and structs to include #

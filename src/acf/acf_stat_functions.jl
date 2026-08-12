@@ -1,5 +1,18 @@
 
 """
+    stat_acf(data, h)
+
+Compute the classical sample autocorrelation of the time series `data` at lag `h`,
+using `StatsBase.autocor` (demeaned, normalized by the full-sample variance).
+
+- `data`: the time series.
+- `h::Int`: lag.
+"""
+function stat_acf(data, h::Int)
+  return autocor(data, [h])[1]
+end
+
+"""
     stat_acf(data, lam, null_dist, acf_version)
 
 Compute the sequence of EWMA-smoothed lag-1 autocorrelation (ACF) chart statistics for
