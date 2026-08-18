@@ -3,6 +3,9 @@ using StatsOP
 using Test
 using Random
 
+# Shared DGPs and helpers for randomised (statistical) assertions.
+include("test_helpers.jl")
+
 my_tests = ["test_frequencies.jl",
   "test_op_test_functions.jl",
   "test_op_surrogate.jl",
@@ -10,7 +13,9 @@ my_tests = ["test_frequencies.jl",
   "test_fill_p_hat.jl",
   "test_stat_sop_bp.jl",
   "test_acf_test_functions.jl",
-  "test_acf_bootstrap_functions.jl"]
+  "test_acf_bootstrap_functions.jl",
+  "test_op_bp_functions.jl",
+  "test_sop_bp_bootstrap_functions.jl"]
 
 println("Running tests:")
 

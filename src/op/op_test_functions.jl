@@ -45,8 +45,13 @@ function crit_val_op(::DistanceToWhiteNoise, m, n_patterns; alpha=0.05)
 
   if m == 2
     # Δ-chart (m=2)
+    # For m = 2 the only estimated quantity is the relative frequency p̂ of up-steps, and
+    # Δ = 2(p̂ - 1/2)². Consecutive comparisons overlap in one observation, so under H₀
+    # Var(p̂) = 1/(12·n) (not 1/(4·n)), which gives 6·n·Δ ~ Chisq(1) and hence the factor
+    # 6 below. The same factor appears in crit_val_op(::Shannon, 2, …) and in
+    # crit_val_op_bp for m = 2.
     qup2 = quantile(Chisq(1), 1 - alpha)
-    return qup2 / n_patterns
+    return qup2 / (6 * n_patterns)
   elseif m == 3
     # Δ-chart (m=3)
     qup3 = qup3_op_value(alpha)
@@ -161,7 +166,8 @@ function _asymp_pval(chart, stat::Float64, n_pat::Int, m::Int)::Float64
          chart isa RotationalAsymmetry ? sqrt(2 / 5  / n_pat) : sqrt(2 / 3 / n_pat)
     return 2.0 * (1.0 - cdf(Normal(), abs(stat) / se))
   elseif chart isa DistanceToWhiteNoise
-    T = n_pat * stat
+    # m = 2: 6·n·Δ ~ Chisq(1), see crit_val_op(::DistanceToWhiteNoise, 2, …).
+    T = m == 2 ? 6 * n_pat * stat : n_pat * stat
     return m == 2 ? 1.0 - cdf(Chisq(1), T) : 1.0 - cdf(_gc_op, T)
   elseif chart isa Shannon
     T = m == 2 ? 6 * n_pat * (log(2) - stat) : n_pat * (log(6) - stat) / 3

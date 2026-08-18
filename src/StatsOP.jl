@@ -50,6 +50,13 @@ export chart_stat_op,
 export crit_val_op_bp,
   stat_op_bp
 
+# op/op_test_bp_functions.jl
+export test_op_bp,
+  OPBPTestResult
+
+# op/op_bp_bootstrap_functions.jl
+export bootstrap_op_bp, test_op_bp_bootstrap, OPBPTestResultBoot
+
 # op/op_arl_ic_functions.jl, op_arl_oc_functions.jl, op_cl_functions.jl,
 # op_dependence.jl, op_stat_functions.jl, op_test_functions.jl
 export arl_op_ic,
@@ -203,7 +210,7 @@ export stat_sop_bp
 export bootstrap_sop, test_sop_bootstrap, SOPTestResultBoot
 
 # sop/sop_bp_bootstrap_functions.jl
-export bootstrap_sop_bp
+export bootstrap_sop_bp, test_sop_bp_bootstrap, SOPBPTestResultBoot
 
 # sop/sop_test_functions.jl
 export crit_val_sop,
@@ -298,8 +305,11 @@ include("op/op_dependence.jl")
 include("op/op_stat_functions.jl")
 include("op/op_stat_bp_functions.jl")
 include("op/op_test_functions.jl")
+# after op_test_functions.jl: reuses the `_gc_op` null distribution defined there
+include("op/op_test_bp_functions.jl")
 include("op/op_help_functions.jl")
 include("op/op_bootstrap_functions.jl")
+include("op/op_bp_bootstrap_functions.jl")
 include("op/op_surrogate_functions.jl")
 
 # ACF files
