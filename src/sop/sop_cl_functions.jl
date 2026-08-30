@@ -83,7 +83,7 @@ function cl_sop(
     end
 
     # Ensure we have a seed for reproducibility.
-    seed = isnothing(seed) ? rand(Int) : seed
+    seed = isnothing(seed) ? rand(UInt64) : seed # Random.seed! rejects negative seeds on Julia 1.10
 
     # Cap ARL runs during bracketing to avoid wasting reps far from the root.
     trunc_val = round(Int, arl_truncation_factor * L0) # upper limit for ARL estimates; rl_max must be an Int

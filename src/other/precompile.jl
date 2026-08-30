@@ -1,6 +1,12 @@
 # Precompile the user-facing entry points of every family (OP, ACF, GOP, SOP,
 # SACF, kappa). Inputs are deliberately tiny: only the compiled signatures are
 # cached, the results are discarded.
+#
+# Names here must not collide with anything StatsOP imports (`counts`, `sample`,
+# `params`, ... from StatsBase/Distributions). PrecompileTools < 1.3 expands the
+# workload at module scope, where assigning to an imported binding is an error on
+# Julia 1.10 — so a colliding name breaks precompilation on the oldest supported
+# release only.
 
 PrecompileTools.@setup_workload begin
 
@@ -14,7 +20,7 @@ PrecompileTools.@setup_workload begin
 
   ts = randn(120)
   ts2 = randn(120)
-  counts = Float64.(rand(Poisson(5), 120))
+  count_ts = Float64.(rand(Poisson(5), 120))
   img = randn(11, 11)
   imgs = randn(11, 11, 3)
 
@@ -60,12 +66,12 @@ PrecompileTools.@setup_workload begin
 
     # --- Generalized ordinal patterns (GOP) ---
     for cc in (D_Chart(), Persistence())
-      stat_gop(counts, Poisson(5), cc)
-      stat_gop(counts, Poisson(5), lam, cc)
+      stat_gop(count_ts, Poisson(5), cc)
+      stat_gop(count_ts, Poisson(5), lam, cc)
       arl_gop_ic(ic_disc, lam, 0.1, reps; chart_choice=cc, rl_max=rl_max)
       arl_gop_oc(inar1, Poisson(5), lam, 0.1, reps; chart_choice=cc, rl_max=rl_max)
     end
-    test_gop_bootstrap(counts, n_boot, Poisson(5), lam; chart_choice=D_Chart())
+    test_gop_bootstrap(count_ts, n_boot, Poisson(5), lam; chart_choice=D_Chart())
     cl_gop(ic_disc, lam, L0, 0.057; chart_choice=D_Chart(),
       reps_final=reps, reps_bracket=reps, bracket_step=0.03)
 
@@ -122,7 +128,7 @@ PrecompileTools.@setup_workload begin
 
     # --- Kappa charts for qualitative processes ---
     for cc in kappa_charts
-      stat_kappa(counts, lam, Poisson(5), cc)
+      stat_kappa(count_ts, lam, Poisson(5), cc)
       arl_kappa_ic(ic_disc, lam, 0.1, reps; chart_choice=cc, rl_max=rl_max)
       arl_kappa_oc(inar1, Poisson(5), lam, 0.1, reps; chart_choice=cc, rl_max=rl_max)
     end
