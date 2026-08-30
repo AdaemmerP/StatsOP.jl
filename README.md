@@ -10,5 +10,3 @@ This Julia package provides functions to conduct (sequential) tests for time ser
 
 Previously, the name of the package was **OrdinalPatterns.jl**, but it has been renamed to better reflect its purpose.  
 
-## Documentation
-The documentation for the package can be found [here](https://adaemmerp.github.io/StatsOP.jl/).
