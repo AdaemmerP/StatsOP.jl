@@ -15,7 +15,7 @@ Compute the test statistic based on spatial ordinal patterns (SOPs) for a single
 (matrix). Returns the tuple `(stat, p_hat)` with the chart statistic and the vector of
 relative SOP type frequencies.
 
-- `data::Union{SubArray,Array{T,2}}`: A 2D array of data.
+- `data::Union{SubArray,Matrix{<:Real}}`: A 2D array of data.
 - `d1::Int`: The delay value for the rows.
 - `d2::Int`: The delay value for the columns.
 - `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`,
@@ -34,13 +34,13 @@ stat_sop(data, 1, 1; chart_choice=TauTilde())
 ```
 """
 function stat_sop(
-  data::Union{SubArray,Array{T,2}},
+  data::Union{SubArray,Matrix{<:Real}},
   d1::Int, d2::Int;
   chart_choice,
   refinement::Union{Bool,RefinedType}=false,
   add_noise::Bool=false,
   noise_dist::UnivariateDistribution=Uniform(0, 1)
-) where {T<:Real}
+)
 
   # TODO Check input parameters
 

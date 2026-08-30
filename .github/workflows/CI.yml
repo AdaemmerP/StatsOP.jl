@@ -23,8 +23,8 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.11'
-          - '1.6'
+          - '1.10'  # minimum supported version, see [compat] in Project.toml
+          - '1'     # latest stable 1.x
           - 'pre'
         os:
           - ubuntu-latest
@@ -38,4 +38,13 @@ jobs:
           arch: ${{ matrix.arch }}
       - uses: julia-actions/cache@v2
       - uses: julia-actions/julia-buildpkg@v1
+      # julia-runtest collects coverage by default (coverage: true).
       - uses: julia-actions/julia-runtest@v1
+      # Merge the per-file .cov files into a single lcov.info.
+      - uses: julia-actions/julia-processcoverage@v1
+      - uses: codecov/codecov-action@v5
+        with:
+          files: lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
+          # A Codecov outage should not turn the test run red.
+          fail_ci_if_error: false

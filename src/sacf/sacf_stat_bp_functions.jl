@@ -1,8 +1,8 @@
 # SACF-BP-statistic for one images
 """
     stat_sacf_bp(
-  data::Union{SubArray,Matrix{T}}, d1_vec::Vector{Int}, d2_vec::Vector{Int}
-) where {T<:Real}
+  data::Union{SubArray,Matrix{<:Real}}, d1_vec::Vector{Int}, d2_vec::Vector{Int}
+)
 
 
 Compute the BP-spatial autocorrelation function (BP-SACF) for multiple delay combinations (d1, d2) for a single picture.
@@ -11,7 +11,7 @@ Compute the BP-spatial autocorrelation function (BP-SACF) for multiple delay com
 - `d1_vec::Vector{Int}`: The vector of first (row) delays for the spatial process.
 - `d2_vec::Vector{Int}`: The vector of second (column) delays for the spatial process.
 """
-function stat_sacf_bp(data::Union{SubArray,Array{T,2}}, w::Int) where {T<:Real}
+function stat_sacf_bp(data::Union{SubArray,Matrix{<:Real}}, w::Int)
 
   # Compute all relevant h1-h2 combinations
   set_1 = Iterators.product(1:w, 0:w)

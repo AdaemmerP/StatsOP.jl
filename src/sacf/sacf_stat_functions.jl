@@ -38,7 +38,7 @@ end
 
 # Compute SACF for one picture
 """
-    stat_sacf(data::Union{SubArray,Matrix{T}}, d1::Int, d2::Int) where {T<:Real}
+    stat_sacf(data::Union{SubArray,Matrix{<:Real}}, d1::Int, d2::Int)
 
 Compute the spatial autocorrelation for a delay combination (d1, d2) for a single picture.
   
@@ -46,7 +46,7 @@ Compute the spatial autocorrelation for a delay combination (d1, d2) for a singl
 - `d1::Int`: The first (row) delay for the spatial process.
 - `d2::Int`: The second (column) delay for the spatial process.
 """
-function stat_sacf(data::Union{SubArray,Array{T,2}}, d1::Int, d2::Int) where {T<:Real}
+function stat_sacf(data::Union{SubArray,Matrix{<:Real}}, d1::Int, d2::Int)
 
   # pre-allocate
   X_centered = data .- mean(data)

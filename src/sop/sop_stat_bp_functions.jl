@@ -27,13 +27,13 @@ of sequentially computed chart statistics.
   frequencies (second method only).
 """
 function stat_sop_bp(
-  data::Union{SubArray,Array{T,2}},
+  data::Union{SubArray,Matrix{<:Real}},
   w::Int;
   chart_choice=TauTilde(),
   refinement::Union{Bool,RefinedType}=false,
   add_noise::Bool=false,
   noise_dist::UnivariateDistribution=Uniform(0, 1)
-) where {T<:Real}
+)
 
   # Pre-allocate
   p_hat = zeros(_n_sop_types(refinement))
