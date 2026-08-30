@@ -2,14 +2,14 @@ function qup22_sop_value(refinement::Bool, alpha)
 
 
   ev = [2 / 5, 16 / 45]
-  quantile(GeneralizedChisq(ev, ones(length(ev)), zeros(length(ev)), 0.0, 0.0), 1 - alpha)
+  quantile(_GChisqDist(ev, ones(length(ev)), zeros(length(ev)), 0.0, 0.0), 1 - alpha)
 
 end
 
 function qup22_sop_value(refinement::RotationType, alpha)
 
   ev = [1 / 5, 8 / 45, 13 / 90, 2 / 15]
-  quantile(GeneralizedChisq(ev, ones(length(ev)), zeros(length(ev)), 0.0, 0.0), 1 - alpha)
+  quantile(_GChisqDist(ev, ones(length(ev)), zeros(length(ev)), 0.0, 0.0), 1 - alpha)
 
 end
 
@@ -17,7 +17,7 @@ function qup22_sop_value(refinement::DirectionType, alpha)
 
 
   ev = [4 / 15, 1 / 5, 8 / 45, 19 / 630]
-  quantile(GeneralizedChisq(ev, [1, 1, 2, 1], zeros(length(ev)), 0.0, 0.0), 1 - alpha)
+  quantile(_GChisqDist(ev, [1, 1, 2, 1], zeros(length(ev)), 0.0, 0.0), 1 - alpha)
 
 end
 
@@ -25,7 +25,7 @@ function qup22_sop_value(refinement::DiagonalType, alpha)
 
 
   ev = [1 / 5, 8 / 45, 19 / 126, 4 / 45]
-  quantile(GeneralizedChisq(ev, ones(length(ev)), zeros(length(ev)), 0.0, 0.0), 1 - alpha)
+  quantile(_GChisqDist(ev, ones(length(ev)), zeros(length(ev)), 0.0, 0.0), 1 - alpha)
 
 end
 
@@ -189,10 +189,10 @@ function Base.show(io::IO, r::SOPTestResult)
 end
 
 # GenChisq null distributions for entropy-chart p-values
-_gc_sop(::Bool)          = GeneralizedChisq([2/5, 16/45],              ones(2),      zeros(2), 0.0, 0.0)
-_gc_sop(::RotationType)  = GeneralizedChisq([1/5, 8/45, 13/90, 2/15], ones(4),      zeros(4), 0.0, 0.0)
-_gc_sop(::DirectionType) = GeneralizedChisq([4/15, 1/5, 8/45, 19/630],[1, 1, 2, 1], zeros(4), 0.0, 0.0)
-_gc_sop(::DiagonalType)  = GeneralizedChisq([1/5, 8/45, 19/126, 4/45],ones(4),      zeros(4), 0.0, 0.0)
+_gc_sop(::Bool)          = _GChisqDist([2/5, 16/45],              ones(2),      zeros(2), 0.0, 0.0)
+_gc_sop(::RotationType)  = _GChisqDist([1/5, 8/45, 13/90, 2/15], ones(4),      zeros(4), 0.0, 0.0)
+_gc_sop(::DirectionType) = _GChisqDist([4/15, 1/5, 8/45, 19/630],[1, 1, 2, 1], zeros(4), 0.0, 0.0)
+_gc_sop(::DiagonalType)  = _GChisqDist([1/5, 8/45, 19/126, 4/45],ones(4),      zeros(4), 0.0, 0.0)
 
 # Asymptotic p-value for any chart type.
 # For Tau/Kappa (Normal): derive SE from crit_val.

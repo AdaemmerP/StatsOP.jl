@@ -2,7 +2,7 @@
 function qup3_op_value(alpha)
 
   ev = [(2 + sqrt(2)) / 12, 2 / 15, 1 / 10, (2 - sqrt(2)) / 12]
-  quantile(GeneralizedChisq(ev, ones(length(ev)), zeros(length(ev)), 0.0, 0.0), 1 - alpha)
+  quantile(_GChisqDist(ev, ones(length(ev)), zeros(length(ev)), 0.0, 0.0), 1 - alpha)
 
   # if alpha == 0.01
   #   return 2.267254
@@ -154,7 +154,7 @@ end
 # --- 4. Asymptotic p-value computation ---
 
 # Shared generalized chi-squared null (m=3 case for Δ, H, Hex)
-const _gc_op = GeneralizedChisq(
+const _gc_op = _GChisqDist(
   [(2 + sqrt(2)) / 12, 2 / 15, 1 / 10, (2 - sqrt(2)) / 12],
   ones(4), zeros(4), 0.0, 0.0
 )

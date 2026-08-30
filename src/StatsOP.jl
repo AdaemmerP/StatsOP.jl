@@ -4,7 +4,6 @@ module StatsOP
 using Combinatorics
 using ComplexityMeasures: InformationMeasure, ComplexityEstimator, Entropy, Shannon, ShannonExtropy
 using Distributions
-using GeneralizedChisqDistribution
 using LinearAlgebra
 using Random
 using Reexport
@@ -286,6 +285,18 @@ export cl_kappa
 # kappa_procs/kappa_stat_functions.jl
 export stat_kappa
 
+
+# -----------------------------------------------#
+#  Vendored third-party code (not part of the API)#
+# -----------------------------------------------#
+# Verbatim copy of GeneralizedChisqDistribution.jl @ revise-computation
+# (commit 665424e920927a4513ac6760807e16738713eb61); see src/vendor/README.md.
+# Defines the submodule `GeneralizedChisqDistribution`. Nothing from it is
+# exported: it is reached only through the internal alias below, which keeps the
+# name `GeneralizedChisq` from ever colliding with a package StatsOP loads.
+include("vendor/GeneralizedChisqDistribution.jl")
+
+const _GChisqDist = GeneralizedChisqDistribution.GeneralizedChisq
 
 # -----------------------------------------------#
 #  General helper functions and structs to include#
