@@ -80,15 +80,6 @@ function rl_sop_bp_ic(
   rl_max::Int=typemax(Int)
 )
 
-  # # Pre-allocate    
-  # if isnothing(refinement)
-  #   # classical approach
-  #   p_hat = zeros(3)
-  # elseif refinement isa RefinedType
-  #   # refined approach
-  #   p_hat = zeros(6)
-  # end
-
   # Pre-allocate
   n_size = refinement ? 6 : 3
   p_hat = zeros(n_size)
@@ -108,11 +99,6 @@ function rl_sop_bp_ic(
   d1_d2_combinations = Iterators.product(1:w, 1:w)
   # Pre-allocate array for p_ewma for all d1-d2 combinations
   refinement ? p_ewma_all = zeros(6, 1, length(d1_d2_combinations)) : p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
-  # if isnothing(refinement)
-  #   p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
-  # elseif refinement isa RefinedType
-  #   p_ewma_all = zeros(6, 1, length(d1_d2_combinations))
-  # end
 
   # indices for sum of frequencies
   index_sop = create_index_sop(refinement=refinement)

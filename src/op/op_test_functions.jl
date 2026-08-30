@@ -3,15 +3,6 @@ function qup3_op_value(alpha)
 
   ev = [(2 + sqrt(2)) / 12, 2 / 15, 1 / 10, (2 - sqrt(2)) / 12]
   quantile(_GChisqDist(ev, ones(length(ev)), zeros(length(ev)), 0.0, 0.0), 1 - alpha)
-
-  # if alpha == 0.01
-  #   return 2.267254
-  # elseif alpha == 0.05
-  #   return 1.484225
-  # elseif alpha == 0.1
-  #   return 1.162639
-  # end
-
 end
 
 # 1.) Method for Shannon
@@ -208,11 +199,3 @@ function test_op(ts; chart_choice, m::Int=3, d::Int=1, alpha=0.05)
   p_val = _asymp_pval(chart_choice, test_stat, n_pat, m)
   return OPTestResult(chart_choice, test_stat, crit_val, p_val, reject(chart_choice, test_stat, crit_val))
 end
-
-
-
-
-
-
-
-

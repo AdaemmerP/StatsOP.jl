@@ -35,8 +35,6 @@ function competerank!(
         end
         rks[pi] = k
     end
-
-    # return rks
 end
 
 """
@@ -179,55 +177,6 @@ function fill_p0!(p0, dist_null)
     return p0
 end
 
-# # Function to fill p0 vector for GOPs
-# function fill_p0!(p0, dist_null)
-#     # in-control GOP-distribution depends on the specified in-control model for (Xt) 
-#     # see Weiss and Schnurr (2023), page 577 proposition 2.3 for details how to fill the vector p0
-#     # compute upper limit for the approximation
-#     # only two distributions implemented so far
-#     if dist_null isa Poisson
-#         q = quantile(dist_null, 1 - (1 * 10^-12))
-#     elseif dist_null isa Binomial
-#         q = dist_null.n
-#     elseif println("Distribution not impleneted.")
-#     end
-
-#     # Create dictionary with outcome (key) and probability (value) pairs
-#     outcome = -1:q
-#     pdf_dict = Dict(
-#         zip(outcome, pdf(dist_null, outcome))
-#     )
-#     cdf_dict = Dict(
-#         zip(outcome, cdf(dist_null, outcome))
-#     )
-
-#     # p(1,1,1)
-#     for x in 0:q
-#         p0[7] += pdf_dict[x]^3
-#     end
-
-#     # p(1,2,2)=p(2,1,2)=p(2,2,1)
-#     val_tmp = 0.0
-#     for x in 1:q
-#         val_tmp += cdf_dict[x-1] * pdf_dict[x]^2
-#     end
-#     p0[[10, 12, 13]] .= val_tmp
-
-#     # p(1,1,2)=p(1,2,1)=p(2,1,1)
-#     val_tmp = 0.0
-#     for x in 0:q
-#         val_tmp += pdf_dict[x]^2 * (1 - cdf_dict[x])
-#     end
-#     p0[[8, 9, 11]] .= val_tmp
-
-#     # p(1,2,3)=p(3,2,1)=p(3,1,2)=p(2,3,1)=p(1,3,2)=p(2,1,3)
-#     val_tmp = 0.0
-#     for x in 1:q
-#         val_tmp += cdf_dict[x-1] * pdf_dict[x] * (1 - cdf_dict[x])
-#     end
-#     p0[1:6] .= val_tmp
-# end
-
 """
     abort_criterium_gop(stat, cl, chart_choice)
 
@@ -241,6 +190,3 @@ function abort_criterium_gop(stat, cl, ::Union{D_Chart,G_Chart,Persistence})
     return stat > cl
 
 end
-
-
-

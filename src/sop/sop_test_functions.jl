@@ -104,11 +104,6 @@ function crit_val_sop(
   m = M - d1
   n = N - d2
 
-  # Note: Original logic simplified to use the ternary operator structure
-  # crit_const = ifelse(alpha == 0.1, 3.487299,
-  # ifelse(alpha == 0.05, 2.265401,
-  # 1.740201)) # alpha == 0.01
-
   return qup22_sop_value(refinement, alpha) / (m * n)
 end
 
@@ -124,36 +119,7 @@ function crit_val_sop(
 
   return qup22_sop_value(refinement, alpha) / (m * n)
 
-  # return ifelse(alpha == 0.1, 2.210104 / (m * n), ifelse(alpha == 0.05, 1.566739 / (m * n), 1.279915 / (m * n)))
 end
-
-# # A2. Dispatch for DirectionType refinement
-# function crit_val_sop(
-#   M, N, alpha, d1::Int, d2::Int,
-#   chart_choice::Union{Shannon,ShannonExtropy,DistanceToWhiteNoise},
-#   refinement::DirectionType
-# )
-
-#   m = M - d1
-#   n = N - d2
-
-#   return ifelse(alpha == 0.1, 2.813519 / (m * n), ifelse(alpha == 0.05, 1.999264 / (m * n), 1.637740 / (m * n)))
-# end
-
-# # A2. Dispatch for DiagonalType refinement
-# function crit_val_sop(
-#   M, N, alpha, d1::Int, d2::Int,
-#   chart_choice::Union{Shannon,ShannonExtropy,DistanceToWhiteNoise},
-#   refinement::DiagonalType
-# )
-
-#   m = M - d1
-#   n = N - d2
-
-#   return ifelse(alpha == 0.1, 2.133017 / (m * n), ifelse(alpha == 0.05, 1.497222 / (m * n), 1.216170 / (m * n)))
-# end
-
-
 
 # --- Result type for SOP asymptotic test ---
 
@@ -270,44 +236,3 @@ function test_sop(
   p_val     = _sop_asymp_pval(chart_choice, test_stat, crit_val, refinement, alpha, m_pat, n_pat)
   return SOPTestResult(chart_choice, test_stat, crit_val, p_val, test_stat > crit_val)
 end
-
-
-
-# # Dispatch on no refinement
-# function crit_val_sop(
-#   M, N, alpha, d1::Int, d2::Int,
-#   chart_choice::Union{TauHat,KappaHat,TauTilde,KappaTilde},
-#   refinement::Bool=false
-# )
-
-#   m = M - d1
-#   n = N - d2
-
-#   # if approximate
-#   #   # --- Approximate calculation ---
-#   #   if typeof(chart_choice) == TauHat
-#   #     term = sqrt(4 / 15) / sqrt(m * n)
-#   #   elseif typeof(chart_choice) == KappaHat
-#   #     term = sqrt(7 / 9) / sqrt(m * n)
-#   #   elseif typeof(chart_choice) == TauTilde
-#   #     term = sqrt(4 / 15) / sqrt(m * n)
-#   #   elseif typeof(chart_choice) == KappaTilde
-#   #     term = sqrt(32 / 45) / sqrt(m * n)
-#   #   end
-#   # else
-
-#   # --- No approximation (exact formula with correction term) ---
-#   correction = 1 - 1 / (2 * m) - 1 / (2 * n)
-#   if typeof(chart_choice) == TauHat
-#     term = sqrt(2 / 9 + 1 / 45 * correction) / sqrt(m * n)
-#   elseif typeof(chart_choice) == KappaHat
-#     term = sqrt(2 / 3 + 1 / 9 * correction) / sqrt(m * n)
-#   elseif typeof(chart_choice) == TauTilde
-#     term = sqrt(2 / 9 + 2 / 45 * correction) / sqrt(m * n)
-#   elseif typeof(chart_choice) == KappaTilde
-#     term = sqrt(2 / 3 + 2 / 45 * correction) / sqrt(m * n)
-#   end
-#   #end
-
-#   return quantile(Normal(0, 1), 1 - alpha / 2) * term
-# end

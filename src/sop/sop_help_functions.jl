@@ -36,8 +36,6 @@ compute the order of the elements in the vector.
 """
 function create_index_sop(; refinement)
 
-  # @assert refinement in 0:3 "refinement must be in 0:3"
-
   # Classical approach as in Weiss and Kim (2024) and Adämmer et al. (2024)
   if refinement == false
 
@@ -316,4 +314,3 @@ function fill_p_hat!(p_hat, ::Any, ::RefinedType, sop_freq, m, n, s_all)
   end
   p_hat ./= m * n
 end
-

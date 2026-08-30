@@ -256,7 +256,6 @@ function changepoint_op(tsx, tsy; conf_level=0.95, weight=true, bn=log(length(ts
 
   # Calculation of long-run-variance
   n = length(obs)
-  #weightv = kernel_change.(collect(0:floor(bn)) ./ bn)
   acfv = StatsBase.autocov(obs, 0:floor(Int, bn), demean=true)
   sigma = acfv[1] + 2 * sum(acfv[2:floor(Int, bn)])
 
