@@ -36,13 +36,7 @@ function stat_sop_bp(
 ) where {T<:Real}
 
   # Pre-allocate
-  if refinement == false
-    # classical approach
-    p_hat = zeros(3)
-  else
-    # refined approach
-    p_hat = zeros(6)
-  end
+  p_hat = zeros(_n_sop_types(refinement))
   lookup_array_sop = compute_lookup_array_sop()
   sop = zeros(4)
   sop_freq = zeros(Int, 24) # factorial(4) = 24

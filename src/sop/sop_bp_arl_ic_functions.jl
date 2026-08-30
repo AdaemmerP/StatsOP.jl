@@ -81,7 +81,7 @@ function rl_sop_bp_ic(
 )
 
   # Pre-allocate
-  n_size = refinement ? 6 : 3
+  n_size = _n_sop_types(refinement)
   p_hat = zeros(n_size)
   p_ewma = zeros(n_size)
 
@@ -98,7 +98,7 @@ function rl_sop_bp_ic(
   # Compute all possible combinations of d1 and d2
   d1_d2_combinations = Iterators.product(1:w, 1:w)
   # Pre-allocate array for p_ewma for all d1-d2 combinations
-  refinement ? p_ewma_all = zeros(6, 1, length(d1_d2_combinations)) : p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
+  p_ewma_all = zeros(n_size, 1, length(d1_d2_combinations))
 
   # indices for sum of frequencies
   index_sop = create_index_sop(refinement=refinement)

@@ -64,7 +64,7 @@ Returns a vector of run lengths.
 function rl_sop_bootstrap(p_mat::Array{Float64,2}, lam, cl, reps_range::UnitRange{Int}, chart_choice, refinement=false, rl_max::Int=typemax(Int))
 
   # Pre-allocate
-  n_size = refinement ? 6 : 3
+  n_size = _n_sop_types(refinement)
   p_hat = zeros(n_size)
 
   rls = zeros(Int, length(reps_range))

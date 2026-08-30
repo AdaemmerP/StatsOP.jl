@@ -27,6 +27,10 @@ end
 
 
 
+# Number of pattern-type frequencies: 3 for the classical classification, 6 for a
+# refined one. Used to size `p_hat` / `p_ewma` consistently with `create_index_sop`.
+_n_sop_types(refinement) = refinement isa RefinedType ? 6 : 3
+
 """
     create_index_sop(; refinement)
 
@@ -37,7 +41,7 @@ compute the order of the elements in the vector.
 function create_index_sop(; refinement)
 
   # Classical approach as in Weiss and Kim (2024) and Adämmer et al. (2024)
-  if refinement == false
+  if refinement === false
 
     s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
     s_2 = [2, 5, 7, 9, 16, 18, 20, 23]
@@ -66,7 +70,7 @@ function create_index_sop(; refinement)
     s_32 = [13, 15, 19, 21]
     return [s_11, s_12, s_21, s_22, s_31, s_32]
 
-    # "Diagonal types -> Equation (10) in Weiss and Kim (2025)  
+    # "Diagonal types -> Equation (10) in Weiss and Kim (2025)
   elseif typeof(refinement) == DiagonalType
     s_11 = [1, 3, 22, 24]
     s_12 = [8, 11, 14, 17]
@@ -75,8 +79,12 @@ function create_index_sop(; refinement)
     s_31 = [13, 15, 19, 21]
     s_32 = [4, 6, 10, 12]
     return [s_11, s_12, s_21, s_22, s_31, s_32]
+  else
+    throw(ArgumentError(
+      "`refinement` must be `false` for the classical classification, or one of " *
+      "RotationType(), DirectionType(), DiagonalType(); got $(refinement)."
+    ))
   end
-
 
 end
 
@@ -91,7 +99,7 @@ function compute_p_array(data::Array{T,3}, d1::Int, d2::Int; chart_choice=TauTil
   m = size(data, 1) - d1
   n = size(data, 2) - d2
   lookup_array_sop = compute_lookup_array_sop()
-  n_size = refinement ? 6 : 3
+  n_size = _n_sop_types(refinement)
   p_mat = zeros(size(data, 3), n_size)
 
   # indices for sum of frequencies
@@ -107,7 +115,7 @@ function compute_p_array(data::Array{T,3}, d1::Int, d2::Int; chart_choice=TauTil
     i, data_tmp, p_mat, lookup_array_sop, m, n, d1, d2, s_all, chart_choice, refinement
   )
 
-    n_size = refinement ? 6 : 3
+    n_size = _n_sop_types(refinement)
     p_hat = zeros(1, n_size)
     sop = zeros(4)
     sop_freq = zeros(Int, 24)
@@ -156,7 +164,7 @@ function compute_p_array_bp(data::Array{T,3}, w::Int; chart_choice, refinement::
   # pre-allocate
   lookup_array_sop = compute_lookup_array_sop()
   d1_d2_combinations = Iterators.product(1:w, 1:w)
-  n_size = refinement ? 6 : 3
+  n_size = _n_sop_types(refinement)
   p_array = zeros(size(data, 3), n_size, length(d1_d2_combinations))
 
   # indices for sum of type frequencies  
@@ -176,7 +184,7 @@ function compute_p_array_bp(data::Array{T,3}, w::Int; chart_choice, refinement::
     # Initialize thread-local variables
     M_rows = size(data_tmp, 1)
     N_cols = size(data_tmp, 2)
-    n_size = refinement ? 6 : 3
+    n_size = _n_sop_types(refinement)
     sop = zeros(4)
     win = zeros(Int, 4)
     sop_freq = zeros(Int, 24)

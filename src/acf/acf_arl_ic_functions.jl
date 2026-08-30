@@ -19,21 +19,7 @@ chart via simulation. The computation is multithreaded.
 Returns the tuple `(ARL, standard error)`.
 """
 function arl_acf_ic(lam, cl, acf_dgp, reps; ced=false, ad=100, rl_max::Int=typemax(Int))
-
-  # Number of chunks for load balancing
-  n_chunks = Threads.nthreads() * 4
-
-  # Make chunks for separate tasks (based on number of threads)
-  chunks = Iterators.partition(1:reps, div(reps, n_chunks))
-
-  par_results = map(chunks) do i
-    Threads.@spawn rl_acf_ic(lam, cl, i, acf_dgp, acf_dgp.dist; ced=ced, ad=ad, rl_max=rl_max)
-  end
-
-  # Collect results from tasks
-  rls = fetch.(par_results)
-  rlvec = Iterators.flatten(rls) |> collect
-  return (mean(rlvec), std(rlvec) / sqrt(reps))
+  return arl_acf_ic(lam, cl, acf_dgp, reps, 1; ced=ced, ad=ad, rl_max=rl_max)
 end
 
 # -----------------------------------------------------------------------------#

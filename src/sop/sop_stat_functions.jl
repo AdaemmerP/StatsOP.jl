@@ -45,12 +45,8 @@ function stat_sop(
   # TODO Check input parameters
 
 
-  # Pre-allocate  
-  if refinement == false #&& chart_choice in 1:4
-    p_hat = zeros(3) # classical approach
-  else
-    p_hat = zeros(6) # refined approach
-  end
+  # Pre-allocate
+  p_hat = zeros(_n_sop_types(refinement))
 
   lookup_array_sop = compute_lookup_array_sop()
   sop = zeros(4)
@@ -121,7 +117,7 @@ function stat_sop(
 
   # Pre-allocate
   # Pre-allocate
-  n_size = refinement ? 6 : 3
+  n_size = _n_sop_types(refinement)
   p_hat = zeros(n_size)
   p_ewma = zeros(n_size)
 

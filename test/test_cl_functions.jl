@@ -226,6 +226,42 @@ end
     @test isfinite(cl)
 end
 
+# ── L0 may be a Float64 ──────────────────────────────────────────────────────
+# Regression: every cl_ function caps the ARL runs at `arl_truncation_factor *
+# L0` and hands that value to `arl_*(...; rl_max=…)`, which is typed `::Int`.
+# With an integer `L0` the product happens to be an Int; with a Float64 `L0` it
+# is a Float64 and the call threw a TypeError. Every test above passes an Int,
+# so the whole family was broken for `L0 = 200.0` without any test noticing.
+@testset "cl_ accepts a Float64 L0" begin
+    common = (reps_final=_CL_TEST_REPS_FINAL, reps_bracket=_CL_TEST_REPS_BRACKET,
+        verbose=_CL_TEST_VERBOSE)
+
+    cl_int = cl_sop(ICSTS(11, 11, Normal(0, 1)), _CL_TEST_LAM, 50, 0.018, 1, 1;
+        bracket_step=0.008, common...)
+    cl_float = cl_sop(ICSTS(11, 11, Normal(0, 1)), _CL_TEST_LAM, 50.0, 0.018, 1, 1;
+        bracket_step=0.008, common...)
+    # Both must run; they are separate random draws, so only the type and the
+    # sign are asserted, not equality.
+    @test cl_int isa Float64 && cl_int > 0 && isfinite(cl_int)
+    @test cl_float isa Float64 && cl_float > 0 && isfinite(cl_float)
+
+    dgp_c = ContinuousDGPIC(Normal(0, 1))
+    @test cl_op(dgp_c, _CL_TEST_LAM, 50.0, 1.57; chart_choice=Shannon(),
+        bracket_step=0.1, common...) isa Float64
+    @test cl_acf(dgp_c, _CL_TEST_LAM, 50.0, 0.253; acf_version=1,
+        bracket_step=0.15, common...) isa Float64
+    @test cl_gop(DiscreteDGPIC(Poisson(5), false), _CL_TEST_LAM, 50.0, 0.057;
+        chart_choice=D_Chart(), bracket_step=0.03, common...) isa Float64
+    @test cl_kappa(DiscreteDGPIC(Poisson(5), false), _CL_TEST_LAM, 50.0, 0.106;
+        chart_choice=KappaN1(), bracket_step=0.09, common...) isa Float64
+    @test cl_sacf(ICSTS(11, 11, Normal(0, 1)), _CL_TEST_LAM, 50.0, 0.028, 1, 1;
+        bracket_step=0.016, common...) isa Float64
+    @test cl_sacf_bp(ICSTS(11, 11, Normal(0, 1)), _CL_TEST_LAM, 50.0, 0.0175, 3;
+        bracket_step=0.01, common...) isa Float64
+    @test cl_sop_bp(ICSTS(27, 12, Normal(0, 1)), _CL_TEST_LAM, 50.0, 0.0007, 3;
+        bracket_step=0.0004, common...) isa Float64
+end
+
 # ── Seed contract ────────────────────────────────────────────────────────────
 # The cl_ docstrings promise that a fixed `seed` makes the result reproducible.
 # That only holds single-threaded: with more threads the arl_ functions split

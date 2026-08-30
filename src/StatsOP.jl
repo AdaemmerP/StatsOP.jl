@@ -390,6 +390,6 @@ include("kappa_procs/kappa_stat_functions.jl")
 
 
 # Precompile
-#include("other/precompile.jl")
+include("other/precompile.jl")
 
 end

@@ -97,15 +97,9 @@ function rl_sop_oc(
     sop_freq = zeros(Int, 24) # factorial(4)
     win = zeros(Int, 4)
     data = zeros(M, N)
-    if refinement == false
-        # classical approach
-        p_hat = zeros(3)
-        p_ewma = zeros(3)
-    elseif refinement isa RefinedType
-        # refined approach
-        p_hat = zeros(6)
-        p_ewma = zeros(6)
-    end
+    n_size = _n_sop_types(refinement)
+    p_hat = zeros(n_size)
+    p_ewma = zeros(n_size)
     rls = zeros(Int, length(p_reps))
     sop = zeros(4)
 
@@ -160,7 +154,7 @@ function rl_sop_oc(
             sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
             # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-            fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop)
+            fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, index_sop)
 
             # Apply EWMA to p-vectors
             @. p_ewma = (1 - lam) * p_ewma + lam * p_hat
@@ -210,15 +204,9 @@ function rl_sop_oc(
     sop_freq = zeros(Int, 24) # factorial(4)
     win = zeros(Int, 4)
     data = zeros(M, N)
-    if refinement == false
-        # classical approach
-        p_hat = zeros(3)
-        p_ewma = zeros(3)
-    elseif refinement isa RefinedType
-        # refined approach
-        p_hat = zeros(6)
-        p_ewma = zeros(6)
-    end
+    n_size = _n_sop_types(refinement)
+    p_hat = zeros(n_size)
+    p_ewma = zeros(n_size)
     rls = zeros(Int, length(p_reps))
     sop = zeros(4)
 
@@ -314,15 +302,9 @@ function rl_sop_oc(
     sop_freq = zeros(Int, 24) # factorial(4)
     win = zeros(Int, 4)
     data = zeros(M, N)
-    if refinement == false
-        # classical approach
-        p_hat = zeros(3)
-        p_ewma = zeros(3)
-    elseif refinement isa RefinedType
-        # refined approach
-        p_hat = zeros(6)
-        p_ewma = zeros(6)
-    end
+    n_size = _n_sop_types(refinement)
+    p_hat = zeros(n_size)
+    p_ewma = zeros(n_size)
     rls = zeros(Int, length(p_reps))
     sop = zeros(4)
 
@@ -416,15 +398,9 @@ function rl_sop_oc(
     sop_freq = zeros(Int, 24) # factorial(4)
     win = zeros(Int, 4)
     data = zeros(M, N)
-    if refinement == false
-        # classical approach
-        p_hat = zeros(3)
-        p_ewma = zeros(3)
-    elseif refinement isa RefinedType
-        # refined approach
-        p_hat = zeros(6)
-        p_ewma = zeros(6)
-    end
+    n_size = _n_sop_types(refinement)
+    p_hat = zeros(n_size)
+    p_ewma = zeros(n_size)
     rls = zeros(Int, length(p_reps))
     sop = zeros(4)
 
@@ -518,15 +494,9 @@ function rl_sop_oc(
     sop_freq = zeros(Int, 24) # factorial(4)
     win = zeros(Int, 4)
     data = zeros(M, N)
-    if refinement == false
-        # classical approach
-        p_hat = zeros(3)
-        p_ewma = zeros(3)
-    elseif refinement isa RefinedType
-        # refined approach
-        p_hat = zeros(6)
-        p_ewma = zeros(6)
-    end
+    n_size = _n_sop_types(refinement)
+    p_hat = zeros(n_size)
+    p_ewma = zeros(n_size)
     rls = zeros(Int, length(p_reps))
     sop = zeros(4)
 

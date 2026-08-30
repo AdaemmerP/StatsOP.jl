@@ -33,7 +33,7 @@ results across calls, or fix the seed for reproducibility.
 - `arl_truncation_factor=50`: Individual simulation runs are capped at
   `arl_truncation_factor * L0` steps during bracketing.
 - `chart_choice=TauTilde()`: Control chart statistic to use.
-- `refinement=nothing`: Whether to apply a refined chart computation.
+- `refinement=false`: Whether to apply a refined chart computation.
 - `cl_tol=1e-4`: Absolute convergence tolerance on `cl` for the ITP phase.
 - `seed=nothing`: Random seed for reproducibility.
 - `verbose=false`: If `true`, prints progress information at each evaluation.
@@ -78,7 +78,7 @@ function cl_sop_bp(
     seed = isnothing(seed) ? rand(Int) : seed
 
     # Cap ARL runs during bracketing to avoid wasting reps far from the root.
-    trunc_val = arl_truncation_factor * L0
+    trunc_val = round(Int, arl_truncation_factor * L0) # rl_max must be an Int
     cap_val = trunc_val / 10
 
     # Step 1: Find an interval [a, b] that brackets the root using coarse MC.

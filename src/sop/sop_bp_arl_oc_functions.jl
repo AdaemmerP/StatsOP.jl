@@ -1,6 +1,6 @@
 """
     arl_sop_bp_oc(spatial_dgp, lam, cl, w, reps=1_000; chart_choice=TauTilde(),
-      refinement=nothing, rl_max=typemax(Int))
+      refinement=false, rl_max=typemax(Int))
 
 Compute the out-of-control average run length (ARL) of the EWMA chart based on the
 Box-Pierce type statistic for spatial ordinal patterns (SOPs) via simulation. The
@@ -13,7 +13,7 @@ computation is multithreaded.
 - `reps::Int=1_000`: number of replications.
 - `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`,
   [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`.
-- `refinement`: `nothing` for the classical SOP classification, or one of
+- `refinement`: `false` for the classical SOP classification, or one of
   [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`.
 - `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
 
@@ -26,7 +26,7 @@ function arl_sop_bp_oc(
     w::Int,
     reps=1_000;
     chart_choice=TauTilde(),
-    refinement::Union{Nothing,RefinedType}=nothing,
+    refinement::Union{Bool,RefinedType}=false,
     rl_max::Int=typemax(Int)
 )
 
@@ -93,10 +93,11 @@ function rl_sop_bp_oc(
     sop_freq = zeros(Int, 24)
     win = zeros(Int, 4)
     data = zeros(M, N)
-    p_hat = zeros(3)
+    n_size = _n_sop_types(refinement)
+    p_hat = zeros(n_size)
     rls = zeros(Int, length(p_reps))
     sop = zeros(4)
-    p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
+    p_ewma_all = zeros(n_size, 1, length(d1_d2_combinations))
 
     # indices for sum of frequencies
     index_sop = create_index_sop(refinement=refinement)
@@ -157,7 +158,7 @@ function rl_sop_bp_oc(
                 sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
                 # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-                fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop)
+                fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, index_sop)
 
                 # Apply EWMA
                 @views @. p_ewma_all[:, :, i] =
@@ -201,7 +202,7 @@ function rl_sop_bp_oc(
     dist_error::UnivariateDistribution,
     dist_ao::Union{Nothing,UnivariateDistribution},
     chart_choice,
-    refinement=nothing,
+    refinement=false,
     rl_max::Int=typemax(Int),
 )
 
@@ -218,15 +219,9 @@ function rl_sop_bp_oc(
     data = zeros(M, N)
     rls = zeros(Int, length(p_reps))
     sop = zeros(4)
-    if isnothing(refinement)
-        # classical approach
-        p_hat = zeros(3)
-        p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
-    elseif refinement isa RefinedType
-        # refined approach
-        p_hat = zeros(6)
-        p_ewma_all = zeros(6, 1, length(d1_d2_combinations))
-    end
+    n_size = _n_sop_types(refinement)
+    p_hat = zeros(n_size)
+    p_ewma_all = zeros(n_size, 1, length(d1_d2_combinations))
 
     # indices for sum of frequencies
     index_sop = create_index_sop(refinement=refinement)
@@ -275,7 +270,7 @@ function rl_sop_bp_oc(
                 sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
                 # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-                fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop)
+                fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, index_sop)
 
                 # Apply EWMA
                 @views @. p_ewma_all[:, :, i] =
@@ -325,7 +320,7 @@ function rl_sop_bp_oc(
     dist_error::UnivariateDistribution,
     dist_ao::Union{Nothing,UnivariateDistribution},
     chart_choice,
-    refinement=nothing,
+    refinement=false,
     rl_max::Int=typemax(Int),
 )
 
@@ -342,15 +337,9 @@ function rl_sop_bp_oc(
     data = zeros(M, N)
     rls = zeros(Int, length(p_reps))
     sop = zeros(4)
-    if isnothing(refinement)
-        # classical approach
-        p_hat = zeros(3)
-        p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
-    elseif refinement isa RefinedType
-        # refined approach
-        p_hat = zeros(6)
-        p_ewma_all = zeros(6, 1, length(d1_d2_combinations))
-    end
+    n_size = _n_sop_types(refinement)
+    p_hat = zeros(n_size)
+    p_ewma_all = zeros(n_size, 1, length(d1_d2_combinations))
 
     # indices for sum of frequencies
     index_sop = create_index_sop(refinement=refinement)
@@ -398,7 +387,7 @@ function rl_sop_bp_oc(
                 sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
                 # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-                fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop)
+                fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, index_sop)
 
                 # Apply EWMA
                 @views @. p_ewma_all[:, :, i] =
@@ -445,7 +434,7 @@ function rl_sop_bp_oc(
     dist_error::UnivariateDistribution,
     dist_ao::Union{Nothing,UnivariateDistribution},
     chart_choice,
-    refinement=nothing,
+    refinement=false,
     rl_max::Int=typemax(Int),
 )
 
@@ -462,15 +451,9 @@ function rl_sop_bp_oc(
     data = zeros(M, N)
     rls = zeros(Int, length(p_reps))
     sop = zeros(4)
-    if isnothing(refinement)
-        # classical approach
-        p_hat = zeros(3)
-        p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
-    elseif refinement isa RefinedType
-        # refined approach
-        p_hat = zeros(6)
-        p_ewma_all = zeros(6, 1, length(d1_d2_combinations))
-    end
+    n_size = _n_sop_types(refinement)
+    p_hat = zeros(n_size)
+    p_ewma_all = zeros(n_size, 1, length(d1_d2_combinations))
 
     # indices for sum of frequencies
     index_sop = create_index_sop(refinement=refinement)
@@ -518,7 +501,7 @@ function rl_sop_bp_oc(
                 sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
                 # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-                fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop)
+                fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, index_sop)
 
                 # Apply EWMA
                 @views @. p_ewma_all[:, :, i] = (1 - lam) * p_ewma_all[:, :, i] + lam * p_hat
@@ -564,7 +547,7 @@ function rl_sop_bp_oc(
     dist_error::UnivariateDistribution,
     dist_ao::Union{Nothing,UnivariateDistribution},
     chart_choice,
-    refinement=nothing,
+    refinement=false,
     rl_max::Int=typemax(Int),
 )
 
@@ -581,15 +564,9 @@ function rl_sop_bp_oc(
     data = zeros(M, N)
     rls = zeros(Int, length(p_reps))
     sop = zeros(4)
-    if isnothing(refinement)
-        # classical approach
-        p_hat = zeros(3)
-        p_ewma_all = zeros(3, 1, length(d1_d2_combinations))
-    elseif refinement isa RefinedType
-        # refined approach
-        p_hat = zeros(6)
-        p_ewma_all = zeros(6, 1, length(d1_d2_combinations))
-    end
+    n_size = _n_sop_types(refinement)
+    p_hat = zeros(n_size)
+    p_ewma_all = zeros(n_size, 1, length(d1_d2_combinations))
 
     # indices for sum of frequencies
     index_sop = create_index_sop(refinement=refinement)
@@ -637,7 +614,7 @@ function rl_sop_bp_oc(
                 sop_frequencies!(m, n, d1, d2, lookup_array_sop, data, sop, win, sop_freq)
 
                 # Fill 'p_hat' with sop-frequencies and compute relative frequencies
-                fill_p_hat!(p_hat, chart_choice, sop_freq, m, n, index_sop)
+                fill_p_hat!(p_hat, chart_choice, refinement, sop_freq, m, n, index_sop)
 
                 # Apply EWMA
                 @views @. p_ewma_all[:, :, i] = (1 - lam) * p_ewma_all[:, :, i] + lam * p_hat

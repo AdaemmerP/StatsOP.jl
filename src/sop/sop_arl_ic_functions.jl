@@ -86,7 +86,7 @@ function rl_sop_ic(
 
 
   # Pre-allocate
-  n_size = refinement ? 6 : 3
+  n_size = _n_sop_types(refinement)
   p_hat = zeros(n_size)
   p_ewma = zeros(n_size)
 

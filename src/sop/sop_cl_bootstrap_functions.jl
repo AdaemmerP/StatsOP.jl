@@ -85,7 +85,7 @@ function cl_sop_bootstrap(
     seed = isnothing(seed) ? rand(Int) : seed
 
     # Cap ARL runs during bracketing to avoid wasting reps far from the root.
-    trunc_val = arl_truncation_factor * L0
+    trunc_val = round(Int, arl_truncation_factor * L0) # rl_max must be an Int
     cap_val = trunc_val / 10
 
     # Step 1: Find an interval [a, b] that brackets the root using coarse MC.
