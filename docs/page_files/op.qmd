@@ -15,5 +15,5 @@ Ordinal patterns are a useful tool in time series analysis that convert short se
 
 Ordinal patterns are well suited for distribution-free tests. In statistical process control (SPC), they can also be used to build nonparametric control charts that monitor processes without requiring specific distributional assumptions.
 
-`StatsOP.jl` provides functions for computing ordinal patterns from time series data and for conducting tests based on these patterns. It also enables the replication of several studies listed below. 
+`StatsOrdinalPatterns.jl` provides functions for computing ordinal patterns from time series data and for conducting tests based on these patterns. It also enables the replication of several studies listed below. 
 

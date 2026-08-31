@@ -2,7 +2,7 @@
 # SACF, kappa). Inputs are deliberately tiny: only the compiled signatures are
 # cached, the results are discarded.
 #
-# Names here must not collide with anything StatsOP imports (`counts`, `sample`,
+# Names here must not collide with anything StatsOrdinalPatterns imports (`counts`, `sample`,
 # `params`, ... from StatsBase/Distributions). PrecompileTools < 1.3 expands the
 # workload at module scope, where assigning to an imported binding is an error on
 # Julia 1.10 — so a colliding name breaks precompilation on the oldest supported

@@ -1,7 +1,7 @@
 export test_op_surrogate, OPTestResultSurrogate
 
 # ------------------------------------------------------------------------------
-# SURROGATE TEST (implementation in ext/StatsOPTimeseriesSurrogatesExt.jl)
+# SURROGATE TEST (implementation in ext/StatsOrdinalPatternsTimeseriesSurrogatesExt.jl)
 # ------------------------------------------------------------------------------
 """
     OPTestResultSurrogate

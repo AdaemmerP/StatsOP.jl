@@ -1,9 +1,9 @@
 using Distributions
 
 @testset "qup3_value" begin
-  @test StatsOP.qup3_op_value(0.01) ≈ 2.2672 atol = 1e-4
-  @test StatsOP.qup3_op_value(0.05) ≈ 1.4842 atol = 1e-4
-  @test StatsOP.qup3_op_value(0.10) ≈ 1.1626 atol = 1e-4
+  @test StatsOrdinalPatterns.qup3_op_value(0.01) ≈ 2.2672 atol = 1e-4
+  @test StatsOrdinalPatterns.qup3_op_value(0.05) ≈ 1.4842 atol = 1e-4
+  @test StatsOrdinalPatterns.qup3_op_value(0.10) ≈ 1.1626 atol = 1e-4
 end
 
 # ── Regression: the m = 2 Δ-chart scaling ────────────────────────────────────
@@ -18,33 +18,33 @@ end
   n = 1000
   q = quantile(Chisq(1), 0.95)
 
-  @test StatsOP.crit_val_op(DistanceToWhiteNoise(), 2, n; alpha=0.05) ≈ q / (6 * n)
+  @test StatsOrdinalPatterns.crit_val_op(DistanceToWhiteNoise(), 2, n; alpha=0.05) ≈ q / (6 * n)
 
   # Deterministic cross-check tying the two m = 2 charts together: a Taylor expansion
   # gives log(2) − H ≈ Δ for m = 2, so the Shannon chart's distance from its maximum must
   # equal the Δ-chart's critical value. This only holds when both carry the factor 6.
-  @test log(2) - StatsOP.crit_val_op(Shannon(), 2, n; alpha=0.05) ≈
-        StatsOP.crit_val_op(DistanceToWhiteNoise(), 2, n; alpha=0.05)
+  @test log(2) - StatsOrdinalPatterns.crit_val_op(Shannon(), 2, n; alpha=0.05) ≈
+        StatsOrdinalPatterns.crit_val_op(DistanceToWhiteNoise(), 2, n; alpha=0.05)
 
   # The m = 3 case is unaffected by the fix.
-  @test StatsOP.crit_val_op(DistanceToWhiteNoise(), 3, n; alpha=0.05) ≈
-        StatsOP.qup3_op_value(0.05) / n
+  @test StatsOrdinalPatterns.crit_val_op(DistanceToWhiteNoise(), 3, n; alpha=0.05) ≈
+        StatsOrdinalPatterns.qup3_op_value(0.05) / n
 end
 
 @testset "_asymp_pval — p-value equals alpha at the critical value" begin
   # Pins the scaling used in _asymp_pval to the one used in crit_val_op. Deterministic.
   n = 1000
   for alpha in (0.01, 0.05, 0.10)
-    cv = StatsOP.crit_val_op(DistanceToWhiteNoise(), 2, n; alpha=alpha)
-    @test StatsOP._asymp_pval(DistanceToWhiteNoise(), cv, n, 2) ≈ alpha atol = 1e-8
+    cv = StatsOrdinalPatterns.crit_val_op(DistanceToWhiteNoise(), 2, n; alpha=alpha)
+    @test StatsOrdinalPatterns._asymp_pval(DistanceToWhiteNoise(), cv, n, 2) ≈ alpha atol = 1e-8
   end
 
   # Same invariant for the charts that were already correct, as a guard against
   # a similar scaling slip elsewhere.
   for (chart, m) in ((Shannon(), 2), (Shannon(), 3), (DistanceToWhiteNoise(), 3),
                      (UpDownBalance(), 3), (Persistence(), 3), (UpDownScaling(), 3))
-    cv = StatsOP.crit_val_op(chart, m, n; alpha=0.05)
-    @test StatsOP._asymp_pval(chart, cv, n, m) ≈ 0.05 atol = 1e-4
+    cv = StatsOrdinalPatterns.crit_val_op(chart, m, n; alpha=0.05)
+    @test StatsOrdinalPatterns._asymp_pval(chart, cv, n, m) ≈ 0.05 atol = 1e-4
   end
 end
 

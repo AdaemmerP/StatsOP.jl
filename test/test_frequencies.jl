@@ -57,7 +57,7 @@
 
     # Check all ranks
     lookup_ranks = collect(permutations(1:4)) # same approach as in sop_help functions
-    lookup_array_sop = StatsOP.compute_lookup_array_sop()
+    lookup_array_sop = StatsOrdinalPatterns.compute_lookup_array_sop()
 
     # Group indices of vector entry
     s_1 = (1, 3, 8, 11, 14, 17, 22, 24)

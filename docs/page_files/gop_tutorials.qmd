@@ -13,4 +13,4 @@ Generalized ordinal patterns extend classical ordinal patterns for time-series a
 
 The frequencies of these patterns can be used to test for serial dependence: since their theoretical distribution under independence is not uniform, bootstrap methods are used to obtain valid test statistics. The same idea can be applied in statistical process control (SPC) by monitoring changes in the distribution of generalized ordinal patterns over time, which can signal shifts or emerging dependencies in a process.
 
-`StatsOP.jl` provides functions for computing generalized ordinal patterns from time series data and for conducting (sequential) tests based on these patterns. It also enables the replication of several studies listed below.
+`StatsOrdinalPatterns.jl` provides functions for computing generalized ordinal patterns from time series data and for conducting (sequential) tests based on these patterns. It also enables the replication of several studies listed below.

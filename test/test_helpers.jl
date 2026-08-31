@@ -1,6 +1,6 @@
 # Shared helpers for the test suite.
 #
-# The hypothesis tests in StatsOP are randomised: on a single simulated series the reject
+# The hypothesis tests in StatsOrdinalPatterns are randomised: on a single simulated series the reject
 # decision is itself a random variable — under H₀ it is `true` with probability `alpha`.
 # Asserting `!reject` on one draw therefore fails for ~5% of random seeds, and Julia does
 # not guarantee that a given seed reproduces the same random stream across versions.

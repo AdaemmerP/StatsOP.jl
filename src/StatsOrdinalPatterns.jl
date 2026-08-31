@@ -1,4 +1,4 @@
-module StatsOP
+module StatsOrdinalPatterns
 
 # Packages to use
 using Combinatorics
@@ -74,7 +74,7 @@ export arl_op_ic,
 # op/op_bootstrap_functions.jl
 export bootstrap_op, test_op_bootstrap, OPTestResultBoot
 
-# op/op_surrogate_functions.jl (implementation in ext/StatsOPTimeseriesSurrogatesExt.jl)
+# op/op_surrogate_functions.jl (implementation in ext/StatsOrdinalPatternsTimeseriesSurrogatesExt.jl)
 export test_op_surrogate, OPTestResultSurrogate
 
 # ---------------------------------------------#
@@ -293,7 +293,7 @@ export stat_kappa
 # (commit 665424e920927a4513ac6760807e16738713eb61); see src/vendor/README.md.
 # Defines the submodule `GeneralizedChisqDistribution`. Nothing from it is
 # exported: it is reached only through the internal alias below, which keeps the
-# name `GeneralizedChisq` from ever colliding with a package StatsOP loads.
+# name `GeneralizedChisq` from ever colliding with a package StatsOrdinalPatterns loads.
 include("vendor/GeneralizedChisqDistribution.jl")
 
 const _GChisqDist = GeneralizedChisqDistribution.GeneralizedChisq

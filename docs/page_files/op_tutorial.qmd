@@ -11,7 +11,7 @@ julia:
 ```{julia}
 #| output: false
 #| message: false
-using StatsOP, Random, Statistics, DataFrames
+using StatsOrdinalPatterns, Random, Statistics, DataFrames
 ```
 
 ## Hypothesis Testing with Ordinal Patterns
@@ -22,7 +22,7 @@ An ordinal pattern test asks whether the frequencies of rank permutations in a t
 
 ## Key functions
 
-The key functions in  `StatsOP.jl` for testing time series regarding dependence using ordinal patterns are:
+The key functions in  `StatsOrdinalPatterns.jl` for testing time series regarding dependence using ordinal patterns are:
 
 - **Computing the statistic**
     - `stat_op(data; chart_choice, m=3, d=1)` — computes the chosen test statistic from the observed pattern frequencies.

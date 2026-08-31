@@ -1,5 +1,5 @@
 using Combinatorics
-using StatsOP
+using StatsOrdinalPatterns
 using Test
 using Random
 

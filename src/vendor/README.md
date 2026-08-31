@@ -2,7 +2,7 @@
 
 `GeneralizedChisqDistribution.jl` and `GChisqComputations.jl` in this directory are
 **verbatim, unmodified copies** of the upstream sources. They are vendored rather than
-taken as a package dependency because the computation method StatsOP relies on lives on
+taken as a package dependency because the computation method StatsOrdinalPatterns relies on lives on
 an unregistered branch.
 
 ## Provenance
@@ -19,32 +19,32 @@ an unregistered branch.
 
 ## How it is wired in
 
-`src/StatsOP.jl` does a single
+`src/StatsOrdinalPatterns.jl` does a single
 
 ```julia
 include("vendor/GeneralizedChisqDistribution.jl")
 ```
 
-which defines the submodule `StatsOP.GeneralizedChisqDistribution` (with its own private
-inner module `GChisqComputations`). Nothing from it is re-exported by StatsOP.
+which defines the submodule `StatsOrdinalPatterns.GeneralizedChisqDistribution` (with its own private
+inner module `GChisqComputations`). Nothing from it is re-exported by StatsOrdinalPatterns.
 
-Call sites reach the type through the internal alias defined in `src/StatsOP.jl`:
+Call sites reach the type through the internal alias defined in `src/StatsOrdinalPatterns.jl`:
 
 ```julia
 const _GChisqDist = GeneralizedChisqDistribution.GeneralizedChisq
 ```
 
 This keeps the vendored code fully namespaced, so the name `GeneralizedChisq` cannot
-collide with anything StatsOP loads — including a future `Distributions.jl` that absorbs
+collide with anything StatsOrdinalPatterns loads — including a future `Distributions.jl` that absorbs
 this distribution.
 
-`StatsOP.GeneralizedChisqDistribution.GeneralizedChisq` is a *distinct type* from the one
-in the upstream package. Do not accept or return it across StatsOP's public API; it is
+`StatsOrdinalPatterns.GeneralizedChisqDistribution.GeneralizedChisq` is a *distinct type* from the one
+in the upstream package. Do not accept or return it across StatsOrdinalPatterns's public API; it is
 only used internally to build null distributions for p-values and critical values.
 
 ## Dependencies the vendored code needs
 
-`Distributions`, `Statistics`, `Random`, `QuadGK` — all present in StatsOP's
+`Distributions`, `Statistics`, `Random`, `QuadGK` — all present in StatsOrdinalPatterns's
 `Project.toml` (`QuadGK` was added for this vendoring).
 
 ## Updating

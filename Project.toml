@@ -1,4 +1,4 @@
-name = "StatsOP"
+name = "StatsOrdinalPatterns"
 uuid = "8611b07d-f603-454a-913b-9db0632d0769"
 version = "0.1.0"
 authors = ["Philipp Adämmer <adaemmerp@uni-greifswald.de>, Philipp Wittenberg <pwitten@hsu-hh.de>, Christian Weiss <cweiss@hsu-hh.de>"]
@@ -21,7 +21,7 @@ StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 TimeseriesSurrogates = "c804724b-8c18-5caa-8579-6025a0767c70"
 
 [extensions]
-StatsOPTimeseriesSurrogatesExt = "TimeseriesSurrogates"
+StatsOrdinalPatternsTimeseriesSurrogatesExt = "TimeseriesSurrogates"
 
 [compat]
 Combinatorics = "1.0.2"

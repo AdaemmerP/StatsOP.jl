@@ -66,7 +66,7 @@ Compute in-control run lengths of the EWMA chart based on spatial ordinal patter
 - `lam::Float64`: A scalar value for lambda for the EWMA chart.
 - `cl::Float64`: A scalar value for the control limit.
 - `lookup_array_sop::Array{Int, 4}`: A 4D array with the lookup array for the sops,
-which will be computed using `lookup_array_sop = StatsOP.compute_lookup_array_sop()`.
+which will be computed using `lookup_array_sop = StatsOrdinalPatterns.compute_lookup_array_sop()`.
 - `reps_range::UnitRange{Int}`: A range of integers for the number of repetitions.
 - `dist::Distribution`: A distribution for the error term. Here you can use any
 univariate distribution from the `Distributions.jl` package.

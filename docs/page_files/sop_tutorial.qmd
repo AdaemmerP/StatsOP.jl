@@ -11,14 +11,14 @@ julia:
 ```{julia}
 #| output: false
 #| message: false
-using StatsOP, Random, Statistics, DataFrames
+using StatsOrdinalPatterns, Random, Statistics, DataFrames
 ```
 
 ## Hypothesis Testing with Spatial Ordinal Patterns
 
 A spatial ordinal pattern (SOP) test asks whether the frequencies of rank permutations in a 2D image are consistent with a spatially i.i.d. process. For an $M \times N$ image, overlapping $2 \times 2$ windows at delays $(d_1, d_2)$ are each mapped to the permutation that describes the relative order of the four values. The resulting frequency distribution is summarised by a scalar test statistic. Under $H_0$ (spatial white noise) that distribution is uniform across all $4! = 24$ patterns.
 
-`StatsOP.jl` provides:
+`StatsOrdinalPatterns.jl` provides:
 
 - **Computing the statistic**
     - `stat_sop()` — computes the chosen test statistic from the observed pattern frequencies.

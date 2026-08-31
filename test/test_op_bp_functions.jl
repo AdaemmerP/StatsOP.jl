@@ -17,7 +17,7 @@ const _BP_CHARTS = (Shannon(), ShannonExtropy(), DistanceToWhiteNoise(), Persist
   ]
   for (chart, m, w) in cases
     cv = crit_val_op_bp(; chart_choice=chart, w=w, m=m, alpha=0.05)
-    dist, scale = StatsOP._op_bp_null(chart, m, w)
+    dist, scale = StatsOrdinalPatterns._op_bp_null(chart, m, w)
     @test 1.0 - cdf(dist, scale * cv) ≈ 0.05 atol = 1e-4
   end
 end
@@ -28,10 +28,10 @@ end
   x = randn(MersenneTwister(1), 300)
   for chart in (Shannon(), ShannonExtropy(), DistanceToWhiteNoise(),
                 Persistence(), RotationalAsymmetry(), UpDownScaling())
-    @test StatsOP._op_bp_null(chart, 3, 2) === nothing
+    @test StatsOrdinalPatterns._op_bp_null(chart, 3, 2) === nothing
     @test isnan(test_op_bp(x, 2; chart_choice=chart).asymp_pval)   # holds for any data
   end
-  @test StatsOP._op_bp_null(UpDownBalance(), 3, 2) !== nothing
+  @test StatsOrdinalPatterns._op_bp_null(UpDownBalance(), 3, 2) !== nothing
   @test !isnan(test_op_bp(x, 2; chart_choice=UpDownBalance()).asymp_pval)
 end
 

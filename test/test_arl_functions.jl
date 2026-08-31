@@ -118,17 +118,17 @@ end
 # `QAR1` uses a small α: the quadratic recursion diverges for larger values, and
 # a diverging series makes the CED warm-up loop below run forever.
 #
-# The DGPs are qualified with `StatsOP.`: `test_op_surrogate.jl` loads
+# The DGPs are qualified with `StatsOrdinalPatterns.`: `test_op_surrogate.jl` loads
 # TimeseriesSurrogates, which exports an `AR1` of its own, so the bare names are
 # ambiguous once the whole suite runs in one session.
 const _ARL_OP_OC_DGPS = (
-    StatsOP.AR1(0.5, Normal(0, 1)),
-    StatsOP.MA1(0.5, Normal(0, 1)),
-    StatsOP.MA2(0.5, 0.3, Normal(0, 1)),
-    StatsOP.TEAR1(0.5, Normal(0, 1)),
-    StatsOP.AAR1(0.5, Normal(0, 1)),
-    StatsOP.QAR1(0.05, Normal(0, 1)),
-    StatsOP.INAR1(0.5, Poisson(5), true),
+    StatsOrdinalPatterns.AR1(0.5, Normal(0, 1)),
+    StatsOrdinalPatterns.MA1(0.5, Normal(0, 1)),
+    StatsOrdinalPatterns.MA2(0.5, 0.3, Normal(0, 1)),
+    StatsOrdinalPatterns.TEAR1(0.5, Normal(0, 1)),
+    StatsOrdinalPatterns.AAR1(0.5, Normal(0, 1)),
+    StatsOrdinalPatterns.QAR1(0.05, Normal(0, 1)),
+    StatsOrdinalPatterns.INAR1(0.5, Poisson(5), true),
 )
 
 @testset "arl_op_oc — runs for every out-of-control DGP" begin
@@ -158,8 +158,8 @@ end
 # the reported out-of-control ARL was 0 for `Shannon` and `ShannonExtropy`.
 @testset "arl_op_oc — entropy charts do not signal at rl = 0" begin
     for cc in (Shannon(), ShannonExtropy())
-        cl = StatsOP.chart_stat_op(fill(1 / factorial(3), factorial(3)), cc) - 0.3
-        res = arl_op_oc(StatsOP.AR1(0.5, Normal(0, 1)), _ARL_LAM, cl, _ARL_REPS;
+        cl = StatsOrdinalPatterns.chart_stat_op(fill(1 / factorial(3), factorial(3)), cc) - 0.3
+        res = arl_op_oc(StatsOrdinalPatterns.AR1(0.5, Normal(0, 1)), _ARL_LAM, cl, _ARL_REPS;
             chart_choice=cc, m=3, d=1, rl_max=_ARL_RL_MAX)
         @test _arl_ok(res)
         @test res[1] > 1
@@ -184,11 +184,11 @@ end
 # anything other than `false` or a RefinedType, which surfaced much later as a
 # confusing MethodError inside a spawned task.
 @testset "create_index_sop — argument checking" begin
-    @test length(StatsOP.create_index_sop(refinement=false)) == 3
+    @test length(StatsOrdinalPatterns.create_index_sop(refinement=false)) == 3
     for rf in (RotationType(), DirectionType(), DiagonalType())
-        @test length(StatsOP.create_index_sop(refinement=rf)) == 6
+        @test length(StatsOrdinalPatterns.create_index_sop(refinement=rf)) == 6
     end
-    @test_throws ArgumentError StatsOP.create_index_sop(refinement=nothing)
-    @test_throws ArgumentError StatsOP.create_index_sop(refinement=true)
-    @test_throws ArgumentError StatsOP.create_index_sop(refinement=1)
+    @test_throws ArgumentError StatsOrdinalPatterns.create_index_sop(refinement=nothing)
+    @test_throws ArgumentError StatsOrdinalPatterns.create_index_sop(refinement=true)
+    @test_throws ArgumentError StatsOrdinalPatterns.create_index_sop(refinement=1)
 end

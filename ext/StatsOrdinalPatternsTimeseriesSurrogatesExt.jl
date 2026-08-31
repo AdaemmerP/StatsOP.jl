@@ -1,7 +1,7 @@
-module StatsOPTimeseriesSurrogatesExt
+module StatsOrdinalPatternsTimeseriesSurrogatesExt
 
-using StatsOP
-using StatsOP: OPBuffer, stat_op!, _op_boot_crit, _op_boot_pval, reject
+using StatsOrdinalPatterns
+using StatsOrdinalPatterns: OPBuffer, stat_op!, _op_boot_crit, _op_boot_pval, reject
 using TimeseriesSurrogates: Surrogate, surrogenerator
 using Random: AbstractRNG, default_rng
 
@@ -28,7 +28,7 @@ end
 # ------------------------------------------------------------------------------
 # 2. SURROGATE TEST (docstring on the stub in src/op/op_surrogate_functions.jl)
 # ------------------------------------------------------------------------------
-function StatsOP.test_op_surrogate(
+function StatsOrdinalPatterns.test_op_surrogate(
   data::Vector{Float64},
   method::Surrogate,
   n_surrogates::Int;

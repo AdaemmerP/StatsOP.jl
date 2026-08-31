@@ -32,7 +32,7 @@ using TimeseriesSurrogates
 
   # Reject decision is consistent with the reported critical value
   @test res_nonlin.surr_reject ==
-        StatsOP.reject(DistanceToWhiteNoise(), res_nonlin.stat, res_nonlin.surr_crit)
+        StatsOrdinalPatterns.reject(DistanceToWhiteNoise(), res_nonlin.stat, res_nonlin.surr_crit)
 
   # Reproducibility with a fixed rng
   res_rep = test_op_surrogate(data_ar1, RandomFourier(), 200;

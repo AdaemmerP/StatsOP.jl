@@ -11,7 +11,7 @@ julia:
 ```{julia}
 #| output: false
 #| message: false
-using StatsOP, Random, Statistics, DataFrames
+using StatsOrdinalPatterns, Random, Statistics, DataFrames
 ```
 
 ## Sequential testing with ordinal patterns

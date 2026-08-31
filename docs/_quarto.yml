@@ -22,7 +22,7 @@ website:
     logo: op_logo.svg
 
     left:
-      - text: "StatsOP.jl"
+      - text: "StatsOrdinalPatterns.jl"
         href: index.qmd      
       - text: "Ordinal Patterns"
         href: page_files/op.qmd
@@ -35,8 +35,8 @@ website:
 
     tools:
     - icon: github
-      href: https://github.com/AdaemmerP/StatsOP.jl
-      text: "StatsOP.jl"
+      href: https://github.com/AdaemmerP/StatsOrdinalPatterns.jl
+      text: "StatsOrdinalPatterns.jl"
 
   sidebar:
     - title: "API"    
