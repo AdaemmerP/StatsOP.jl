@@ -584,6 +584,38 @@ function update_dgp_op_ced!(
 end
 
 
+# Methods for the MA processes: their states only start at index 2 (MA1) resp. 3 (MA2),
+# so the returned view has to skip the leading entries — as in their `init_dgp_op!` and
+# `update_dgp_op!` methods above. Otherwise the returned sequence is longer than `m`.
+function init_dgp_op_ced!(
+    dgp::Union{MA1,MA2}, x_long::Vector{Float64}, pool::Vector{Float64}, d::Int
+)
+    # Fill 'x_long' with randomly drawn values from the pool
+    for i in eachindex(x_long)
+        x_long[i] = rand(pool)
+    end
+
+    return @views x_long[(_ma_offset(dgp)+1):d:end]
+end
+
+function update_dgp_op_ced!(
+    dgp::Union{MA1,MA2}, x_long::Vector{Float64}, pool::Vector{Float64}, d::Int
+)
+    # 1. Shift window left
+    for t in 1:(lastindex(x_long)-1)
+        x_long[t] = x_long[t+1]
+    end
+
+    # 2. Insert value
+    x_long[end] = rand(pool)
+
+    return @views x_long[(_ma_offset(dgp)+1):d:end]
+end
+
+_ma_offset(::MA1) = 1
+_ma_offset(::MA2) = 2
+
+
 # Methods when using Conditional Expected Delay approach
 function init_dgp_op_ced!(
     dgp::DiscreteDGP, x_long::Vector{Float64}, pool::Vector{Float64}, d::Int

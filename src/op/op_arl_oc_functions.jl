@@ -117,7 +117,7 @@ function rl_op_oc(
       fill!(p, 1 / m_fact)
       # Standard init without eps_long
       seq = init_dgp_op!(op_dgp, x_seq, op_dgp_dist, d)
-      stat = 0.0
+      stat = chart_stat_op(p, chart_choice)
     end
 
     rl = 0
@@ -145,9 +145,13 @@ function rl_op_oc(
 end
 
 
-# Methods specifically for MA1 and MA2, which need an extra vector for the epsilons
+# Length of the burn-in prerun used to initialize the AAR(1) and QAR(1) sequences.
+const _OP_OC_BURN_IN = 100
+
+# Methods for the DGPs whose init/update take the extra `eps_long` vector: MA1 and MA2
+# need it for the epsilons, AAR1 and QAR1 additionally need the burn-in vector `xbiv`.
 function rl_op_oc(
-  op_dgp::Union{MA1,MA2}, lam, cl, p_reps, op_dgp_dist, chart_choice, d, m, ced, ad, rl_max::Int=typemax(Int)
+  op_dgp::Union{MA1,MA2,TEAR1,AAR1,QAR1}, lam, cl, p_reps, op_dgp_dist, chart_choice, d, m, ced, ad, rl_max::Int=typemax(Int)
 )
   m_fact = factorial(m)
   rls = zeros(Int, length(p_reps))
@@ -156,19 +160,24 @@ function rl_op_oc(
   win = zeros(Int, m)
   idx_used = similar(win)
 
+  # Determine sequence lengths: the MA states start at index 2 (MA1) resp. 3 (MA2),
+  # the autoregressive-type states at index 1.
+  offset = op_dgp isa Union{MA1,MA2} ? _ma_offset(op_dgp) : 0
+  x_seq = Vector{Float64}(undef, m + (d > 1 ? d : 0) + offset)
+  eps_long = similar(x_seq)
+  rand!(op_dgp_dist, eps_long)
+  # Burn-in vector; only used by the AAR(1) and QAR(1) initialization.
+  xbiv = Vector{Float64}(undef, _OP_OC_BURN_IN)
+
   # Pre-allocate pool if CED is used
   if ced
     pool_vector = Vector{Float64}(undef, 10_000)
-    init_dgp_op!(op_dgp, pool_vector, op_dgp_dist, 1)
+    init_dgp_op!(op_dgp, pool_vector, similar(pool_vector), op_dgp_dist, 1, xbiv)
+    # The MA initialization leaves the first `offset` entries undefined.
+    offset > 0 && (pool_vector = pool_vector[(offset+1):end])
   else
     pool_vector = Float64[]
   end
-
-  # Determine sequence lengths for MA states
-  offset = (op_dgp isa MA1) ? 1 : 2
-  x_seq = Vector{Float64}(undef, m + (d > 1 ? d : 0) + offset)
-  eps_long = similar(x_seq)
-  # xbiv not needed for generic OP DGPs
 
   for r in axes(p_reps, 1)
     if ced
@@ -198,7 +207,7 @@ function rl_op_oc(
     else
       fill!(p, 1 / m_fact)
       seq = init_dgp_op!(op_dgp, x_seq, eps_long, op_dgp_dist, d, xbiv)
-      stat = 0.0
+      stat = chart_stat_op(p, chart_choice)
     end
 
     rl = 0

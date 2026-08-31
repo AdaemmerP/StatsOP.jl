@@ -108,6 +108,64 @@ end
     end
 end
 
+# ── OP: every out-of-control DGP reaches a run-length worker ─────────────────
+# Regression: only `AR1` and the discrete DGPs used to work. `MA1`/`MA2` reached
+# the `eps_long` worker, which passed an undefined `xbiv` to `init_dgp_op!`, and
+# `TEAR1`/`AAR1`/`QAR1` fell through to the generic worker, whose 4-argument
+# `init_dgp_op!`/`update_dgp_op!` methods do not exist for them. Both failed
+# inside a spawned task, so `arl_op_oc` threw a TaskFailedException.
+#
+# `QAR1` uses a small α: the quadratic recursion diverges for larger values, and
+# a diverging series makes the CED warm-up loop below run forever.
+#
+# The DGPs are qualified with `StatsOP.`: `test_op_surrogate.jl` loads
+# TimeseriesSurrogates, which exports an `AR1` of its own, so the bare names are
+# ambiguous once the whole suite runs in one session.
+const _ARL_OP_OC_DGPS = (
+    StatsOP.AR1(0.5, Normal(0, 1)),
+    StatsOP.MA1(0.5, Normal(0, 1)),
+    StatsOP.MA2(0.5, 0.3, Normal(0, 1)),
+    StatsOP.TEAR1(0.5, Normal(0, 1)),
+    StatsOP.AAR1(0.5, Normal(0, 1)),
+    StatsOP.QAR1(0.05, Normal(0, 1)),
+    StatsOP.INAR1(0.5, Poisson(5), true),
+)
+
+@testset "arl_op_oc — runs for every out-of-control DGP" begin
+    for dgp in _ARL_OP_OC_DGPS, dd in (1, 2)
+        res = arl_op_oc(dgp, _ARL_LAM, 0.25, _ARL_REPS;
+            chart_choice=Persistence(), m=3, d=dd, rl_max=_ARL_RL_MAX)
+        @test _arl_ok(res)
+    end
+end
+
+# The CED path allocates its own pool of in-control values. It used to build the
+# pool with the same missing 4-argument `init_dgp_op!`, and the MA processes
+# additionally returned a length-`m + offset` window from `init_dgp_op_ced!` /
+# `update_dgp_op_ced!`, which `sortperm!` rejects.
+@testset "arl_op_oc — CED runs for every out-of-control DGP" begin
+    for dgp in _ARL_OP_OC_DGPS
+        res = arl_op_oc(dgp, _ARL_LAM, 0.25, _ARL_REPS;
+            chart_choice=Persistence(), m=3, d=1, ced=true, ad=10, rl_max=_ARL_RL_MAX)
+        @test _arl_ok(res)
+    end
+end
+
+# ── OP: the out-of-control chart starts in control ───────────────────────────
+# Regression: the out-of-control workers initialized `stat = 0.0` instead of the
+# statistic of the uniform pattern distribution. The entropy charts signal when
+# the statistic falls BELOW the limit, so every replication alarmed at rl = 0 and
+# the reported out-of-control ARL was 0 for `Shannon` and `ShannonExtropy`.
+@testset "arl_op_oc — entropy charts do not signal at rl = 0" begin
+    for cc in (Shannon(), ShannonExtropy())
+        cl = StatsOP.chart_stat_op(fill(1 / factorial(3), factorial(3)), cc) - 0.3
+        res = arl_op_oc(StatsOP.AR1(0.5, Normal(0, 1)), _ARL_LAM, cl, _ARL_REPS;
+            chart_choice=cc, m=3, d=1, rl_max=_ARL_RL_MAX)
+        @test _arl_ok(res)
+        @test res[1] > 1
+    end
+end
+
 # ── ACF: the method without an explicit acf_version ──────────────────────────
 # Regression: `arl_acf_ic(lam, cl, dgp, reps)` spawned
 # `rl_acf_ic(lam, cl, i, dgp, dgp.dist; …)`, a 5-argument worker that does not

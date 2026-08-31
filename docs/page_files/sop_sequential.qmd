@@ -1,0 +1,179 @@
+---
+engine: julia
+julia:
+  exeflags: ["--project=../."]
+---
+
+# Tutorial for sequential spatial ordinal pattern tests
+
+## Libraries
+
+```{julia}
+#| output: false
+#| message: false
+using StatsOP, Random, Statistics, DataFrames
+```
+
+## Sequential testing with spatial ordinal patterns
+
+Here, the monitored stream is a sequence of images: at each time $t$ a new $M \times N$
+image arrives, all its $2 \times 2$ windows at delays $(d_1, d_2)$ are classified into SOP
+types, and the resulting type frequencies $\hat{\mathbf{p}}_t$ are smoothed exponentially
+(EWMA),
+
+$$
+\hat{\mathbf{p}}_t^{\text{EWMA}} = \lambda\,\hat{\mathbf{p}}_t
+  + (1 - \lambda)\,\hat{\mathbf{p}}_{t-1}^{\text{EWMA}},
+\qquad \hat{\mathbf{p}}_0^{\text{EWMA}} = (1/3, 1/3, 1/3).
+$$
+
+The chart statistic is computed from the smoothed frequencies and the chart signals as
+soon as $\lvert\text{stat}\rvert > cl$. Unlike the time series case, each single time point
+already contributes $(M-d_1)(N-d_2)$ patterns, so the chart reacts quickly.
+
+Designing the chart means fixing $\lambda$ and choosing `cl` such that the in-control ARL
+matches a target `L0`. See @adammer2026.
+
+## Key functions
+
+- **Critical limit**
+    - `cl_sop(sop_dgp, lam, L0, cl_init, d1, d2; chart_choice, refinement=false, reps_bracket, reps_final, bracket_step, seed)`
+        - Returns the `cl` for which the in-control ARL equals `L0`.
+        - `sop_dgp::ICSTS(M_rows, N_cols, dist)`: in-control spatial process (spatial white
+          noise of the given image size).
+        - `cl_init`: rough starting value; the search first brackets the root with
+          `reps_bracket` replications in steps of `bracket_step`, then refines it with
+          `reps_final` replications.
+        - `d1`, `d2`: row and column delays — note they are **positional** arguments here.
+
+- **Chart performance**
+    - `arl_sop_ic(sop_dgp, lam, cl, d1, d2, reps; chart_choice, refinement=false)` —
+      in-control ARL, returns `(ARL, standard error)`.
+    - `arl_sop_oc(spatial_dgp, lam, cl, d1, d2, reps; chart_choice, refinement=false)` —
+      out-of-control ARL for a spatially dependent process (`SAR11`, `SAR1`, `SQMA11`,
+      `SINAR11`, `SQINMA11`, `BSQMA11`).
+
+- **Monitoring observed data**
+    - `stat_sop(data, lam, d1, d2; chart_choice, refinement=false)` — for a 3D array
+      (rows × columns × time), returns the sequentially computed EWMA chart statistics.
+
+## Alarm rules
+
+The four Tau/Kappa statistics are used for monitoring; all of them are **two-sided**, so
+the chart signals when $\lvert\text{stat}\rvert > cl$.
+
+::: {style="font-size: 0.82em;"}
+
+| Statistic | Constructor | Definition | Under $H_0$ |
+|:----------|:------------|:----------:|:-----------:|
+| $\hat{\tau}$ | `TauHat()` | $\hat{p}_1 - 1/3$ | $0$ |
+| $\hat{\kappa}$ | `KappaHat()` | $\hat{p}_2 - \hat{p}_3$ | $0$ |
+| $\tilde{\tau}$ | `TauTilde()` | $\tilde{p}_3 - 1/3$ | $0$ |
+| $\tilde{\kappa}$ | `KappaTilde()` | $\tilde{p}_1 - \tilde{p}_2$ | $0$ |
+
+: {tbl-colwidths="[20,25,30,25]"}
+
+:::
+
+Setting `refinement` to `RotationType()`, `DirectionType()`, or `DiagonalType()` replaces
+the three classical SOP types by the corresponding six refined types. The `refinement`
+argument must be identical in `cl_sop`, `arl_sop_ic`, and `arl_sop_oc` — otherwise the
+critical limit does not belong to the monitored statistic.
+
+## Setup
+
+```{julia}
+M, N = 11, 11          # image dimensions
+d1, d2 = 1, 1          # row and column delays
+lam = 0.1              # EWMA smoothing parameter
+L0 = 370.0             # target in-control ARL
+
+ic = ICSTS(M, N, Normal(0, 1))   # in-control: spatial white noise
+```
+
+## Computing the critical limit
+
+```{julia}
+cl = cl_sop(
+    ic, lam, L0, 0.026, d1, d2;
+    chart_choice=TauTilde(),
+    reps_bracket=500, reps_final=2_000, bracket_step=0.002, seed=42
+)
+```
+
+`cl_init = 0.026` only has to be in the right ballpark, but it should sit *below* the root:
+the bracketing phase walks towards it in steps of `bracket_step`, so a starting value that
+is far away or a step that is much too small makes the search crawl. Increase `reps_final`
+for a more precise limit, and set `verbose=true` to follow `cl` and the associated ARL at
+every evaluation.
+
+## Verifying the in-control ARL
+
+```{julia}
+arl_sop_ic(ic, lam, cl, d1, d2, 5_000; chart_choice=TauTilde())
+```
+
+The returned tuple is `(ARL, standard error)`; the ARL is within a few standard errors of
+`L0`.
+
+## Out-of-control performance
+
+The same `cl` is used to monitor spatially dependent images. Note that the out-of-control
+DGP must generate images of the same size as the in-control process.
+
+```{julia}
+#| output: false
+oc_dgps = [
+    ("SAR(1,1), α = (0.1, 0.1, 0.0)", SAR11((0.1, 0.1, 0.0), M, N, Normal(0, 1), nothing, 20)),
+    ("SAR(1,1), α = (0.2, 0.2, 0.0)", SAR11((0.2, 0.2, 0.0), M, N, Normal(0, 1), nothing, 20)),
+    ("SAR(1,1), α = (0.3, 0.3, 0.1)", SAR11((0.3, 0.3, 0.1), M, N, Normal(0, 1), nothing, 20)),
+    ("SQMA(1,1), β = (0.5, 0.3, 0.2)", SQMA11((0.5, 0.3, 0.2), (1, 1, 2), M, N, Normal(0, 1), nothing)),
+]
+oc_res = [
+    arl_sop_oc(dgp, lam, cl, d1, d2, 5_000; chart_choice=TauTilde())
+    for (_, dgp) in oc_dgps
+]
+```
+
+```{julia}
+DataFrame(
+    Process=[n for (n, _) in oc_dgps],
+    ARL=round.([r[1] for r in oc_res], digits=2),
+    se=round.([r[2] for r in oc_res], digits=3),
+)
+```
+
+Even weak spatial dependence is detected within a few images, because every image
+contributes $(M - d_1)(N - d_2) = 100$ patterns.
+
+## Monitoring an observed image sequence
+
+`stat_sop` applied to a 3D array returns the EWMA chart statistics of an observed image
+sequence. The sequence below is spatial white noise up to $t = 20$ and spatially dependent
+afterwards.
+
+```{julia}
+Random.seed!(42)
+T, T_change = 40, 20
+images = randn(M, N, T)
+
+φ = 0.4
+for t in (T_change+1):T, i in 2:M, j in 2:N
+    images[i, j, t] = φ * (images[i-1, j, t] + images[i, j-1, t]) / 2 + randn()
+end
+
+stats = stat_sop(images, lam, d1, d2; chart_choice=TauTilde())
+alarm = findfirst(s -> abs(s) > cl, stats)
+```
+
+```{julia}
+(first_alarm=alarm, delay=alarm - T_change, stat_at_alarm=round(stats[alarm], digits=4))
+```
+
+The chart passes through the white-noise part without a false alarm and signals shortly
+after the change.
+
+## References
+
+::: {#refs}
+:::

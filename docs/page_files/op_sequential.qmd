@@ -1,0 +1,229 @@
+---
+engine: julia
+julia:
+  exeflags: ["--project=../."]
+---
+
+# Tutorial for sequential ordinal pattern tests
+
+## Libraries
+
+```{julia}
+#| output: false
+#| message: false
+using StatsOP, Random, Statistics, DataFrames
+```
+
+## Sequential testing with ordinal patterns
+
+A classical test judges a complete series at once. A sequential test (control chart)
+instead monitors an incoming stream: after each new observation the ordinal pattern of the
+last $m$ values is determined and its indicator vector $\mathbf{e}_t$ (length $m!$) is
+smoothed exponentially (EWMA),
+
+$$
+\hat{\mathbf{p}}_t = \lambda\,\mathbf{e}_t + (1 - \lambda)\,\hat{\mathbf{p}}_{t-1},
+\qquad \hat{\mathbf{p}}_0 = (1/m!, \ldots, 1/m!),
+$$
+
+with smoothing parameter $\lambda \in (0, 1]$. The chart statistic is computed from
+$\hat{\mathbf{p}}_t$ and the chart signals as soon as the statistic leaves the critical
+limit `cl`. The number of observations until the first signal is the run length (RL).
+
+Designing such a chart means fixing $\lambda$ and then choosing `cl` so that the
+**in-control average run length** (ARL) matches a target `L0` (typically 370 or 500).
+Chart performance is then judged by the **out-of-control ARL**: the smaller, the faster
+dependence is detected. See @weiss2023.
+
+## Key functions
+
+- **Critical limit**
+    - `cl_op(op_dgp, lam, L0, cl_init; chart_choice, m=3, d=1, reps_bracket, reps_final, bracket_step, seed)`
+        - Returns the `cl` for which the in-control ARL equals `L0`.
+        - `op_dgp`: in-control process, `ContinuousDGPIC(dist)` or `DiscreteDGPIC(dist, add_noise)`.
+        - `cl_init`: rough starting value; the search first brackets the root with
+          `reps_bracket` replications in steps of `bracket_step`, then refines it with
+          `reps_final` replications.
+        - `seed`: fix an integer for reproducible results.
+
+- **Chart performance**
+    - `arl_op_ic(op_dgp, lam, cl, reps; chart_choice, m=3, d=1)` — in-control ARL,
+      returns `(ARL, standard error)`.
+    - `arl_op_oc(op_dgp, lam, cl, reps; chart_choice, m=3, d=1)` — out-of-control ARL for a
+      dependent process: `AR1`, `MA1`, `MA2`, `TEAR1`, `AAR1`, `QAR1` for continuous data,
+      `INAR1`, `DAR1`, `BAR1`, … for counts.
+
+- **Monitoring observed data**
+    - `stat_op(data, lam; chart_choice, m=3, d=1)` — returns `(stats, p_rel)`, where
+      `stats` holds the sequentially computed EWMA chart statistics of the series.
+
+## Alarm rules
+
+The same seven statistics as in the classical tests are available; the alarm rule follows
+the direction of the statistic.
+
+::: {style="font-size: 0.82em;"}
+
+| Statistic | Constructor | Under $H_0$ | Signal when |
+|:----------|:------------|:-----------:|:-----------:|
+| Persistence ($\hat{\tau}$) | `Persistence()` | $\hat{\tau} = 0$ | $\lvert\hat{\tau}\rvert > cl$ |
+| UpDownBalance ($\hat{\beta}$) | `UpDownBalance()` | $\hat{\beta} = 0$ | $\lvert\hat{\beta}\rvert > cl$ |
+| RotationalAsymmetry ($\hat{\gamma}$) | `RotationalAsymmetry()` | $\hat{\gamma} = 0$ | $\lvert\hat{\gamma}\rvert > cl$ |
+| UpDownScaling ($\hat{\delta}$) | `UpDownScaling()` | $\hat{\delta} = 0$ | $\lvert\hat{\delta}\rvert > cl$ |
+| DistanceToWhiteNoise ($\hat{\Delta}$) | `DistanceToWhiteNoise()` | $\hat{\Delta} = 0$ | $\hat{\Delta} > cl$ |
+| Shannon entropy ($\hat{H}$) | `Shannon()` | $\hat{H} = \log(m!)$ | $\hat{H} < cl$ |
+| Shannon extropy ($\hat{H}_\text{ex}$) | `ShannonExtropy()` | $\hat{H}_\text{ex} = 5\log(6/5)$ | $\hat{H}_\text{ex} < cl$ |
+
+: {tbl-colwidths="[30,26,22,22]"}
+
+:::
+
+`cl_op` handles the direction internally: for the two entropy charts the ARL *decreases*
+in `cl`, for all others it increases.
+
+## Setup
+
+```{julia}
+ic = ContinuousDGPIC(Normal(0, 1))   # in-control: i.i.d. standard normal
+lam = 0.1                            # EWMA smoothing parameter
+L0 = 370.0                           # target in-control ARL
+m, d = 3, 1
+```
+
+## Computing the critical limit
+
+```{julia}
+cl = cl_op(
+    ic, lam, L0, 0.20;
+    chart_choice=Persistence(), m=m, d=d,
+    reps_bracket=1_000, reps_final=5_000, bracket_step=0.02, seed=42
+)
+```
+
+`cl_init = 0.20` only has to be in the right ballpark, but it should sit *below* the root:
+the bracketing phase walks towards it in steps of `bracket_step`. Increase `reps_final` for
+a more precise limit — the accuracy of `cl` is limited by the Monte Carlo error of the ARL
+estimate, not by the root finder.
+
+Setting `verbose=true` prints `cl` and the associated ARL at every evaluation, which is
+useful to check that the bracketing phase is not crawling towards the root.
+
+## Verifying the in-control ARL
+
+```{julia}
+arl_op_ic(ic, lam, cl, 10_000; chart_choice=Persistence(), m=m, d=d)
+```
+
+The returned tuple is `(ARL, standard error)`; the ARL is within a few standard errors
+of `L0`.
+
+## Out-of-control performance
+
+The same `cl` is used to monitor dependent processes. The stronger the dependence, the
+faster the chart signals.
+
+```{julia}
+#| output: false
+oc_dgps = [
+    ("AR(1), α = 0.1", AR1(0.1, Normal(0, 1))),
+    ("AR(1), α = 0.25", AR1(0.25, Normal(0, 1))),
+    ("AR(1), α = 0.5", AR1(0.5, Normal(0, 1))),
+    ("MA(1), α = 0.5", MA1(0.5, Normal(0, 1))),
+    ("TEAR(1), α = 0.5", TEAR1(0.5, Normal(0, 1))),
+    ("INAR(1), α = 0.5", INAR1(0.5, Poisson(5), true)),
+]
+oc_res = [
+    arl_op_oc(dgp, lam, cl, 10_000; chart_choice=Persistence(), m=m, d=d)
+    for (_, dgp) in oc_dgps
+]
+```
+
+```{julia}
+DataFrame(
+    Process=[n for (n, _) in oc_dgps],
+    ARL=round.([r[1] for r in oc_res], digits=2),
+    se=round.([r[2] for r in oc_res], digits=3),
+)
+```
+
+The count process `INAR1(α, dist, add_noise)` uses `add_noise=true`, which breaks ties by
+adding uniform noise — otherwise equal values would make the ordinal pattern ambiguous.
+
+## Comparing charts
+
+Each chart needs its own critical limit, because the statistics live on different scales.
+Once all charts are calibrated to the same `L0`, their out-of-control ARLs are directly
+comparable.
+
+```{julia}
+#| output: false
+chart_list = [
+    ("Persistence (τ)", Persistence(), 0.20, 0.02),
+    ("UpDownBalance (β)", UpDownBalance(), 0.30, 0.03),
+    ("RotationalAsymmetry (γ)", RotationalAsymmetry(), 0.30, 0.03),
+    ("DistanceToWhiteNoise (Δ)", DistanceToWhiteNoise(), 0.08, 0.01),
+    ("Shannon entropy (H)", Shannon(), 1.40, 0.02),
+]
+
+oc_dgp = AR1(0.25, Normal(0, 1))
+cls = [
+    cl_op(ic, lam, L0, init; chart_choice=c, m=m, d=d,
+        reps_bracket=1_000, reps_final=5_000, bracket_step=step, seed=42)
+    for (_, c, init, step) in chart_list
+]
+ic_arls = [
+    arl_op_ic(ic, lam, cls[i], 10_000; chart_choice=chart_list[i][2], m=m, d=d)[1]
+    for i in eachindex(chart_list)
+]
+oc_arls = [
+    arl_op_oc(oc_dgp, lam, cls[i], 10_000; chart_choice=chart_list[i][2], m=m, d=d)[1]
+    for i in eachindex(chart_list)
+]
+```
+
+```{julia}
+DataFrame(
+    Chart=[t[1] for t in chart_list],
+    cl=round.(cls, digits=4),
+    ARL_ic=round.(ic_arls, digits=1),
+    ARL_oc=round.(oc_arls, digits=1),
+)
+```
+
+All charts hold the in-control ARL near `L0 = 370`, so the `ARL_oc` column ranks them: the
+smaller the value, the faster this particular AR(1) dependence is detected. The ranking is
+specific to the alternative — $\hat{\gamma}$ measures rotational asymmetry, which an AR(1)
+process does not induce, so its chart stays at roughly the in-control level.
+
+## Monitoring an observed series
+
+`stat_op(data, lam; ...)` returns the EWMA chart statistics of an observed series. Applying
+the alarm rule of the chosen chart gives the position of the first signal — here the series
+switches from i.i.d. to AR(1) at $t = 150$.
+
+```{julia}
+Random.seed!(4)
+t_change = 150
+x = randn(400)
+for t in (t_change+1):400
+    x[t] = 0.5 * x[t-1] + randn()
+end
+
+stats, p_rel = stat_op(x, lam; chart_choice=Persistence(), m=m, d=d)
+alarm = findfirst(s -> abs(s) > cl, stats)
+```
+
+```{julia}
+(first_alarm=alarm, delay=alarm - t_change, stat_at_alarm=round(stats[alarm], digits=4))
+```
+
+Here the chart passes the i.i.d. part without a false alarm and signals shortly after the
+change. A different series may well signal earlier: with `L0 = 370`, a false alarm occurs
+on average once every 370 in-control observations. Note also that `stats` is indexed by
+ordinal patterns, not by observations — the pattern at index $t$ covers the observations
+$t, \ldots, t + (m-1)d$.
+
+## References
+
+::: {#refs}
+:::
