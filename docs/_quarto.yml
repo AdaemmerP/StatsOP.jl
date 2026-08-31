@@ -24,11 +24,11 @@ website:
     left:
       - text: "StatsOP.jl"
         href: index.qmd      
-      - text: "OPs"
+      - text: "Ordinal Patterns"
         href: page_files/op.qmd
-      - text: "SOPs"
+      - text: "Spatial Ordinal Patterns"
         href: page_files/sop.qmd
-      - text: "GOPs"
+      - text: "Generalized Ordinal Patterns"
         href: page_files/gop_tutorials.qmd
       - text: "API"
         href: page_files/api_reference.qmd
