@@ -97,15 +97,19 @@ ic = ICSTS(M, N, Normal(0, 1))   # in-control: spatial white noise
 cl = cl_sop(
     ic, lam, L0, 0.026, d1, d2;
     chart_choice=TauTilde(),
-    reps_bracket=500, reps_final=2_000, bracket_step=0.002, seed=42
+    reps_bracket=500, reps_final=2_000, bracket_step=0.002, seed=42,
+    verbose=true
 )
 ```
 
-`cl_init = 0.026` only has to be in the right ballpark, but it should sit *below* the root:
-the bracketing phase walks towards it in steps of `bracket_step`, so a starting value that
-is far away or a step that is much too small makes the search crawl. Increase `reps_final`
-for a more precise limit, and set `verbose=true` to follow `cl` and the associated ARL at
-every evaluation.
+`verbose=true` prints `cl` and the associated ARL at every evaluation, so both phases of the
+search can be followed: the bracketing steps away from `cl_init` until the ARL crosses `L0`,
+then the ITP algorithm refines the bracket. `cl_init = 0.026` only has to be in the right
+ballpark, but it should sit *below* the root, and `bracket_step` should be of the order of
+the remaining distance — otherwise the bracketing crawls.
+
+Increase `reps_final` for a more precise limit, and pass `verbose=false` (the default) to
+get the limit alone.
 
 ## Verifying the in-control ARL
 

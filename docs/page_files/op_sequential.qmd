@@ -96,17 +96,20 @@ m, d = 3, 1
 cl = cl_op(
     ic, lam, L0, 0.20;
     chart_choice=Persistence(), m=m, d=d,
-    reps_bracket=1_000, reps_final=5_000, bracket_step=0.02, seed=42
+    reps_bracket=1_000, reps_final=5_000, bracket_step=0.02, seed=42,
+    verbose=true
 )
 ```
 
-`cl_init = 0.20` only has to be in the right ballpark, but it should sit *below* the root:
-the bracketing phase walks towards it in steps of `bracket_step`. Increase `reps_final` for
-a more precise limit — the accuracy of `cl` is limited by the Monte Carlo error of the ARL
-estimate, not by the root finder.
+`verbose=true` prints `cl` and the associated ARL at every evaluation, so both phases of the
+search can be followed: the bracketing steps away from `cl_init` until the ARL crosses `L0`,
+then the ITP algorithm refines the bracket. It is worth checking that the bracketing does
+not crawl — `cl_init = 0.20` only has to be in the right ballpark, but it should sit *below*
+the root and `bracket_step` should be of the order of the remaining distance.
 
-Setting `verbose=true` prints `cl` and the associated ARL at every evaluation, which is
-useful to check that the bracketing phase is not crawling towards the root.
+Increase `reps_final` for a more precise limit — the accuracy of `cl` is limited by the
+Monte Carlo error of the ARL estimate, not by the root finder. Pass `verbose=false` (the
+default) to get the limit alone.
 
 ## Verifying the in-control ARL
 

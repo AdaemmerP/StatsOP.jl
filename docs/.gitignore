@@ -3,6 +3,15 @@ site/
 .jupyter_cache/
 _freeze/
 
+# Rendering a single .qmd writes its output next to the source instead of into
+# site/. Those pages (and their assets) are duplicates of the built site, which
+# is published to the gh-pages branch.
+*.html
+site_libs/
+
+# Quarto's execution cache (execute: cache: true in _quarto.yml)
+**/.cache/
+
 /.quarto/
 
 **/*.quarto_ipynb
