@@ -405,19 +405,76 @@ window.Quarto = {
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>cl <span class="op">=</span> <span class="fu">cl_op</span>(</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    ic, lam, L0, <span class="fl">0.20</span>;</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    chart_choice<span class="op">=</span><span class="fu">Persistence</span>(), m<span class="op">=</span>m, d<span class="op">=</span>d,</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    reps_bracket<span class="op">=</span><span class="fl">1_000</span>, reps_final<span class="op">=</span><span class="fl">5_000</span>, bracket_step<span class="op">=</span><span class="fl">0.02</span>, seed<span class="op">=</span><span class="fl">42</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    reps_bracket<span class="op">=</span><span class="fl">1_000</span>, reps_final<span class="op">=</span><span class="fl">5_000</span>, bracket_step<span class="op">=</span><span class="fl">0.02</span>, seed<span class="op">=</span><span class="fl">42</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    verbose<span class="op">=</span><span class="cn">true</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+============================================================
+ STEP 1: Bracket Search
+ reps = 1000 | truncation cap = 18500 | step size = 0.02
+============================================================
+  cl = 0.2 | ARL = 83.176
+  cl = 0.22 | ARL = 142.344
+  cl = 0.24 | ARL = 245.676
+  cl = 0.26 | ARL = 479.155
+------------------------------------------------------------
+ Bracket found: [0.2, 0.26]
+------------------------------------------------------------
+
+============================================================
+ STEP 2: Root Finding via ITP
+ reps = 5000 | no truncation | tolerance = 0.0001
+============================================================
+  cl = 0.2 | ARL = 83.753
+  cl = 0.26 | ARL = 467.8048
+  cl = 0.244 | ARL = 283.64
+  cl = 0.251554 | ARL = 359.2096
+  cl = 0.252408 | ARL = 367.785
+  cl = 0.252587 | ARL = 369.6772
+  cl = 0.2536 | ARL = 381.9754
+  cl = 0.252614 | ARL = 369.7836
+  cl = 0.252632 | ARL = 369.7836
+  cl = 0.2528 | ARL = 371.0074
+  cl = 0.252661 | ARL = 369.9982
+  cl = 0.252662 | ARL = 369.9982
+  cl = 0.2527 | ARL = 370.2616</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre><code>Results of univariate zero finding:
+
+* Converged to: 0.25266172651450286
+* Algorithm: Roots.ITP{Float64, Int64}(0.2, 2, 1)
+* iterations: 11
+* function evaluations ≈ 13
+* stopped as x_n ≈ x_{n-1} using atol=xatol, rtol=xrtol
+
+Trace:
+(a₀, b₀) = ( 0.20000000000000001, 0.26000000000000001 )
+(a₁, b₁) = ( 0.24400006120007772, 0.26000000000000001 )
+(a₂, b₂) = ( 0.25155407738768609, 0.26000000000000001 )
+(a₃, b₃) = ( 0.25240756060663316, 0.26000000000000001 )
+(a₄, b₄) = ( 0.25258722887481488, 0.26000000000000001 )
+(a₅, b₅) = ( 0.25258722887481488, 0.25359999999999999 )
+(a₆, b₆) = ( 0.25261401697267649, 0.25359999999999999 )
+(a₇, b₇) = ( 0.2526317122440343, 0.25359999999999999 )
+(a₈, b₈) = ( 0.2526317122440343, 0.25279999999999997 )
+(a₉, b₉) = ( 0.25266147560584368, 0.25279999999999997 )
+(a₁₀, b₁₀) = ( 0.25266172651450286, 0.25279999999999997 )
+(a₁₁, b₁₁) = ( 0.25266172651450286, 0.25269999999999998 )
+</code></pre>
+</div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>0.25266170070930644</code></pre>
+<pre><code>0.25266172651450286</code></pre>
 </div>
 </div>
-<p><code>cl_init = 0.20</code> only has to be in the right ballpark, but it should sit <em>below</em> the root: the bracketing phase walks towards it in steps of <code>bracket_step</code>. Increase <code>reps_final</code> for a more precise limit — the accuracy of <code>cl</code> is limited by the Monte Carlo error of the ARL estimate, not by the root finder.</p>
-<p>Setting <code>verbose=true</code> prints <code>cl</code> and the associated ARL at every evaluation, which is useful to check that the bracketing phase is not crawling towards the root.</p>
+<p><code>verbose=true</code> prints <code>cl</code> and the associated ARL at every evaluation, so both phases of the search can be followed: the bracketing steps away from <code>cl_init</code> until the ARL crosses <code>L0</code>, then the ITP algorithm refines the bracket. It is worth checking that the bracketing does not crawl — <code>cl_init = 0.20</code> only has to be in the right ballpark, but it should sit <em>below</em> the root and <code>bracket_step</code> should be of the order of the remaining distance.</p>
+<p>Increase <code>reps_final</code> for a more precise limit — the accuracy of <code>cl</code> is limited by the Monte Carlo error of the ARL estimate, not by the root finder. Pass <code>verbose=false</code> (the default) to get the limit alone.</p>
 </section>
 <section id="verifying-the-in-control-arl" class="level2">
 <h2 class="anchored" data-anchor-id="verifying-the-in-control-arl">Verifying the in-control ARL</h2>
 <div id="8" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">arl_op_ic</span>(ic, lam, cl, <span class="fl">10_000</span>; chart_choice<span class="op">=</span><span class="fu">Persistence</span>(), m<span class="op">=</span>m, d<span class="op">=</span>d)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">arl_op_ic</span>(ic, lam, cl, <span class="fl">10_000</span>; chart_choice<span class="op">=</span><span class="fu">Persistence</span>(), m<span class="op">=</span>m, d<span class="op">=</span>d)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>(365.2791, 3.5522136510211846)</code></pre>
 </div>
@@ -428,25 +485,25 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="out-of-control-performance">Out-of-control performance</h2>
 <p>The same <code>cl</code> is used to monitor dependent processes. The stronger the dependence, the faster the chart signals.</p>
 <div id="10" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>oc_dgps <span class="op">=</span> [</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"AR(1), α = 0.1"</span>, <span class="fu">AR1</span>(<span class="fl">0.1</span>, <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>))),</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"AR(1), α = 0.25"</span>, <span class="fu">AR1</span>(<span class="fl">0.25</span>, <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>))),</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"AR(1), α = 0.5"</span>, <span class="fu">AR1</span>(<span class="fl">0.5</span>, <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>))),</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"MA(1), α = 0.5"</span>, <span class="fu">MA1</span>(<span class="fl">0.5</span>, <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>))),</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"TEAR(1), α = 0.5"</span>, <span class="fu">TEAR1</span>(<span class="fl">0.5</span>, <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>))),</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"INAR(1), α = 0.5"</span>, <span class="fu">INAR1</span>(<span class="fl">0.5</span>, <span class="fu">Poisson</span>(<span class="fl">5</span>), <span class="cn">true</span>)),</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>oc_res <span class="op">=</span> [</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">arl_op_oc</span>(dgp, lam, cl, <span class="fl">10_000</span>; chart_choice<span class="op">=</span><span class="fu">Persistence</span>(), m<span class="op">=</span>m, d<span class="op">=</span>d)</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    for (_, dgp) <span class="kw">in</span> oc_dgps</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>oc_dgps <span class="op">=</span> [</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"AR(1), α = 0.1"</span>, <span class="fu">AR1</span>(<span class="fl">0.1</span>, <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>))),</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"AR(1), α = 0.25"</span>, <span class="fu">AR1</span>(<span class="fl">0.25</span>, <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>))),</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"AR(1), α = 0.5"</span>, <span class="fu">AR1</span>(<span class="fl">0.5</span>, <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>))),</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"MA(1), α = 0.5"</span>, <span class="fu">MA1</span>(<span class="fl">0.5</span>, <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>))),</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"TEAR(1), α = 0.5"</span>, <span class="fu">TEAR1</span>(<span class="fl">0.5</span>, <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>))),</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"INAR(1), α = 0.5"</span>, <span class="fu">INAR1</span>(<span class="fl">0.5</span>, <span class="fu">Poisson</span>(<span class="fl">5</span>), <span class="cn">true</span>)),</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>oc_res <span class="op">=</span> [</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">arl_op_oc</span>(dgp, lam, cl, <span class="fl">10_000</span>; chart_choice<span class="op">=</span><span class="fu">Persistence</span>(), m<span class="op">=</span>m, d<span class="op">=</span>d)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    for (_, dgp) <span class="kw">in</span> oc_dgps</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="12" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DataFrame</span>(</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    Process<span class="op">=</span>[n for (n, _) <span class="kw">in</span> oc_dgps],</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    ARL<span class="op">=</span><span class="fu">round</span>.([r[<span class="fl">1</span>] for r <span class="kw">in</span> oc_res], digits<span class="op">=</span><span class="fl">2</span>),</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    se<span class="op">=</span><span class="fu">round</span>.([r[<span class="fl">2</span>] for r <span class="kw">in</span> oc_res], digits<span class="op">=</span><span class="fl">3</span>),</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DataFrame</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    Process<span class="op">=</span>[n for (n, _) <span class="kw">in</span> oc_dgps],</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    ARL<span class="op">=</span><span class="fu">round</span>.([r[<span class="fl">1</span>] for r <span class="kw">in</span> oc_res], digits<span class="op">=</span><span class="fl">2</span>),</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    se<span class="op">=</span><span class="fu">round</span>.([r[<span class="fl">2</span>] for r <span class="kw">in</span> oc_res], digits<span class="op">=</span><span class="fl">3</span>),</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div><div style="float: left;"><span>6×3 DataFrame</span></div><div style="clear: both;"></div></div><div class="data-frame" style="overflow-x: scroll;">
 <table class="data-frame caption-top table table-sm table-striped small">
@@ -512,36 +569,36 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="comparing-charts">Comparing charts</h2>
 <p>Each chart needs its own critical limit, because the statistics live on different scales. Once all charts are calibrated to the same <code>L0</code>, their out-of-control ARLs are directly comparable.</p>
 <div id="14" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>chart_list <span class="op">=</span> [</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Persistence (τ)"</span>, <span class="fu">Persistence</span>(), <span class="fl">0.20</span>, <span class="fl">0.02</span>),</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"UpDownBalance (β)"</span>, <span class="fu">UpDownBalance</span>(), <span class="fl">0.30</span>, <span class="fl">0.03</span>),</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"RotationalAsymmetry (γ)"</span>, <span class="fu">RotationalAsymmetry</span>(), <span class="fl">0.30</span>, <span class="fl">0.03</span>),</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"DistanceToWhiteNoise (Δ)"</span>, <span class="fu">DistanceToWhiteNoise</span>(), <span class="fl">0.08</span>, <span class="fl">0.01</span>),</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Shannon entropy (H)"</span>, <span class="fu">Shannon</span>(), <span class="fl">1.40</span>, <span class="fl">0.02</span>),</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>oc_dgp <span class="op">=</span> <span class="fu">AR1</span>(<span class="fl">0.25</span>, <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>))</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>cls <span class="op">=</span> [</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cl_op</span>(ic, lam, L0, init; chart_choice<span class="op">=</span>c, m<span class="op">=</span>m, d<span class="op">=</span>d,</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>        reps_bracket<span class="op">=</span><span class="fl">1_000</span>, reps_final<span class="op">=</span><span class="fl">5_000</span>, bracket_step<span class="op">=</span>step, seed<span class="op">=</span><span class="fl">42</span>)</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    for (_, c, init, step) <span class="kw">in</span> chart_list</span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>ic_arls <span class="op">=</span> [</span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">arl_op_ic</span>(ic, lam, cls[i], <span class="fl">10_000</span>; chart_choice<span class="op">=</span>chart_list[i][<span class="fl">2</span>], m<span class="op">=</span>m, d<span class="op">=</span>d)[<span class="fl">1</span>]</span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    for i <span class="kw">in</span> <span class="fu">eachindex</span>(chart_list)</span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>oc_arls <span class="op">=</span> [</span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">arl_op_oc</span>(oc_dgp, lam, cls[i], <span class="fl">10_000</span>; chart_choice<span class="op">=</span>chart_list[i][<span class="fl">2</span>], m<span class="op">=</span>m, d<span class="op">=</span>d)[<span class="fl">1</span>]</span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>    for i <span class="kw">in</span> <span class="fu">eachindex</span>(chart_list)</span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>chart_list <span class="op">=</span> [</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Persistence (τ)"</span>, <span class="fu">Persistence</span>(), <span class="fl">0.20</span>, <span class="fl">0.02</span>),</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"UpDownBalance (β)"</span>, <span class="fu">UpDownBalance</span>(), <span class="fl">0.30</span>, <span class="fl">0.03</span>),</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"RotationalAsymmetry (γ)"</span>, <span class="fu">RotationalAsymmetry</span>(), <span class="fl">0.30</span>, <span class="fl">0.03</span>),</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"DistanceToWhiteNoise (Δ)"</span>, <span class="fu">DistanceToWhiteNoise</span>(), <span class="fl">0.08</span>, <span class="fl">0.01</span>),</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Shannon entropy (H)"</span>, <span class="fu">Shannon</span>(), <span class="fl">1.40</span>, <span class="fl">0.02</span>),</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>oc_dgp <span class="op">=</span> <span class="fu">AR1</span>(<span class="fl">0.25</span>, <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>))</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>cls <span class="op">=</span> [</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cl_op</span>(ic, lam, L0, init; chart_choice<span class="op">=</span>c, m<span class="op">=</span>m, d<span class="op">=</span>d,</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>        reps_bracket<span class="op">=</span><span class="fl">1_000</span>, reps_final<span class="op">=</span><span class="fl">5_000</span>, bracket_step<span class="op">=</span>step, seed<span class="op">=</span><span class="fl">42</span>)</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    for (_, c, init, step) <span class="kw">in</span> chart_list</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>ic_arls <span class="op">=</span> [</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">arl_op_ic</span>(ic, lam, cls[i], <span class="fl">10_000</span>; chart_choice<span class="op">=</span>chart_list[i][<span class="fl">2</span>], m<span class="op">=</span>m, d<span class="op">=</span>d)[<span class="fl">1</span>]</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>    for i <span class="kw">in</span> <span class="fu">eachindex</span>(chart_list)</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>oc_arls <span class="op">=</span> [</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">arl_op_oc</span>(oc_dgp, lam, cls[i], <span class="fl">10_000</span>; chart_choice<span class="op">=</span>chart_list[i][<span class="fl">2</span>], m<span class="op">=</span>m, d<span class="op">=</span>d)[<span class="fl">1</span>]</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    for i <span class="kw">in</span> <span class="fu">eachindex</span>(chart_list)</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="16" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DataFrame</span>(</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    Chart<span class="op">=</span>[t[<span class="fl">1</span>] for t <span class="kw">in</span> chart_list],</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    cl<span class="op">=</span><span class="fu">round</span>.(cls, digits<span class="op">=</span><span class="fl">4</span>),</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    ARL_ic<span class="op">=</span><span class="fu">round</span>.(ic_arls, digits<span class="op">=</span><span class="fl">1</span>),</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    ARL_oc<span class="op">=</span><span class="fu">round</span>.(oc_arls, digits<span class="op">=</span><span class="fl">1</span>),</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DataFrame</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    Chart<span class="op">=</span>[t[<span class="fl">1</span>] for t <span class="kw">in</span> chart_list],</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    cl<span class="op">=</span><span class="fu">round</span>.(cls, digits<span class="op">=</span><span class="fl">4</span>),</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    ARL_ic<span class="op">=</span><span class="fu">round</span>.(ic_arls, digits<span class="op">=</span><span class="fl">1</span>),</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    ARL_oc<span class="op">=</span><span class="fu">round</span>.(oc_arls, digits<span class="op">=</span><span class="fl">1</span>),</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div><div style="float: left;"><span>5×4 DataFrame</span></div><div style="clear: both;"></div></div><div class="data-frame" style="overflow-x: scroll;">
 <table class="data-frame caption-top table table-sm table-striped small">
@@ -608,21 +665,21 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="monitoring-an-observed-series">Monitoring an observed series</h2>
 <p><code>stat_op(data, lam; ...)</code> returns the EWMA chart statistics of an observed series. Applying the alarm rule of the chosen chart gives the position of the first signal — here the series switches from i.i.d. to AR(1) at <span class="math inline">\(t = 150\)</span>.</p>
 <div id="18" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="bu">Random</span>.<span class="fu">seed!</span>(<span class="fl">4</span>)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>t_change <span class="op">=</span> <span class="fl">150</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="fu">randn</span>(<span class="fl">400</span>)</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t <span class="kw">in</span> (t_change<span class="op">+</span><span class="fl">1</span>)<span class="op">:</span><span class="fl">400</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    x[t] <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> x[t<span class="op">-</span><span class="fl">1</span>] <span class="op">+</span> <span class="fu">randn</span>()</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>stats, p_rel <span class="op">=</span> <span class="fu">stat_op</span>(x, lam; chart_choice<span class="op">=</span><span class="fu">Persistence</span>(), m<span class="op">=</span>m, d<span class="op">=</span>d)</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>alarm <span class="op">=</span> <span class="fu">findfirst</span>(s <span class="op">-&gt;</span> <span class="fu">abs</span>(s) <span class="op">&gt;</span> cl, stats)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="bu">Random</span>.<span class="fu">seed!</span>(<span class="fl">4</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>t_change <span class="op">=</span> <span class="fl">150</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="fu">randn</span>(<span class="fl">400</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t <span class="kw">in</span> (t_change<span class="op">+</span><span class="fl">1</span>)<span class="op">:</span><span class="fl">400</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    x[t] <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> x[t<span class="op">-</span><span class="fl">1</span>] <span class="op">+</span> <span class="fu">randn</span>()</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>stats, p_rel <span class="op">=</span> <span class="fu">stat_op</span>(x, lam; chart_choice<span class="op">=</span><span class="fu">Persistence</span>(), m<span class="op">=</span>m, d<span class="op">=</span>d)</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>alarm <span class="op">=</span> <span class="fu">findfirst</span>(s <span class="op">-&gt;</span> <span class="fu">abs</span>(s) <span class="op">&gt;</span> cl, stats)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>176</code></pre>
 </div>
 </div>
 <div id="20" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>(first_alarm<span class="op">=</span>alarm, delay<span class="op">=</span>alarm <span class="op">-</span> t_change, stat_at_alarm<span class="op">=</span><span class="fu">round</span>(stats[alarm], digits<span class="op">=</span><span class="fl">4</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>(first_alarm<span class="op">=</span>alarm, delay<span class="op">=</span>alarm <span class="op">-</span> t_change, stat_at_alarm<span class="op">=</span><span class="fu">round</span>(stats[alarm], digits<span class="op">=</span><span class="fl">4</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>(first_alarm = 176, delay = 26, stat_at_alarm = 0.2616)</code></pre>
 </div>

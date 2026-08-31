@@ -389,18 +389,62 @@ window.Quarto = {
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>cl <span class="op">=</span> <span class="fu">cl_sop</span>(</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    ic, lam, L0, <span class="fl">0.026</span>, d1, d2;</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    chart_choice<span class="op">=</span><span class="fu">TauTilde</span>(),</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    reps_bracket<span class="op">=</span><span class="fl">500</span>, reps_final<span class="op">=</span><span class="fl">2_000</span>, bracket_step<span class="op">=</span><span class="fl">0.002</span>, seed<span class="op">=</span><span class="fl">42</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    reps_bracket<span class="op">=</span><span class="fl">500</span>, reps_final<span class="op">=</span><span class="fl">2_000</span>, bracket_step<span class="op">=</span><span class="fl">0.002</span>, seed<span class="op">=</span><span class="fl">42</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    verbose<span class="op">=</span><span class="cn">true</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+============================================================
+ STEP 1: Bracket Search
+ reps = 500 | truncation cap = 18500 | step size = 0.002
+============================================================
+  cl = 0.026 | ARL = 121.248
+  cl = 0.028 | ARL = 179.01
+  cl = 0.03 | ARL = 260.286
+  cl = 0.032 | ARL = 414.918
+------------------------------------------------------------
+ Bracket found: [0.026, 0.032]
+------------------------------------------------------------
+
+============================================================
+ STEP 2: Root Finding via ITP
+ reps = 2000 | no truncation | tolerance = 0.0001
+============================================================
+  cl = 0.026 | ARL = 116.428
+  cl = 0.032 | ARL = 393.329
+  cl = 0.031487 | ARL = 354.9945
+  cl = 0.031688 | ARL = 366.2585
+  cl = 0.031731 | ARL = 368.107
+  cl = 0.031751 | ARL = 370.267</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre><code>Results of univariate zero finding:
+
+* Converged to: 0.03175136751000527
+* Algorithm: Roots.ITP{Float64, Int64}(0.2, 2, 1)
+* iterations: 4
+* function evaluations ≈ 6
+* stopped as x_n ≈ x_{n-1} using atol=xatol, rtol=xrtol
+
+Trace:
+(a₀, b₀) = ( 0.025999999999999999, 0.032000000000000001 )
+(a₁, b₁) = ( 0.031487298033593236, 0.032000000000000001 )
+(a₂, b₂) = ( 0.031688040568479577, 0.032000000000000001 )
+(a₃, b₃) = ( 0.031731176938555358, 0.032000000000000001 )
+(a₄, b₄) = ( 0.031731176938555358, 0.03175136751000527 )
+</code></pre>
+</div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>0.03175136751000527</code></pre>
 </div>
 </div>
-<p><code>cl_init = 0.026</code> only has to be in the right ballpark, but it should sit <em>below</em> the root: the bracketing phase walks towards it in steps of <code>bracket_step</code>, so a starting value that is far away or a step that is much too small makes the search crawl. Increase <code>reps_final</code> for a more precise limit, and set <code>verbose=true</code> to follow <code>cl</code> and the associated ARL at every evaluation.</p>
+<p><code>verbose=true</code> prints <code>cl</code> and the associated ARL at every evaluation, so both phases of the search can be followed: the bracketing steps away from <code>cl_init</code> until the ARL crosses <code>L0</code>, then the ITP algorithm refines the bracket. <code>cl_init = 0.026</code> only has to be in the right ballpark, but it should sit <em>below</em> the root, and <code>bracket_step</code> should be of the order of the remaining distance — otherwise the bracketing crawls.</p>
+<p>Increase <code>reps_final</code> for a more precise limit, and pass <code>verbose=false</code> (the default) to get the limit alone.</p>
 </section>
 <section id="verifying-the-in-control-arl" class="level2">
 <h2 class="anchored" data-anchor-id="verifying-the-in-control-arl">Verifying the in-control ARL</h2>
 <div id="8" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">arl_sop_ic</span>(ic, lam, cl, d1, d2, <span class="fl">5_000</span>; chart_choice<span class="op">=</span><span class="fu">TauTilde</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">arl_sop_ic</span>(ic, lam, cl, d1, d2, <span class="fl">5_000</span>; chart_choice<span class="op">=</span><span class="fu">TauTilde</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>(376.8928, 5.247841269439258)</code></pre>
 </div>
@@ -411,23 +455,23 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="out-of-control-performance">Out-of-control performance</h2>
 <p>The same <code>cl</code> is used to monitor spatially dependent images. Note that the out-of-control DGP must generate images of the same size as the in-control process.</p>
 <div id="10" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>oc_dgps <span class="op">=</span> [</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"SAR(1,1), α = (0.1, 0.1, 0.0)"</span>, <span class="fu">SAR11</span>((<span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.0</span>), M, N, <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>), <span class="cn">nothing</span>, <span class="fl">20</span>)),</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"SAR(1,1), α = (0.2, 0.2, 0.0)"</span>, <span class="fu">SAR11</span>((<span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.0</span>), M, N, <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>), <span class="cn">nothing</span>, <span class="fl">20</span>)),</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"SAR(1,1), α = (0.3, 0.3, 0.1)"</span>, <span class="fu">SAR11</span>((<span class="fl">0.3</span>, <span class="fl">0.3</span>, <span class="fl">0.1</span>), M, N, <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>), <span class="cn">nothing</span>, <span class="fl">20</span>)),</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"SQMA(1,1), β = (0.5, 0.3, 0.2)"</span>, <span class="fu">SQMA11</span>((<span class="fl">0.5</span>, <span class="fl">0.3</span>, <span class="fl">0.2</span>), (<span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>), M, N, <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>), <span class="cn">nothing</span>)),</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>oc_res <span class="op">=</span> [</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">arl_sop_oc</span>(dgp, lam, cl, d1, d2, <span class="fl">5_000</span>; chart_choice<span class="op">=</span><span class="fu">TauTilde</span>())</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    for (_, dgp) <span class="kw">in</span> oc_dgps</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>oc_dgps <span class="op">=</span> [</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"SAR(1,1), α = (0.1, 0.1, 0.0)"</span>, <span class="fu">SAR11</span>((<span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.0</span>), M, N, <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>), <span class="cn">nothing</span>, <span class="fl">20</span>)),</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"SAR(1,1), α = (0.2, 0.2, 0.0)"</span>, <span class="fu">SAR11</span>((<span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.0</span>), M, N, <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>), <span class="cn">nothing</span>, <span class="fl">20</span>)),</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"SAR(1,1), α = (0.3, 0.3, 0.1)"</span>, <span class="fu">SAR11</span>((<span class="fl">0.3</span>, <span class="fl">0.3</span>, <span class="fl">0.1</span>), M, N, <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>), <span class="cn">nothing</span>, <span class="fl">20</span>)),</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"SQMA(1,1), β = (0.5, 0.3, 0.2)"</span>, <span class="fu">SQMA11</span>((<span class="fl">0.5</span>, <span class="fl">0.3</span>, <span class="fl">0.2</span>), (<span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>), M, N, <span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>), <span class="cn">nothing</span>)),</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>oc_res <span class="op">=</span> [</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">arl_sop_oc</span>(dgp, lam, cl, d1, d2, <span class="fl">5_000</span>; chart_choice<span class="op">=</span><span class="fu">TauTilde</span>())</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    for (_, dgp) <span class="kw">in</span> oc_dgps</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="12" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DataFrame</span>(</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    Process<span class="op">=</span>[n for (n, _) <span class="kw">in</span> oc_dgps],</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    ARL<span class="op">=</span><span class="fu">round</span>.([r[<span class="fl">1</span>] for r <span class="kw">in</span> oc_res], digits<span class="op">=</span><span class="fl">2</span>),</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    se<span class="op">=</span><span class="fu">round</span>.([r[<span class="fl">2</span>] for r <span class="kw">in</span> oc_res], digits<span class="op">=</span><span class="fl">3</span>),</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DataFrame</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    Process<span class="op">=</span>[n for (n, _) <span class="kw">in</span> oc_dgps],</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    ARL<span class="op">=</span><span class="fu">round</span>.([r[<span class="fl">1</span>] for r <span class="kw">in</span> oc_res], digits<span class="op">=</span><span class="fl">2</span>),</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    se<span class="op">=</span><span class="fu">round</span>.([r[<span class="fl">2</span>] for r <span class="kw">in</span> oc_res], digits<span class="op">=</span><span class="fl">3</span>),</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div><div style="float: left;"><span>4×3 DataFrame</span></div><div style="clear: both;"></div></div><div class="data-frame" style="overflow-x: scroll;">
 <table class="data-frame caption-top table table-sm table-striped small">
@@ -481,23 +525,23 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="monitoring-an-observed-image-sequence">Monitoring an observed image sequence</h2>
 <p><code>stat_sop</code> applied to a 3D array returns the EWMA chart statistics of an observed image sequence. The sequence below is spatial white noise up to <span class="math inline">\(t = 20\)</span> and spatially dependent afterwards.</p>
 <div id="14" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="bu">Random</span>.<span class="fu">seed!</span>(<span class="fl">42</span>)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>T, T_change <span class="op">=</span> <span class="fl">40</span>, <span class="fl">20</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>images <span class="op">=</span> <span class="fu">randn</span>(M, N, T)</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="cn">φ</span> <span class="op">=</span> <span class="fl">0.4</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t <span class="kw">in</span> (T_change<span class="op">+</span><span class="fl">1</span>)<span class="op">:</span>T, i <span class="kw">in</span> <span class="fl">2</span><span class="op">:</span>M, j <span class="kw">in</span> <span class="fl">2</span><span class="op">:</span>N</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    images[i, j, t] <span class="op">=</span> <span class="cn">φ</span> <span class="op">*</span> (images[i<span class="op">-</span><span class="fl">1</span>, j, t] <span class="op">+</span> images[i, j<span class="op">-</span><span class="fl">1</span>, t]) <span class="op">/</span> <span class="fl">2</span> <span class="op">+</span> <span class="fu">randn</span>()</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>stats <span class="op">=</span> <span class="fu">stat_sop</span>(images, lam, d1, d2; chart_choice<span class="op">=</span><span class="fu">TauTilde</span>())</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>alarm <span class="op">=</span> <span class="fu">findfirst</span>(s <span class="op">-&gt;</span> <span class="fu">abs</span>(s) <span class="op">&gt;</span> cl, stats)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="bu">Random</span>.<span class="fu">seed!</span>(<span class="fl">42</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>T, T_change <span class="op">=</span> <span class="fl">40</span>, <span class="fl">20</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>images <span class="op">=</span> <span class="fu">randn</span>(M, N, T)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="cn">φ</span> <span class="op">=</span> <span class="fl">0.4</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t <span class="kw">in</span> (T_change<span class="op">+</span><span class="fl">1</span>)<span class="op">:</span>T, i <span class="kw">in</span> <span class="fl">2</span><span class="op">:</span>M, j <span class="kw">in</span> <span class="fl">2</span><span class="op">:</span>N</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    images[i, j, t] <span class="op">=</span> <span class="cn">φ</span> <span class="op">*</span> (images[i<span class="op">-</span><span class="fl">1</span>, j, t] <span class="op">+</span> images[i, j<span class="op">-</span><span class="fl">1</span>, t]) <span class="op">/</span> <span class="fl">2</span> <span class="op">+</span> <span class="fu">randn</span>()</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>stats <span class="op">=</span> <span class="fu">stat_sop</span>(images, lam, d1, d2; chart_choice<span class="op">=</span><span class="fu">TauTilde</span>())</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>alarm <span class="op">=</span> <span class="fu">findfirst</span>(s <span class="op">-&gt;</span> <span class="fu">abs</span>(s) <span class="op">&gt;</span> cl, stats)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>23</code></pre>
 </div>
 </div>
 <div id="16" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>(first_alarm<span class="op">=</span>alarm, delay<span class="op">=</span>alarm <span class="op">-</span> T_change, stat_at_alarm<span class="op">=</span><span class="fu">round</span>(stats[alarm], digits<span class="op">=</span><span class="fl">4</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>(first_alarm<span class="op">=</span>alarm, delay<span class="op">=</span>alarm <span class="op">-</span> T_change, stat_at_alarm<span class="op">=</span><span class="fu">round</span>(stats[alarm], digits<span class="op">=</span><span class="fl">4</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>(first_alarm = 23, delay = 3, stat_at_alarm = -0.0392)</code></pre>
 </div>
