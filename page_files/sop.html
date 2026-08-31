@@ -118,7 +118,7 @@ div.csl-indent {
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
     <a class="nav-link" href="../index.html"> 
-<span class="menu-text">StatsOP.jl</span></a>
+<span class="menu-text">StatsOrdinalPatterns.jl</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../page_files/op.html"> 
@@ -139,7 +139,7 @@ div.csl-indent {
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
-    <a href="https://github.com/AdaemmerP/StatsOP.jl" title="StatsOP.jl" class="quarto-navigation-tool px-1" aria-label="StatsOP.jl"><i class="bi bi-github"></i></a>
+    <a href="https://github.com/AdaemmerP/StatsOrdinalPatterns.jl" title="StatsOrdinalPatterns.jl" class="quarto-navigation-tool px-1" aria-label="StatsOrdinalPatterns.jl"><i class="bi bi-github"></i></a>
 </div>
       </div> <!-- /container-fluid -->
     </nav>
@@ -202,7 +202,7 @@ div.csl-indent {
 <h1>Spatial Ordinal Patterns</h1>
 <p>Spatial ordinal patterns extend the idea of ordinal patterns from time series to spatial data arranged on a grid. Instead of comparing values across time, they compare the relative ordering of values within small spatial neighborhoods (for example a 2×2 block) and encode these order relations as spatial patterns.</p>
 <p>The frequencies of these patterns summarize the local spatial structure of the data without relying on the exact values themselves. Under spatial independence, the patterns occur with equal probability, so deviations from this uniform distribution can be used for non-parametric tests of spatial dependence. Because the approach only uses ranks, it is robust to outliers and distributional assumptions and can detect complex or nonlinear spatial relationships that traditional measures like spatial autocorrelation might miss.</p>
-<p><code>StatsOP.jl</code> provides functions for computing spatial ordinal patterns from gridded data and for conducting (sequential) tests based on these patterns. It also enables the replication of several studies listed below.</p>
+<p><code>StatsOrdinalPatterns.jl</code> provides functions for computing spatial ordinal patterns from gridded data and for conducting (sequential) tests based on these patterns. It also enables the replication of several studies listed below.</p>
 
 
 
@@ -292,7 +292,7 @@ Weiß, Christian H, and Hee-Young Kim. 2025. <span>“Non-Parametric Entropy Tes
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp("https:\/\/AdaemmerP\.github\.io\/StatsOP\.jl\/");
+        var filterRegex = new RegExp("https:\/\/AdaemmerP\.github\.io\/StatsOrdinalPatterns\.jl\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
