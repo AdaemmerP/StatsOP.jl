@@ -68,7 +68,7 @@ function rl_kappa_oc(
 
   Bₜ, Bₜ₋₁ = zeros(Int, length(sup)), zeros(Int, length(sup))
   # Target IC states from null distribution
-  q₀ = pdf(qual_null_dist, sup)
+  q₀ = pdf.(qual_null_dist, sup)
   Q₀ = sum(q₀ .^ 2)
   x_vec = zeros(2)
 
@@ -112,7 +112,7 @@ function rl_kappa_oc(
   Bₜ, Bₜ₋₁ = zeros(Int, length(sup)), zeros(Int, length(sup))
 
   # Fixed null distribution target
-  p₀ = pdf(qual_null_dist, sup)
+  p₀ = pdf.(qual_null_dist, sup)
   Q₀ = sum(p₀ .^ 2)
   x_vec = zeros(2)
 
@@ -153,7 +153,7 @@ function rl_kappa_oc(
   Bₜ, Bₜ₋₁ = zeros(Int, length(sup)), zeros(Int, length(sup))
 
   # Target IC CDF
-  q₀ = cdf(qual_null_dist, sup)
+  q₀ = cdf.(qual_null_dist, sup)
   Q₀ = sum(q₀ .^ 2)
   x_vec = zeros(2)
 
@@ -196,7 +196,7 @@ function rl_kappa_oc(
   Bₜ, Bₜ₋₁ = zeros(Int, length(sup)), zeros(Int, length(sup))
 
   # Fixed IC target CDF
-  f₀ = cdf(qual_null_dist, sup)
+  f₀ = cdf.(qual_null_dist, sup)
   Q₀ = sum(f₀ .^ 2)
   x_vec = zeros(2)
 

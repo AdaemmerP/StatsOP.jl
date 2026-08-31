@@ -67,7 +67,7 @@ function rl_kappa_ic(
   sup = collect(sup_lb:sup_ub)
 
   Bₜ, Bₜ₋₁ = zeros(Int, length(sup)), zeros(Int, length(sup))
-  q₀ = pdf(qual_dgp_dist, sup)
+  q₀ = pdf.(qual_dgp_dist, sup)
   Q₀ = sum(q₀ .^ 2)
   x_vec = zeros(2)
 
@@ -112,7 +112,7 @@ function rl_kappa_ic(
   sup = collect(sup_lb:sup_ub)
 
   Bₜ, Bₜ₋₁ = zeros(Int, length(sup)), zeros(Int, length(sup))
-  p₀ = pdf(qual_dgp_dist, sup)
+  p₀ = pdf.(qual_dgp_dist, sup)
   Q₀ = sum(p₀ .^ 2)
   x_vec = zeros(2)
 
@@ -152,7 +152,7 @@ function rl_kappa_ic(
 
   Bₜ, Bₜ₋₁ = zeros(Int, length(sup)), zeros(Int, length(sup))
   # Initialize with CDF for Ordinal version
-  q₀ = cdf(qual_dgp_dist, sup)
+  q₀ = cdf.(qual_dgp_dist, sup)
   Q₀ = sum(q₀ .^ 2)
   x_vec = zeros(2)
 
@@ -192,7 +192,7 @@ function rl_kappa_ic(
   sup = collect(sup_lb:sup_ub)
 
   Bₜ, Bₜ₋₁ = zeros(Int, length(sup)), zeros(Int, length(sup))
-  f₀ = cdf(qual_dgp_dist, sup)
+  f₀ = cdf.(qual_dgp_dist, sup)
   Q₀ = sum(f₀ .^ 2)
   x_vec = zeros(2)
 

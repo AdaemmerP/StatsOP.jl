@@ -27,7 +27,7 @@ function stat_kappa(
   Bₜ₋₁ = similar(Bₜ)
 
   # Initialize at t = 0
-  qₜ = pdf(dist_null, sup)
+  qₜ = pdf.(dist_null, sup)
   Qₜ = sum(qₜ .^ 2)
 
   for r in 2:length(data)
@@ -65,7 +65,7 @@ function stat_kappa(
   Bₜ₋₁ = similar(Bₜ)
 
   # Initialize at t = 0
-  p₀ = pdf(dist_null, sup)
+  p₀ = pdf.(dist_null, sup)
   Qₜ = sum(p₀ .^ 2)
 
   for r in 2:length(data)
@@ -102,7 +102,7 @@ function stat_kappa(
   Bₜ₋₁ = similar(Bₜ)
 
   # Initialize at t = 0
-  qₜ = cdf(dist_null, sup)
+  qₜ = cdf.(dist_null, sup)
   Qₜ = sum(qₜ .^ 2)
 
   for r in 2:length(data)
@@ -140,7 +140,7 @@ function stat_kappa(
   Bₜ₋₁ = similar(Bₜ)
 
   # Initialize at t = 0
-  f₀ = cdf(dist_null, sup)
+  f₀ = cdf.(dist_null, sup)
   Qₜ = sum(f₀ .^ 2)
 
   for r in 2:length(data)

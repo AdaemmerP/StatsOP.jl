@@ -229,7 +229,7 @@ end
 function init_dgp_op!(dgp::INAR1, x_long, dist_error::Poisson, d::Int)
     x_long[1] = rand(Poisson(dist_error.λ / (1 - dgp.α)))
     for i in 2:lastindex(x_long)
-        x_long[i] = rand(Binomial(x_long[i-1], dgp.α)) + rand(dist_error)
+        x_long[i] = rand(Binomial(Int(x_long[i-1]), dgp.α)) + rand(dist_error)
     end
 
     # add noise ?
@@ -246,7 +246,7 @@ function update_dgp_op!(dgp::INAR1, x_long, dist_error::Poisson, d::Int)
     for i in 1:(lastindex(x_long)-1)
         x_long[i] = x_long[i+1]
     end
-    x = floor(x_long[end-1])
+    x = floor(Int, x_long[end-1])
 
     # add noise?
     if dgp.add_noise
@@ -318,7 +318,7 @@ function update_dgp_op!(dgp::SINAR1, x_long, dist::DiscreteUnivariateDistributio
     end
 
     # Get previous state xₜ₋₁
-    xₜ₋₁ = floor(x_long[end-1])
+    xₜ₋₁ = floor(Int, x_long[end-1])
     εₜ = rand(dist)
 
     # Apply signed operator: α ⊙ xₜ₋₁
@@ -400,7 +400,7 @@ function update_dgp_op!(dgp::TINAR1, x_long::Vector{Float64}, dist::DiscreteUniv
     end
 
     # Get previous state xₜ₋₁
-    xₜ₋₁ = floor(x_long[end-1])
+    xₜ₋₁ = floor(Int, x_long[end-1])
     εₜ = rand(dist)
 
     # Apply signed operator: α ⊙ xₜ₋₁
@@ -424,7 +424,7 @@ end
 function init_dgp_op!(dgp::BAR1, x_long, dist_error::Nothing, d::Int)
     x_long[1] = rand(Binomial(dgp.n, dgp.parpi))
     for i in 2:lastindex(x_long)
-        x = x_long[i-1]
+        x = Int(x_long[i-1])
         x_long[i] = rand(Binomial(x, dgp.α)) + rand(Binomial(dgp.n - x, dgp.β))
     end
     # add noise ?
@@ -441,7 +441,7 @@ function update_dgp_op!(dgp::BAR1, x_long, dist_error::Nothing, d::Int)
     for i in 1:(lastindex(x_long)-1)
         x_long[i] = x_long[i+1]
     end
-    x = floor(x_long[end-1])
+    x = floor(Int, x_long[end-1])
     # add noise?
     if dgp.add_noise
         x_long[end] = rand(Binomial(x, dgp.α)) + rand(Binomial(dgp.n - x, dgp.β)) + rand()
