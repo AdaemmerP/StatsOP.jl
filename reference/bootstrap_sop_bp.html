@@ -193,7 +193,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="callout-body-container callout-body">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bootstrap_sop_bp</span>(</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  data<span class="op">::</span><span class="dt">Matrix{&lt;:Real}</span>, n_boot<span class="op">::</span><span class="dt">Int</span>, w<span class="op">::</span><span class="dt">Int</span>;</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  chart_choice<span class="op">=</span><span class="fu">TauTilde</span>(), refinement<span class="op">=</span><span class="cn">false</span>, block_size<span class="op">::</span><span class="dt">Int</span>=<span class="fl">1</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  chart_choice<span class="op">=</span><span class="fu">TauTilde</span>(), refinement<span class="op">=</span><span class="fu">OrdinaryType</span>(), block_size<span class="op">::</span><span class="dt">Int</span>=<span class="fl">1</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Generate a bootstrap distribution of the BP-SOP statistic for a single spatial image.</p>
 <ul>
@@ -201,7 +201,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>n_boot</code>: Number of bootstrap replications.</li>
 <li><code>w::Int</code>: Window size; all (d1, d2) ∈ {1,…,w}² are included in the BP sum.</li>
 <li><code>chart_choice</code>: The chart statistic type (e.g.&nbsp;<code>TauTilde()</code>, <code>KappaTilde()</code>).</li>
-<li><code>refinement</code>: <code>false</code> for classical types, or a <code>RefinedType</code> instance.</li>
+<li><code>refinement</code>: <a href="@ref"><code>OrdinaryType</code></a><code>()</code> for classical types, or a <code>RefinedType</code> instance.</li>
 <li><code>block_size</code>: Set &gt; 1 to use 2D block bootstrap and preserve spatial dependencies.</li>
 </ul>
 </div>

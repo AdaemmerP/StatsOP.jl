@@ -192,7 +192,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="callout-1" class="callout-1-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">arl_sop_bp_oc</span>(spatial_dgp, lam, cl, w, reps<span class="op">=</span><span class="fl">1_000</span>; chart_choice<span class="op">=</span><span class="fu">TauTilde</span>(),</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  refinement<span class="op">=</span><span class="cn">false</span>, rl_max<span class="op">=</span><span class="fu">typemax</span>(<span class="dt">Int</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  refinement<span class="op">=</span><span class="fu">OrdinaryType</span>(), rl_max<span class="op">=</span><span class="fu">typemax</span>(<span class="dt">Int</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Compute the out-of-control average run length (ARL) of the EWMA chart based on the Box-Pierce type statistic for spatial ordinal patterns (SOPs) via simulation. The computation is multithreaded.</p>
 <ul>
 <li><code>spatial_dgp::SpatialDGP</code>: out-of-control spatial DGP.</li>
@@ -201,7 +201,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>w::Int</code>: window size of the BP statistic; delays <code>1:w</code> in both directions are used.</li>
 <li><code>reps::Int=1_000</code>: number of replications.</li>
 <li><code>chart_choice</code>: one of <a href="@ref"><code>TauHat</code></a><code>()</code>, <a href="@ref"><code>KappaHat</code></a><code>()</code>, <a href="@ref"><code>TauTilde</code></a><code>()</code>, <a href="@ref"><code>KappaTilde</code></a><code>()</code>.</li>
-<li><code>refinement</code>: <code>false</code> for the classical SOP classification, or one of <a href="@ref"><code>RotationType</code></a><code>()</code>, <a href="@ref"><code>DirectionType</code></a><code>()</code>, <a href="@ref"><code>DiagonalType</code></a><code>()</code>.</li>
+<li><code>refinement</code>: <a href="@ref"><code>OrdinaryType</code></a><code>()</code> for the classical SOP classification, or one of <a href="@ref"><code>RotationType</code></a><code>()</code>, <a href="@ref"><code>DirectionType</code></a><code>()</code>, <a href="@ref"><code>DiagonalType</code></a><code>()</code>.</li>
 <li><code>rl_max::Int=typemax(Int)</code>: maximal run length after which a replication is stopped. Returns the tuple <code>(ARL, standard error)</code>.</li>
 </ul>
 </div>

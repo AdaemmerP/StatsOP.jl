@@ -90,6 +90,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
+<link href="../page_files/sop_replication_weiss_kim_2024.html" rel="next">
 <link href="../page_files/sop_tutorial.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -244,6 +245,29 @@ window.Quarto = {
  <span class="menu-text">Tutorial for sequential spatial ordinal pattern tests</span></a>
   </div>
 </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">Replications</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../page_files/sop_replication_weiss_kim_2024.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Weiß and Kim (2024)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../page_files/sop_replication_weiss_kim_2025.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Weiß and Kim (2025)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
     </ul>
     </div>
 </nav>
@@ -300,7 +324,7 @@ window.Quarto = {
 <ul>
 <li><strong>Critical limit</strong>
 <ul>
-<li><code>cl_sop(sop_dgp, lam, L0, cl_init, d1, d2; chart_choice, refinement=false, reps_bracket, reps_final, bracket_step, seed)</code>
+<li><code>cl_sop(sop_dgp, lam, L0, cl_init, d1, d2; chart_choice, refinement=OrdinaryType(), reps_bracket, reps_final, bracket_step, seed)</code>
 <ul>
 <li>Returns the <code>cl</code> for which the in-control ARL equals <code>L0</code>.</li>
 <li><code>sop_dgp::ICSTS(M_rows, N_cols, dist)</code>: in-control spatial process (spatial white noise of the given image size).</li>
@@ -310,12 +334,12 @@ window.Quarto = {
 </ul></li>
 <li><strong>Chart performance</strong>
 <ul>
-<li><code>arl_sop_ic(sop_dgp, lam, cl, d1, d2, reps; chart_choice, refinement=false)</code> — in-control ARL, returns <code>(ARL, standard error)</code>.</li>
-<li><code>arl_sop_oc(spatial_dgp, lam, cl, d1, d2, reps; chart_choice, refinement=false)</code> — out-of-control ARL for a spatially dependent process (<code>SAR11</code>, <code>SAR1</code>, <code>SQMA11</code>, <code>SINAR11</code>, <code>SQINMA11</code>, <code>BSQMA11</code>).</li>
+<li><code>arl_sop_ic(sop_dgp, lam, cl, d1, d2, reps; chart_choice, refinement=OrdinaryType())</code> — in-control ARL, returns <code>(ARL, standard error)</code>.</li>
+<li><code>arl_sop_oc(spatial_dgp, lam, cl, d1, d2, reps; chart_choice, refinement=OrdinaryType())</code> — out-of-control ARL for a spatially dependent process (<code>SAR11</code>, <code>SAR1</code>, <code>SQMA11</code>, <code>SINAR11</code>, <code>SQINMA11</code>, <code>BSQMA11</code>).</li>
 </ul></li>
 <li><strong>Monitoring observed data</strong>
 <ul>
-<li><code>stat_sop(data, lam, d1, d2; chart_choice, refinement=false)</code> — for a 3D array (rows × columns × time), returns the sequentially computed EWMA chart statistics.</li>
+<li><code>stat_sop(data, lam, d1, d2; chart_choice, refinement=OrdinaryType())</code> — for a 3D array (rows × columns × time), returns the sequentially computed EWMA chart statistics.</li>
 </ul></li>
 </ul>
 </section>
@@ -967,6 +991,9 @@ Adämmer, Philipp, Philipp Wittenberg, Christian H Weiß, and Murat Caner Testik
       </a>          
   </div>
   <div class="nav-page nav-page-next">
+      <a href="../page_files/sop_replication_weiss_kim_2024.html" class="pagination-link" aria-label="Weiß and Kim (2024)">
+        <span class="nav-page-text">Weiß and Kim (2024)</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
   </div>
 </nav>
 </div> <!-- /content -->

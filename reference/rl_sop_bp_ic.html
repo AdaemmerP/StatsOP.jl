@@ -203,7 +203,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p><code>reps_range::UnitRange{Int}</code>: A range of integers for the number of repetitions.</p></li>
 <li><p><code>dist_error::Distribution</code>: A distribution for the error term. Here you can use any univariate distribution from the <code>Distributions.jl</code> package.</p></li>
 <li><p><code>chart_choice</code>: one of <a href="@ref"><code>TauHat</code></a><code>()</code>, <a href="@ref"><code>KappaHat</code></a><code>()</code>, <a href="@ref"><code>TauTilde</code></a><code>()</code>, <a href="@ref"><code>KappaTilde</code></a><code>()</code>.</p></li>
-<li><p><code>refinement</code>: <code>false</code> for the classical SOP classification, or one of <a href="@ref"><code>RotationType</code></a><code>()</code>, <a href="@ref"><code>DirectionType</code></a><code>()</code>, <a href="@ref"><code>DiagonalType</code></a><code>()</code>.</p></li>
+<li><p><code>refinement</code>: <a href="@ref"><code>OrdinaryType</code></a><code>()</code> for the classical SOP classification, or one of <a href="@ref"><code>RotationType</code></a><code>()</code>, <a href="@ref"><code>DirectionType</code></a><code>()</code>, <a href="@ref"><code>DiagonalType</code></a><code>()</code>.</p></li>
 <li><p><code>rl_max::Int=typemax(Int)</code>: maximal run length after which a replication is stopped. Returns a vector of run lengths.</p></li>
 </ul>
 </div>

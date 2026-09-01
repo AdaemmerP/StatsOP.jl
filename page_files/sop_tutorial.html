@@ -245,6 +245,29 @@ window.Quarto = {
  <span class="menu-text">Tutorial for sequential spatial ordinal pattern tests</span></a>
   </div>
 </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">Replications</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../page_files/sop_replication_weiss_kim_2024.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Weiß and Kim (2024)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../page_files/sop_replication_weiss_kim_2025.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Weiß and Kim (2025)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
     </ul>
     </div>
 </nav>
@@ -313,25 +336,25 @@ window.Quarto = {
 <section id="key-functions" class="level2">
 <h2 class="anchored" data-anchor-id="key-functions">Key functions</h2>
 <ul>
-<li><p><strong><code>stat_sop(data, d1, d2; chart_choice, refinement=false)</code></strong></p>
+<li><p><strong><code>stat_sop(data, d1, d2; chart_choice, refinement=OrdinaryType())</code></strong></p>
 <ul>
 <li>Returns <code>[test_statistic, pattern_frequencies]</code>.</li>
 <li><code>data</code>: the 2D image (<code>Matrix</code>). <code>d1</code>: row delay. <code>d2</code>: column delay.</li>
 <li><code>chart_choice</code>: one of <code>TauTilde()</code>, <code>TauHat()</code>, <code>KappaTilde()</code>, <code>KappaHat()</code>, <code>DistanceToWhiteNoise()</code>, <code>Shannon()</code>, <code>ShannonExtropy()</code>.</li>
-<li><code>refinement</code>: <code>false</code> for classical types, or <code>RotationType()</code>, <code>DirectionType()</code>, <code>DiagonalType()</code>.</li>
+<li><code>refinement</code>: <code>OrdinaryType()</code> for classical types, or <code>RotationType()</code>, <code>DirectionType()</code>, <code>DiagonalType()</code>.</li>
 </ul></li>
-<li><p><strong><code>test_sop(data, d1, d2; chart_choice, refinement=false, alpha=0.05)</code></strong></p>
+<li><p><strong><code>test_sop(data, d1, d2; chart_choice, refinement=OrdinaryType(), alpha=0.05)</code></strong></p>
 <ul>
 <li>Returns an <code>SOPTestResult</code> with the test statistic, critical value, p-value, and reject decision.</li>
 <li>Critical value, p-value, and rejection direction are chosen automatically from <code>chart_choice</code>.</li>
 <li><code>alpha</code>: significance level.</li>
 </ul></li>
-<li><p><strong><code>bootstrap_sop(data, n_boot, d1, d2; chart_choice, refinement=false, block_size=1)</code></strong></p>
+<li><p><strong><code>bootstrap_sop(data, n_boot, d1, d2; chart_choice, refinement=OrdinaryType(), block_size=1)</code></strong></p>
 <ul>
 <li>Returns a length-<code>n_boot</code> vector of resampled statistics under <span class="math inline">\(H_0\)</span>.</li>
 <li><code>block_size &gt; 1</code>: 2D block bootstrap that preserves spatial structure.</li>
 </ul></li>
-<li><p><strong><code>test_sop_bootstrap(data, n_boot, d1, d2; chart_choice, refinement=false, alpha=0.05, block_size=1)</code></strong></p>
+<li><p><strong><code>test_sop_bootstrap(data, n_boot, d1, d2; chart_choice, refinement=OrdinaryType(), alpha=0.05, block_size=1)</code></strong></p>
 <ul>
 <li>Returns an <code>SOPTestResultBoot</code> struct with the bootstrap critical value, p-value, and reject decision.</li>
 <li>For Tau/Kappa charts: two-sided bootstrap using the raw statistic.</li>
