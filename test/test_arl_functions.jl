@@ -23,13 +23,8 @@ const _ARL_SOP_CHARTS = (TauHat(), KappaHat(), TauTilde(), KappaTilde())
 
 # One in-control and one out-of-control spatial DGP per run-length worker.
 _arl_icsts() = ICSTS(11, 11, Normal(0, 1))
-# SAR(1) is by far the most expensive DGP here: it inverts a dense
-# ((M + 2·margin)·(N + 2·margin))² system once per call and then does one matrix-vector
-# product of that size per run-length step. `margin` only controls how far the field is
-# initialized beyond the region of interest, so it affects the statistical fidelity of
-# the simulated field, not which code path runs. These are dispatch smoke tests, so the
-# margin is kept small: with the production value of 20 the system is 2601², and this
-# file alone spent about a minute in the SAR(1) worker.
+# SAR(1) inverts a dense ((M + 2·margin)·(N + 2·margin))² system per call. `margin` does
+# not change which code path runs, so it is kept small here (20 costs ~60s, 2 costs ~1s).
 _arl_sar1() = SAR1((0.4, 0.3, 0.2, 0.1), 11, 11, Normal(0, 1), nothing, 2)
 _arl_sar11() = SAR11((0.4, 0.3, 0.2), 11, 11, Normal(0, 1), nothing, 20)
 _arl_sqma11() = SQMA11((0.5, 0.3, 0.2), (1, 1, 2), 11, 11, Normal(0, 1), nothing)
