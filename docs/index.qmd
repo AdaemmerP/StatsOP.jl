@@ -14,8 +14,6 @@ julia:
 
 ::: {.sop-hero-text}
 
-[StatsOrdinalPatterns.jl]{.sop-title}
-
 [Distribution-free tests for serial and spatial dependence, built on ordinal patterns.]{.sop-tagline}
 
 [Ordinal patterns replace the values of a data set by the rank order within small windows. The resulting frequencies say a great deal about the dependence structure while staying invariant under monotone transformations and robust to outliers. This package turns that idea into fast tests and control charts for time series, count data and spatial grids.]{.sop-lede}
