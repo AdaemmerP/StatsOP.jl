@@ -15,9 +15,9 @@ const _ARL_LAM = 0.1
 const _ARL_REPS = max(40, 8 * Threads.nthreads())
 const _ARL_RL_MAX = 25
 
-# `false` is the classical SOP classification; the three RefinedType instances
-# are the refined ones from Weiß and Kim (2025).
-const _ARL_REFINEMENTS = (false, RotationType(), DirectionType(), DiagonalType())
+# `OrdinaryType()` is the classical SOP classification; the three RefinedType
+# instances are the refined ones from Weiß and Kim (2025).
+const _ARL_REFINEMENTS = (OrdinaryType(), RotationType(), DirectionType(), DiagonalType())
 
 const _ARL_SOP_CHARTS = (TauHat(), KappaHat(), TauTilde(), KappaTilde())
 
@@ -39,9 +39,9 @@ end
 # ── SOP: refinement is honoured everywhere ───────────────────────────────────
 # Regression: the run-length workers sized `p_hat` with `refinement ? 6 : 3`,
 # which throws `TypeError: non-boolean (RotationType) used in boolean context`
-# even though the signatures accept `Union{Bool,RefinedType}`. Only the 2D
-# `stat_sop` path handled a RefinedType, so the refined charts could not be
-# used for any ARL or control-limit computation.
+# even though the signatures accepted a RefinedType. Only the 2D `stat_sop` path
+# handled one, so the refined charts could not be used for any ARL or
+# control-limit computation.
 @testset "arl_sop_ic — every refinement" begin
     for rf in _ARL_REFINEMENTS
         res = arl_sop_ic(_arl_icsts(), _ARL_LAM, 0.02, 1, 1, _ARL_REPS;
@@ -72,7 +72,7 @@ end
     for rf in _ARL_REFINEMENTS
         p_mat = compute_p_array(data, 1, 1; chart_choice=TauTilde(), refinement=rf)
         # 3 type frequencies for the classical classification, 6 for a refined one.
-        @test size(p_mat) == (5, rf === false ? 3 : 6)
+        @test size(p_mat) == (5, rf isa RefinedType ? 6 : 3)
         @test all(isfinite, p_mat)
     end
 end
@@ -181,16 +181,15 @@ end
     @test _arl_ok(res_v1)
 end
 
-# ── create_index_sop rejects unsupported refinements ─────────────────────────
-# It used to fall off the end of its if/elseif chain and return `nothing` for
-# anything other than `false` or a RefinedType, which surfaced much later as a
-# confusing MethodError inside a spawned task.
-@testset "create_index_sop — argument checking" begin
-    @test length(StatsOrdinalPatterns.create_index_sop(refinement=false)) == 3
+# ── create_index_sop covers every classification and nothing else ────────────
+# One method per SOPClassification: anything else is a MethodError at the call
+# site instead of a `nothing` that surfaced much later inside a spawned task.
+@testset "create_index_sop — one method per classification" begin
+    @test length(StatsOrdinalPatterns.create_index_sop(OrdinaryType())) == 3
     for rf in (RotationType(), DirectionType(), DiagonalType())
-        @test length(StatsOrdinalPatterns.create_index_sop(refinement=rf)) == 6
+        @test length(StatsOrdinalPatterns.create_index_sop(rf)) == 6
     end
-    @test_throws ArgumentError StatsOrdinalPatterns.create_index_sop(refinement=nothing)
-    @test_throws ArgumentError StatsOrdinalPatterns.create_index_sop(refinement=true)
-    @test_throws ArgumentError StatsOrdinalPatterns.create_index_sop(refinement=1)
+    @test_throws MethodError StatsOrdinalPatterns.create_index_sop(nothing)
+    @test_throws MethodError StatsOrdinalPatterns.create_index_sop(true)
+    @test_throws MethodError StatsOrdinalPatterns.create_index_sop(1)
 end

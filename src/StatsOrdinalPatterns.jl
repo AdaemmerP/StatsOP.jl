@@ -146,8 +146,10 @@ export chart_stat_sop,
   DirectionType,
   KappaHat,
   KappaTilde,
+  OrdinaryType,
   RefinedType,
   RotationType,
+  SOPClassification,
   TauHat,
   TauTilde
 

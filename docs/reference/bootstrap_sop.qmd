@@ -11,7 +11,7 @@ engine: markdown
 ```julia
 bootstrap_sop(
   data::Matrix{<:Real}, n_boot::Int, d1::Int, d2::Int;
-  chart_choice=TauTilde(), refinement=false, block_size::Int=1
+  chart_choice=TauTilde(), refinement=OrdinaryType(), block_size::Int=1
 )
 ```
 Generate a bootstrap distribution of the SOP statistic for a single spatial image.
@@ -21,7 +21,7 @@ Generate a bootstrap distribution of the SOP statistic for a single spatial imag
   * `d1::Int`: Row delay.
   * `d2::Int`: Column delay.
   * `chart_choice`: The chart statistic type (e.g. `TauTilde()`, `KappaTilde()`).
-  * `refinement`: `false` for classical types, or a `RefinedType` instance.
+  * `refinement`: [`OrdinaryType`](@ref)`()` for classical types, or a `RefinedType` instance.
   * `block_size`: Set > 1 to use 2D block bootstrap and preserve spatial dependencies.
 
 

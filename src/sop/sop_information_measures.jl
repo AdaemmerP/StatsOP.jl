@@ -36,13 +36,31 @@ second type frequencies of the refined SOP classification.
 struct KappaTilde <: ComplexityEstimator end
 
 """
+    SOPClassification
+
+Abstract supertype for the classification schemes of spatial ordinal patterns (SOPs) and
+the type of every `refinement` argument in the package. The concrete schemes are
+[`OrdinaryType`](@ref) for the classical classification and the subtypes of
+[`RefinedType`](@ref) for the refined ones.
+"""
+abstract type SOPClassification end
+
+"""
+    OrdinaryType
+
+Classical ("ordinary") classification of spatial ordinal patterns (SOPs) into three
+types; see Weiß and Kim (2024). It is the default `refinement` of every SOP function.
+"""
+struct OrdinaryType <: SOPClassification end
+
+"""
     RefinedType
 
 Abstract supertype for the refined classification schemes of spatial ordinal patterns
 (SOPs); see Weiß and Kim (2025). Concrete subtypes are [`RotationType`](@ref),
 [`DirectionType`](@ref), and [`DiagonalType`](@ref).
 """
-abstract type RefinedType end
+abstract type RefinedType <: SOPClassification end
 
 """
     RotationType()

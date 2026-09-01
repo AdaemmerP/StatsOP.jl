@@ -105,7 +105,7 @@ PrecompileTools.@setup_workload begin
     # Bootstrap ARL path (p_mat / p_array are the user-supplied inputs)
     p_mat = compute_p_array(imgs, 1, 1)
     arl_sop_bootstrap(p_mat, lam, 0.02, reps; rl_max=rl_max)
-    p_array = compute_p_array_bp(imgs, 3; chart_choice=TauTilde(), refinement=false)
+    p_array = compute_p_array_bp(imgs, 3; chart_choice=TauTilde(), refinement=OrdinaryType())
     arl_sop_bp_bootstrap(p_array, lam, 0.001, 3, reps; rl_max=rl_max)
 
     # --- Spatial autocorrelation (SACF) ---

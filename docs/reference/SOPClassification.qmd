@@ -1,0 +1,20 @@
+---
+engine: markdown
+---
+
+# SOPClassification {#sec-doc}
+
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
+
+
+```julia
+SOPClassification
+```
+Abstract supertype for the classification schemes of spatial ordinal patterns (SOPs) and the type of every `refinement` argument in the package. The concrete schemes are [`OrdinaryType`](@ref) for the classical classification and the subtypes of [`RefinedType`](@ref) for the refined ones.
+ 
+
+
+:::
+
+

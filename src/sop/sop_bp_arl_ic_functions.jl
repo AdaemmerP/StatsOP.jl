@@ -1,7 +1,7 @@
 
 """
     arl_sop_bp_ic(spatial_dgp, lam, cl, w, reps=1_000; chart_choice=TauTilde(),
-      refinement=false, rl_max=typemax(Int))
+      refinement=OrdinaryType(), rl_max=typemax(Int))
 
 Compute the in-control average run length (ARL) of the EWMA chart based on the
 Box-Pierce type statistic for spatial ordinal patterns (SOPs) via simulation. The
@@ -14,14 +14,14 @@ computation is multithreaded.
 - `reps::Int`: An integer value for the number of repetitions. The default value is 1,000.
 - `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`,
   [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`.
-- `refinement`: `false` for the classical SOP classification, or one of
+- `refinement`: [`OrdinaryType`](@ref)`()` for the classical SOP classification, or one of
   [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`.
 - `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
 
 Returns the tuple `(ARL, standard error)`.
 """
 function arl_sop_bp_ic(
-  spatial_dgp::ICSTS, lam, cl, w::Int, reps=1_000; chart_choice=TauTilde(), refinement::Union{Bool,RefinedType}=false, rl_max::Int=typemax(Int)
+  spatial_dgp::ICSTS, lam, cl, w::Int, reps=1_000; chart_choice=TauTilde(), refinement::SOPClassification=OrdinaryType(), rl_max::Int=typemax(Int)
 )
 
   # Compute m and n  
@@ -67,7 +67,7 @@ which will be computed using `lookup_array_sop = StatsOrdinalPatterns.compute_lo
 univariate distribution from the `Distributions.jl` package.
 - `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`,
   [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`.
-- `refinement`: `false` for the classical SOP classification, or one of
+- `refinement`: [`OrdinaryType`](@ref)`()` for the classical SOP classification, or one of
   [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`.
 - `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
 
@@ -101,7 +101,7 @@ function rl_sop_bp_ic(
   p_ewma_all = zeros(n_size, 1, length(d1_d2_combinations))
 
   # indices for sum of frequencies
-  index_sop = create_index_sop(refinement=refinement)
+  index_sop = create_index_sop(refinement)
 
   for r in axes(reps_range, 1)
 

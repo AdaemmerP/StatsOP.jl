@@ -1,7 +1,7 @@
 
 """
     arl_sop_ic(sop_dgp, lam, cl, d1, d2, reps=10_000; chart_choice=TauTilde(),
-      refinement=false, rl_max=typemax(Int))
+      refinement=OrdinaryType(), rl_max=typemax(Int))
 
 Compute the in-control average run length (ARL) of the EWMA chart based on spatial
 ordinal patterns (SOPs) via simulation. The computation is multithreaded.
@@ -13,7 +13,7 @@ ordinal patterns (SOPs) via simulation. The computation is multithreaded.
 - `reps::Int=10_000`: number of replications.
 - `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`,
   [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`.
-- `refinement`: `false` for the classical SOP classification, or one of
+- `refinement`: [`OrdinaryType`](@ref)`()` for the classical SOP classification, or one of
   [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`.
 - `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
 
@@ -22,7 +22,7 @@ Returns the tuple `(ARL, standard error)`.
 function arl_sop_ic(
   sop_dgp::ICSTS, lam, cl, d1::Int, d2::Int, reps=10_000;
   chart_choice=TauTilde(),
-  refinement::Union{Bool,RefinedType}=false,
+  refinement::SOPClassification=OrdinaryType(),
   rl_max::Int=typemax(Int)
 )
 
@@ -72,7 +72,7 @@ which will be computed using `lookup_array_sop = StatsOrdinalPatterns.compute_lo
 univariate distribution from the `Distributions.jl` package.
 - `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`,
   [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`.
-- `refinement`: `false` for the classical SOP classification, or one of
+- `refinement`: [`OrdinaryType`](@ref)`()` for the classical SOP classification, or one of
   [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`.
 - `m::Int`: An integer value for the number of rows for the final "SOP" matrix.
 - `n::Int`: An integer value for the number of columns for the final "SOP" matrix.
@@ -97,7 +97,7 @@ function rl_sop_ic(
   sop_vec = zeros(4)
 
   # indices for sum of frequencies
-  index_sop = create_index_sop(refinement=refinement)
+  index_sop = create_index_sop(refinement)
 
   for r in 1:length(reps_range)
     fill!(p_ewma, 1.0 / 3.0)

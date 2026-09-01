@@ -1,6 +1,6 @@
 """
     arl_sop_bp_oc(spatial_dgp, lam, cl, w, reps=1_000; chart_choice=TauTilde(),
-      refinement=false, rl_max=typemax(Int))
+      refinement=OrdinaryType(), rl_max=typemax(Int))
 
 Compute the out-of-control average run length (ARL) of the EWMA chart based on the
 Box-Pierce type statistic for spatial ordinal patterns (SOPs) via simulation. The
@@ -13,7 +13,7 @@ computation is multithreaded.
 - `reps::Int=1_000`: number of replications.
 - `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`,
   [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`.
-- `refinement`: `false` for the classical SOP classification, or one of
+- `refinement`: [`OrdinaryType`](@ref)`()` for the classical SOP classification, or one of
   [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`.
 - `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
 
@@ -26,7 +26,7 @@ function arl_sop_bp_oc(
     w::Int,
     reps=1_000;
     chart_choice=TauTilde(),
-    refinement::Union{Bool,RefinedType}=false,
+    refinement::SOPClassification=OrdinaryType(),
     rl_max::Int=typemax(Int)
 )
 
@@ -100,7 +100,7 @@ function rl_sop_bp_oc(
     p_ewma_all = zeros(n_size, 1, length(d1_d2_combinations))
 
     # indices for sum of frequencies
-    index_sop = create_index_sop(refinement=refinement)
+    index_sop = create_index_sop(refinement)
 
     # pre-allocate
     # mat:    matrix for the final values of the spatial DGP
@@ -202,7 +202,7 @@ function rl_sop_bp_oc(
     dist_error::UnivariateDistribution,
     dist_ao::Union{Nothing,UnivariateDistribution},
     chart_choice,
-    refinement=false,
+    refinement=OrdinaryType(),
     rl_max::Int=typemax(Int),
 )
 
@@ -224,7 +224,7 @@ function rl_sop_bp_oc(
     p_ewma_all = zeros(n_size, 1, length(d1_d2_combinations))
 
     # indices for sum of frequencies
-    index_sop = create_index_sop(refinement=refinement)
+    index_sop = create_index_sop(refinement)
 
     # pre-allocate
     # mat:    matrix for the final values of the spatial DGP
@@ -320,7 +320,7 @@ function rl_sop_bp_oc(
     dist_error::UnivariateDistribution,
     dist_ao::Union{Nothing,UnivariateDistribution},
     chart_choice,
-    refinement=false,
+    refinement=OrdinaryType(),
     rl_max::Int=typemax(Int),
 )
 
@@ -342,7 +342,7 @@ function rl_sop_bp_oc(
     p_ewma_all = zeros(n_size, 1, length(d1_d2_combinations))
 
     # indices for sum of frequencies
-    index_sop = create_index_sop(refinement=refinement)
+    index_sop = create_index_sop(refinement)
 
     # pre-allocate
     # mat:    matrix for the final values of the spatial DGP
@@ -434,7 +434,7 @@ function rl_sop_bp_oc(
     dist_error::UnivariateDistribution,
     dist_ao::Union{Nothing,UnivariateDistribution},
     chart_choice,
-    refinement=false,
+    refinement=OrdinaryType(),
     rl_max::Int=typemax(Int),
 )
 
@@ -456,7 +456,7 @@ function rl_sop_bp_oc(
     p_ewma_all = zeros(n_size, 1, length(d1_d2_combinations))
 
     # indices for sum of frequencies
-    index_sop = create_index_sop(refinement=refinement)
+    index_sop = create_index_sop(refinement)
 
     # pre-allocate
     # mat:    matrix for the final values of the spatial DGP
@@ -547,7 +547,7 @@ function rl_sop_bp_oc(
     dist_error::UnivariateDistribution,
     dist_ao::Union{Nothing,UnivariateDistribution},
     chart_choice,
-    refinement=false,
+    refinement=OrdinaryType(),
     rl_max::Int=typemax(Int),
 )
 
@@ -569,7 +569,7 @@ function rl_sop_bp_oc(
     p_ewma_all = zeros(n_size, 1, length(d1_d2_combinations))
 
     # indices for sum of frequencies
-    index_sop = create_index_sop(refinement=refinement)
+    index_sop = create_index_sop(refinement)
 
     # pre-allocate
     # mat:    matrix for the final values of the spatial DGP

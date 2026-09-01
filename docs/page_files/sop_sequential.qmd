@@ -37,7 +37,7 @@ matches a target `L0`. See @adammer2026.
 ## Key functions
 
 - **Critical limit**
-    - `cl_sop(sop_dgp, lam, L0, cl_init, d1, d2; chart_choice, refinement=false, reps_bracket, reps_final, bracket_step, seed)`
+    - `cl_sop(sop_dgp, lam, L0, cl_init, d1, d2; chart_choice, refinement=OrdinaryType(), reps_bracket, reps_final, bracket_step, seed)`
         - Returns the `cl` for which the in-control ARL equals `L0`.
         - `sop_dgp::ICSTS(M_rows, N_cols, dist)`: in-control spatial process (spatial white
           noise of the given image size).
@@ -47,14 +47,14 @@ matches a target `L0`. See @adammer2026.
         - `d1`, `d2`: row and column delays — note they are **positional** arguments here.
 
 - **Chart performance**
-    - `arl_sop_ic(sop_dgp, lam, cl, d1, d2, reps; chart_choice, refinement=false)` —
+    - `arl_sop_ic(sop_dgp, lam, cl, d1, d2, reps; chart_choice, refinement=OrdinaryType())` —
       in-control ARL, returns `(ARL, standard error)`.
-    - `arl_sop_oc(spatial_dgp, lam, cl, d1, d2, reps; chart_choice, refinement=false)` —
+    - `arl_sop_oc(spatial_dgp, lam, cl, d1, d2, reps; chart_choice, refinement=OrdinaryType())` —
       out-of-control ARL for a spatially dependent process (`SAR11`, `SAR1`, `SQMA11`,
       `SINAR11`, `SQINMA11`, `BSQMA11`).
 
 - **Monitoring observed data**
-    - `stat_sop(data, lam, d1, d2; chart_choice, refinement=false)` — for a 3D array
+    - `stat_sop(data, lam, d1, d2; chart_choice, refinement=OrdinaryType())` — for a 3D array
       (rows × columns × time), returns the sequentially computed EWMA chart statistics.
 
 ## Alarm rules

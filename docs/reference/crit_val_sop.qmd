@@ -9,7 +9,7 @@ engine: markdown
 
 
 ```julia
-crit_val_sop(M, N, d1, d2; chart_choice, refinement=false, alpha=0.05)
+crit_val_sop(M, N, d1, d2; chart_choice, refinement=OrdinaryType(), alpha=0.05)
 ```
 Compute the critical value for the asymptotic test based on spatial ordinal patterns (SOPs); see [`test_sop`](@ref).
  
@@ -18,7 +18,7 @@ Compute the critical value for the asymptotic test based on spatial ordinal patt
   * `d1::Int`: row delay.
   * `d2::Int`: column delay.
   * `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`, [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`, `Shannon()`, `ShannonExtropy()`, `DistanceToWhiteNoise()`.
-  * `refinement`: `false` for the classical SOP classification, or one of [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()` (only for the entropy-type charts).
+  * `refinement`: [`OrdinaryType`](@ref)`()` for the classical SOP classification, or one of [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()` (only for the entropy-type charts).
   * `alpha=0.05`: significance level.
 
 ### Examples

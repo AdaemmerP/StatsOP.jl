@@ -27,7 +27,7 @@ The four column groups of Table 8 are the `refinement` argument of `test_sop`:
 
 | Table 8 group | `refinement` |
 |:--------------|:-------------|
-| Ordinary types | `false` |
+| Ordinary types | `OrdinaryType()` |
 | Rotation types | `RotationType()` |
 | Direction types | `DirectionType()` |
 | Diagonal types | `DiagonalType()` |
@@ -72,7 +72,7 @@ models = [
 entropies = [("H", Shannon()), ("H_ex", ShannonExtropy()), ("Delta", DistanceToWhiteNoise())]
 
 schemes = [
-    ("ord", false, vcat([("tau_tilde", TauTilde())], entropies)),
+    ("ord", OrdinaryType(), vcat([("tau_tilde", TauTilde())], entropies)),
     ("rot", RotationType(), entropies),
     ("dir", DirectionType(), entropies),
     ("diag", DiagonalType(), entropies),

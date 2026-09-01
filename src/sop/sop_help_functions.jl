@@ -29,63 +29,61 @@ end
 
 # Number of pattern-type frequencies: 3 for the classical classification, 6 for a
 # refined one. Used to size `p_hat` / `p_ewma` consistently with `create_index_sop`.
-_n_sop_types(refinement) = refinement isa RefinedType ? 6 : 3
+_n_sop_types(::OrdinaryType) = 3
+_n_sop_types(::RefinedType) = 6
 
 """
-    create_index_sop(; refinement)
+    create_index_sop(refinement)
 
 Create and return the index of the sops for sortperm values.
 The type frequencies are based on the ranks of the sops, but we use sortperm to
 compute the order of the elements in the vector.
+
+`refinement` is a [`SOPClassification`](@ref): [`OrdinaryType`](@ref)`()` for the
+classical classification, or one of [`RotationType`](@ref)`()`,
+[`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`.
 """
-function create_index_sop(; refinement)
+function create_index_sop end
 
-  # Classical approach as in Weiss and Kim (2024) and Adämmer et al. (2024)
-  if refinement === false
+# Classical approach as in Weiss and Kim (2024) and Adämmer et al. (2024)
+function create_index_sop(::OrdinaryType)
+  s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
+  s_2 = [2, 5, 7, 9, 16, 18, 20, 23]
+  s_3 = [4, 6, 10, 12, 13, 15, 19, 21]
+  return [s_1, s_2, s_3]
+end
 
-    s_1 = [1, 3, 8, 11, 14, 17, 22, 24]
-    s_2 = [2, 5, 7, 9, 16, 18, 20, 23]
-    s_3 = [4, 6, 10, 12, 13, 15, 19, 21]
+# RotationType -> Equation (8) in Weiss and Kim (2025)
+function create_index_sop(::RotationType)
+  s_11 = [1, 11, 14, 24]
+  s_12 = [3, 8, 17, 22]
+  s_21 = [2, 9, 18, 20]
+  s_22 = [5, 7, 16, 23]
+  s_31 = [4, 12, 15, 19]
+  s_32 = [6, 10, 13, 21]
+  return [s_11, s_12, s_21, s_22, s_31, s_32]
+end
 
-    return [s_1, s_2, s_3]
+# "Direction types" -> Equation (9) in Weiss and Kim (2025)
+function create_index_sop(::DirectionType)
+  s_11 = [1, 8, 17, 24]
+  s_12 = [3, 11, 14, 22]
+  s_21 = [2, 7, 18, 23]
+  s_22 = [5, 9, 16, 20]
+  s_31 = [4, 6, 10, 12]
+  s_32 = [13, 15, 19, 21]
+  return [s_11, s_12, s_21, s_22, s_31, s_32]
+end
 
-    # RotationType -> Equation (8) in Weiss and Kim (2025)  
-  elseif typeof(refinement) == RotationType
-
-    s_11 = [1, 11, 14, 24]
-    s_12 = [3, 8, 17, 22]
-    s_21 = [2, 9, 18, 20]
-    s_22 = [5, 7, 16, 23]
-    s_31 = [4, 12, 15, 19]
-    s_32 = [6, 10, 13, 21]
-    return [s_11, s_12, s_21, s_22, s_31, s_32]
-
-    # "Direction types" -> Equation (9) in Weiss and Kim (2025)  
-  elseif typeof(refinement) == DirectionType
-    s_11 = [1, 8, 17, 24]
-    s_12 = [3, 11, 14, 22]
-    s_21 = [2, 7, 18, 23]
-    s_22 = [5, 9, 16, 20]
-    s_31 = [4, 6, 10, 12]
-    s_32 = [13, 15, 19, 21]
-    return [s_11, s_12, s_21, s_22, s_31, s_32]
-
-    # "Diagonal types -> Equation (10) in Weiss and Kim (2025)
-  elseif typeof(refinement) == DiagonalType
-    s_11 = [1, 3, 22, 24]
-    s_12 = [8, 11, 14, 17]
-    s_21 = [7, 9, 20, 23]
-    s_22 = [2, 5, 16, 18]
-    s_31 = [13, 15, 19, 21]
-    s_32 = [4, 6, 10, 12]
-    return [s_11, s_12, s_21, s_22, s_31, s_32]
-  else
-    throw(ArgumentError(
-      "`refinement` must be `false` for the classical classification, or one of " *
-      "RotationType(), DirectionType(), DiagonalType(); got $(refinement)."
-    ))
-  end
-
+# "Diagonal types" -> Equation (10) in Weiss and Kim (2025)
+function create_index_sop(::DiagonalType)
+  s_11 = [1, 3, 22, 24]
+  s_12 = [8, 11, 14, 17]
+  s_21 = [7, 9, 20, 23]
+  s_22 = [2, 5, 16, 18]
+  s_31 = [13, 15, 19, 21]
+  s_32 = [4, 6, 10, 12]
+  return [s_11, s_12, s_21, s_22, s_31, s_32]
 end
 
 """
@@ -93,7 +91,7 @@ end
 
 Compute the matrix of p-hat values for a given 3D array of data when the delays are integers. These values are used for bootstrapping. 
 """
-function compute_p_array(data::Array{T,3}, d1::Int, d2::Int; chart_choice=TauTilde(), refinement::Union{Bool,RefinedType}=false, add_noise=false) where {T<:Real}
+function compute_p_array(data::Array{T,3}, d1::Int, d2::Int; chart_choice=TauTilde(), refinement::SOPClassification=OrdinaryType(), add_noise=false) where {T<:Real}
 
   # pre-allocate
   m = size(data, 1) - d1
@@ -103,7 +101,7 @@ function compute_p_array(data::Array{T,3}, d1::Int, d2::Int; chart_choice=TauTil
   p_mat = zeros(size(data, 3), n_size)
 
   # indices for sum of frequencies
-  index_sop = create_index_sop(refinement=refinement)
+  index_sop = create_index_sop(refinement)
 
   # Add noise?
   if add_noise
@@ -159,7 +157,7 @@ Compute the array of p-hat values for a given 3D array of data for all delay
 combinations `(d1, d2) ∈ {1,…,w} × {1,…,w}`. These values are used for bootstrapping to
 compute critical limits for the BP-statistics (see [`arl_sop_bp_bootstrap`](@ref)).
 """
-function compute_p_array_bp(data::Array{T,3}, w::Int; chart_choice, refinement::Union{Bool,RefinedType}, add_noise=false) where {T<:Real}
+function compute_p_array_bp(data::Array{T,3}, w::Int; chart_choice, refinement::SOPClassification, add_noise=false) where {T<:Real}
 
   # pre-allocate
   lookup_array_sop = compute_lookup_array_sop()
@@ -168,7 +166,7 @@ function compute_p_array_bp(data::Array{T,3}, w::Int; chart_choice, refinement::
   p_array = zeros(size(data, 3), n_size, length(d1_d2_combinations))
 
   # indices for sum of type frequencies  
-  index_sop = create_index_sop(refinement=refinement)
+  index_sop = create_index_sop(refinement)
 
   # Add noise?
   if add_noise
@@ -268,16 +266,16 @@ end
 
 
 # Fill p_hat with the sum of frequencies and compute relative frequencies.
-# Dispatch on chart_choice type (classical, ::Bool refinement) and on RefinedType.
+# Dispatch on chart_choice type (classical, ::OrdinaryType refinement) and on RefinedType.
 
-function fill_p_hat!(p_hat, ::TauHat, ::Bool, sop_freq, m, n, s_all)
+function fill_p_hat!(p_hat, ::TauHat, ::OrdinaryType, sop_freq, m, n, s_all)
   for i in s_all[1]
     p_hat[1] += sop_freq[i]
   end
   p_hat ./= m * n
 end
 
-function fill_p_hat!(p_hat, ::KappaHat, ::Bool, sop_freq, m, n, s_all)
+function fill_p_hat!(p_hat, ::KappaHat, ::OrdinaryType, sop_freq, m, n, s_all)
   for (i, j) in zip(s_all[2], s_all[3])
     p_hat[2] += sop_freq[i]
     p_hat[3] += sop_freq[j]
@@ -285,14 +283,14 @@ function fill_p_hat!(p_hat, ::KappaHat, ::Bool, sop_freq, m, n, s_all)
   p_hat ./= m * n
 end
 
-function fill_p_hat!(p_hat, ::TauTilde, ::Bool, sop_freq, m, n, s_all)
+function fill_p_hat!(p_hat, ::TauTilde, ::OrdinaryType, sop_freq, m, n, s_all)
   for i in s_all[3]
     p_hat[3] += sop_freq[i]
   end
   p_hat ./= m * n
 end
 
-function fill_p_hat!(p_hat, ::KappaTilde, ::Bool, sop_freq, m, n, s_all)
+function fill_p_hat!(p_hat, ::KappaTilde, ::OrdinaryType, sop_freq, m, n, s_all)
   for (i, j) in zip(s_all[1], s_all[2])
     p_hat[1] += sop_freq[i]
     p_hat[2] += sop_freq[j]
@@ -301,7 +299,7 @@ function fill_p_hat!(p_hat, ::KappaTilde, ::Bool, sop_freq, m, n, s_all)
 end
 
 # Covers Shannon, ShannonExtropy, DistanceToWhiteNoise (all <: InformationMeasure)
-function fill_p_hat!(p_hat, ::Union{Shannon,ShannonExtropy,DistanceToWhiteNoise}, ::Bool, sop_freq, m, n, s_all)
+function fill_p_hat!(p_hat, ::Union{Shannon,ShannonExtropy,DistanceToWhiteNoise}, ::OrdinaryType, sop_freq, m, n, s_all)
   for (i, j, k) in zip(s_all[1], s_all[2], s_all[3])
     p_hat[1] += sop_freq[i]
     p_hat[2] += sop_freq[j]

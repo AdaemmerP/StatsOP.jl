@@ -6,7 +6,7 @@ const _GC_SOP_ROTATION = _GChisqDist([1 / 5, 8 / 45, 13 / 90, 2 / 15], ones(4), 
 const _GC_SOP_DIRECTION = _GChisqDist([4 / 15, 1 / 5, 8 / 45, 19 / 630], [1, 1, 2, 1], zeros(4), 0.0, 0.0)
 const _GC_SOP_DIAGONAL = _GChisqDist([1 / 5, 8 / 45, 19 / 126, 4 / 45], ones(4), zeros(4), 0.0, 0.0)
 
-_gc_sop(::Bool) = _GC_SOP_CLASSICAL
+_gc_sop(::OrdinaryType) = _GC_SOP_CLASSICAL
 _gc_sop(::RotationType) = _GC_SOP_ROTATION
 _gc_sop(::DirectionType) = _GC_SOP_DIRECTION
 _gc_sop(::DiagonalType) = _GC_SOP_DIAGONAL
@@ -25,9 +25,7 @@ _gc_sop(::DiagonalType) = _GC_SOP_DIAGONAL
 const _QUP22_SOP_CACHE = Dict{Tuple{DataType,Float64},Float64}()
 const _QUP22_SOP_LOCK = ReentrantLock()
 
-function qup22_sop_value(
-  refinement::Union{Bool,RotationType,DirectionType,DiagonalType}, alpha
-)
+function qup22_sop_value(refinement::SOPClassification, alpha)
   key = (typeof(refinement), Float64(alpha))
   return lock(_QUP22_SOP_LOCK) do
     get!(_QUP22_SOP_CACHE, key) do
@@ -40,10 +38,10 @@ end
 # --- 3. Multiple Dispatch Implementation of crit_val_sop() ---
 
 # ==========================================================================
-# PART A: NO REFINEMENT (chart::ChartMetric, ::NoRefinement)
 # The dispatch logic is split based on the calculation method:
-# 1. Tau/Kappa metrics (need the 'approximate' flag)
-# 2. Information metrics (fixed critical values, ignore 'approximate')
+# 1. Tau/Kappa metrics: normal quantile with the exact finite-sample variance,
+#    and theory only for the classical classification (::OrdinaryType).
+# 2. Information metrics: generalized chi-squared quantile, one per scheme.
 # ==========================================================================
 
 # The public `crit_val_sop` below takes `chart_choice`, `refinement` and `alpha` as
@@ -51,7 +49,7 @@ end
 # dispatch on the internal `_crit_val_sop` methods.
 
 """
-    crit_val_sop(M, N, d1, d2; chart_choice, refinement=false, alpha=0.05)
+    crit_val_sop(M, N, d1, d2; chart_choice, refinement=OrdinaryType(), alpha=0.05)
 
 Compute the critical value for the asymptotic test based on spatial ordinal patterns
 (SOPs); see [`test_sop`](@ref).
@@ -63,7 +61,7 @@ Compute the critical value for the asymptotic test based on spatial ordinal patt
 - `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`,
   [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`, `Shannon()`, `ShannonExtropy()`,
   `DistanceToWhiteNoise()`.
-- `refinement`: `false` for the classical SOP classification, or one of
+- `refinement`: [`OrdinaryType`](@ref)`()` for the classical SOP classification, or one of
   [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`
   (only for the entropy-type charts).
 - `alpha=0.05`: significance level.
@@ -76,13 +74,13 @@ crit_val_sop(11, 11, 1, 1; chart_choice=TauHat())
 function crit_val_sop(
   M, N, d1::Int, d2::Int;
   chart_choice,
-  refinement::Union{Bool,RotationType,DirectionType,DiagonalType}=false,
+  refinement::SOPClassification=OrdinaryType(),
   alpha=0.05
 )
   return _crit_val_sop(M, N, d1, d2, chart_choice, refinement, alpha)
 end
 
-function _crit_val_sop(M, N, d1::Int, d2::Int, ::TauHat, ::Bool, alpha)
+function _crit_val_sop(M, N, d1::Int, d2::Int, ::TauHat, ::OrdinaryType, alpha)
   m = M - d1
   n = N - d2
   correction = 1 - 1 / (2 * m) - 1 / (2 * n)
@@ -90,7 +88,7 @@ function _crit_val_sop(M, N, d1::Int, d2::Int, ::TauHat, ::Bool, alpha)
   return quantile(Normal(0, 1), 1 - alpha / 2) * term
 end
 
-function _crit_val_sop(M, N, d1::Int, d2::Int, ::KappaHat, ::Bool, alpha)
+function _crit_val_sop(M, N, d1::Int, d2::Int, ::KappaHat, ::OrdinaryType, alpha)
   m = M - d1
   n = N - d2
   correction = 1 - 1 / (2 * m) - 1 / (2 * n)
@@ -98,7 +96,7 @@ function _crit_val_sop(M, N, d1::Int, d2::Int, ::KappaHat, ::Bool, alpha)
   return quantile(Normal(0, 1), 1 - alpha / 2) * term
 end
 
-function _crit_val_sop(M, N, d1::Int, d2::Int, ::TauTilde, ::Bool, alpha)
+function _crit_val_sop(M, N, d1::Int, d2::Int, ::TauTilde, ::OrdinaryType, alpha)
   m = M - d1
   n = N - d2
   correction = 1 - 1 / (2 * m) - 1 / (2 * n)
@@ -106,7 +104,7 @@ function _crit_val_sop(M, N, d1::Int, d2::Int, ::TauTilde, ::Bool, alpha)
   return quantile(Normal(0, 1), 1 - alpha / 2) * term
 end
 
-function _crit_val_sop(M, N, d1::Int, d2::Int, ::KappaTilde, ::Bool, alpha)
+function _crit_val_sop(M, N, d1::Int, d2::Int, ::KappaTilde, ::OrdinaryType, alpha)
   m = M - d1
   n = N - d2
   correction = 1 - 1 / (2 * m) - 1 / (2 * n)
@@ -118,7 +116,7 @@ end
 function _crit_val_sop(
   M, N, d1::Int, d2::Int,
   chart_choice::Union{Shannon,ShannonExtropy,DistanceToWhiteNoise},
-  refinement::Union{Bool,RotationType,DirectionType,DiagonalType},
+  refinement::SOPClassification,
   alpha
 )
 
@@ -177,7 +175,7 @@ function _sop_asymp_pval(chart_choice, test_stat, crit_val, refinement, alpha, m
 end
 
 """
-    test_sop(data, d1, d2; chart_choice, refinement=false, alpha=0.05, add_noise=false)
+    test_sop(data, d1, d2; chart_choice, refinement=OrdinaryType(), alpha=0.05, add_noise=false)
 
 Perform the asymptotic hypothesis test for spatial dependence based on spatial ordinal
 patterns (SOPs) and return a [`SOPTestResult`](@ref) with the test statistic, the
@@ -190,7 +188,7 @@ asymptotic critical value, the p-value, and the reject decision.
   [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()` (two-sided test), or `Shannon()`,
   `ShannonExtropy()`, `DistanceToWhiteNoise()` (one-sided, upper-tail test with
   rescaled statistic).
-- `refinement`: `false` for the classical SOP classification, or one of
+- `refinement`: [`OrdinaryType`](@ref)`()` for the classical SOP classification, or one of
   [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`
   (only for the entropy-type charts).
 - `alpha=0.05`: significance level.
@@ -200,7 +198,7 @@ asymptotic critical value, the p-value, and the reject decision.
 function test_sop(
   data, d1::Int, d2::Int;
   chart_choice,
-  refinement::Union{Bool,RotationType,DirectionType,DiagonalType}=false,
+  refinement::SOPClassification=OrdinaryType(),
   alpha=0.05,
   add_noise::Bool=false
 )
@@ -211,7 +209,7 @@ end
 function _test_sop(
   data, d1::Int, d2::Int,
   chart_choice::Union{TauHat,KappaHat,TauTilde,KappaTilde},
-  refinement::Bool, alpha, add_noise::Bool
+  refinement::OrdinaryType, alpha, add_noise::Bool
 )
   M = size(data, 1)
   N = size(data, 2)
@@ -227,7 +225,7 @@ end
 function _test_sop(
   data, d1::Int, d2::Int,
   chart_choice::Union{Shannon,ShannonExtropy,DistanceToWhiteNoise},
-  refinement::Union{Bool,RotationType,DirectionType,DiagonalType}, alpha, add_noise::Bool
+  refinement::SOPClassification, alpha, add_noise::Bool
 )
   M = size(data, 1)
   N = size(data, 2)

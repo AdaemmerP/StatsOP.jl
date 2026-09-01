@@ -2,7 +2,7 @@
 # Tests for stat_sop_bp (both overloads).
 #
 # Verifications:
-#   1. refinement is Union{Bool,RefinedType} with default false (not Nothing).
+#   1. refinement is a SOPClassification with default OrdinaryType() (not Nothing).
 #   2. 2D overload: with w=1 there is exactly one (d1,d2)=(1,1) combination,
 #      so bp_stat == stat_sop(data, 1, 1; chart_choice=X)[1]^2.
 #   3. 3D EWMA overload: returns a vector of length size(data,3), all non-negative.
@@ -12,17 +12,17 @@ const _DATA_BP = Float64[9 1 2;
                          9 4 9]
 
 # -----------------------------------------------------------------------
-# Signature verification: refinement is Bool (not Nothing)
+# Signature verification: refinement is a SOPClassification (not Nothing)
 # -----------------------------------------------------------------------
-@testset "stat_sop_bp — refinement::Union{Bool,RefinedType}" begin
+@testset "stat_sop_bp — refinement::SOPClassification" begin
 
-    # Calling with the default (false) must work without error
+    # Calling with the default (OrdinaryType()) must work without error
     @test_nowarn stat_sop_bp(_DATA_BP, 1; chart_choice=TauTilde())
 
-    # Calling with refinement=false explicitly must work
-    @test_nowarn stat_sop_bp(_DATA_BP, 1; chart_choice=TauTilde(), refinement=false)
+    # Calling with refinement=OrdinaryType() explicitly must work
+    @test_nowarn stat_sop_bp(_DATA_BP, 1; chart_choice=TauTilde(), refinement=OrdinaryType())
 
-    # Calling with a RefinedType must work (was previously Union{Nothing,RefinedType})
+    # Calling with a RefinedType must work
     @test_nowarn stat_sop_bp(_DATA_BP, 1; chart_choice=TauTilde(), refinement=RotationType())
 
     # Passing nothing must now throw a TypeError (old signature accepted Nothing;

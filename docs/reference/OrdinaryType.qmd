@@ -1,0 +1,20 @@
+---
+engine: markdown
+---
+
+# OrdinaryType {#sec-doc}
+
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
+
+
+```julia
+OrdinaryType
+```
+Classical ("ordinary") classification of spatial ordinal patterns (SOPs) into three types; see Weiß and Kim (2024). It is the default `refinement` of every SOP function.
+ 
+
+
+:::
+
+

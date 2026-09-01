@@ -8,7 +8,7 @@ Multiple Dispatch for 'stat_sop()':
 
 # 1. Method to compute test statistic for one picture without refinement
 """
-    stat_sop(data, d1, d2; chart_choice, refinement=false, add_noise=false,
+    stat_sop(data, d1, d2; chart_choice, refinement=OrdinaryType(), add_noise=false,
       noise_dist=Uniform(0, 1))
 
 Compute the test statistic based on spatial ordinal patterns (SOPs) for a single picture
@@ -21,7 +21,7 @@ relative SOP type frequencies.
 - `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`,
   [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`, `Shannon()`, `ShannonExtropy()`,
   `DistanceToWhiteNoise()`.
-- `refinement`: `false` for the classical SOP classification, or one of
+- `refinement`: [`OrdinaryType`](@ref)`()` for the classical SOP classification, or one of
   [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`.
 - `add_noise::Bool`: A boolean value to add noise to the data.
 - `noise_dist::UnivariateDistribution`: The distribution for the noise.
@@ -37,7 +37,7 @@ function stat_sop(
   data::Union{SubArray,Matrix{<:Real}},
   d1::Int, d2::Int;
   chart_choice,
-  refinement::Union{Bool,RefinedType}=false,
+  refinement::SOPClassification=OrdinaryType(),
   add_noise::Bool=false,
   noise_dist::UnivariateDistribution=Uniform(0, 1)
 )
@@ -58,7 +58,7 @@ function stat_sop(
   n = size(data, 2) - d2
 
   # indices for sum of frequencies
-  index_sop = create_index_sop(; refinement)
+  index_sop = create_index_sop(refinement)
 
   # Add noise?
   if add_noise
@@ -79,7 +79,7 @@ end
 
 # 2. Method to compute test statistic for multiple pictures
 """
-    stat_sop(data, lam, d1, d2; chart_choice=TauTilde(), refinement=false,
+    stat_sop(data, lam, d1, d2; chart_choice=TauTilde(), refinement=OrdinaryType(),
       add_noise=false, noise_dist=Uniform(0, 1), type_freq_init=1/3)
 
 Compute the sequence of EWMA-smoothed test statistics based on spatial ordinal patterns
@@ -91,7 +91,7 @@ Compute the sequence of EWMA-smoothed test statistics based on spatial ordinal p
 - `d2::Int`: The delay value for the columns.
 - `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`,
   [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`.
-- `refinement`: `false` for the classical SOP classification, or one of
+- `refinement`: [`OrdinaryType`](@ref)`()` for the classical SOP classification, or one of
   [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`.
 - `add_noise::Bool`: A boolean value to add noise to the data.
 - `noise_dist::UnivariateDistribution`: The distribution for the noise.
@@ -103,7 +103,7 @@ function stat_sop(
   d1::Int,
   d2::Int;
   chart_choice=TauTilde(),
-  refinement::Union{Bool,RotationType,DirectionType,DiagonalType}=false,
+  refinement::SOPClassification=OrdinaryType(),
   add_noise::Bool=false,
   noise_dist::UnivariateDistribution=Uniform(0, 1),
   type_freq_init::Union{Float64,Array{Float64,2}}=1 / 3
@@ -129,7 +129,7 @@ function stat_sop(
   win = zeros(Int, 4)
 
   # indices for sum of frequencies
-  index_sop = create_index_sop(refinement=refinement)
+  index_sop = create_index_sop(refinement)
 
   # Compute m and n based on data
   data_tmp = similar(data[:, :, 1])

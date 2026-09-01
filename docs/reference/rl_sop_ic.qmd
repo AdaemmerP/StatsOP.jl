@@ -24,7 +24,7 @@ which will be computed using `lookup_array_sop = StatsOrdinalPatterns.compute_lo
 univariate distribution from the `Distributions.jl` package.
  
   * `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`, [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`.
-  * `refinement`: `false` for the classical SOP classification, or one of [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`.
+  * `refinement`: [`OrdinaryType`](@ref)`()` for the classical SOP classification, or one of [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`.
   * `m::Int`: An integer value for the number of rows for the final "SOP" matrix.
   * `n::Int`: An integer value for the number of columns for the final "SOP" matrix.
   * `d1::Int`: An integer value for the first delay (d₁).

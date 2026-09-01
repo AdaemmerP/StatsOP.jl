@@ -43,7 +43,7 @@ being computed and have no meaningful default:
 - `chart_choice` — the statistic to use;
 - `alpha=0.05` — the significance level;
 - `m=3` and `d=1` — ordinal-pattern length and delay;
-- `refinement=false` — the SOP classification;
+- `refinement=OrdinaryType()` — the SOP classification;
 - `block_size=1` — block length of a block bootstrap;
 - `add_noise=false`, `ljung_box=false`, `rng`, `rl_max`.
 

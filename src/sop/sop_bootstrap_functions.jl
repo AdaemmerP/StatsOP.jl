@@ -50,15 +50,15 @@ struct SOPBuffer
   resampled_data::Matrix{Float64}  # Pre-allocated resampled image
 end
 
-function SOPBuffer(M::Int, N::Int; refinement=false)
-  n_size = refinement == false ? 3 : 6
+function SOPBuffer(M::Int, N::Int; refinement=OrdinaryType())
+  n_size = _n_sop_types(refinement)
   return SOPBuffer(
     compute_lookup_array_sop(),
     zeros(4),
     zeros(Int, 4),
     zeros(Int, 24),
     zeros(n_size),
-    create_index_sop(refinement=refinement),
+    create_index_sop(refinement),
     zeros(M, N)
   )
 end
@@ -66,7 +66,7 @@ end
 # ------------------------------------------------------------------------------
 # 3. STATISTIC CALCULATION
 # ------------------------------------------------------------------------------
-function stat_sop!(buffer::SOPBuffer, data, d1::Int, d2::Int; chart_choice, refinement=false)
+function stat_sop!(buffer::SOPBuffer, data, d1::Int, d2::Int; chart_choice, refinement=OrdinaryType())
   (; lookup_array_sop, sop, win, sop_freq, p_hat, index_sop) = buffer
 
   fill!(sop_freq, 0)
@@ -87,7 +87,7 @@ end
 """
     bootstrap_sop(
       data::Matrix{<:Real}, n_boot::Int, d1::Int, d2::Int;
-      chart_choice=TauTilde(), refinement=false, block_size::Int=1
+      chart_choice=TauTilde(), refinement=OrdinaryType(), block_size::Int=1
     )
 
 Generate a bootstrap distribution of the SOP statistic for a single spatial image.
@@ -97,7 +97,7 @@ Generate a bootstrap distribution of the SOP statistic for a single spatial imag
 - `d1::Int`: Row delay.
 - `d2::Int`: Column delay.
 - `chart_choice`: The chart statistic type (e.g. `TauTilde()`, `KappaTilde()`).
-- `refinement`: `false` for classical types, or a `RefinedType` instance.
+- `refinement`: [`OrdinaryType`](@ref)`()` for classical types, or a `RefinedType` instance.
 - `block_size`: Set > 1 to use 2D block bootstrap and preserve spatial dependencies.
 """
 function bootstrap_sop(
@@ -106,7 +106,7 @@ function bootstrap_sop(
   d1::Int,
   d2::Int;
   chart_choice=TauTilde(),
-  refinement=false,
+  refinement=OrdinaryType(),
   block_size::Int=1
 )
 
@@ -218,7 +218,7 @@ function test_sop_bootstrap(
   d1::Int,
   d2::Int;
   chart_choice = TauTilde(),
-  refinement = false,
+  refinement = OrdinaryType(),
   alpha::Float64 = 0.05,
   block_size::Int = 1
 )

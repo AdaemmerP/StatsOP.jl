@@ -33,7 +33,7 @@ results across calls, or fix the seed for reproducibility.
 - `arl_truncation_factor=50`: Individual simulation runs are capped at
   `arl_truncation_factor * L0` steps during bracketing.
 - `chart_choice=TauTilde()`: Control chart statistic to use.
-- `refinement=false`: Whether to apply a refined chart computation.
+- `refinement=OrdinaryType()`: SOP classification; a `RefinedType` applies a refined chart computation.
 - `cl_tol=1e-4`: Absolute convergence tolerance on `cl` for the ITP phase.
 - `seed=nothing`: Random seed for reproducibility.
 - `verbose=false`: If `true`, prints progress information at each evaluation.
@@ -54,7 +54,7 @@ function cl_sop_bp(
     bracket_step=0.001,
     arl_truncation_factor=50,
     chart_choice=TauTilde(),
-    refinement=false,
+    refinement=OrdinaryType(),
     verbose=false,
     cl_tol=1e-4,
     seed=nothing

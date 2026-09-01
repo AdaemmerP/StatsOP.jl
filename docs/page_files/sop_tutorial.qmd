@@ -30,25 +30,25 @@ A spatial ordinal pattern (SOP) test asks whether the frequencies of rank permut
 
 ## Key functions
 
-- **`stat_sop(data, d1, d2; chart_choice, refinement=false)`**
+- **`stat_sop(data, d1, d2; chart_choice, refinement=OrdinaryType())`**
 
     - Returns `[test_statistic, pattern_frequencies]`.
     - `data`: the 2D image (`Matrix`). `d1`: row delay. `d2`: column delay.
     - `chart_choice`: one of `TauTilde()`, `TauHat()`, `KappaTilde()`, `KappaHat()`, `DistanceToWhiteNoise()`, `Shannon()`, `ShannonExtropy()`.
-    - `refinement`: `false` for classical types, or `RotationType()`, `DirectionType()`, `DiagonalType()`.
+    - `refinement`: `OrdinaryType()` for classical types, or `RotationType()`, `DirectionType()`, `DiagonalType()`.
 
-- **`test_sop(data, d1, d2; chart_choice, refinement=false, alpha=0.05)`**
+- **`test_sop(data, d1, d2; chart_choice, refinement=OrdinaryType(), alpha=0.05)`**
 
     - Returns an `SOPTestResult` with the test statistic, critical value, p-value, and reject decision.
     - Critical value, p-value, and rejection direction are chosen automatically from `chart_choice`.
     - `alpha`: significance level.
 
-- **`bootstrap_sop(data, n_boot, d1, d2; chart_choice, refinement=false, block_size=1)`**
+- **`bootstrap_sop(data, n_boot, d1, d2; chart_choice, refinement=OrdinaryType(), block_size=1)`**
 
     - Returns a length-`n_boot` vector of resampled statistics under $H_0$.
     - `block_size > 1`: 2D block bootstrap that preserves spatial structure.
 
-- **`test_sop_bootstrap(data, n_boot, d1, d2; chart_choice, refinement=false, alpha=0.05, block_size=1)`**
+- **`test_sop_bootstrap(data, n_boot, d1, d2; chart_choice, refinement=OrdinaryType(), alpha=0.05, block_size=1)`**
 
     - Returns an `SOPTestResultBoot` struct with the bootstrap critical value, p-value, and reject decision.
     - For Tau/Kappa charts: two-sided bootstrap using the raw statistic.

@@ -131,7 +131,7 @@ end
 
 @testset "test_sop — matches crit_val_sop and stat_sop" begin
   data = _sop_image(4)
-  for cc in _SOP_TK_CHARTS, rf in (false,)
+  for cc in _SOP_TK_CHARTS, rf in (OrdinaryType(),)
     res = test_sop(data, 1, 1; chart_choice=cc, refinement=rf, alpha=0.02)
     @test res.asymp_crit ≈ crit_val_sop(size(data, 1), size(data, 2), 1, 1;
       chart_choice=cc, refinement=rf, alpha=0.02)

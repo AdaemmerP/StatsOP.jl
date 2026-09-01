@@ -62,6 +62,14 @@ website:
         - section: "Types for generalized ordinal patterns"
           contents:
             - reference/D_Chart.qmd
+        - section: "SOP classifications"
+          contents:
+            - reference/SOPClassification.qmd
+            - reference/OrdinaryType.qmd
+            - reference/RefinedType.qmd
+            - reference/RotationType.qmd
+            - reference/DirectionType.qmd
+            - reference/DiagonalType.qmd
         - section: "Types for spatial ordinal patterns"
           contents:
             - reference/SAR11.qmd

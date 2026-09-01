@@ -1,8 +1,8 @@
 
 """
-    stat_sop_bp(data, w; chart_choice=TauTilde(), refinement=false, add_noise=false,
+    stat_sop_bp(data, w; chart_choice=TauTilde(), refinement=OrdinaryType(), add_noise=false,
       noise_dist=Uniform(0, 1))
-    stat_sop_bp(data, lam, w; chart_choice=TauTilde(), refinement=false, add_noise=false,
+    stat_sop_bp(data, lam, w; chart_choice=TauTilde(), refinement=OrdinaryType(), add_noise=false,
       noise_dist=Uniform(0, 1), stat_ic=0.0, type_freq_init=1/3)
 
 Compute the Box-Pierce (BP) type statistic for spatial ordinal patterns (SOPs), which
@@ -19,7 +19,7 @@ of sequentially computed chart statistics.
 - `w::Int`: window size; delays `1:w` in both directions are used.
 - `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`,
   [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`.
-- `refinement`: `false` for the classical SOP classification, or one of
+- `refinement`: [`OrdinaryType`](@ref)`()` for the classical SOP classification, or one of
   [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`.
 - `add_noise::Bool=false`: add noise from `noise_dist` to the data to break ties.
 - `noise_dist::UnivariateDistribution=Uniform(0, 1)`: noise distribution.
@@ -30,7 +30,7 @@ function stat_sop_bp(
   data::Union{SubArray,Matrix{<:Real}},
   w::Int;
   chart_choice=TauTilde(),
-  refinement::Union{Bool,RefinedType}=false,
+  refinement::SOPClassification=OrdinaryType(),
   add_noise::Bool=false,
   noise_dist::UnivariateDistribution=Uniform(0, 1)
 )
@@ -49,7 +49,7 @@ function stat_sop_bp(
   d1_d2_combinations = Iterators.product(1:w, 1:w)
 
   # Pre-allocate indexes to compute sum of frequencies
-  index_sop = create_index_sop(refinement=refinement)
+  index_sop = create_index_sop(refinement)
 
   # Add noise?
   if add_noise
@@ -87,7 +87,7 @@ function stat_sop_bp(
   lam,
   w::Int;
   chart_choice=TauTilde(),
-  refinement::Union{Bool,RefinedType}=false,
+  refinement::SOPClassification=OrdinaryType(),
   add_noise=false,
   noise_dist::UnivariateDistribution=Uniform(0, 1),
   stat_ic::Union{Float64,Vector{Float64}}=0.0,
@@ -116,13 +116,7 @@ function stat_sop_bp(
   end
 
   # Pre-allocate for BP-computations
-  if refinement == 0
-    # classical approach
-    p_ewma_all = zeros(3, 1, length_d1d2)
-  else
-    # refined approach
-    p_ewma_all = zeros(6, 1, length_d1d2)
-  end
+  p_ewma_all = zeros(_n_sop_types(refinement), 1, length_d1d2)
   bp_stats_all = zeros(size(data, 3))
   p_ewma_all .= type_freq_init
   stat_ic_vec = zeros(length_d1d2)

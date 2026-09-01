@@ -6,7 +6,7 @@ engine: julia
 
 
 [arl_sop_oc(spatial_dgp, lam, cl, d1, d2, reps=10_000; chart_choice=TauTilde(),
-  refinement=false, rl_max=typemax(Int))](reference/arl_sop_oc.qmd)
+  refinement=OrdinaryType(), rl_max=typemax(Int))](reference/arl_sop_oc.qmd)
 
 > Compute the out-of-control average run length (ARL) of the EWMA chart based on spatial ordinal patterns (SOPs) via simulation. The computation is multithreaded.
 
@@ -40,7 +40,7 @@ engine: julia
 
 
 [arl_sop_ic(sop_dgp, lam, cl, d1, d2, reps=10_000; chart_choice=TauTilde(),
-  refinement=false, rl_max=typemax(Int))](reference/arl_sop_ic.qmd)
+  refinement=OrdinaryType(), rl_max=typemax(Int))](reference/arl_sop_ic.qmd)
 
 > Compute the in-control average run length (ARL) of the EWMA chart based on spatial ordinal patterns (SOPs) via simulation. The computation is multithreaded.
 
@@ -154,9 +154,16 @@ engine: julia
 
 
 [arl_sop_bp_oc(spatial_dgp, lam, cl, w, reps=1_000; chart_choice=TauTilde(),
-  refinement=false, rl_max=typemax(Int))](reference/arl_sop_bp_oc.qmd)
+  refinement=OrdinaryType(), rl_max=typemax(Int))](reference/arl_sop_bp_oc.qmd)
 
 > Compute the out-of-control average run length (ARL) of the EWMA chart based on the Box-Pierce type statistic for spatial ordinal patterns (SOPs) via simulation. The computation is multithreaded.
+
+---
+
+
+[SOPClassification](reference/SOPClassification.qmd)
+
+> Abstract supertype for the classification schemes of spatial ordinal patterns (SOPs) and the type of every `refinement` argument in the package. The concrete schemes are [`OrdinaryType`](@ref) for the...
 
 ---
 
@@ -472,7 +479,7 @@ chart_stat_gop(p_p0, G1G, ::G_Chart)](reference/chart_stat_gop.qmd)
 
 [bootstrap_sop(
   data::Matrix{<:Real}, n_boot::Int, d1::Int, d2::Int;
-  chart_choice=TauTilde(), refinement=false, block_size::Int=1
+  chart_choice=TauTilde(), refinement=OrdinaryType(), block_size::Int=1
 )](reference/bootstrap_sop.qmd)
 
 > Generate a bootstrap distribution of the SOP statistic for a single spatial image.
@@ -509,7 +516,7 @@ stat_op(data, lam; chart_choice, m=3, d=1, add_noise=false)](reference/stat_op.q
 ---
 
 
-[create_index_sop(; refinement)](reference/create_index_sop.qmd)
+[create_index_sop(refinement)](reference/create_index_sop.qmd)
 
 > Create and return the index of the sops for sortperm values. The type frequencies are based on the ranks of the sops, but we use sortperm to compute the order of the elements in the vector.
 
@@ -630,7 +637,7 @@ arl_acf_ic(lam, cl, acf_dgp, reps, acf_version; ced=false, ad=100, rl_max=typema
 ---
 
 
-[stat_sop(data, d1, d2; chart_choice, refinement=false, add_noise=false,
+[stat_sop(data, d1, d2; chart_choice, refinement=OrdinaryType(), add_noise=false,
   noise_dist=Uniform(0, 1))](reference/stat_sop.qmd)
 
 > Compute the test statistic based on spatial ordinal patterns (SOPs) for a single picture (matrix). Returns the tuple `(stat, p_hat)` with the chart statistic and the vector of relative SOP type freque...
@@ -638,7 +645,7 @@ arl_acf_ic(lam, cl, acf_dgp, reps, acf_version; ced=false, ad=100, rl_max=typema
 ---
 
 
-[stat_sop(data, lam, d1, d2; chart_choice=TauTilde(), refinement=false,
+[stat_sop(data, lam, d1, d2; chart_choice=TauTilde(), refinement=OrdinaryType(),
   add_noise=false, noise_dist=Uniform(0, 1), type_freq_init=1/3)](reference/stat_sop.qmd)
 
 > Compute the sequence of EWMA-smoothed test statistics based on spatial ordinal patterns (SOPs) for a 3D array of data (image sequence, third dimension = time).
@@ -718,7 +725,7 @@ arl_acf_ic(lam, cl, acf_dgp, reps, acf_version; ced=false, ad=100, rl_max=typema
 
 
 [arl_sop_bp_ic(spatial_dgp, lam, cl, w, reps=1_000; chart_choice=TauTilde(),
-  refinement=false, rl_max=typemax(Int))](reference/arl_sop_bp_ic.qmd)
+  refinement=OrdinaryType(), rl_max=typemax(Int))](reference/arl_sop_bp_ic.qmd)
 
 > Compute the in-control average run length (ARL) of the EWMA chart based on the Box-Pierce type statistic for spatial ordinal patterns (SOPs) via simulation. The computation is multithreaded.
 
@@ -744,7 +751,7 @@ arl_acf_ic(lam, cl, acf_dgp, reps, acf_version; ced=false, ad=100, rl_max=typema
 
 [bootstrap_sop_bp(
   data::Matrix{<:Real}, n_boot::Int, w::Int;
-  chart_choice=TauTilde(), refinement=false, block_size::Int=1
+  chart_choice=TauTilde(), refinement=OrdinaryType(), block_size::Int=1
 )](reference/bootstrap_sop_bp.qmd)
 
 > Generate a bootstrap distribution of the BP-SOP statistic for a single spatial image.
@@ -816,7 +823,7 @@ arl_acf_ic(lam, cl, acf_dgp, reps, acf_version; ced=false, ad=100, rl_max=typema
 ---
 
 
-[crit_val_sop(M, N, d1, d2; chart_choice, refinement=false, alpha=0.05)](reference/crit_val_sop.qmd)
+[crit_val_sop(M, N, d1, d2; chart_choice, refinement=OrdinaryType(), alpha=0.05)](reference/crit_val_sop.qmd)
 
 > Compute the critical value for the asymptotic test based on spatial ordinal patterns (SOPs); see [`test_sop`](@ref).
 
@@ -881,10 +888,9 @@ spatial_dgp::ICSP, lam, cl, d1::Int, d2::Int, p_reps::UnitRange, dist_error::Uni
 ---
 
 
-[rl_sop_bp_ic(spatial_dgp, lam, cl, w, lookup_array_sop, reps_range, dist_error,
-  chart_choice, refinement, rl_max=typemax(Int))](reference/rl_sop_bp_ic.qmd)
+[OrdinaryType](reference/OrdinaryType.qmd)
 
-> Compute in-control run lengths of the EWMA chart based on the Box-Pierce type statistic for spatial ordinal patterns (SOPs), for a chunk of replications. This is the single-threaded worker used by [`a...
+> Classical ("ordinary") classification of spatial ordinal patterns (SOPs) into three types; see Weiß and Kim (2024). It is the default `refinement` of every SOP function.
 
 ---
 
@@ -957,6 +963,14 @@ spatial_dgp::ICSP, lam, cl, d1::Int, d2::Int, p_reps::UnitRange, dist_error::Uni
 [compute_p_array(data::Array{T,3})](reference/compute_p_array.qmd)
 
 > Compute the matrix of p-hat values for a given 3D array of data when the delays are integers. These values are used for bootstrapping.
+
+---
+
+
+[rl_sop_bp_ic(spatial_dgp, lam, cl, w, lookup_array_sop, reps_range, dist_error,
+  chart_choice, refinement, rl_max=typemax(Int))](reference/rl_sop_bp_ic.qmd)
+
+> Compute in-control run lengths of the EWMA chart based on the Box-Pierce type statistic for spatial ordinal patterns (SOPs), for a chunk of replications. This is the single-threaded worker used by [`a...
 
 ---
 
@@ -1067,9 +1081,9 @@ spatial_dgp::ICSP, lam, cl, d1::Int, d2::Int, p_reps::UnitRange, dist_error::Uni
 ---
 
 
-[stat_sop_bp(data, w; chart_choice=TauTilde(), refinement=false, add_noise=false,
+[stat_sop_bp(data, w; chart_choice=TauTilde(), refinement=OrdinaryType(), add_noise=false,
   noise_dist=Uniform(0, 1))
-stat_sop_bp(data, lam, w; chart_choice=TauTilde(), refinement=false, add_noise=false,
+stat_sop_bp(data, lam, w; chart_choice=TauTilde(), refinement=OrdinaryType(), add_noise=false,
   noise_dist=Uniform(0, 1), stat_ic=0.0, type_freq_init=1/3)](reference/stat_sop_bp.qmd)
 
 > Compute the Box-Pierce (BP) type statistic for spatial ordinal patterns (SOPs), which aggregates the squared chart statistics over all delay combinations `(d1, d2) ∈ {1,…,w} × {1,…,w}`.
@@ -1105,7 +1119,7 @@ stat_sop_bp(data, lam, w; chart_choice=TauTilde(), refinement=false, add_noise=f
 ---
 
 
-[test_sop(data, d1, d2; chart_choice, refinement=false, alpha=0.05, add_noise=false)](reference/test_sop.qmd)
+[test_sop(data, d1, d2; chart_choice, refinement=OrdinaryType(), alpha=0.05, add_noise=false)](reference/test_sop.qmd)
 
 > Perform the asymptotic hypothesis test for spatial dependence based on spatial ordinal patterns (SOPs) and return a [`SOPTestResult`](@ref) with the test statistic, the asymptotic critical value, the ...
 
@@ -1171,7 +1185,7 @@ stat_sop_bp(data, lam, w; chart_choice=TauTilde(), refinement=false, add_noise=f
 ---
 
 
-[rl_sop_bootstrap(p_mat, lam, cl, reps_range, chart_choice, refinement=false,
+[rl_sop_bootstrap(p_mat, lam, cl, reps_range, chart_choice, refinement=OrdinaryType(),
   rl_max=typemax(Int))](reference/rl_sop_bootstrap.qmd)
 
 > Compute run lengths for a given control limit using bootstrapping instead of a theoretical in-control distribution, for a chunk of replications. This is the single-threaded worker used by [`arl_sop_bo...
@@ -1202,7 +1216,7 @@ stat_sop_bp(data, lam, w; chart_choice=TauTilde(), refinement=false, add_noise=f
 
 
 [arl_sop_bootstrap(p_mat, lam, cl, reps=10_000; chart_choice=TauTilde(),
-  refinement=false, rl_max=typemax(Int))](reference/arl_sop_bootstrap.qmd)
+  refinement=OrdinaryType(), rl_max=typemax(Int))](reference/arl_sop_bootstrap.qmd)
 
 > Compute the average run length (ARL) using a bootstrap approach for a particular delay (d₁-d₂) combination. The computation is multithreaded.
 

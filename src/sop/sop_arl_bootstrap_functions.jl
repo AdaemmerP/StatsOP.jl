@@ -1,7 +1,7 @@
 
 """
     arl_sop_bootstrap(p_mat, lam, cl, reps=10_000; chart_choice=TauTilde(),
-      refinement=false, rl_max=typemax(Int))
+      refinement=OrdinaryType(), rl_max=typemax(Int))
 
 Compute the average run length (ARL) using a bootstrap approach for a particular
 delay (d₁-d₂) combination. The computation is multithreaded.
@@ -12,14 +12,14 @@ delay (d₁-d₂) combination. The computation is multithreaded.
 - `reps::Int`: An integer value for the number of repetitions. The default value is 10,000.
 - `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`,
   [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`.
-- `refinement`: `false` for the classical SOP classification, or one of
+- `refinement`: [`OrdinaryType`](@ref)`()` for the classical SOP classification, or one of
   [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`.
 - `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
 
 Returns the tuple `(ARL, standard error)`.
 """
 function arl_sop_bootstrap(
-  p_mat::Array{Float64,2}, lam, cl, reps=10_000; chart_choice=TauTilde(), refinement=false, rl_max::Int=typemax(Int)
+  p_mat::Array{Float64,2}, lam, cl, reps=10_000; chart_choice=TauTilde(), refinement=OrdinaryType(), rl_max::Int=typemax(Int)
 )
 
   # Number of chunks for load balancing
@@ -40,7 +40,7 @@ end
 
 
 """
-    rl_sop_bootstrap(p_mat, lam, cl, reps_range, chart_choice, refinement=false,
+    rl_sop_bootstrap(p_mat, lam, cl, reps_range, chart_choice, refinement=OrdinaryType(),
       rl_max=typemax(Int))
 
 Compute run lengths for a given control limit using bootstrapping instead of a
@@ -55,13 +55,13 @@ of each d1-d2 (delay) combination. This matrix will be used for re-sampling.
 This has to be a range to be compatible with `arl_sop_bootstrap()` which uses threading.
 - `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`,
   [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`.
-- `refinement`: `false` for the classical SOP classification, or one of
+- `refinement`: [`OrdinaryType`](@ref)`()` for the classical SOP classification, or one of
   [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`.
 - `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
 
 Returns a vector of run lengths.
 """
-function rl_sop_bootstrap(p_mat::Array{Float64,2}, lam, cl, reps_range::UnitRange{Int}, chart_choice, refinement=false, rl_max::Int=typemax(Int))
+function rl_sop_bootstrap(p_mat::Array{Float64,2}, lam, cl, reps_range::UnitRange{Int}, chart_choice, refinement=OrdinaryType(), rl_max::Int=typemax(Int))
 
   # Pre-allocate
   n_size = _n_sop_types(refinement)

@@ -10,7 +10,7 @@ engine: markdown
 
 ```julia
 arl_sop_oc(spatial_dgp, lam, cl, d1, d2, reps=10_000; chart_choice=TauTilde(),
-  refinement=false, rl_max=typemax(Int))
+  refinement=OrdinaryType(), rl_max=typemax(Int))
 ```
 Compute the out-of-control average run length (ARL) of the EWMA chart based on spatial ordinal patterns (SOPs) via simulation. The computation is multithreaded.
  
@@ -20,7 +20,7 @@ Compute the out-of-control average run length (ARL) of the EWMA chart based on s
   * `d1::Int`, `d2::Int`: row and column delays.
   * `reps::Int=10_000`: number of replications.
   * `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`, [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`.
-  * `refinement`: `false` for the classical SOP classification, or one of [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`.
+  * `refinement`: [`OrdinaryType`](@ref)`()` for the classical SOP classification, or one of [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()`.
   * `rl_max::Int=typemax(Int)`: maximal run length after which a replication is stopped.
 Returns the tuple `(ARL, standard error)`.
  

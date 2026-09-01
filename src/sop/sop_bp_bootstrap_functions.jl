@@ -4,7 +4,7 @@ export bootstrap_sop_bp, test_sop_bp_bootstrap, SOPBPTestResultBoot
 # 1. STATISTIC CALCULATION
 # ------------------------------------------------------------------------------
 # SOPBuffer and resample_2d! are defined in sop_bootstrap_functions.jl (included earlier)
-function stat_sop_bp!(buffer::SOPBuffer, data, w::Int; chart_choice, refinement=false)
+function stat_sop_bp!(buffer::SOPBuffer, data, w::Int; chart_choice, refinement=OrdinaryType())
   (; lookup_array_sop, sop, win, sop_freq, p_hat, index_sop) = buffer
 
   M_rows = size(data, 1)
@@ -33,7 +33,7 @@ end
 """
     bootstrap_sop_bp(
       data::Matrix{<:Real}, n_boot::Int, w::Int;
-      chart_choice=TauTilde(), refinement=false, block_size::Int=1
+      chart_choice=TauTilde(), refinement=OrdinaryType(), block_size::Int=1
     )
 
 Generate a bootstrap distribution of the BP-SOP statistic for a single spatial image.
@@ -42,7 +42,7 @@ Generate a bootstrap distribution of the BP-SOP statistic for a single spatial i
 - `n_boot`: Number of bootstrap replications.
 - `w::Int`: Window size; all (d1, d2) ∈ {1,…,w}² are included in the BP sum.
 - `chart_choice`: The chart statistic type (e.g. `TauTilde()`, `KappaTilde()`).
-- `refinement`: `false` for classical types, or a `RefinedType` instance.
+- `refinement`: [`OrdinaryType`](@ref)`()` for classical types, or a `RefinedType` instance.
 - `block_size`: Set > 1 to use 2D block bootstrap and preserve spatial dependencies.
 """
 function bootstrap_sop_bp(
@@ -50,7 +50,7 @@ function bootstrap_sop_bp(
   n_boot::Int,
   w::Int;
   chart_choice=TauTilde(),
-  refinement=false,
+  refinement=OrdinaryType(),
   block_size::Int=1
 )
 
@@ -133,7 +133,7 @@ No asymptotic theory is available for the BP-SOP statistic, so — unlike the si
 - `w`: window size; all `(d1, d2) ∈ {1,…,w}²` are included in the BP sum.
 - `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`,
   [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`.
-- `refinement`: `false` for the classical SOP classification, or a `RefinedType` instance.
+- `refinement`: [`OrdinaryType`](@ref)`()` for the classical SOP classification, or a `RefinedType` instance.
 - `alpha`: significance level (default `0.05`).
 - `block_size`: set `> 1` for a 2D block bootstrap that preserves spatial dependencies.
 """
@@ -142,7 +142,7 @@ function test_sop_bp_bootstrap(
   n_boot::Int,
   w::Int;
   chart_choice = TauTilde(),
-  refinement = false,
+  refinement = OrdinaryType(),
   alpha::Float64 = 0.05,
   block_size::Int = 1
 )

@@ -19,7 +19,7 @@ No asymptotic theory is available for the BP-SOP statistic, so — unlike the si
   * `n_boot`: number of bootstrap replications.
   * `w`: window size; all `(d1, d2) ∈ {1,…,w}²` are included in the BP sum.
   * `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`, [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`.
-  * `refinement`: `false` for the classical SOP classification, or a `RefinedType` instance.
+  * `refinement`: [`OrdinaryType`](@ref)`()` for the classical SOP classification, or a `RefinedType` instance.
   * `alpha`: significance level (default `0.05`).
   * `block_size`: set `> 1` for a 2D block bootstrap that preserves spatial dependencies.
 
