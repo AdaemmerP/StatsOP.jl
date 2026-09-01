@@ -615,3 +615,258 @@
       border: 1px solid #dee2e6;
     }
 
+
+/* ==========================================================================
+   Landing page (docs/index.qmd)
+
+   Everything below is namespaced with `sop-` and is self contained, so it does
+   not interact with the quarto.org starter CSS above it. The palette is taken
+   from op_logo.svg, which is drawn in the four official Julia colours.
+   ========================================================================== */
+
+:root {
+  --sop-red: #cb3c33;
+  --sop-green: #389826;
+  --sop-purple: #9558b2;
+  --sop-blue: #4063d8;
+
+  --sop-ink: #1d2330;
+  --sop-muted: #566171;
+  --sop-body: #4a5568;
+  --sop-line: #e2e8f0;
+  --sop-surface: #ffffff;
+}
+
+.sop-container {
+  max-width: 1120px;
+  margin-inline: auto;
+  padding-inline: 1.75rem;
+}
+
+/* --- Hero ---------------------------------------------------------------- */
+
+.sop-hero {
+  background:
+    radial-gradient(60rem 26rem at 12% -10%, rgba(64, 99, 216, 0.10), transparent 60%),
+    radial-gradient(48rem 24rem at 92% 8%, rgba(149, 88, 178, 0.12), transparent 62%),
+    linear-gradient(178deg, #fbfcfe 0%, #f4f7fc 100%);
+  border-bottom: 1px solid var(--sop-line);
+  padding: 4.25rem 0 3.25rem;
+}
+
+.sop-hero-inner {
+  display: flex;
+  align-items: center;
+  gap: 3.5rem;
+}
+
+.sop-hero-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sop-hero-logo {
+  flex: 0 0 250px;
+}
+
+.sop-hero-logo img {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 14px 32px rgba(29, 35, 48, 0.16));
+}
+
+.sop-title {
+  /* The package name is one long unbreakable word, so the lower bound of the
+     clamp has to stay small enough for it to fit a phone viewport. */
+  font-size: clamp(1.5rem, 6.4vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  color: var(--sop-ink);
+  margin: 0 0 0.85rem;
+  overflow-wrap: break-word;
+}
+
+.sop-tagline {
+  font-size: clamp(1.1rem, 1.9vw, 1.35rem);
+  line-height: 1.45;
+  color: var(--sop-body);
+  font-weight: 400;
+  margin: 0 0 1rem;
+  max-width: 34em;
+}
+
+.sop-lede {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--sop-body);
+  max-width: 36em;
+  margin: 0;
+}
+
+/* --- Buttons ------------------------------------------------------------- */
+
+.sop-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1.9rem 0 0;
+}
+
+.sop-btn {
+  display: inline-block;
+  padding: 0.62rem 1.5rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.sop-btn:hover {
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+
+.sop-btn-primary {
+  background-color: var(--sop-blue);
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(64, 99, 216, 0.28);
+}
+
+.sop-btn-primary:hover {
+  background-color: #3453c4;
+  color: #fff;
+  box-shadow: 0 10px 22px rgba(64, 99, 216, 0.34);
+}
+
+.sop-btn-secondary {
+  background-color: var(--sop-surface);
+  border-color: var(--sop-line);
+  color: var(--sop-ink);
+}
+
+.sop-btn-secondary:hover {
+  border-color: #c3cddc;
+  color: var(--sop-ink);
+}
+
+/* --- Sections ------------------------------------------------------------ */
+
+.sop-section {
+  padding: 3.5rem 0;
+}
+
+.sop-section-alt {
+  background-color: #fafbfd;
+  border-top: 1px solid var(--sop-line);
+  border-bottom: 1px solid var(--sop-line);
+}
+
+.sop-section-title {
+  font-size: 1.6rem;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  color: var(--sop-ink);
+  margin: 0 0 0.5rem;
+}
+
+.sop-section-sub {
+  color: var(--sop-body);
+  margin: 0 0 2rem;
+  max-width: 46em;
+}
+
+/* --- Feature cards ------------------------------------------------------- */
+
+.sop-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(232px, 1fr));
+  gap: 1.4rem;
+}
+
+.sop-card {
+  background-color: var(--sop-surface);
+  border: 1px solid var(--sop-line);
+  border-top: 3px solid var(--sop-blue);
+  border-radius: 10px;
+  padding: 1.4rem 1.35rem 1.5rem;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.sop-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 26px rgba(29, 35, 48, 0.09);
+}
+
+.sop-card p {
+  color: var(--sop-body);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.sop-card-title {
+  display: block;
+  font-size: 1.06rem;
+  font-weight: 650;
+  color: var(--sop-ink);
+  margin-bottom: 0.55rem;
+  text-decoration: none;
+}
+
+.sop-card-title:hover {
+  text-decoration: underline;
+}
+
+.sop-card-op { border-top-color: var(--sop-red); }
+.sop-card-gop { border-top-color: var(--sop-green); }
+.sop-card-sop { border-top-color: var(--sop-purple); }
+.sop-card-rep { border-top-color: var(--sop-blue); }
+
+/* --- Example ------------------------------------------------------------- */
+
+.sop-example .sourceCode,
+.sop-example pre {
+  border-radius: 8px;
+}
+
+.sop-example div.cell-output pre {
+  background-color: #f6f8fb;
+  border: 1px solid var(--sop-line);
+}
+
+/* --- Closing call to action ---------------------------------------------- */
+
+.sop-cta {
+  text-align: center;
+  padding: 3.25rem 0 3.75rem;
+}
+
+.sop-cta .sop-buttons {
+  justify-content: center;
+}
+
+/* --- Narrow screens ------------------------------------------------------ */
+
+@media (max-width: 860px) {
+  .sop-hero {
+    padding: 3rem 0 2.5rem;
+  }
+
+  .sop-hero-logo {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .sop-container {
+    padding-inline: 1.15rem;
+  }
+
+  .sop-section {
+    padding: 2.5rem 0;
+  }
+}
+

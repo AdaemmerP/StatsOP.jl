@@ -1,15 +1,136 @@
 ---
-nocite: |
-  @bandt2002
-  @bandt2007
-  @keller2007
-  @schnurr2017
-  @weiss2021
-  @weiss2022
-  @weiss2023
+pagetitle: "StatsOrdinalPatterns.jl"
+page-layout: custom
+section-divs: false
+toc: false
+engine: julia
+julia:
+  exeflags: ["--project=."]
 ---
 
-#  StatsOrdinalPatterns.jl 
+::: {.sop-hero}
+::: {.sop-container}
+::: {.sop-hero-inner}
 
+::: {.sop-hero-text}
 
-`StatsOrdinalPatterns.jl` is a Julia package that provides functions to conduct (sequential) tests for time series data, using ordinal patterns. The package builds on the seminal work of @bandt2002. The package is highly optimized and fast. The package is designed to be easy to use and provides a simple interface to compute ordinal patterns from time series data.
+[StatsOrdinalPatterns.jl]{.sop-title}
+
+[Distribution-free tests for serial and spatial dependence, built on ordinal patterns.]{.sop-tagline}
+
+[Ordinal patterns replace the values of a data set by the rank order within small windows. The resulting frequencies say a great deal about the dependence structure while staying invariant under monotone transformations and robust to outliers. This package turns that idea into fast tests and control charts for time series, count data and spatial grids.]{.sop-lede}
+
+::: {.sop-buttons}
+[Get started](page_files/op_tutorial.qmd){.sop-btn .sop-btn-primary role="button"}
+[View on GitHub](https://github.com/AdaemmerP/StatsOrdinalPatterns.jl){.sop-btn .sop-btn-secondary role="button"}
+:::
+
+:::
+
+::: {.sop-hero-logo}
+![](op_logo.svg){alt="StatsOrdinalPatterns.jl logo"}
+:::
+
+:::
+:::
+:::
+
+::: {.sop-section .sop-section-alt}
+::: {.sop-container}
+
+[What the package covers]{.sop-section-title}
+
+[Three pattern families, each with descriptive statistics, hypothesis tests and sequential monitoring.]{.sop-section-sub}
+
+::: {.sop-cards}
+
+::: {.sop-card .sop-card-op}
+[Ordinal Patterns](page_files/op.qmd){.sop-card-title}
+
+Serial dependence in continuous time series. Seven chart statistics, asymptotic and bootstrap inference, and EWMA control charts.
+:::
+
+::: {.sop-card .sop-card-gop}
+[Generalized Ordinal Patterns](page_files/gop_tutorials.qmd){.sop-card-title}
+
+Discrete and rounded data where ties occur. Cayley permutations keep the ties intact instead of breaking them artificially.
+:::
+
+::: {.sop-card .sop-card-sop}
+[Spatial Ordinal Patterns](page_files/sop.qmd){.sop-card-title}
+
+Dependence on gridded data, read off the rank order inside small neighbourhoods such as a 2×2 block.
+:::
+
+::: {.sop-card .sop-card-rep}
+[Reproducible papers](page_files/op_replication_weiss_2022.qmd){.sop-card-title}
+
+A growing set of published studies, replicated from source and re-executed every time the site is built. Weiß (2022) and Weiß and Testik (2023) are available now.
+:::
+
+:::
+
+:::
+:::
+
+::: {.sop-section}
+::: {.sop-container}
+
+[A test in five lines]{.sop-section-title}
+
+[Simulate an AR(1) series and ask whether its ordinal pattern frequencies are consistent with white noise.]{.sop-section-sub}
+
+::: {.sop-example}
+
+```{julia}
+using StatsOrdinalPatterns, Random
+
+Random.seed!(1)
+x = zeros(500)
+for t in 2:500
+    x[t] = 0.5 * x[t-1] + randn()
+end
+
+test_op(x; chart_choice=Persistence())
+```
+
+:::
+
+The result object carries the statistic, the critical value, the p-value and the
+decision. Swapping `test_op` for `test_op_bootstrap` replaces the asymptotic
+critical value by a bootstrap one and lifts the restriction to pattern lengths
+`m = 2` and `m = 3`.
+
+:::
+:::
+
+::: {.sop-section .sop-section-alt}
+::: {.sop-container}
+
+[Installation]{.sop-section-title}
+
+[The package is not registered yet, so install it directly from GitHub.]{.sop-section-sub}
+
+```julia
+using Pkg
+Pkg.add(url = "https://github.com/AdaemmerP/StatsOrdinalPatterns.jl")
+```
+
+:::
+:::
+
+::: {.sop-cta}
+::: {.sop-container}
+
+[Where to go next]{.sop-section-title}
+
+[Work through a tutorial, or look up a function in the reference.]{.sop-section-sub}
+
+::: {.sop-buttons}
+[Time series tutorial](page_files/op_tutorial.qmd){.sop-btn .sop-btn-primary role="button"}
+[Spatial tutorial](page_files/sop_tutorial.qmd){.sop-btn .sop-btn-secondary role="button"}
+[API reference](page_files/api_reference.qmd){.sop-btn .sop-btn-secondary role="button"}
+:::
+
+:::
+:::

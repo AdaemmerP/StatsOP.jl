@@ -5,7 +5,9 @@ project:
 bibliography: references.bib
 
 execute:
-  freeze: false
+  # `auto` re-executes a page only when its source changed. Without it every
+  # render recomputes the replication tutorials, which takes minutes.
+  freeze: auto
   cache: true
   warning: false
 website:
@@ -18,7 +20,10 @@ website:
     type: overlay
 
   navbar:
-    background: primary
+    # Julia blue, matching the circle outlines in op_logo.svg and the landing
+    # page accents. `primary` would be #593196, the pulse theme's own violet,
+    # which is not one of the Julia colours.
+    background: "#4063d8"
     logo: op_logo.svg
 
     left:
