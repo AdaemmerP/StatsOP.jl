@@ -95,6 +95,8 @@ draw_field!(dgp, mat, mat_ao, mat_ma) =
 ## A single test
 
 ```{julia}
+#| code-fold: true
+#| code-summary: "One field of DGP 4 and one SOP test"
 Random.seed!(1)
 dgp = sqma11((2, 2, 2), 10, 10)
 Y = collect(draw_field!(dgp, buffers(dgp)...))   # copy out of the buffer
@@ -178,6 +180,8 @@ rate is at most $\sqrt{0.25 / 10^4} = 0.005$.
 
 ```{julia}
 #| output: false
+#| code-fold: true
+#| code-summary: "Run the study for every model and field size"
 res = Dict(
     (name, m, n) => power(m, n, eps, reps; level=level)
     for (name, _, eps) in models for (m, n) in sizes
