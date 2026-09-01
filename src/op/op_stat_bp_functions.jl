@@ -4,23 +4,23 @@
 ################################################################################
 
 """
-    stat_op_bp(data; chart_choice, m=3, w=3, ljung_box=false)
+    stat_op_bp(data, w; chart_choice, m=3, ljung_box=false)
 
 Compute the Box-Pierce (BP) type test statistic for ordinal patterns, which aggregates
 the chart statistics over the delays `d = 1, …, w`.
 
 - `data`: the time series.
+- `w::Int`: maximal delay; the individual statistics for delays `1:w` are aggregated.
 - `chart_choice`: one of `Shannon()`, `ShannonExtropy()`, `DistanceToWhiteNoise()`,
   `UpDownBalance()`, `Persistence()`, `RotationalAsymmetry()`, `UpDownScaling()`.
 - `m::Int=3`: length of the ordinal patterns.
-- `w=3`: maximal delay; the individual statistics for delays `1:w` are aggregated.
 - `ljung_box::Bool=false`: if `true`, use Ljung-Box (BL) weights
   (delay-specific numbers of patterns) instead of the constant Box-Pierce weight.
 
 Returns the aggregated test statistic. Critical values are provided by
 [`crit_val_op_bp`](@ref).
 """
-function stat_op_bp(data; chart_choice, m::Int=3, w=3, ljung_box::Bool=false)
+function stat_op_bp(data, w::Int; chart_choice, m::Int=3, ljung_box::Bool=false)
 
     # Compute lookup array and number of ops
     m_fact = factorial(m)
@@ -116,19 +116,20 @@ end # end of function
 
 
 """
-    crit_val_op_bp(; chart_choice, w, m, alpha=0.05)
+    crit_val_op_bp(w; chart_choice, m=3, alpha=0.05)
 
 Return the critical value for the Box-Pierce type ordinal-pattern test statistic computed
 by [`stat_op_bp`](@ref).
 
+- `w::Int`: maximal delay used in the test statistic (supported values depend on the
+  chart).
 - `chart_choice`: one of `Shannon()`, `ShannonExtropy()`, `DistanceToWhiteNoise()`,
   `UpDownBalance()`, `Persistence()`, `RotationalAsymmetry()`, `UpDownScaling()`.
-- `w`: maximal delay used in the test statistic (supported values depend on the chart).
-- `m`: length of the ordinal patterns (`2` or `3`, depending on the chart).
+- `m::Int=3`: length of the ordinal patterns (`2` or `3`, depending on the chart).
 - `alpha=0.05`: significance level. For the Shannon-, extropy- and Δ-charts with `m = 3`,
   tabulated values for `alpha = 0.05` are used.
 """
-function crit_val_op_bp(; chart_choice, w, m, alpha=0.05)
+function crit_val_op_bp(w::Int; chart_choice, m::Int=3, alpha=0.05)
 
     # ---------------------------------------------------------------------------#
     #                               op-length of 2

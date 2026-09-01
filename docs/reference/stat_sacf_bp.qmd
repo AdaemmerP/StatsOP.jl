@@ -3,15 +3,15 @@ engine: markdown
 ---
 
 # stat_sacf_bp {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
 stat_sacf_bp(
 ```
-data::Union{SubArray,Matrix{T}}, d1*vec::Vector{Int}, d2*vec::Vector{Int} ) where {T<:Real}
+data::Union{SubArray,Matrix{<:Real}}, d1*vec::Vector{Int}, d2*vec::Vector{Int} )
  
 Compute the BP-spatial autocorrelation function (BP-SACF) for multiple delay combinations (d1, d2) for a single picture.
  
@@ -21,11 +21,11 @@ Compute the BP-spatial autocorrelation function (BP-SACF) for multiple delay com
 
 
 :::
-    
+
 
  --- 
  
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -40,5 +40,5 @@ Compute the EWMA-BP-spatial autocorrelation function (EWMA-BP-SACF) for multiple
 
 
 :::
-    
+
 

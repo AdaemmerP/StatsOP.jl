@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # UpDownScaling {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -16,5 +16,5 @@ Chart choice for the δ-chart (up-down scaling) by Bandt (2019), Equation (6). F
 
 
 :::
-    
+
 

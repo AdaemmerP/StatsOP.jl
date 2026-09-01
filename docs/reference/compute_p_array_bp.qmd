@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # compute_p_array_bp {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -16,5 +16,5 @@ Compute the array of p-hat values for a given 3D array of data for all delay com
 
 
 :::
-    
+
 

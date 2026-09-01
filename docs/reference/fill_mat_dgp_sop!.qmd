@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # fill_mat_dgp_sop! {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -22,5 +22,5 @@ Returns a view of the filled data matrix restricted to the `M_rows × N_cols` fi
 
 
 :::
-    
+
 

@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # perm_to_lehm_idx! {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -15,15 +15,15 @@ Converts a permutation vector `P` into its 0-based lexicographical index. This i
  
 
 ### Arguments
-    
+
   * `P`: A permutation vector (e.g., [3, 1, 2]).
   * `used`: A vector to track used elements (should be initialized to zeros of length equal to the maximum element in `P`).
 
 ### Returns
-    
+
   * The 0-based index of the permutation.
 
 
 :::
-    
+
 

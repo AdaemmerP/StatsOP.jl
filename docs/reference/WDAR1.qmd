@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # WDAR1 {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -25,7 +25,7 @@ WDAR1(α, W, dist, add_noise)
     is an independent sequence of random variables (the innovation).
 
 ### Fields
-    
+
   * `α::Float64`: The autoregressive parameter (weighting factor). Must be in $(0, 1)$.
   * `W::Matrix{Float64}`: A matrix of weights for the past values. Each column corresponds to a different lag, and the weights in each column should sum to 1.
   * `W_samplers::Vector{Distributions.AliasTable}`: A vector of samplers corresponding to the columns of `W`, used for efficient sampling from the weighted past values.
@@ -34,5 +34,5 @@ WDAR1(α, W, dist, add_noise)
 
 
 :::
-    
+
 

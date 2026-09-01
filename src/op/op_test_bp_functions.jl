@@ -119,7 +119,7 @@ function test_op_bp(data, w::Int; chart_choice, m::Int=3, alpha=0.05, ljung_box:
     ))
   end
 
-  crit_val = crit_val_op_bp(; chart_choice=chart_choice, w=w, m=m, alpha=alpha)
+  crit_val = crit_val_op_bp(w; chart_choice=chart_choice, m=m, alpha=alpha)
 
   if crit_val === nothing
     throw(ArgumentError(
@@ -129,7 +129,7 @@ function test_op_bp(data, w::Int; chart_choice, m::Int=3, alpha=0.05, ljung_box:
     ))
   end
 
-  test_stat = stat_op_bp(data; chart_choice=chart_choice, m=m, w=w, ljung_box=ljung_box)
+  test_stat = stat_op_bp(data, w; chart_choice=chart_choice, m=m, ljung_box=ljung_box)
 
   null = _op_bp_null(chart_choice, m, w)
   p_val = null === nothing ? NaN : 1.0 - cdf(null[1], null[2] * test_stat)

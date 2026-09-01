@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # DAR1 {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -27,12 +27,12 @@ The DAR(1) model is a simple discrete-valued time series model defined by: $X_t 
     is an independent sequence of random variables (the innovation).
 
 ### Fields
-    
+
   * `α::Float64`: The autoregressive parameter (probability of selecting the previous value). Must be in $(0, 1)$.
   * `dist::DiscreteUnivariateDistribution`: The distribution of the innovation term $\epsilon_t$.
   * `add_noise::Bool`: Flag to add small noise.
 
 
 :::
-    
+
 

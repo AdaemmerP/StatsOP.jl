@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # SAR22 {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -30,5 +30,5 @@ $\qquad \qquad Y_{t_1, t_2} =                \alpha_1 \cdot Y_{t_1-1, t_2}      
 
 
 :::
-    
+
 

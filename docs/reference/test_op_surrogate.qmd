@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # test_op_surrogate {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -28,5 +28,5 @@ Unlike `test_op()` and `test_op_bootstrap()`, which test against an i.i.d. null,
 
 
 :::
-    
+
 

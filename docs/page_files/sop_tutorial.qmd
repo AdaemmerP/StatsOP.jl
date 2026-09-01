@@ -37,11 +37,11 @@ A spatial ordinal pattern (SOP) test asks whether the frequencies of rank permut
     - `chart_choice`: one of `TauTilde()`, `TauHat()`, `KappaTilde()`, `KappaHat()`, `DistanceToWhiteNoise()`, `Shannon()`, `ShannonExtropy()`.
     - `refinement`: `false` for classical types, or `RotationType()`, `DirectionType()`, `DiagonalType()`.
 
-- **`test_sop(data, alpha, d1, d2; chart_choice, refinement=false)`**
+- **`test_sop(data, d1, d2; chart_choice, refinement=false, alpha=0.05)`**
 
     - Returns an `SOPTestResult` with the test statistic, critical value, p-value, and reject decision.
-    - Note: `alpha` is the **second positional argument** (unlike `test_op` where it is a keyword).
     - Critical value, p-value, and rejection direction are chosen automatically from `chart_choice`.
+    - `alpha`: significance level.
 
 - **`bootstrap_sop(data, n_boot, d1, d2; chart_choice, refinement=false, block_size=1)`**
 
@@ -105,31 +105,31 @@ end   # SAR-type process — H₀ is false
 ### Two-sided — TauTilde
 
 ```{julia}
-test_sop(data_iid, 0.05, d1, d2; chart_choice=TauTilde())
+test_sop(data_iid, d1, d2; chart_choice=TauTilde())
 ```
 
 ```{julia}
-test_sop(data_sar, 0.05, d1, d2; chart_choice=TauTilde())
+test_sop(data_sar, d1, d2; chart_choice=TauTilde())
 ```
 
 ### Upper-tail — DistanceToWhiteNoise
 
 ```{julia}
-test_sop(data_iid, 0.05, d1, d2; chart_choice=DistanceToWhiteNoise())
+test_sop(data_iid, d1, d2; chart_choice=DistanceToWhiteNoise())
 ```
 
 ```{julia}
-test_sop(data_sar, 0.05, d1, d2; chart_choice=DistanceToWhiteNoise())
+test_sop(data_sar, d1, d2; chart_choice=DistanceToWhiteNoise())
 ```
 
 ### Upper-tail — Shannon entropy
 
 ```{julia}
-test_sop(data_iid, 0.05, d1, d2; chart_choice=Shannon())
+test_sop(data_iid, d1, d2; chart_choice=Shannon())
 ```
 
 ```{julia}
-test_sop(data_sar, 0.05, d1, d2; chart_choice=Shannon())
+test_sop(data_sar, d1, d2; chart_choice=Shannon())
 ```
 
 The white-noise image is not rejected; the SAR image is. The critical value depends on the image dimensions `M`, `N`, the delays `d1`, `d2`, and `alpha` — not on the data.
@@ -161,7 +161,7 @@ chart_list = [
     ("Shannon entropy (H)", Shannon(), "upper-tail"),
     ("Shannon extropy (Hex)", ShannonExtropy(), "upper-tail"),
 ]
-asymp_res = [test_sop(data_sar, 0.05, d1, d2; chart_choice=c) for (_, c, _) in chart_list]
+asymp_res = [test_sop(data_sar, d1, d2; chart_choice=c) for (_, c, _) in chart_list]
 boot_res = [test_sop_bootstrap(data_sar, 2_000, d1, d2; chart_choice=c) for (_, c, _) in chart_list]
 ```
 

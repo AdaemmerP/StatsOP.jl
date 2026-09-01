@@ -3,25 +3,25 @@ engine: markdown
 ---
 
 # test_sop {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
-test_sop(data, alpha, d1, d2; chart_choice, refinement=false, add_noise=false)
+test_sop(data, d1, d2; chart_choice, refinement=false, alpha=0.05, add_noise=false)
 ```
 Perform the asymptotic hypothesis test for spatial dependence based on spatial ordinal patterns (SOPs) and return a [`SOPTestResult`](@ref) with the test statistic, the asymptotic critical value, the p-value, and the reject decision.
  
   * `data`: data matrix (spatial field).
-  * `alpha`: significance level.
   * `d1::Int`: row delay.
   * `d2::Int`: column delay.
   * `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`, [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()` (two-sided test), or `Shannon()`, `ShannonExtropy()`, `DistanceToWhiteNoise()` (one-sided, upper-tail test with rescaled statistic).
   * `refinement`: `false` for the classical SOP classification, or one of [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()` (only for the entropy-type charts).
+  * `alpha=0.05`: significance level.
   * `add_noise::Bool=false`: add uniform noise to the data to break ties (recommended for discrete-valued data).
 
 
 :::
-    
+
 

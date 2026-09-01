@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # compute_lookup_array_gop {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -16,5 +16,5 @@ Compute the `3×3×3` lookup array that maps a competition-ranking vector (see [
 
 
 :::
-    
+
 

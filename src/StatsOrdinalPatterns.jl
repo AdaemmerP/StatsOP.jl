@@ -14,6 +14,11 @@ using StatsBase
 import PrecompileTools
 
 # Reexport
+# Distributions is re-exported in full — deliberately, not by oversight. The DGP types
+# (`AR1`, `INAR1`, `SAR11`, …) take a distribution object as a constructor argument, so
+# essentially no non-trivial call can be written without one; requiring a separate
+# `using Distributions` would only add a line to every example. From ComplexityMeasures
+# only the two chart types actually used as `chart_choice` values are re-exported.
 @reexport using Distributions
 @reexport using ComplexityMeasures: Shannon, ShannonExtropy
 

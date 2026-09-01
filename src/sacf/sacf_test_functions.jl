@@ -3,7 +3,7 @@
 # Under H₀: MN/2 * bp_stat → Chisq(K), where K = 2w(w+1).
 # Reject when MN/2 * bp_stat > χ²_{K, 1-α}, i.e. bp_stat > 2/(MN) * χ²_{K, 1-α}.
 """
-    crit_val_sacf_bp(M, N, w, alpha)
+    crit_val_sacf_bp(M, N, w; alpha=0.05)
 
 Compute the critical value of the Box-Pierce type test based on the spatial
 autocorrelation function (SACF); see [`test_sacf_bp`](@ref). Under the null hypothesis,
@@ -12,9 +12,9 @@ autocorrelation function (SACF); see [`test_sacf_bp`](@ref). Under the null hypo
 
 - `M`, `N`: dimensions of the data matrix.
 - `w::Int`: window size; delays up to `w` in each direction are used.
-- `alpha`: significance level.
+- `alpha=0.05`: significance level.
 """
-function crit_val_sacf_bp(M, N, w, alpha)
+function crit_val_sacf_bp(M, N, w; alpha=0.05)
   K = 2 * w * (w + 1)
   return 2 / (M * N) * quantile(Chisq(K), 1 - alpha)
 end
@@ -117,7 +117,7 @@ decision.
 function test_sacf(data::Matrix{<:Real}, d1::Int, d2::Int; alpha=0.05)
   M, N      = size(data)
   test_stat = stat_sacf(data, d1, d2)
-  crit_val  = crit_val_sacf(M, N, alpha)
+  crit_val  = crit_val_sacf(M, N; alpha=alpha)
   p_val     = _sacf_asymp_pval(test_stat, M, N)
   return SACFTestResult(test_stat, crit_val, p_val, abs(test_stat) > crit_val)
 end
@@ -137,7 +137,7 @@ critical value, the p-value, and the reject decision.
 function test_sacf_bp(data::Matrix{<:Real}, w::Int; alpha=0.05)
   M, N      = size(data)
   test_stat = stat_sacf_bp(data, w)
-  crit_val  = crit_val_sacf_bp(M, N, w, alpha)
+  crit_val  = crit_val_sacf_bp(M, N, w; alpha=alpha)
   p_val     = _sacf_bp_asymp_pval(test_stat, M, N, w)
   return SACFBPTestResult(test_stat, crit_val, p_val, test_stat > crit_val)
 end

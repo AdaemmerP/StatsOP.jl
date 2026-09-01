@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # dependence_op {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -16,5 +16,5 @@ Compute the ordinal pattern dependence coefficient by Schnurr and Dehling (2017)
 
 
 :::
-    
+
 

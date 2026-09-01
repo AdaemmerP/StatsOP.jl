@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # SINAR1 {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -17,7 +17,7 @@ The SINAR(1) model is a signed version of the INAR(1) process, allowing for both
  
 
 ### Fields
-    
+
   * `α::Float64`: The autoregressive parameter (thinning probability). Can be in
 $$
 (0, 1)
@@ -30,5 +30,5 @@ for positive dependence or $( -1, 0)$ for negative dependence.
 
 
 :::
-    
+
 

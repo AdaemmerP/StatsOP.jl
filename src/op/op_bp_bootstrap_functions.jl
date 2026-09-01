@@ -51,7 +51,7 @@ function bootstrap_op_bp(
       end
     end
     results[b] = stat_op_bp(
-      resampled_data; chart_choice=chart_choice, m=m, w=w, ljung_box=ljung_box
+      resampled_data, w; chart_choice=chart_choice, m=m, ljung_box=ljung_box
     )
   end
 
@@ -140,7 +140,7 @@ function test_op_bp_bootstrap(
   ljung_box::Bool = false,
   block_size::Int = 1
 )
-  stat      = stat_op_bp(data; chart_choice=chart_choice, m=m, w=w, ljung_box=ljung_box)
+  stat      = stat_op_bp(data, w; chart_choice=chart_choice, m=m, ljung_box=ljung_box)
   boot_dist = bootstrap_op_bp(
     data, n_boot, w; chart_choice=chart_choice, m=m, ljung_box=ljung_box,
     block_size=block_size

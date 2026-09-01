@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # fill_p0! {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -20,5 +20,5 @@ Returns `p0`.
 
 
 :::
-    
+
 

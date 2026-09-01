@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # chart_stat_qual {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -19,5 +19,5 @@ Compute the κ (Cohen's kappa type) chart statistic for qualitative processes, $
 
 
 :::
-    
+
 

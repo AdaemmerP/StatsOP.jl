@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # BSQMA11 {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -30,5 +30,5 @@ bsqma11 = BSQMA11((0.5, 0.3, 0.2, 0.1), (1, 1, 2, 2), 10, 10, Normal(0, 1), noth
 
 
 :::
-    
+
 

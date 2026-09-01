@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # build_sar1_matrix {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -16,5 +16,5 @@ Build the inverse system matrix $(B - I)^{-1}$ of the (margin-extended) SAR(1) p
 
 
 :::
-    
+
 

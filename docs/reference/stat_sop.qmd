@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # stat_sop {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -14,7 +14,7 @@ stat_sop(data, d1, d2; chart_choice, refinement=false, add_noise=false,
 ```
 Compute the test statistic based on spatial ordinal patterns (SOPs) for a single picture (matrix). Returns the tuple `(stat, p_hat)` with the chart statistic and the vector of relative SOP type frequencies.
  
-  * `data::Union{SubArray,Array{T,2}}`: A 2D array of data.
+  * `data::Union{SubArray,Matrix{<:Real}}`: A 2D array of data.
   * `d1::Int`: The delay value for the rows.
   * `d2::Int`: The delay value for the columns.
   * `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`, [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`, `Shannon()`, `ShannonExtropy()`, `DistanceToWhiteNoise()`.
@@ -23,7 +23,7 @@ Compute the test statistic based on spatial ordinal patterns (SOPs) for a single
   * `noise_dist::UnivariateDistribution`: The distribution for the noise.
 
 ### Examples
-    
+
 
 ```julia-repl
 data = rand(20, 20);
@@ -33,11 +33,11 @@ stat_sop(data, 1, 1; chart_choice=TauTilde())
 
 
 :::
-    
+
 
  --- 
  
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -58,5 +58,5 @@ Compute the sequence of EWMA-smoothed test statistics based on spatial ordinal p
 
 
 :::
-    
+
 

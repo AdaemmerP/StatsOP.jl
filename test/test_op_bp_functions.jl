@@ -16,7 +16,7 @@ const _BP_CHARTS = (Shannon(), ShannonExtropy(), DistanceToWhiteNoise(), Persist
     (Persistence(), 3, 1), (RotationalAsymmetry(), 3, 1), (UpDownScaling(), 3, 1),
   ]
   for (chart, m, w) in cases
-    cv = crit_val_op_bp(; chart_choice=chart, w=w, m=m, alpha=0.05)
+    cv = crit_val_op_bp(w; chart_choice=chart, m=m, alpha=0.05)
     dist, scale = StatsOrdinalPatterns._op_bp_null(chart, m, w)
     @test 1.0 - cdf(dist, scale * cv) ≈ 0.05 atol = 1e-4
   end
@@ -41,8 +41,8 @@ end
   res = test_op_bp(x, 3; chart_choice=Shannon())
 
   @test res isa OPBPTestResult
-  @test res.stat ≈ stat_op_bp(x; chart_choice=Shannon(), m=3, w=3)
-  @test res.asymp_crit ≈ crit_val_op_bp(; chart_choice=Shannon(), w=3, m=3, alpha=0.05)
+  @test res.stat ≈ stat_op_bp(x, 3; chart_choice=Shannon(), m=3)
+  @test res.asymp_crit ≈ crit_val_op_bp(3; chart_choice=Shannon(), m=3, alpha=0.05)
   # The BP statistic is upper-tailed for every chart.
   @test res.asymp_reject == (res.stat > res.asymp_crit)
   @test res.stat >= 0.0
@@ -65,8 +65,8 @@ end
   x = randn(MersenneTwister(3), 400)
   bp = test_op_bp(x, 3; chart_choice=Persistence(), ljung_box=false).stat
   bl = test_op_bp(x, 3; chart_choice=Persistence(), ljung_box=true).stat
-  @test bp ≈ stat_op_bp(x; chart_choice=Persistence(), m=3, w=3, ljung_box=false)
-  @test bl ≈ stat_op_bp(x; chart_choice=Persistence(), m=3, w=3, ljung_box=true)
+  @test bp ≈ stat_op_bp(x, 3; chart_choice=Persistence(), m=3, ljung_box=false)
+  @test bl ≈ stat_op_bp(x, 3; chart_choice=Persistence(), m=3, ljung_box=true)
   @test !(bp ≈ bl)   # the BP and BL weights differ systematically
 end
 
@@ -146,7 +146,7 @@ end
   res = test_op_bp_bootstrap(x, 1000, 2; chart_choice=Shannon())
 
   @test res isa OPBPTestResultBoot
-  @test res.stat ≈ stat_op_bp(x; chart_choice=Shannon(), m=3, w=2)
+  @test res.stat ≈ stat_op_bp(x, 2; chart_choice=Shannon(), m=3)
   @test 0.0 <= res.boot_pval <= 1.0
   @test res.boot_reject == (res.stat > res.boot_crit)
   @test res.boot_crit > 0
@@ -178,7 +178,7 @@ end
   y = randn(MersenneTwister(5), 800)
   Random.seed!(5)
   bc = test_op_bp_bootstrap(y, 4000, 3; chart_choice=Shannon()).boot_crit
-  ac = crit_val_op_bp(; chart_choice=Shannon(), w=3, m=3, alpha=0.05)
+  ac = crit_val_op_bp(3; chart_choice=Shannon(), m=3, alpha=0.05)
   @test isapprox(bc, ac; rtol=0.15)
 end
 

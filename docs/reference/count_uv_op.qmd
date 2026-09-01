@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # count_uv_op {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -25,5 +25,5 @@ count_uv_op(ts; m=3, d=1)
 
 
 :::
-    
+
 

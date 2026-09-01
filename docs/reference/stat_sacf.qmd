@@ -3,13 +3,13 @@ engine: markdown
 ---
 
 # stat_sacf {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
-stat_sacf(data::Union{SubArray,Matrix{T}}, d1::Int, d2::Int) where {T<:Real}
+stat_sacf(data::Union{SubArray,Matrix{<:Real}}, d1::Int, d2::Int)
 ```
 Compute the spatial autocorrelation for a delay combination (d1, d2) for a single picture.
  
@@ -19,11 +19,11 @@ Compute the spatial autocorrelation for a delay combination (d1, d2) for a singl
 
 
 :::
-    
+
 
  --- 
  
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -37,5 +37,5 @@ Compute the spatial autocorrelation function (SACF) for a delay combination (d1,
 
 
 :::
-    
+
 

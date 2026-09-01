@@ -3,32 +3,32 @@ engine: markdown
 ---
 
 # crit_val_sop {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
-crit_val_sop(M, N, alpha, d1, d2, chart_choice, refinement=false)
+crit_val_sop(M, N, d1, d2; chart_choice, refinement=false, alpha=0.05)
 ```
 Compute the critical value for the asymptotic test based on spatial ordinal patterns (SOPs); see [`test_sop`](@ref).
  
   * `M::Int`: number of rows of the data matrix. The SOP matrix has `m = M - d1` rows.
   * `N::Int`: number of columns of the data matrix. The SOP matrix has `n = N - d2` columns.
-  * `alpha::Float64`: significance level.
   * `d1::Int`: row delay.
   * `d2::Int`: column delay.
   * `chart_choice`: one of [`TauHat`](@ref)`()`, [`KappaHat`](@ref)`()`, [`TauTilde`](@ref)`()`, [`KappaTilde`](@ref)`()`, `Shannon()`, `ShannonExtropy()`, `DistanceToWhiteNoise()`.
   * `refinement`: `false` for the classical SOP classification, or one of [`RotationType`](@ref)`()`, [`DirectionType`](@ref)`()`, [`DiagonalType`](@ref)`()` (only for the entropy-type charts).
+  * `alpha=0.05`: significance level.
 
 ### Examples
-    
+
 
 ```julia-repl
-crit_val_sop(11, 11, 0.05, 1, 1, TauHat())
+crit_val_sop(11, 11, 1, 1; chart_choice=TauHat())
 ```
 
 
 :::
-    
+
 

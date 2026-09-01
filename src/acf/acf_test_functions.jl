@@ -36,7 +36,7 @@ end
 # result used for the SACF test (see sacf_test_functions.jl). The critical value is
 # therefore the same for every lag h.
 """
-    crit_val_acf(n, alpha)
+    crit_val_acf(n; alpha=0.05)
 
 Compute the critical value of the asymptotic test based on the classical
 autocorrelation function (ACF); see [`test_acf`](@ref). Under the null hypothesis
@@ -44,9 +44,9 @@ autocorrelation function (ACF); see [`test_acf`](@ref). Under the null hypothesi
 (Bartlett's formula), so the critical value does not depend on `h`.
 
 - `n::Int`: length of the time series.
-- `alpha`: significance level.
+- `alpha=0.05`: significance level.
 """
-function crit_val_acf(n, alpha)
+function crit_val_acf(n; alpha=0.05)
   return quantile(Normal(0, 1), 1 - alpha / 2) / sqrt(n)
 end
 
@@ -70,7 +70,7 @@ test statistic, the asymptotic critical value, the p-value, and the reject decis
 function test_acf(data, h::Int; alpha=0.05)
   n         = length(data)
   test_stat = stat_acf(data, h)
-  crit_val  = crit_val_acf(n, alpha)
+  crit_val  = crit_val_acf(n; alpha=alpha)
   p_val     = _acf_asymp_pval(test_stat, n)
   return ACFTestResult(test_stat, crit_val, p_val, abs(test_stat) > crit_val)
 end

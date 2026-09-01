@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # test_sacf {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -19,5 +19,5 @@ Perform the asymptotic two-sided test for spatial dependence at delay `(d1, d2)`
 
 
 :::
-    
+
 

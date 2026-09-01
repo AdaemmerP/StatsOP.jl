@@ -1,0 +1,24 @@
+---
+engine: markdown
+---
+
+# bootstrap_acf {#sec-doc}
+
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
+
+
+```julia
+bootstrap_acf(data, n_boot, h; block_size=1)
+```
+Compute the bootstrap distribution of the classical autocorrelation statistic at lag `h` for the time series `data` and return a vector of `n_boot` bootstrap statistics.
+ 
+  * `data::Vector{Float64}`: the time series.
+  * `n_boot::Int`: number of bootstrap replications.
+  * `h::Int`: lag.
+  * `block_size::Int=1`: block length for the resampling. `1` corresponds to an i.i.d. bootstrap; values `> 1` yield a moving-block bootstrap that preserves serial dependence.
+
+
+:::
+
+

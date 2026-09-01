@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # KappaO2 {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -16,5 +16,5 @@ Variant 2 of the ordinal κ-chart ([`KappaO`](@ref)); the marginal probabilities
 
 
 :::
-    
+
 

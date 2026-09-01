@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # arl_sop_bp_ic {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -27,5 +27,5 @@ Returns the tuple `(ARL, standard error)`.
 
 
 :::
-    
+
 

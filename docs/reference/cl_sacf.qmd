@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # cl_sacf {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -23,7 +23,7 @@ Using a fixed `seed` ensures the ARL function behaves smoothly across evaluation
  
 
 ### Arguments
-    
+
   * `sp_dgp::ICSTS`: Data-generating process under the in-control distribution.
   * `lam`: EWMA smoothing parameter λ ∈ (0, 1].
   * `L0`: Target in-control ARL.
@@ -32,7 +32,7 @@ Using a fixed `seed` ensures the ARL function behaves smoothly across evaluation
   * `d2::Int`: The second (column) delay for the spatial process.
 
 ### Keyword Arguments
-    
+
   * `reps_final=10_000`: Replications used during the ITP refinement phase.
   * `reps_bracket=1_000`: Replications used during the bracketing phase.
   * `bracket_step=0.01`: Step size for the bracketing search.
@@ -42,11 +42,11 @@ Using a fixed `seed` ensures the ARL function behaves smoothly across evaluation
   * `verbose=false`: If `true`, prints progress information at each evaluation.
 
 ### Returns
-    
+
   * `cl::Float64`: The critical limit achieving an in-control ARL of `L0`.
 
 ### Example
-    
+
 
 ```julia
 sp_dgp = ICSTS(20, 20, Normal(0, 1))
@@ -55,5 +55,5 @@ cl = cl_sacf(sp_dgp, 0.1, 370.0, 0.5, 1, 1; reps_final=50_000, seed=42)
 
 
 :::
-    
+
 

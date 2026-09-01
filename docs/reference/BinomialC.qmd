@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # BinomialC {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -18,5 +18,5 @@ A struct to define a binomial distribution, which gets multiplied by a constant 
 
 
 :::
-    
+
 

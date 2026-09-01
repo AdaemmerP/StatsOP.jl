@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # BAR1 {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -17,7 +17,7 @@ The BAR(1) model is a two-state process (0 and 1) that can be extended to model 
  
 
 ### Fields
-    
+
   * `n::Int64`: The maximum count (the 'n' parameter of the underlying Binomial distribution).
   * `ρ::Float64`: The persistence/correlation parameter of the process.
   * `μ::Float64`: The stationary mean of the process.
@@ -29,11 +29,11 @@ The BAR(1) model is a two-state process (0 and 1) that can be extended to model 
 
 
 :::
-    
+
 
  --- 
  
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -46,5 +46,5 @@ Calculates the internal parameters `α` and `β` from the provided parameters `n
 
 
 :::
-    
+
 

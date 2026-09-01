@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # stat_op {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -27,5 +27,5 @@ The second method additionally applies EWMA smoothing with parameter `lam` (Equa
 
 
 :::
-    
+
 

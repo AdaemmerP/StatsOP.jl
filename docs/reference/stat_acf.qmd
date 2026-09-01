@@ -3,9 +3,26 @@ engine: markdown
 ---
 
 # stat_acf {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
+
+
+```julia
+stat_acf(data, h)
+```
+Compute the classical sample autocorrelation of the time series `data` at lag `h`, using `StatsBase.autocor` (demeaned, normalized by the full-sample variance).
+ 
+  * `data`: the time series.
+  * `h::Int`: lag.
+
+
+:::
+
+
+ --- 
+ 
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -26,5 +43,5 @@ Returns a vector with one chart statistic per time step.
 
 
 :::
-    
+
 

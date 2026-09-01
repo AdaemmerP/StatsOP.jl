@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # sacf {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -17,5 +17,5 @@ sacf(X_centered, d1::Int, d2::Int)
 
 
 :::
-    
+
 

@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # SQMA22 {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -30,5 +30,5 @@ Yₜ₁,ₜ₂ = β₁ ⋅ εₜ₁₋₁,ₜ₂ᵃ +            β₂ ⋅ εₜ
 
 
 :::
-    
+
 

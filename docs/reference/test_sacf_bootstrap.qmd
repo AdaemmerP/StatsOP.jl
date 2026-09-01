@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # test_sacf_bootstrap {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -23,5 +23,5 @@ Unlike `test_sacf()`, this does not rely on the asymptotic N(0, 1/MN) distributi
 
 
 :::
-    
+
 

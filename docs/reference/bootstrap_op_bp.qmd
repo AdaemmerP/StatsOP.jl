@@ -1,0 +1,27 @@
+---
+engine: markdown
+---
+
+# bootstrap_op_bp {#sec-doc}
+
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
+
+
+```julia
+bootstrap_op_bp(data, n_boot, w; chart_choice, m=3, ljung_box=false, block_size=1)
+```
+Compute the bootstrap distribution of the Box-Pierce type ordinal-pattern statistic for the time series `data` and return a vector of `n_boot` bootstrap statistics.
+ 
+  * `data::Vector{Float64}`: the time series.
+  * `n_boot::Int`: number of bootstrap replications.
+  * `w::Int`: maximal delay; the individual statistics for delays `1:w` are aggregated.
+  * `chart_choice`: one of `Shannon()`, `ShannonExtropy()`, `DistanceToWhiteNoise()`, `UpDownBalance()`, `Persistence()`, `RotationalAsymmetry()`, `UpDownScaling()`.
+  * `m::Int=3`: length of the ordinal patterns.
+  * `ljung_box::Bool=false`: if `true`, use Ljung-Box (BL) weights instead of the constant Box-Pierce weight.
+  * `block_size::Int=1`: block length for the resampling. `1` corresponds to an i.i.d. bootstrap; values `> 1` yield a moving-block bootstrap that preserves serial dependence.
+
+
+:::
+
+

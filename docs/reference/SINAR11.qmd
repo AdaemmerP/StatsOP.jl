@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # SINAR11 {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -29,5 +29,5 @@ sar11 = SINAR((0.5, 0.3, 0.2), 11, 11, 100)
 
 
 :::
-    
+
 

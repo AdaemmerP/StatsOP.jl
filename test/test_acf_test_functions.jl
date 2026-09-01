@@ -2,8 +2,8 @@ using Statistics
 using Distributions
 
 @testset "crit_val_acf" begin
-  @test crit_val_acf(100, 0.05) ≈ quantile(Normal(0, 1), 0.975) / sqrt(100)
-  @test crit_val_acf(500, 0.01) ≈ quantile(Normal(0, 1), 0.995) / sqrt(500)
+  @test crit_val_acf(100; alpha=0.05) ≈ quantile(Normal(0, 1), 0.975) / sqrt(100)
+  @test crit_val_acf(500; alpha=0.01) ≈ quantile(Normal(0, 1), 0.995) / sqrt(500)
 end
 
 @testset "stat_acf (classical)" begin
@@ -28,7 +28,7 @@ end
   @test res.stat ≈ stat_acf(data, 1)
   @test 0.0 <= res.asymp_pval <= 1.0
   @test res.asymp_reject == (abs(res.stat) > res.asymp_crit)
-  @test res.asymp_crit ≈ crit_val_acf(500, 0.05)
+  @test res.asymp_crit ≈ crit_val_acf(500; alpha=0.05)
 end
 
 @testset "test_acf — empirical size is close to nominal alpha" begin

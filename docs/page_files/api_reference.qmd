@@ -1,2 +1,81 @@
-    
 # API
+
+## Naming
+
+Function names are built from a *verb* and a *method family*:
+
+| Prefix | Returns |
+|:---|:---|
+| `stat_` | the chart statistic itself |
+| `crit_val_` | the asymptotic critical value of a test |
+| `test_` | a result object with statistic, critical value, p-value and reject decision |
+| `bootstrap_` | the vector of resampled statistics under $H_0$ |
+| `cl_` | a control limit calibrated to a target in-control ARL |
+| `arl_` | an average run length; `rl_` returns the individual run lengths |
+
+The family suffixes are `op` (ordinal patterns), `gop` (generalized ordinal patterns,
+for tied/count data), `sop` (spatial ordinal patterns), `acf` (autocorrelation function)
+and `sacf` (spatial autocorrelation function). Further suffixes qualify the variant:
+`_bp` for Box-Pierce type aggregation over several delays, `_bootstrap` for the bootstrap
+counterpart of an asymptotic procedure, and `_ic` / `_oc` for in-control and
+out-of-control run lengths.
+
+So `test_sop_bp_bootstrap` is the bootstrap Box-Pierce test for spatial ordinal patterns,
+and `arl_op_ic` is the in-control average run length of an ordinal-pattern control chart.
+
+## Argument conventions
+
+Every user-facing function follows the same rule, so that a call learned for one method
+family transfers to the others:
+
+**Positional arguments** are the data and the quantities that define *which* statistic is
+being computed and have no meaningful default:
+
+- the data (`data`, `ts`) — always first;
+- sample dimensions for `crit_val_` functions (`n`, or `M` and `N`), which stand in for
+  the data;
+- the number of replications (`n_boot`, `n_surrogates`, `reps`);
+- delays and window sizes that the procedure is defined in terms of: `h` (ACF lag),
+  `w` (maximal delay of a Box-Pierce statistic), `d1` and `d2` (row and column delays).
+
+**Keyword arguments** are everything that tunes the procedure and has a sensible default:
+
+- `chart_choice` — the statistic to use;
+- `alpha=0.05` — the significance level;
+- `m=3` and `d=1` — ordinal-pattern length and delay;
+- `refinement=false` — the SOP classification;
+- `block_size=1` — block length of a block bootstrap;
+- `add_noise=false`, `ljung_box=false`, `rng`, `rl_max`.
+
+In particular, `alpha` is *always* a keyword and never positional:
+
+```julia
+test_op(ts; chart_choice = Shannon(), alpha = 0.01)
+test_sop(img, 1, 1; chart_choice = TauTilde(), alpha = 0.01)
+test_acf(ts, 1; alpha = 0.01)
+crit_val_sacf(60, 60; alpha = 0.01)
+```
+
+## Result objects
+
+Every `test_` function returns a struct rather than a bare number, so the components of a
+test can be accessed by name and are shown in a readable form at the REPL:
+
+```julia
+res = test_op(ts; chart_choice = Shannon())
+res.stat          # test statistic
+res.asymp_crit    # critical value
+res.asymp_pval    # p-value
+res.asymp_reject  # reject decision
+```
+
+Bootstrap and surrogate tests return the analogous `…Boot` and `…Surrogate` structs, whose
+fields are prefixed `boot_` and `surr_` instead of `asymp_` and which additionally record
+the number of replications.
+
+## Distributions
+
+The data-generating-process types take a distribution as an argument, e.g.
+`AR1(0.5, Normal(0, 1))` or `INAR1(0.3, Poisson(5), false)`. `StatsOrdinalPatterns.jl` therefore
+re-exports `Distributions.jl`, so that `Normal`, `Poisson` and friends are available after
+`using StatsOrdinalPatterns` alone.

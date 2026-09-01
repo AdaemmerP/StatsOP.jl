@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # bootstrap_sop_bp {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -25,5 +25,5 @@ Generate a bootstrap distribution of the BP-SOP statistic for a single spatial i
 
 
 :::
-    
+
 

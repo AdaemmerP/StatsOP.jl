@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # AR1 {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -24,5 +24,5 @@ ar1 = AR1(0.5, Normal(0, 1))
 
 
 :::
-    
+
 

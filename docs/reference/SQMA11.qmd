@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # SQMA11 {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -28,5 +28,5 @@ sqma11 = SQMA11((0.5, 0.3, 0.2), (1, 1, 2), 10, 10, Normal(0,1), nothing, 1)
 
 
 :::
-    
+
 

@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # arl_op_oc {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -29,5 +29,5 @@ Returns the tuple `(ARL, standard error)`.
 
 
 :::
-    
+
 

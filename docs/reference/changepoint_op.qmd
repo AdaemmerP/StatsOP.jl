@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # changepoint_op {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -29,5 +29,5 @@ changepoint_op(tsx, tsy; conf_level=0.95, weight=true, bn=log(length(tsx)), m=3,
 
 
 :::
-    
+
 

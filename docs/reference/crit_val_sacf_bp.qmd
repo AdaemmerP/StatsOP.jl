@@ -3,21 +3,21 @@ engine: markdown
 ---
 
 # crit_val_sacf_bp {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
-crit_val_sacf_bp(M, N, w, alpha)
+crit_val_sacf_bp(M, N, w; alpha=0.05)
 ```
 Compute the critical value of the Box-Pierce type test based on the spatial autocorrelation function (SACF); see [`test_sacf_bp`](@ref). Under the null hypothesis, `M * N / 2` times the BP statistic is asymptotically `Chisq(K)` distributed with `K = 2w(w + 1)` degrees of freedom.
  
   * `M`, `N`: dimensions of the data matrix.
   * `w::Int`: window size; delays up to `w` in each direction are used.
-  * `alpha`: significance level.
+  * `alpha=0.05`: significance level.
 
 
 :::
-    
+
 

@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # stat_sop_bp {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -29,5 +29,5 @@ The first method computes the statistic for a single image (matrix) and returns 
 
 
 :::
-    
+
 

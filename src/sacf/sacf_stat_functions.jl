@@ -87,20 +87,20 @@ end
 
 
 """
-    crit_val_sacf(M, N, alpha)
+    crit_val_sacf(M, N; alpha=0.05)
 
 Computes the critical value for the SACF of lag 1. The input parameters are:
 
 - `M::Int64`: The number of rows in the data matrix.
 - `N::Int64`: The number of columns in the data matrix.
-- `alpha::Float64`: The significance level.
+- `alpha=0.05`: The significance level.
 
 # Examples
 ```julia-repl
 # compute critical value
-crit_val_sacf(11, 11, 0.05)
+crit_val_sacf(11, 11)
 ```
 """
-function crit_val_sacf(M, N, alpha)
+function crit_val_sacf(M, N; alpha=0.05)
   quantile(Normal(0, 1), 1 - alpha / 2) / sqrt(M * N)
 end

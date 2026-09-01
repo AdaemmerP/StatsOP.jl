@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # find_effective_support {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -16,5 +16,5 @@ Calculates a practical integer range [lb, ub] for distributions with infinite su
 
 
 :::
-    
+
 

@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # cl_sop_bootstrap {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -26,7 +26,7 @@ Using a fixed `seed` ensures the ARL function behaves smoothly across evaluation
  
 
 ### Arguments
-    
+
   * `data::Array{T,3}`: 3D array of images used to compute the empirical relative type frequencies for bootstrapping.
   * `lam`: EWMA smoothing parameter λ ∈ (0, 1].
   * `L0`: Target in-control ARL.
@@ -35,7 +35,7 @@ Using a fixed `seed` ensures the ARL function behaves smoothly across evaluation
   * `d2`: Second delay dimension.
 
 ### Keyword Arguments
-    
+
   * `reps_final=10_000`: Replications used during the ITP refinement phase.
   * `reps_bracket=1_000`: Replications used during the bracketing phase.
   * `bracket_step=0.001`: Step size for the bracketing search.
@@ -47,11 +47,11 @@ Using a fixed `seed` ensures the ARL function behaves smoothly across evaluation
   * `verbose=false`: If `true`, prints progress information at each evaluation.
 
 ### Returns
-    
+
   * `cl::Float64`: The critical limit achieving an in-control ARL of `L0`.
 
 ### Example
-    
+
 
 ```julia
 cl = cl_sop_bootstrap(data, 0.1, 370.0, 2.5, 3, 5; reps_final=50_000, seed=42)
@@ -59,5 +59,5 @@ cl = cl_sop_bootstrap(data, 0.1, 370.0, 2.5, 3, 5; reps_final=50_000, seed=42)
 
 
 :::
-    
+
 

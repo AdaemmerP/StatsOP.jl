@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # DiagonalType {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -16,5 +16,5 @@ Refined SOP classification that groups spatial ordinal patterns by their diagona
 
 
 :::
-    
+
 

@@ -3,25 +3,25 @@ engine: markdown
 ---
 
 # stat_op_bp {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
-stat_op_bp(data; chart_choice, m=3, w=3, ljung_box=false)
+stat_op_bp(data, w; chart_choice, m=3, ljung_box=false)
 ```
 Compute the Box-Pierce (BP) type test statistic for ordinal patterns, which aggregates the chart statistics over the delays `d = 1, …, w`.
  
   * `data`: the time series.
+  * `w::Int`: maximal delay; the individual statistics for delays `1:w` are aggregated.
   * `chart_choice`: one of `Shannon()`, `ShannonExtropy()`, `DistanceToWhiteNoise()`, `UpDownBalance()`, `Persistence()`, `RotationalAsymmetry()`, `UpDownScaling()`.
   * `m::Int=3`: length of the ordinal patterns.
-  * `w=3`: maximal delay; the individual statistics for delays `1:w` are aggregated.
   * `ljung_box::Bool=false`: if `true`, use Ljung-Box (BL) weights (delay-specific numbers of patterns) instead of the constant Box-Pierce weight.
 Returns the aggregated test statistic. Critical values are provided by [`crit_val_op_bp`](@ref).
  
 
 
 :::
-    
+
 

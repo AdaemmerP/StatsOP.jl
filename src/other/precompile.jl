@@ -43,7 +43,7 @@ PrecompileTools.@setup_workload begin
       stat_op(ts; chart_choice=cc)
       stat_op(ts, lam; chart_choice=cc)
       test_op(ts; chart_choice=cc)
-      stat_op_bp(ts; chart_choice=cc, w=3)
+      stat_op_bp(ts, 3; chart_choice=cc)
       test_op_bp(ts, 3; chart_choice=cc)
       arl_op_ic(ic_cont, lam, 1.5, reps; chart_choice=cc, rl_max=rl_max)
       arl_op_oc(ar1, lam, 1.5, reps; chart_choice=cc, rl_max=rl_max)
@@ -81,14 +81,14 @@ PrecompileTools.@setup_workload begin
       stat_sop(imgs, lam, 1, 1; chart_choice=cc)
       stat_sop_bp(img, 3; chart_choice=cc)
       stat_sop_bp(imgs, lam, 3; chart_choice=cc)
-      test_sop(img, 0.05, 1, 1; chart_choice=cc)
+      test_sop(img, 1, 1; chart_choice=cc)
       arl_sop_ic(ic_spat, lam, 0.02, 1, 1, reps; chart_choice=cc, rl_max=rl_max)
       arl_sop_oc(sar11, lam, 0.02, 1, 1, reps; chart_choice=cc, rl_max=rl_max)
     end
     # Refined SOP classification
     for rf in (RotationType(), DirectionType(), DiagonalType())
       stat_sop(img, 1, 1; chart_choice=Shannon(), refinement=rf)
-      test_sop(img, 0.05, 1, 1; chart_choice=Shannon(), refinement=rf)
+      test_sop(img, 1, 1; chart_choice=Shannon(), refinement=rf)
       arl_sop_ic(ic_spat, lam, 0.02, 1, 1, reps;
         chart_choice=TauTilde(), refinement=rf, rl_max=rl_max)
     end

@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # chart_stat_sop {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -20,5 +20,5 @@ Returns the value of the chart statistic.
 
 
 :::
-    
+
 

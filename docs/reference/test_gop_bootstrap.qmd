@@ -3,9 +3,9 @@ engine: markdown
 ---
 
 # test_gop_bootstrap {#sec-doc}
-    
 
-::: {.callout-note appearance="simple" title="docblock" collapse=false}    
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
 
 
 ```julia
@@ -26,5 +26,5 @@ Generate a bootstrap distribution of the GOP statistic.
 
 
 :::
-    
+
 
