@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>crit_val_op_bp</title>
+<title>acftestresult</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -168,7 +168,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#sec-doc" id="toc-sec-doc" class="nav-link active" data-scroll-target="#sec-doc">crit_val_op_bp</a></li>
+  <li><a href="#sec-doc" id="toc-sec-doc" class="nav-link active" data-scroll-target="#sec-doc">ACFTestResult</a></li>
   </ul>
 </nav>
     </div>
@@ -179,7 +179,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <section id="sec-doc" class="level1">
-<h1>crit_val_op_bp</h1>
+<h1>ACFTestResult</h1>
 <div class="callout callout-style-simple callout-note callout-titled" title="docblock">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -192,13 +192,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div id="callout-1" class="callout-1-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">crit_val_op_bp</span>(w; chart_choice, m<span class="op">=</span><span class="fl">3</span>, alpha<span class="op">=</span><span class="fl">0.05</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Return the critical value for the Box-Pierce type ordinal-pattern test statistic computed by <a href="@ref"><code>stat_op_bp</code></a>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>ACFTestResult</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Result of the asymptotic test based on the classical autocorrelation function <a href="@ref"><code>test_acf</code></a>.</p>
+<p>Fields:</p>
 <ul>
-<li><code>w::Int</code>: maximal delay used in the test statistic (supported values depend on the chart).</li>
-<li><code>chart_choice</code>: one of <code>Shannon()</code>, <code>ShannonExtropy()</code>, <code>DistanceToWhiteNoise()</code>, <code>UpDownBalance()</code>, <code>Persistence()</code>, <code>RotationalAsymmetry()</code>, <code>UpDownScaling()</code>.</li>
-<li><code>m::Int=3</code>: length of the ordinal patterns (<code>2</code> or <code>3</code>, depending on the chart).</li>
-<li><code>alpha=0.05</code>: significance level. For the Shannon-, extropy- and Δ-charts with <code>m = 3</code>, tabulated values for <code>alpha = 0.05</code> are used.</li>
+<li><code>stat::Float64</code>: value of the test statistic.</li>
+<li><code>asymp_crit::Float64</code>: asymptotic critical value.</li>
+<li><code>asymp_pval::Float64</code>: asymptotic p-value.</li>
+<li><code>asymp_reject::Bool</code>: whether the null hypothesis is rejected at the chosen level.</li>
 </ul>
 </div>
 </div>

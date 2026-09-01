@@ -192,13 +192,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div id="callout-1" class="callout-1-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stat_op_bp</span>(data; chart_choice, m<span class="op">=</span><span class="fl">3</span>, w<span class="op">=</span><span class="fl">3</span>, ljung_box<span class="op">=</span><span class="cn">false</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stat_op_bp</span>(data, w; chart_choice, m<span class="op">=</span><span class="fl">3</span>, ljung_box<span class="op">=</span><span class="cn">false</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Compute the Box-Pierce (BP) type test statistic for ordinal patterns, which aggregates the chart statistics over the delays <code>d = 1, …, w</code>.</p>
 <ul>
 <li><code>data</code>: the time series.</li>
+<li><code>w::Int</code>: maximal delay; the individual statistics for delays <code>1:w</code> are aggregated.</li>
 <li><code>chart_choice</code>: one of <code>Shannon()</code>, <code>ShannonExtropy()</code>, <code>DistanceToWhiteNoise()</code>, <code>UpDownBalance()</code>, <code>Persistence()</code>, <code>RotationalAsymmetry()</code>, <code>UpDownScaling()</code>.</li>
 <li><code>m::Int=3</code>: length of the ordinal patterns.</li>
-<li><code>w=3</code>: maximal delay; the individual statistics for delays <code>1:w</code> are aggregated.</li>
 <li><code>ljung_box::Bool=false</code>: if <code>true</code>, use Ljung-Box (BL) weights (delay-specific numbers of patterns) instead of the constant Box-Pierce weight. Returns the aggregated test statistic. Critical values are provided by <a href="@ref"><code>crit_val_op_bp</code></a>.</li>
 </ul>
 </div>

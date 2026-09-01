@@ -321,11 +321,11 @@ window.Quarto = {
 <li><code>chart_choice</code>: one of <code>TauTilde()</code>, <code>TauHat()</code>, <code>KappaTilde()</code>, <code>KappaHat()</code>, <code>DistanceToWhiteNoise()</code>, <code>Shannon()</code>, <code>ShannonExtropy()</code>.</li>
 <li><code>refinement</code>: <code>false</code> for classical types, or <code>RotationType()</code>, <code>DirectionType()</code>, <code>DiagonalType()</code>.</li>
 </ul></li>
-<li><p><strong><code>test_sop(data, alpha, d1, d2; chart_choice, refinement=false)</code></strong></p>
+<li><p><strong><code>test_sop(data, d1, d2; chart_choice, refinement=false, alpha=0.05)</code></strong></p>
 <ul>
 <li>Returns an <code>SOPTestResult</code> with the test statistic, critical value, p-value, and reject decision.</li>
-<li>Note: <code>alpha</code> is the <strong>second positional argument</strong> (unlike <code>test_op</code> where it is a keyword).</li>
 <li>Critical value, p-value, and rejection direction are chosen automatically from <code>chart_choice</code>.</li>
+<li><code>alpha</code>: significance level.</li>
 </ul></li>
 <li><p><strong><code>bootstrap_sop(data, n_boot, d1, d2; chart_choice, refinement=false, block_size=1)</code></strong></p>
 <ul>
@@ -450,7 +450,7 @@ window.Quarto = {
 <section id="two-sided-tautilde" class="level3">
 <h3 class="anchored" data-anchor-id="two-sided-tautilde">Two-sided — TauTilde</h3>
 <div id="8" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">test_sop</span>(data_iid, <span class="fl">0.05</span>, d1, d2; chart_choice<span class="op">=</span><span class="fu">TauTilde</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">test_sop</span>(data_iid, d1, d2; chart_choice<span class="op">=</span><span class="fu">TauTilde</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div class="ansi-escaped-output">
 <pre>SOPTestResult
@@ -465,7 +465,7 @@ window.Quarto = {
 </div>
 </div>
 <div id="10" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">test_sop</span>(data_sar, <span class="fl">0.05</span>, d1, d2; chart_choice<span class="op">=</span><span class="fu">TauTilde</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">test_sop</span>(data_sar, d1, d2; chart_choice<span class="op">=</span><span class="fu">TauTilde</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div class="ansi-escaped-output">
 <pre>SOPTestResult
@@ -483,31 +483,31 @@ window.Quarto = {
 <section id="upper-tail-distancetowhitenoise" class="level3">
 <h3 class="anchored" data-anchor-id="upper-tail-distancetowhitenoise">Upper-tail — DistanceToWhiteNoise</h3>
 <div id="12" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">test_sop</span>(data_iid, <span class="fl">0.05</span>, d1, d2; chart_choice<span class="op">=</span><span class="fu">DistanceToWhiteNoise</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">test_sop</span>(data_iid, d1, d2; chart_choice<span class="op">=</span><span class="fu">DistanceToWhiteNoise</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div class="ansi-escaped-output">
 <pre>SOPTestResult
   Chart:            <span class="ansi-yellow-fg ansi-bold">DistanceToWhiteNoise</span><span class="ansi-yellow-fg ansi-bold">(</span><span class="ansi-yellow-fg ansi-bold">)</span>
-  Statistic:        2.1182
+  Statistic:        0.0059
   ─────────────────────────────
   Asymptotic test
     Critical value: 0.0063
-    p-value:        -0.0
-    Reject H₀:      true</pre>
+    p-value:        0.0607
+    Reject H₀:      false</pre>
 </div>
 </div>
 </div>
 <div id="14" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">test_sop</span>(data_sar, <span class="fl">0.05</span>, d1, d2; chart_choice<span class="op">=</span><span class="fu">DistanceToWhiteNoise</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">test_sop</span>(data_sar, d1, d2; chart_choice<span class="op">=</span><span class="fu">DistanceToWhiteNoise</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div class="ansi-escaped-output">
 <pre>SOPTestResult
   Chart:            <span class="ansi-yellow-fg ansi-bold">DistanceToWhiteNoise</span><span class="ansi-yellow-fg ansi-bold">(</span><span class="ansi-yellow-fg ansi-bold">)</span>
-  Statistic:        5.7913
+  Statistic:        0.016
   ─────────────────────────────
   Asymptotic test
     Critical value: 0.0063
-    p-value:        -0.0
+    p-value:        0.0005
     Reject H₀:      true</pre>
 </div>
 </div>
@@ -516,31 +516,31 @@ window.Quarto = {
 <section id="upper-tail-shannon-entropy" class="level3">
 <h3 class="anchored" data-anchor-id="upper-tail-shannon-entropy">Upper-tail — Shannon entropy</h3>
 <div id="16" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">test_sop</span>(data_iid, <span class="fl">0.05</span>, d1, d2; chart_choice<span class="op">=</span><span class="fu">Shannon</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">test_sop</span>(data_iid, d1, d2; chart_choice<span class="op">=</span><span class="fu">Shannon</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div class="ansi-escaped-output">
 <pre>SOPTestResult
   Chart:            <span class="ansi-yellow-fg ansi-bold">Shannon</span><span class="ansi-yellow-fg ansi-bold">(</span>base = 2<span class="ansi-yellow-fg ansi-bold">)</span>
-  Statistic:        2.0836
+  Statistic:        0.0058
   ─────────────────────────────
   Asymptotic test
     Critical value: 0.0063
-    p-value:        -0.0
-    Reject H₀:      true</pre>
+    p-value:        0.0636
+    Reject H₀:      false</pre>
 </div>
 </div>
 </div>
 <div id="18" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">test_sop</span>(data_sar, <span class="fl">0.05</span>, d1, d2; chart_choice<span class="op">=</span><span class="fu">Shannon</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">test_sop</span>(data_sar, d1, d2; chart_choice<span class="op">=</span><span class="fu">Shannon</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div class="ansi-escaped-output">
 <pre>SOPTestResult
   Chart:            <span class="ansi-yellow-fg ansi-bold">Shannon</span><span class="ansi-yellow-fg ansi-bold">(</span>base = 2<span class="ansi-yellow-fg ansi-bold">)</span>
-  Statistic:        6.1744
+  Statistic:        0.0171
   ─────────────────────────────
   Asymptotic test
     Critical value: 0.0063
-    p-value:        0.0
+    p-value:        0.0003
     Reject H₀:      true</pre>
 </div>
 </div>
@@ -582,7 +582,7 @@ window.Quarto = {
 <span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Shannon entropy (H)"</span>, <span class="fu">Shannon</span>(), <span class="st">"upper-tail"</span>),</span>
 <span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Shannon extropy (Hex)"</span>, <span class="fu">ShannonExtropy</span>(), <span class="st">"upper-tail"</span>),</span>
 <span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>asymp_res <span class="op">=</span> [<span class="fu">test_sop</span>(data_sar, <span class="fl">0.05</span>, d1, d2; chart_choice<span class="op">=</span>c) for (_, c, _) <span class="kw">in</span> chart_list]</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>asymp_res <span class="op">=</span> [<span class="fu">test_sop</span>(data_sar, d1, d2; chart_choice<span class="op">=</span>c) for (_, c, _) <span class="kw">in</span> chart_list]</span>
 <span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>boot_res <span class="op">=</span> [<span class="fu">test_sop_bootstrap</span>(data_sar, <span class="fl">2_000</span>, d1, d2; chart_choice<span class="op">=</span>c) for (_, c, _) <span class="kw">in</span> chart_list]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="24" class="cell" data-cache="false" data-execution_count="1">
@@ -666,7 +666,7 @@ window.Quarto = {
 <td style="text-align: left;">DistanceToWhiteNoise (Δ)</td>
 <td style="text-align: left;">upper-tail</td>
 <td style="text-align: right;">0.006</td>
-<td style="text-align: right;">-0.0</td>
+<td style="text-align: right;">0.0</td>
 <td style="text-align: right;">0.006</td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">true</td>
@@ -686,7 +686,7 @@ window.Quarto = {
 <td style="text-align: left;">Shannon extropy (Hex)</td>
 <td style="text-align: left;">upper-tail</td>
 <td style="text-align: right;">0.006</td>
-<td style="text-align: right;">-0.0</td>
+<td style="text-align: right;">0.001</td>
 <td style="text-align: right;">0.006</td>
 <td style="text-align: right;">0.0</td>
 <td style="text-align: right;">true</td>

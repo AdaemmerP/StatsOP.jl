@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>crit_val_op_bp</title>
+<title>test_op_bp_bootstrap</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -168,7 +168,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#sec-doc" id="toc-sec-doc" class="nav-link active" data-scroll-target="#sec-doc">crit_val_op_bp</a></li>
+  <li><a href="#sec-doc" id="toc-sec-doc" class="nav-link active" data-scroll-target="#sec-doc">test_op_bp_bootstrap</a></li>
   </ul>
 </nav>
     </div>
@@ -179,7 +179,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <section id="sec-doc" class="level1">
-<h1>crit_val_op_bp</h1>
+<h1>test_op_bp_bootstrap</h1>
 <div class="callout callout-style-simple callout-note callout-titled" title="docblock">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -192,13 +192,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div id="callout-1" class="callout-1-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">crit_val_op_bp</span>(w; chart_choice, m<span class="op">=</span><span class="fl">3</span>, alpha<span class="op">=</span><span class="fl">0.05</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Return the critical value for the Box-Pierce type ordinal-pattern test statistic computed by <a href="@ref"><code>stat_op_bp</code></a>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">test_op_bp_bootstrap</span>(data, n_boot, w; chart_choice, m<span class="op">=</span><span class="fl">3</span>, alpha<span class="op">=</span><span class="fl">0.05</span>,</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  ljung_box<span class="op">=</span><span class="cn">false</span>, block_size<span class="op">=</span><span class="fl">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Compute a bootstrap Box-Pierce type hypothesis test for ordinal patterns and return an <code>OPBPTestResultBoot</code> with the bootstrap critical value, p-value, and reject decision.</p>
+<p>Unlike <a href="@ref"><code>test_op_bp</code></a>, this does not rely on tabulated critical values and therefore works for any chart, any pattern length <code>m</code>, any maximal delay <code>w</code> and any significance level <code>alpha</code>.</p>
 <ul>
-<li><code>w::Int</code>: maximal delay used in the test statistic (supported values depend on the chart).</li>
+<li><code>data</code>: the time series.</li>
+<li><code>n_boot</code>: number of bootstrap replications.</li>
+<li><code>w</code>: maximal delay; the individual statistics for delays <code>1:w</code> are aggregated.</li>
 <li><code>chart_choice</code>: one of <code>Shannon()</code>, <code>ShannonExtropy()</code>, <code>DistanceToWhiteNoise()</code>, <code>UpDownBalance()</code>, <code>Persistence()</code>, <code>RotationalAsymmetry()</code>, <code>UpDownScaling()</code>.</li>
-<li><code>m::Int=3</code>: length of the ordinal patterns (<code>2</code> or <code>3</code>, depending on the chart).</li>
-<li><code>alpha=0.05</code>: significance level. For the Shannon-, extropy- and Δ-charts with <code>m = 3</code>, tabulated values for <code>alpha = 0.05</code> are used.</li>
+<li><code>m::Int=3</code>: length of the ordinal patterns.</li>
+<li><code>alpha</code>: significance level (default <code>0.05</code>).</li>
+<li><code>ljung_box::Bool=false</code>: if <code>true</code>, use Ljung-Box (BL) weights.</li>
+<li><code>block_size</code>: set <code>&gt; 1</code> for a block bootstrap that preserves serial dependencies.</li>
 </ul>
 </div>
 </div>

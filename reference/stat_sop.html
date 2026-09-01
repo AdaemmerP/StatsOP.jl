@@ -196,7 +196,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  noise_dist<span class="op">=</span><span class="fu">Uniform</span>(<span class="fl">0</span>, <span class="fl">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Compute the test statistic based on spatial ordinal patterns (SOPs) for a single picture (matrix). Returns the tuple <code>(stat, p_hat)</code> with the chart statistic and the vector of relative SOP type frequencies.</p>
 <ul>
-<li><code>data::Union{SubArray,Array{T,2}}</code>: A 2D array of data.</li>
+<li><code>data::Union{SubArray,Matrix{&lt;:Real}}</code>: A 2D array of data.</li>
 <li><code>d1::Int</code>: The delay value for the rows.</li>
 <li><code>d2::Int</code>: The delay value for the columns.</li>
 <li><code>chart_choice</code>: one of <a href="@ref"><code>TauHat</code></a><code>()</code>, <a href="@ref"><code>KappaHat</code></a><code>()</code>, <a href="@ref"><code>TauTilde</code></a><code>()</code>, <a href="@ref"><code>KappaTilde</code></a><code>()</code>, <code>Shannon()</code>, <code>ShannonExtropy()</code>, <code>DistanceToWhiteNoise()</code>.</li>
