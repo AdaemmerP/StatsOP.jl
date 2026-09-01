@@ -859,6 +859,13 @@ arl_acf_ic(lam, cl, acf_dgp, reps, acf_version; ced=false, ad=100, rl_max=typema
 ---
 
 
+[crit_val_op(chart_choice, m, n_patterns; alpha=0.05)](reference/crit_val_op.qmd)
+
+> Compute the asymptotic critical value of the ordinal-pattern test [`test_op`](@ref).
+
+---
+
+
 [rl_sacf_ic(
 spatial_dgp::ICSP, lam, cl, d1::Int, d2::Int, p_reps::UnitRange, dist_error::UnivariateDistribution](reference/rl_sacf_ic.qmd)
 

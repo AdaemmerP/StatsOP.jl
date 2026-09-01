@@ -1,0 +1,35 @@
+---
+engine: markdown
+---
+
+# crit_val_op {#sec-doc}
+
+
+::: {.callout-note appearance="simple" title="docblock" collapse=false}
+
+
+```julia
+crit_val_op(chart_choice, m, n_patterns; alpha=0.05)
+```
+Compute the asymptotic critical value of the ordinal-pattern test [`test_op`](@ref).
+ 
+The critical value depends only on the chart, on the pattern length `m`, on the number of patterns `n_patterns` and on the level `alpha`, but not on the data. In a Monte Carlo study it can therefore be computed once per sample size and reused in every replication, which is much faster than calling [`test_op`](@ref) in the loop: `test_op` additionally evaluates the p-value, and for `Shannon()`, `ShannonExtropy()` and `DistanceToWhiteNoise()` that means a numerical evaluation of a generalized chi-squared distribution per call.
+ 
+  * `chart_choice`: one of `Shannon()`, `ShannonExtropy()`, `DistanceToWhiteNoise()`, `UpDownBalance()`, `Persistence()`, `RotationalAsymmetry()`, `UpDownScaling()`.
+  * `m::Int`: length of the ordinal patterns. Asymptotic theory is available for `m = 3` (and `m = 2` for `Shannon()`, `DistanceToWhiteNoise()` and `UpDownBalance()`).
+  * `n_patterns::Int`: number of ordinal patterns, `length(ts) - (m - 1) * d`.
+  * `alpha=0.05`: significance level.
+The null hypothesis is rejected when the statistic falls below the critical value for `Shannon()` and `ShannonExtropy()`, exceeds it for `DistanceToWhiteNoise()`, and exceeds it in absolute value for the four statistics of Bandt (2019).
+ 
+
+```julia
+x = randn(500)
+n = length(x) - 2
+crit = crit_val_op(Persistence(), 3, n)
+abs(chart_stat_op(stat_op(x; chart_choice=Persistence())[2], Persistence())) > crit
+```
+
+
+:::
+
+

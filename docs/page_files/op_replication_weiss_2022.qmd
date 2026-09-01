@@ -1,0 +1,234 @@
+---
+engine: julia
+julia:
+  exeflags: ["--project=../.", "--threads=auto"]
+nocite: |
+  @bandt2019
+  @weiss2022
+---
+
+# Replication: Weiß (2022)
+
+This page reproduces the DGP 1 block of **Table IV** in @weiss2022. Table IV reports
+simulated rejection rates of the seven asymptotic ordinal pattern tests at level
+$\alpha = 0.05$, together with the classical ACF test as a benchmark, for growing sample
+size $T$.
+
+## Libraries
+
+```{julia}
+#| output: false
+#| message: false
+using StatsOrdinalPatterns, Random, Statistics, Printf, DataFrames
+```
+
+## Statistics of the paper and their types in the package
+
+Each column of Table IV corresponds to one `chart_choice` of `test_op`, which returns the
+statistic, the asymptotic critical value, the $p$ value and the reject decision.
+
+| Table IV column | `chart_choice` | Rejects $H_0$ when | Null distribution |
+|:----------------|:---------------|:-------------------|:------------------|
+| $H(\hat{\mathbf{p}}^{(d)})$ | `Shannon()` | $\widehat{H} < c$ | generalized $\chi^2$ |
+| $H_{\text{ex}}(\hat{\mathbf{p}}^{(d)})$ | `ShannonExtropy()` | $\widehat{H}_{\text{ex}} < c$ | generalized $\chi^2$ |
+| $\Delta^2(\hat{\mathbf{p}}^{(d)})$ | `DistanceToWhiteNoise()` | $\widehat{\Delta} > c$ | generalized $\chi^2$ |
+| $\hat{\beta}^{(d)}$ | `UpDownBalance()` | $\lvert\hat{\beta}\rvert > c$ | normal, $\sigma^2 = \tfrac{1}{3n}$ |
+| $\hat{\tau}^{(d)}$ | `Persistence()` | $\lvert\hat{\tau}\rvert > c$ | normal, $\sigma^2 = \tfrac{8}{45n}$ |
+| $\hat{\gamma}^{(d)}$ | `RotationalAsymmetry()` | $\lvert\hat{\gamma}\rvert > c$ | normal, $\sigma^2 = \tfrac{2}{5n}$ |
+| $\hat{\delta}^{(d)}$ | `UpDownScaling()` | $\lvert\hat{\delta}\rvert > c$ | normal, $\sigma^2 = \tfrac{2}{3n}$ |
+| ACF at lag $d$ | `test_acf` | $\lvert\hat{\rho}(d)\rvert > c$ | normal, $\sigma^2 = \tfrac{1}{T}$ |
+
+Here $n = T - (m-1)d$ is the number of patterns in a series of length $T$. The critical
+value $c$ of each row is available on its own through `crit_val_op(chart_choice, m, n)`
+and `crit_val_acf(T)`. Two conventions matter for the match:
+
+* The package indexes patterns by their Lehmer code (see
+  [`perm_to_lehm_idx`](../reference/perm_to_lehm_idx.qmd)). For $m = 3$ this is the
+  lexicographic numbering $\hat p_1, \ldots, \hat p_6$ of the paper, so $\hat\beta$,
+  $\hat\tau$, $\hat\gamma$ and $\hat\delta$ pick the same components.
+* `UpDownBalance()` and `UpDownScaling()` return $-\hat\beta$ and $-\hat\delta$. All four
+  Bandt statistics are tested two sided, so the rejection rates are unaffected.
+
+## Setup
+
+DGP 1 is the Gaussian AR(1) process $X_t = \alpha X_{t-1} + \epsilon_t$ with
+$\epsilon_t \sim \text{i.i.d. } N(0,1)$ and $\alpha = 0.5$, tested at delay $d = 1$. The
+DGP types of the package drive the sequential run length simulations. A classical test
+needs a complete series, so the process is written out directly and started from its
+stationary distribution.
+
+```{julia}
+#| output: false
+function sim_ar1!(x, α)
+    x[1] = randn() / sqrt(1 - α^2)          # stationary start
+    for t in 2:length(x)
+        x[t] = α * x[t-1] + randn()
+    end
+    return x
+end
+
+α = 0.5                                     # DGP 1
+m, d = 3, 1                                 # pattern length and delay
+level = 0.05                                # nominal significance level
+Ts = (100, 250, 500, 1000, 1500, 2500)      # sample sizes of Table IV
+reps = 10_000                               # Monte Carlo replications
+
+charts = [
+    ("H", Shannon()),
+    ("Hex", ShannonExtropy()),
+    ("Δ²", DistanceToWhiteNoise()),
+    ("β", UpDownBalance()),
+    ("τ", Persistence()),
+    ("γ", RotationalAsymmetry()),
+    ("δ", UpDownScaling()),
+]
+```
+
+## A single test
+
+```{julia}
+Random.seed!(1)
+x = sim_ar1!(zeros(500), α)
+test_op(x; chart_choice=Persistence(), m=m, d=d, alpha=level)
+```
+
+```{julia}
+test_acf(x, d; alpha=level)
+```
+
+## Running the power study
+
+`crit_val_op` returns the critical value alone. It depends on the chart, on $m$ and on the
+number of patterns $n$, but not on the data, so for a fixed $T$ it is the same in all
+replications. `test_op` additionally computes the $p$ value, which does depend on the data
+and which for the three omnibus statistics means evaluating a generalized $\chi^2$
+distribution numerically. A power study only needs the decision, so the critical values are
+taken once per sample size and each replication then costs one pass over the series. That
+is about 300 times faster than a plain loop over `test_op`.
+
+```{julia}
+#| output: false
+# rejection rules of the table above
+rejects(::Union{Shannon,ShannonExtropy}, stat, crit) = stat < crit
+rejects(::DistanceToWhiteNoise, stat, crit) = stat > crit
+rejects(_, stat, crit) = abs(stat) > crit
+
+function power(T, α, reps; m=3, d=1, level=0.05)
+    n = T - (m - 1) * d
+    crits = [crit_val_op(cc, m, n; alpha=level) for (_, cc) in charts]
+    crit_acf = crit_val_acf(T; alpha=level)
+
+    tasks = map(Iterators.partition(1:reps, cld(reps, Threads.nthreads()))) do idx
+        Threads.@spawn begin
+            x = Vector{Float64}(undef, T)
+            hits = zeros(Int, length(charts) + 1)
+            for _ in idx
+                sim_ar1!(x, α)
+                p̂ = stat_op(x; chart_choice=Shannon(), m=m, d=d)[2]
+                for (j, (_, cc)) in enumerate(charts)
+                    hits[j] += rejects(cc, chart_stat_op(p̂, cc), crits[j])
+                end
+                hits[end] += abs(stat_acf(x, d)) > crit_acf
+            end
+            hits
+        end
+    end
+    return sum(fetch.(tasks)) ./ reps
+end
+```
+
+The shortcut has to give the same statistic and the same decision as `test_op` and
+`test_acf`, not merely a similar one:
+
+```{julia}
+let x = sim_ar1!(zeros(400), α), n = 400 - (m - 1) * d
+    p̂ = stat_op(x; chart_choice=Shannon(), m=m, d=d)[2]
+    ok = all(
+        begin
+            r = test_op(x; chart_choice=cc, m=m, d=d, alpha=level)
+            s = chart_stat_op(p̂, cc)
+            s ≈ r.stat && crit_val_op(cc, m, n; alpha=level) ≈ r.asymp_crit &&
+                rejects(cc, s, r.asymp_crit) == r.asymp_reject
+        end for (_, cc) in charts
+    )
+    ok &= (abs(stat_acf(x, d)) > crit_val_acf(400; alpha=level)) == test_acf(x, d; alpha=level).asymp_reject
+    (shortcut_matches_test_op=ok,)
+end
+```
+
+::: {.callout-note}
+With `reps = 10_000` the page runs in a few seconds and the standard error of a rejection
+rate is at most $\sqrt{0.25 / 10^4} = 0.005$.
+:::
+
+## Table IV: DGP 1, $d = 1$
+
+```{julia}
+#| output: false
+res = Dict(T => power(T, α, reps; m=m, d=d, level=level) for T in Ts)
+```
+
+```{julia}
+#| echo: false
+tab = DataFrame(T=collect(Ts))
+for (j, (name, _)) in enumerate(charts)
+    tab[!, name] = [round(res[T][j], digits=3) for T in Ts]
+end
+tab[!, "ACF"] = [round(res[T][end], digits=3) for T in Ts]
+tab
+```
+
+### Comparison with the published rates
+
+```{julia}
+#| code-fold: true
+#| code-summary: "Published rates and comparison table"
+# published values, ordered (H, Hex, Δ², β, τ, γ, δ, ACF)
+published = Dict(
+    100 => (0.250, 0.266, 0.256, 0.051, 0.556, 0.043, 0.044, 0.998),
+    250 => (0.614, 0.634, 0.630, 0.065, 0.882, 0.052, 0.039, 1.000),
+    500 => (0.929, 0.935, 0.934, 0.057, 0.992, 0.046, 0.038, 1.000),
+    1000 => (0.999, 0.999, 0.999, 0.057, 1.000, 0.046, 0.042, 1.000),
+    1500 => (1.000, 1.000, 1.000, 0.066, 1.000, 0.053, 0.043, 1.000),
+    2500 => (1.000, 1.000, 1.000, 0.056, 1.000, 0.052, 0.042, 1.000),
+)
+
+names = vcat([n for (n, _) in charts], "ACF")
+cmp = DataFrame(T=Int[], statistic=String[], paper=Float64[], replicated=Float64[], dev=Float64[])
+for T in Ts, (j, nm) in enumerate(names)
+    push!(cmp, (T, nm, published[T][j], round(res[T][j], digits=3),
+        round(res[T][j] - published[T][j], digits=3)))
+end
+cmp
+```
+
+```{julia}
+#| echo: false
+@printf("largest absolute deviation: %.3f\n", maximum(abs, cmp.dev))
+@printf("mean absolute deviation:    %.3f\n", mean(abs, cmp.dev))
+@printf("Monte Carlo standard error: at most %.3f\n", sqrt(0.25 / reps))
+```
+
+All 48 entries are reproduced, with a mean absolute deviation below the Monte Carlo
+standard error of a single run. The largest deviations sit in the $T = 100$ row of the
+three omnibus statistics, which are strongly correlated and therefore drift together.
+
+## Reading the table
+
+* $\hat\beta$, $\hat\gamma$ and $\hat\delta$ stay at the nominal 5 % for every $T$. A
+  Gaussian AR(1) process is reversible and symmetric, so it produces none of the asymmetries
+  these statistics detect. Their columns verify the size of the tests, not their power.
+* $\hat\tau$ is the sharpest ordinal pattern test here, at 0.55 for $T = 100$ where the
+  omnibus statistics reach about 0.25. Persistence is exactly what a positive AR(1)
+  coefficient creates.
+* $H$, $H_{\text{ex}}$ and $\Delta^2$ are nearly identical throughout. All three measure
+  the distance of $\hat{\mathbf{p}}$ from uniformity under the same generalized $\chi^2$
+  null.
+* The ACF test reaches 0.998 already at $T = 100$. DGP 1 is a linear Gaussian process, the
+  model the sample autocorrelation is efficient for, so it is the natural upper benchmark
+  in this scenario.
+
+## References
+
+::: {#refs}
+:::

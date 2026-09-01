@@ -16,8 +16,6 @@ StatsOrdinalPatterns.jl provides (sequential) tests and control charts for time 
 
 For most tests, three variants are available: an asymptotic test, a bootstrap test, and (for OP) a surrogate-data test — see the [documentation](https://adaemmerp.github.io/StatsOrdinalPatterns.jl/) for details and worked examples.
 
-Previously, the name of the package was **OrdinalPatterns.jl**, but it has been renamed to better reflect its purpose.
-
 ## Installation
 
 Once registered, install the latest release from the General registry:

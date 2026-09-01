@@ -1,11 +1,57 @@
-# Quantile computation for the generalized chi-squared distribution
-function qup3_op_value(alpha)
+# Asymptotic null distribution of the m=3 omnibus statistics (Δ, H, Hex): a weighted sum
+# of independent chi-squared variables with the eigenvalues below as weights.
+const _gc_op = _GChisqDist(
+  [(2 + sqrt(2)) / 12, 2 / 15, 1 / 10, (2 - sqrt(2)) / 12],
+  ones(4), zeros(4), 0.0, 0.0
+)
 
-  ev = [(2 + sqrt(2)) / 12, 2 / 15, 1 / 10, (2 - sqrt(2)) / 12]
-  quantile(_GChisqDist(ev, ones(length(ev)), zeros(length(ev)), 0.0, 0.0), 1 - alpha)
+# Quantile computation for the generalized chi-squared distribution.
+#
+# Inverting the generalized chi-squared cdf is numerical: it costs about 2 ms and
+# allocates several MB per call. The result depends only on `alpha`, so the handful of
+# levels that ever occur are cached. This matters for Monte Carlo studies, where
+# `crit_val_op` would otherwise redo the same inversion in every replication. The lock
+# keeps the cache correct when tests run on several threads; after the first call per
+# level it only guards a dictionary lookup.
+const _QUP3_CACHE = Dict{Float64,Float64}()
+const _QUP3_LOCK = ReentrantLock()
+
+function qup3_op_value(alpha)
+  return lock(_QUP3_LOCK) do
+    get!(() -> quantile(_gc_op, 1 - alpha), _QUP3_CACHE, alpha)
+  end
 end
 
-# 1.) Method for Shannon
+"""
+    crit_val_op(chart_choice, m, n_patterns; alpha=0.05)
+
+Compute the asymptotic critical value of the ordinal-pattern test [`test_op`](@ref).
+
+The critical value depends only on the chart, on the pattern length `m`, on the number of
+patterns `n_patterns` and on the level `alpha`, but not on the data. In a Monte Carlo
+study it can therefore be computed once per sample size and reused in every replication,
+which is much faster than calling [`test_op`](@ref) in the loop: `test_op` additionally
+evaluates the p-value, and for `Shannon()`, `ShannonExtropy()` and `DistanceToWhiteNoise()`
+that means a numerical evaluation of a generalized chi-squared distribution per call.
+
+- `chart_choice`: one of `Shannon()`, `ShannonExtropy()`, `DistanceToWhiteNoise()`,
+  `UpDownBalance()`, `Persistence()`, `RotationalAsymmetry()`, `UpDownScaling()`.
+- `m::Int`: length of the ordinal patterns. Asymptotic theory is available for `m = 3`
+  (and `m = 2` for `Shannon()`, `DistanceToWhiteNoise()` and `UpDownBalance()`).
+- `n_patterns::Int`: number of ordinal patterns, `length(ts) - (m - 1) * d`.
+- `alpha=0.05`: significance level.
+
+The null hypothesis is rejected when the statistic falls below the critical value for
+`Shannon()` and `ShannonExtropy()`, exceeds it for `DistanceToWhiteNoise()`, and exceeds
+it in absolute value for the four statistics of Bandt (2019).
+
+```julia
+x = randn(500)
+n = length(x) - 2
+crit = crit_val_op(Persistence(), 3, n)
+abs(chart_stat_op(stat_op(x; chart_choice=Persistence())[2], Persistence())) > crit
+```
+"""
 function crit_val_op(::Shannon, m, n_patterns; alpha=0.05)
   if m == 2
     # H-chart (m=2)
@@ -144,12 +190,9 @@ end
 
 # --- 4. Asymptotic p-value computation ---
 
-# Shared generalized chi-squared null (m=3 case for Δ, H, Hex)
-const _gc_op = _GChisqDist(
-  [(2 + sqrt(2)) / 12, 2 / 15, 1 / 10, (2 - sqrt(2)) / 12],
-  ones(4), zeros(4), 0.0, 0.0
-)
-
+# The generalized chi-squared null `_gc_op` is defined at the top of this file, next to
+# the quantile it is also used for. Unlike the critical value, the p-value depends on the
+# data and therefore cannot be cached.
 function _asymp_pval(chart, stat::Float64, n_pat::Int, m::Int)::Float64
   if chart isa Union{Persistence, UpDownBalance, RotationalAsymmetry, UpDownScaling}
     se = chart isa Persistence         ? sqrt(8 / 45 / n_pat) :

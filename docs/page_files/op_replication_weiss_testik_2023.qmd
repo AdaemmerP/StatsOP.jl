@@ -1,0 +1,281 @@
+---
+engine: julia
+julia:
+  exeflags: ["--project=../.", "--threads=auto"]
+nocite: |
+  @bandt2019
+  @weiss2023
+---
+
+# Replication: Weiß and Testik (2023)
+
+This page reproduces **Table 1** and **Table 2** of @weiss2023 with
+`StatsOrdinalPatterns.jl`. Both tables are Monte Carlo results, so replicating them checks
+the ordinal-pattern coding, the EWMA recursion, the alarm rules and the root finder that
+calibrates the charts, all at once.
+
+Everything below is computed from scratch; the published numbers are hard-coded only so
+that they can be printed next to the replicated ones.
+
+## Libraries
+
+```{julia}
+#| output: false
+#| message: false
+using StatsOrdinalPatterns, Random, Statistics, Printf, DataFrames
+```
+
+## Statistics of the paper and their types in the package
+
+The paper monitors six statistics of the EWMA-smoothed pattern distribution
+$\hat{\mathbf{p}}_t$ (Equation (5) of @weiss2023): the three omnibus measures of Equation
+(3) and the three directed measures of @bandt2019 given in Equation (4). Each of them is
+selected in the package through the `chart_choice` keyword:
+
+| Paper | Statistic | `chart_choice` | Alarm rule |
+|:------|:----------|:---------------|:-----------|
+| Eq. (3) | $\widehat{H}^{(d)}$, permutation entropy | `Shannon()` | $\widehat{H} < cl$ |
+| Eq. (3) | $\widehat{H}_{\text{ex}}^{(d)}$, permutation extropy | `ShannonExtropy()` | $\widehat{H}_{\text{ex}} < cl$ |
+| Eq. (3) | $\widehat{\Delta}^{(d)}$, distance to white noise | `DistanceToWhiteNoise()` | $\widehat{\Delta} > cl$ |
+| Eq. (4) | $\hat{\beta}^{(d)}$, up-down balance | `UpDownBalance()` | $\lvert\hat{\beta}\rvert > cl$ |
+| Eq. (4) | $\hat{\tau}^{(d)}$, persistence | `Persistence()` | $\lvert\hat{\tau}\rvert > cl$ |
+| Eq. (4) | $\hat{\delta}^{(d)}$, up-down scaling | `UpDownScaling()` | $\lvert\hat{\delta}\rvert > cl$ |
+
+
+## Setup
+
+The in-control process is i.i.d. standard normal. Since all six statistics depend on the
+data only through ranks, the resulting designs apply to *any* continuously distributed
+i.i.d. process — the distribution-free property noted below Table 1 of the paper.
+
+```{julia}
+#| output: false
+ic = ContinuousDGPIC(Normal(0, 1))     # in-control process
+L0 = 370.0                             # target in-control ARL
+m, d = 3, 1                            # pattern length and delay
+lams = (0.25, 0.10, 0.05)              # smoothing parameters of Table 1
+reps = 10_000                          # replications per ARL estimate
+
+charts = [
+    ("H", Shannon()),
+    ("Hex", ShannonExtropy()),
+    ("Δ", DistanceToWhiteNoise()),
+    ("β", UpDownBalance()),
+    ("τ", Persistence()),
+    ("δ", UpDownScaling()),
+]
+```
+
+::: {.callout-note}
+With `reps = 10_000` the whole page runs in well under a minute on a multicore machine, and
+the standard error of an ARL estimate is roughly 1 % of the ARL. That is enough to confirm
+every entry of both tables, but the ARLs move by about a percent from render to render.
+Raise `reps` for tighter agreement.
+:::
+
+## Table 1: in-control designs
+
+`cl_op` searches for the critical limit at which the in-control ARL equals `L0`: it first
+brackets the root with a coarse Monte Carlo estimate and then refines the bracket with the
+ITP algorithm. Only a rough starting value is needed — the ones below are deliberately
+round numbers that differ from the published limits.
+
+```{julia}
+#| output: false
+# (λ, chart) => (starting value, step size of the bracket search)
+start = Dict(
+    (0.25, "H") => (1.05, 0.01), (0.25, "Hex") => (0.70, 0.01), (0.25, "Δ") => (0.30, 0.01),
+    (0.25, "β") => (0.60, 0.01), (0.25, "τ") => (0.40, 0.01), (0.25, "δ") => (0.70, 0.02),
+    (0.10, "H") => (1.50, 0.01), (0.10, "Hex") => (0.85, 0.005), (0.10, "Δ") => (0.10, 0.005),
+    (0.10, "β") => (0.35, 0.005), (0.10, "τ") => (0.25, 0.005), (0.10, "δ") => (0.45, 0.01),
+    (0.05, "H") => (1.70, 0.02), (0.05, "Hex") => (0.89, 0.005), (0.05, "Δ") => (0.045, 0.002),
+    (0.05, "β") => (0.22, 0.005), (0.05, "τ") => (0.16, 0.005), (0.05, "δ") => (0.30, 0.01),
+)
+
+cls = Dict(
+    (lam, name) => cl_op(
+        ic, lam, L0, start[(lam, name)][1];
+        chart_choice=chart, m=m, d=d,
+        reps_bracket=reps, reps_final=reps,
+        bracket_step=start[(lam, name)][2], seed=42
+    )
+    for lam in lams for (name, chart) in charts
+)
+```
+
+The limits are then verified by an independent run of `arl_op_ic`.
+
+```{julia}
+#| output: false
+arls = Dict(
+    (lam, name) => arl_op_ic(ic, lam, cls[(lam, name)], reps; chart_choice=chart, m=m, d=d)
+    for lam in lams for (name, chart) in charts
+)
+```
+
+### Replicated table
+
+The layout follows Table 1: for every smoothing parameter, the critical limit of each chart
+and the in-control ARL it achieves.
+
+```{julia}
+#| echo: false
+tab1 = DataFrame(λ=collect(lams))
+for (name, _) in charts
+    tab1[!, "l_$name"] = [round(cls[(lam, name)], sigdigits=5) for lam in lams]
+    tab1[!, "ARL_$name"] = [round(arls[(lam, name)][1], digits=1) for lam in lams]
+end
+tab1
+```
+
+### Comparison with the published limits
+
+```{julia}
+#| code-fold: true
+#| code-summary: "Published limits and comparison table"
+published_cl = Dict(
+    (0.25, "H") => 1.014, (0.25, "Hex") => 0.6621, (0.25, "Δ") => 0.3338,
+    (0.25, "β") => 0.6437, (0.25, "τ") => 0.4253, (0.25, "δ") => 0.7656,
+    (0.10, "H") => 1.4601, (0.10, "Hex") => 0.8405, (0.10, "Δ") => 0.1115,
+    (0.10, "β") => 0.3638, (0.10, "τ") => 0.2529, (0.10, "δ") => 0.4876,
+    (0.05, "H") => 1.6356, (0.05, "Hex") => 0.88017, (0.05, "Δ") => 0.05125,
+    (0.05, "β") => 0.2330, (0.05, "τ") => 0.16775, (0.05, "δ") => 0.3246,
+)
+
+cmp1 = DataFrame(
+    λ=[lam for lam in lams for _ in charts],
+    chart=[name for _ in lams for (name, _) in charts],
+    cl_paper=[published_cl[(lam, name)] for lam in lams for (name, _) in charts],
+    cl_replicated=[round(cls[(lam, name)], sigdigits=5) for lam in lams for (name, _) in charts],
+    ARL=[round(arls[(lam, name)][1], digits=1) for lam in lams for (name, _) in charts],
+    se=[round(arls[(lam, name)][2], digits=1) for lam in lams for (name, _) in charts],
+)
+cmp1.dev_pct = round.(100 .* (cmp1.cl_replicated .- cmp1.cl_paper) ./ cmp1.cl_paper, digits=2)
+cmp1
+```
+
+```{julia}
+#| echo: false
+@printf("largest relative deviation of a critical limit: %.2f %%\n", maximum(abs, cmp1.dev_pct))
+@printf("in-control ARLs: min %.1f, max %.1f (target %.0f)\n",
+    minimum(cmp1.ARL), maximum(cmp1.ARL), L0)
+```
+
+All eighteen limits agree with the published ones to within a few tenths of a percent, and
+every chart holds the target ARL of 370 within Monte Carlo error.
+
+## Table 2: out-of-control performance under DGP 1
+
+DGP 1 of the paper is the Gaussian AR(1) process
+$X_t = \alpha X_{t-1} + \epsilon_t$ with $\epsilon_t \sim \text{i.i.d. } N(0,1)$ and
+$\alpha \in \{\pm 0.2, \pm 0.4, \pm 0.6, \pm 0.8\}$. It is constructed by
+`AR1(α, Normal(0, 1))` and started from its stationary distribution.
+
+Table 2 reports the four charts that react to this alternative — $H$, $H_{\text{ex}}$,
+$\Delta$ and $\tau$. The paper omits the $\beta$- and $\delta$-charts here because both
+measure asymmetries that a Gaussian AR(1) process does not create.
+
+The charts keep the designs computed above, so this section also propagates any error in
+the critical limits.
+
+```{julia}
+#| output: false
+charts2 = [("H", Shannon()), ("Hex", ShannonExtropy()),
+    ("Δ", DistanceToWhiteNoise()), ("τ", Persistence())]
+alphas = (0.2, 0.4, 0.6, 0.8, -0.2, -0.4, -0.6, -0.8)
+
+oc = Dict(
+    (lam, α, name) => arl_op_oc(
+        AR1(α, Normal(0, 1)), lam, cls[(lam, name)], reps;
+        chart_choice=chart, m=m, d=d
+    )[1]
+    for lam in lams for α in alphas for (name, chart) in charts2
+)
+```
+
+```{julia}
+#| echo: false
+function tab2(lam)
+    df = DataFrame(α=collect(alphas))
+    for (name, _) in charts2
+        df[!, name] = [round(oc[(lam, α, name)], digits=1) for α in alphas]
+    end
+    df
+end
+```
+
+### $\lambda = 0.25$
+
+```{julia}
+#| echo: false
+tab2(0.25)
+```
+
+### $\lambda = 0.10$
+
+```{julia}
+#| echo: false
+tab2(0.10)
+```
+
+### $\lambda = 0.05$
+
+```{julia}
+#| echo: false
+tab2(0.05)
+```
+
+### Comparison with the published ARLs
+
+```{julia}
+#| code-fold: true
+#| code-summary: "Published ARLs and comparison table"
+# published values, ordered (H, Hex, Δ, τ)
+published_oc = Dict(
+    (0.25, 0.2) => (231.9, 217.8, 217.6, 185.4), (0.25, 0.4) => (143.7, 128.0, 128.5, 101.8),
+    (0.25, 0.6) => (85.9, 75.2, 75.3, 60.4), (0.25, 0.8) => (50.6, 44.7, 44.8, 39.9),
+    (0.25, -0.2) => (588.0, 647.8, 640.2, 798.2), (0.25, -0.4) => (942.4, 1174.4, 1162.0, 1840.3),
+    (0.25, -0.6) => (1255.2, 2324.6, 2266.1, 4634.4), (0.25, -0.8) => (491.8, 5508.4, 5242.5, 13649.7),
+    (0.10, 0.2) => (299.8, 233.7, 242.2, 191.3), (0.10, 0.4) => (212.4, 145.1, 152.9, 99.9),
+    (0.10, 0.6) => (135.3, 89.3, 94.2, 59.7), (0.10, 0.8) => (81.7, 54.7, 57.6, 40.5),
+    (0.10, -0.2) => (411.1, 570.5, 531.3, 411.2), (0.10, -0.4) => (392.8, 786.8, 681.8, 203.7),
+    (0.10, -0.6) => (242.3, 692.3, 565.1, 83.8), (0.10, -0.8) => (85.7, 231.6, 190.8, 37.4),
+    (0.05, 0.2) => (303.3, 261.2, 269.5, 206.2), (0.05, 0.4) => (208.3, 166.2, 172.9, 105.7),
+    (0.05, 0.6) => (132.4, 104.0, 108.7, 63.8), (0.05, 0.8) => (84.5, 67.2, 69.4, 43.9),
+    (0.05, -0.2) => (349.0, 424.2, 411.2, 271.4), (0.05, -0.4) => (237.8, 347.7, 326.2, 118.0),
+    (0.05, -0.6) => (120.6, 180.6, 168.2, 56.2), (0.05, -0.8) => (57.0, 75.1, 71.3, 30.7),
+)
+
+dev = DataFrame(λ=Float64[], α=Float64[], chart=String[],
+    ARL_paper=Float64[], ARL_replicated=Float64[], dev_pct=Float64[])
+for lam in lams, α in alphas
+    p = published_oc[(lam, α)]
+    for (i, (name, _)) in enumerate(charts2)
+        r = oc[(lam, α, name)]
+        push!(dev, (lam, α, name, p[i], round(r, digits=1), round(100 * (r - p[i]) / p[i], digits=2)))
+    end
+end
+
+DataFrame(
+    λ=collect(lams),
+    max_abs_dev_pct=[round(maximum(abs, dev[dev.λ.==lam, :dev_pct]), digits=2) for lam in lams],
+    mean_abs_dev_pct=[round(mean(abs, dev[dev.λ.==lam, :dev_pct]), digits=2) for lam in lams],
+)
+```
+
+The five largest deviations across all 96 entries:
+
+```{julia}
+#| echo: false
+first(sort(dev, :dev_pct, by=abs, rev=true), 5)
+```
+
+Every cell is reproduced to within a few percent, which is the resolution that 10 000
+replications provide. The largest deviations occur exactly where they should: in the cells
+with ARLs of several thousand, where the run-length distribution is most dispersed.
+
+
+## References
+
+::: {#refs}
+:::

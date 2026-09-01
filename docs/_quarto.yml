@@ -68,6 +68,7 @@ website:
             - reference/arl_op_ic.qmd
             - reference/arl_op_oc.qmd
             - reference/cl_op.qmd
+            - reference/crit_val_op.qmd
         - section: "Functions for generalized ordinal patterns"
           contents:
             - reference/arl_gop_ic.qmd
@@ -99,6 +100,12 @@ website:
         - page_files/op.qmd
         - page_files/op_tutorial.qmd
         - page_files/op_sequential.qmd
+        - section: "Replications"
+          contents:
+            - text: "Weiß (2022)"
+              href: page_files/op_replication_weiss_2022.qmd
+            - text: "Weiß and Testik (2023)"
+              href: page_files/op_replication_weiss_testik_2023.qmd
         #- page_files/op_dependence.qmd
         #- page_files/op_changepoint.qmd
         #- page_files/op_replication.qmd
