@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>index</title>
+<title>StatsOrdinalPatterns.jl</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -26,26 +26,42 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for citations */
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
 }
-.hanging-indent div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
-}</style>
+</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -64,7 +80,7 @@ div.csl-indent {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-cdbe6dcccf04b86544a8f382d8a2e92c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-b79cd271b98f089332fea942e18590e1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -93,40 +109,11 @@ div.csl-indent {
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-fixed fullcontent quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -173,55 +160,107 @@ window.Quarto = {
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<div id="quarto-content" class="quarto-container page-layout-custom page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="99">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#statsordinalpatterns.jl" id="toc-statsordinalpatterns.jl" class="nav-link active" data-scroll-target="#statsordinalpatterns.jl">StatsOrdinalPatterns.jl</a></li>
-  </ul>
-</nav>
-    </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
 
 
 
 
-<section id="statsordinalpatterns.jl" class="level1">
-<h1>StatsOrdinalPatterns.jl</h1>
-<p><code>StatsOrdinalPatterns.jl</code> is a Julia package that provides functions to conduct (sequential) tests for time series data, using ordinal patterns. The package builds on the seminal work of <span class="citation" data-cites="bandt2002">Bandt and Pompe (<a href="#ref-bandt2002" role="doc-biblioref">2002</a>)</span>. The package is highly optimized and fast. The package is designed to be easy to use and provides a simple interface to compute ordinal patterns from time series data.</p>
-
-
-
-</section>
-
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
-<div id="ref-bandt2002" class="csl-entry" role="listitem">
-Bandt, Christoph, and Bernd Pompe. 2002. <span>“Permutation Entropy: A Natural Complexity Measure for Time Series.”</span> <em>Physical Review Letters</em> 88 (17). <a href="https://doi.org/10.1103/physrevlett.88.174102">https://doi.org/10.1103/physrevlett.88.174102</a>.
+<div class="sop-hero">
+<div class="sop-container">
+<div class="sop-hero-inner">
+<div class="sop-hero-text">
+<p><span class="sop-tagline">Distribution-free tests for serial and spatial dependence, built on ordinal patterns.</span></p>
+<p><span class="sop-lede">Ordinal patterns replace the values of a data set by the rank order within small windows. The resulting frequencies say a great deal about the dependence structure while staying invariant under monotone transformations and robust to outliers. This package turns that idea into fast tests and control charts for time series, count data and spatial grids.</span></p>
+<div class="sop-buttons">
+<p><a href="./page_files/op_tutorial.html" class="sop-btn sop-btn-primary" role="button">Get started</a> <a href="https://github.com/AdaemmerP/StatsOrdinalPatterns.jl" class="sop-btn sop-btn-secondary" role="button">View on GitHub</a></p>
 </div>
-<div id="ref-bandt2007" class="csl-entry" role="listitem">
-Bandt, Chstoph, and Faten Shiha. 2007. <span>“Order Patterns in Time Series.”</span> <em>Journal of Time Series Analysis</em> 28 (5): 646–65.
 </div>
-<div id="ref-keller2007" class="csl-entry" role="listitem">
-Keller, Karsten, Mathieu Sinn, and Jan Emonds. 2007. <span>“Time Series from the Ordinal Viewpoint.”</span> <em>Stochastics and Dynamics</em> 7 (02): 247–72.
+<div class="sop-hero-logo">
+<p><img src="op_logo.svg" class="img-fluid" alt="StatsOrdinalPatterns.jl logo"></p>
 </div>
-<div id="ref-schnurr2017" class="csl-entry" role="listitem">
-Schnurr, Alexander, and Herold Dehling. 2017. <span>“Testing for Structural Breaks via Ordinal Pattern Dependence.”</span> <em>Journal of the American Statistical Association</em> 112 (518): 706–20. <a href="https://doi.org/10.1080/01621459.2016.1164706">https://doi.org/10.1080/01621459.2016.1164706</a>.
 </div>
-<div id="ref-weiss2021" class="csl-entry" role="listitem">
-Weiß, Christian H. 2021. <span>“Measuring Dispersion and Serial Dependence in Ordinal Time Series Based on the Cumulative Paired <span class="math inline">\(\phi\)</span>-Entropy.”</span> <em>Entropy</em> 24 (1): 42. <a href="https://www.mdpi.com/1099-4300/24/1/42">https://www.mdpi.com/1099-4300/24/1/42</a>.
 </div>
-<div id="ref-weiss2022" class="csl-entry" role="listitem">
-Weiß, Christian H. 2022. <span>“Non-Parametric Tests for Serial Dependence in Time Series Based on Asymptotic Implementations of Ordinal-Pattern Statistics.”</span> <em>Chaos: An Interdisciplinary Journal of Nonlinear Science</em> 32 (9). <a href="https://pubs.aip.org/aip/cha/article-abstract/32/9/093107/2835852/Non-parametric-tests-for-serial-dependence-in-time?redirectedFrom=fulltext">https://pubs.aip.org/aip/cha/article-abstract/32/9/093107/2835852/Non-parametric-tests-for-serial-dependence-in-time?redirectedFrom=fulltext</a>.
 </div>
-<div id="ref-weiss2023" class="csl-entry" role="listitem">
-Weiß, Christian H, and Murat Caner Testik. 2023. <span>“Nonparametric Control Charts for Monitoring Serial Dependence Based on Ordinal Patterns.”</span> <em>Technometrics</em> 65 (3): 340–50.
+<div class="sop-section sop-section-alt">
+<div class="sop-container">
+<p><span class="sop-section-title">What the package covers</span></p>
+<p><span class="sop-section-sub">Three pattern families, each with descriptive statistics, hypothesis tests and sequential monitoring.</span></p>
+<div class="sop-cards">
+<div class="sop-card sop-card-op">
+<p><a href="./page_files/op.html" class="sop-card-title">Ordinal Patterns</a></p>
+<p>Serial dependence in continuous time series. Seven chart statistics, asymptotic and bootstrap inference, and EWMA control charts.</p>
 </div>
-</div></section></div></main> <!-- /main -->
+<div class="sop-card sop-card-gop">
+<p><a href="./page_files/gop_tutorials.html" class="sop-card-title">Generalized Ordinal Patterns</a></p>
+<p>Discrete and rounded data where ties occur. Cayley permutations keep the ties intact instead of breaking them artificially.</p>
+</div>
+<div class="sop-card sop-card-sop">
+<p><a href="./page_files/sop.html" class="sop-card-title">Spatial Ordinal Patterns</a></p>
+<p>Dependence on gridded data, read off the rank order inside small neighbourhoods such as a 2×2 block.</p>
+</div>
+<div class="sop-card sop-card-rep">
+<p><a href="./page_files/op_replication_weiss_2022.html" class="sop-card-title">Reproducible papers</a></p>
+<p>A growing set of published studies, replicated from source and re-executed every time the site is built. Weiß (2022) and Weiß and Testik (2023) are available now.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sop-section">
+<div class="sop-container">
+<p><span class="sop-section-title">A test in five lines</span></p>
+<p><span class="sop-section-sub">Simulate an AR(1) series and ask whether its ordinal pattern frequencies are consistent with white noise.</span></p>
+<div class="sop-example">
+<div id="2" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">StatsOrdinalPatterns</span>, <span class="bu">Random</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="bu">Random</span>.<span class="fu">seed!</span>(<span class="fl">1</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="fu">zeros</span>(<span class="fl">500</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t <span class="kw">in</span> <span class="fl">2</span><span class="op">:</span><span class="fl">500</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    x[t] <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> x[t<span class="op">-</span><span class="fl">1</span>] <span class="op">+</span> <span class="fu">randn</span>()</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">test_op</span>(x; chart_choice<span class="op">=</span><span class="fu">Persistence</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<div class="ansi-escaped-output">
+<pre>OPTestResult
+  Chart:            <span class="ansi-red-fg ansi-bold">Persistence</span><span class="ansi-red-fg ansi-bold">(</span><span class="ansi-red-fg ansi-bold">)</span>
+  Statistic:        0.0663
+  ─────────────────────────────
+  Asymptotic test
+    Critical value: 0.037
+    p-value:        0.0005
+    Reject H₀:      true</pre>
+</div>
+</div>
+</div>
+</div>
+<p>The result object carries the statistic, the critical value, the p-value and the decision. Swapping <code>test_op</code> for <code>test_op_bootstrap</code> replaces the asymptotic critical value by a bootstrap one and lifts the restriction to pattern lengths <code>m = 2</code> and <code>m = 3</code>.</p>
+</div>
+</div>
+<div class="sop-section sop-section-alt">
+<div class="sop-container">
+<p><span class="sop-section-title">Installation</span></p>
+<p><span class="sop-section-sub">The package is not registered yet, so install it directly from GitHub.</span></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Pkg</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">Pkg</span>.<span class="fu">add</span>(url <span class="op">=</span> <span class="st">"https://github.com/AdaemmerP/StatsOrdinalPatterns.jl"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+<div class="sop-cta">
+<div class="sop-container">
+<p><span class="sop-section-title">Where to go next</span></p>
+<p><span class="sop-section-sub">Work through a tutorial, or look up a function in the reference.</span></p>
+<div class="sop-buttons">
+<p><a href="./page_files/op_tutorial.html" class="sop-btn sop-btn-primary" role="button">Time series tutorial</a> <a href="./page_files/sop_tutorial.html" class="sop-btn sop-btn-secondary" role="button">Spatial tutorial</a> <a href="./page_files/api_reference.html" class="sop-btn sop-btn-secondary" role="button">API reference</a></p>
+</div>
+</div>
+</div>
+
+
+
+
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
