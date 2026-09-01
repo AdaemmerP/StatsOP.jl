@@ -380,7 +380,7 @@ window.Quarto = {
 </tr>
 </tbody>
 </table>
-<p>Here <span class="math inline">\(n = T - (m-1)d\)</span> is the number of patterns in a series of length <span class="math inline">\(T\)</span>. Two conventions matter for the match:</p>
+<p>Here <span class="math inline">\(n = T - (m-1)d\)</span> is the number of patterns in a series of length <span class="math inline">\(T\)</span>. The critical value <span class="math inline">\(c\)</span> of each row is available on its own through <code>crit_val_op(chart_choice, m, n)</code> and <code>crit_val_acf(T)</code>. Two conventions matter for the match:</p>
 <ul>
 <li>The package indexes patterns by their Lehmer code (see <a href="../reference/perm_to_lehm_idx.html"><code>perm_to_lehm_idx</code></a>). For <span class="math inline">\(m = 3\)</span> this is the lexicographic numbering <span class="math inline">\(\hat p_1, \ldots, \hat p_6\)</span> of the paper, so <span class="math inline">\(\hat\beta\)</span>, <span class="math inline">\(\hat\tau\)</span>, <span class="math inline">\(\hat\gamma\)</span> and <span class="math inline">\(\hat\delta\)</span> pick the same components.</li>
 <li><code>UpDownBalance()</code> and <code>UpDownScaling()</code> return <span class="math inline">\(-\hat\beta\)</span> and <span class="math inline">\(-\hat\delta\)</span>. All four Bandt statistics are tested two sided, so the rejection rates are unaffected.</li>
@@ -449,7 +449,7 @@ window.Quarto = {
 </section>
 <section id="running-the-power-study" class="level2">
 <h2 class="anchored" data-anchor-id="running-the-power-study">Running the power study</h2>
-<p>The critical value depends on the chart, on <span class="math inline">\(m\)</span> and on the number of patterns <span class="math inline">\(n\)</span>, but not on the data. For a fixed <span class="math inline">\(T\)</span> it is therefore the same in all replications, and for the three omnibus statistics computing it means inverting a generalized <span class="math inline">\(\chi^2\)</span> distribution numerically. The pattern distribution <span class="math inline">\(\hat{\mathbf{p}}\)</span> is shared by all seven statistics. Reading the critical values off once per sample size leaves one pass over the series per replication and makes the study about 300 times faster than a plain loop over <code>test_op</code>.</p>
+<p><code>crit_val_op</code> returns the critical value alone. It depends on the chart, on <span class="math inline">\(m\)</span> and on the number of patterns <span class="math inline">\(n\)</span>, but not on the data, so for a fixed <span class="math inline">\(T\)</span> it is the same in all replications. <code>test_op</code> additionally computes the <span class="math inline">\(p\)</span> value, which does depend on the data and which for the three omnibus statistics means evaluating a generalized <span class="math inline">\(\chi^2\)</span> distribution numerically. A power study only needs the decision, so the critical values are taken once per sample size and each replication then costs one pass over the series. That is about 300 times faster than a plain loop over <code>test_op</code>.</p>
 <div id="10" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># rejection rules of the table above</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rejects</span>(<span class="op">::</span><span class="dt">Union{Shannon,ShannonExtropy}</span>, stat, crit) <span class="op">=</span> stat <span class="op">&lt;</span> crit</span>
@@ -457,8 +457,8 @@ window.Quarto = {
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">rejects</span>(_, stat, crit) <span class="op">=</span> <span class="fu">abs</span>(stat) <span class="op">&gt;</span> crit</span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">power</span>(T, α, reps; m<span class="op">=</span><span class="fl">3</span>, d<span class="op">=</span><span class="fl">1</span>, level<span class="op">=</span><span class="fl">0.05</span>)</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    x0 <span class="op">=</span> <span class="fu">randn</span>(T)</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    crits <span class="op">=</span> [<span class="fu">test_op</span>(x0; chart_choice<span class="op">=</span>cc, m<span class="op">=</span>m, d<span class="op">=</span>d, alpha<span class="op">=</span>level).asymp_crit for (_, cc) <span class="kw">in</span> charts]</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> T <span class="op">-</span> (m <span class="op">-</span> <span class="fl">1</span>) <span class="op">*</span> d</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    crits <span class="op">=</span> [<span class="fu">crit_val_op</span>(cc, m, n; alpha<span class="op">=</span>level) for (_, cc) <span class="kw">in</span> charts]</span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    crit_acf <span class="op">=</span> <span class="fu">crit_val_acf</span>(T; alpha<span class="op">=</span>level)</span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    tasks <span class="op">=</span> <span class="fu">map</span>(<span class="bu">Iterators</span>.<span class="fu">partition</span>(<span class="fl">1</span><span class="op">:</span>reps, <span class="fu">cld</span>(reps, <span class="bu">Threads</span>.<span class="fu">nthreads</span>()))) <span class="cf">do</span> idx</span>
@@ -481,18 +481,19 @@ window.Quarto = {
 </div>
 <p>The shortcut has to give the same statistic and the same decision as <code>test_op</code> and <code>test_acf</code>, not merely a similar one:</p>
 <div id="12" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> x <span class="op">=</span> <span class="fu">sim_ar1!</span>(<span class="fu">zeros</span>(<span class="fl">400</span>), α)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> x <span class="op">=</span> <span class="fu">sim_ar1!</span>(<span class="fu">zeros</span>(<span class="fl">400</span>), α), n <span class="op">=</span> <span class="fl">400</span> <span class="op">-</span> (m <span class="op">-</span> <span class="fl">1</span>) <span class="op">*</span> d</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    p̂ <span class="op">=</span> <span class="fu">stat_op</span>(x; chart_choice<span class="op">=</span><span class="fu">Shannon</span>(), m<span class="op">=</span>m, d<span class="op">=</span>d)[<span class="fl">2</span>]</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    ok <span class="op">=</span> <span class="fu">all</span>(</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">begin</span></span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>            r <span class="op">=</span> <span class="fu">test_op</span>(x; chart_choice<span class="op">=</span>cc, m<span class="op">=</span>m, d<span class="op">=</span>d, alpha<span class="op">=</span>level)</span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>            s <span class="op">=</span> <span class="fu">chart_stat_op</span>(p̂, cc)</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>            s <span class="op">≈</span> r.stat <span class="op">&amp;&amp;</span> <span class="fu">rejects</span>(cc, s, r.asymp_crit) <span class="op">==</span> r.asymp_reject</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span> <span class="cf">for</span> (_, cc) <span class="kw">in</span> charts</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    ok <span class="op">&amp;=</span> (<span class="fu">abs</span>(<span class="fu">stat_acf</span>(x, d)) <span class="op">&gt;</span> <span class="fu">crit_val_acf</span>(<span class="fl">400</span>; alpha<span class="op">=</span>level)) <span class="op">==</span> <span class="fu">test_acf</span>(x, d; alpha<span class="op">=</span>level).asymp_reject</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    (shortcut_matches_test_op<span class="op">=</span>ok,)</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>            s <span class="op">≈</span> r.stat <span class="op">&amp;&amp;</span> <span class="fu">crit_val_op</span>(cc, m, n; alpha<span class="op">=</span>level) <span class="op">≈</span> r.asymp_crit <span class="op">&amp;&amp;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>                <span class="fu">rejects</span>(cc, s, r.asymp_crit) <span class="op">==</span> r.asymp_reject</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span> <span class="cf">for</span> (_, cc) <span class="kw">in</span> charts</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    ok <span class="op">&amp;=</span> (<span class="fu">abs</span>(<span class="fu">stat_acf</span>(x, d)) <span class="op">&gt;</span> <span class="fu">crit_val_acf</span>(<span class="fl">400</span>; alpha<span class="op">=</span>level)) <span class="op">==</span> <span class="fu">test_acf</span>(x, d; alpha<span class="op">=</span>level).asymp_reject</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    (shortcut_matches_test_op<span class="op">=</span>ok,)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>(shortcut_matches_test_op = true,)</code></pre>
 </div>
@@ -507,7 +508,7 @@ Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><code>crit_val_acf</code> is exported, its ordinal pattern counterpart currently is not, so the critical values above are read off the <code>OPTestResult</code> returned by <code>test_op</code>. With <code>reps = 10_000</code> the page runs in a few seconds and the standard error of a rejection rate is at most <span class="math inline">\(\sqrt{0.25 / 10^4} = 0.005\)</span>.</p>
+<p>With <code>reps = 10_000</code> the page runs in a few seconds and the standard error of a rejection rate is at most <span class="math inline">\(\sqrt{0.25 / 10^4} = 0.005\)</span>.</p>
 </div>
 </div>
 </section>
@@ -550,24 +551,24 @@ Note
 <tr class="dataRow odd">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">1</td>
 <td style="text-align: right;">100</td>
-<td style="text-align: right;">0.265</td>
-<td style="text-align: right;">0.282</td>
-<td style="text-align: right;">0.27</td>
-<td style="text-align: right;">0.057</td>
-<td style="text-align: right;">0.556</td>
-<td style="text-align: right;">0.046</td>
-<td style="text-align: right;">0.048</td>
+<td style="text-align: right;">0.259</td>
+<td style="text-align: right;">0.278</td>
+<td style="text-align: right;">0.269</td>
+<td style="text-align: right;">0.056</td>
+<td style="text-align: right;">0.545</td>
+<td style="text-align: right;">0.042</td>
+<td style="text-align: right;">0.045</td>
 <td style="text-align: right;">0.997</td>
 </tr>
 <tr class="dataRow even">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">2</td>
 <td style="text-align: right;">250</td>
-<td style="text-align: right;">0.609</td>
-<td style="text-align: right;">0.627</td>
-<td style="text-align: right;">0.624</td>
-<td style="text-align: right;">0.067</td>
-<td style="text-align: right;">0.877</td>
-<td style="text-align: right;">0.05</td>
+<td style="text-align: right;">0.611</td>
+<td style="text-align: right;">0.628</td>
+<td style="text-align: right;">0.625</td>
+<td style="text-align: right;">0.065</td>
+<td style="text-align: right;">0.881</td>
+<td style="text-align: right;">0.047</td>
 <td style="text-align: right;">0.036</td>
 <td style="text-align: right;">1.0</td>
 </tr>
@@ -575,12 +576,12 @@ Note
 <td class="rowLabel" style="text-align: right; font-weight: bold;">3</td>
 <td style="text-align: right;">500</td>
 <td style="text-align: right;">0.93</td>
+<td style="text-align: right;">0.935</td>
 <td style="text-align: right;">0.934</td>
-<td style="text-align: right;">0.934</td>
-<td style="text-align: right;">0.058</td>
+<td style="text-align: right;">0.055</td>
 <td style="text-align: right;">0.992</td>
-<td style="text-align: right;">0.047</td>
-<td style="text-align: right;">0.039</td>
+<td style="text-align: right;">0.053</td>
+<td style="text-align: right;">0.041</td>
 <td style="text-align: right;">1.0</td>
 </tr>
 <tr class="dataRow even">
@@ -589,10 +590,10 @@ Note
 <td style="text-align: right;">1.0</td>
 <td style="text-align: right;">1.0</td>
 <td style="text-align: right;">1.0</td>
-<td style="text-align: right;">0.06</td>
+<td style="text-align: right;">0.064</td>
 <td style="text-align: right;">1.0</td>
 <td style="text-align: right;">0.047</td>
-<td style="text-align: right;">0.038</td>
+<td style="text-align: right;">0.042</td>
 <td style="text-align: right;">1.0</td>
 </tr>
 <tr class="dataRow odd">
@@ -601,10 +602,10 @@ Note
 <td style="text-align: right;">1.0</td>
 <td style="text-align: right;">1.0</td>
 <td style="text-align: right;">1.0</td>
-<td style="text-align: right;">0.062</td>
+<td style="text-align: right;">0.059</td>
 <td style="text-align: right;">1.0</td>
-<td style="text-align: right;">0.05</td>
-<td style="text-align: right;">0.045</td>
+<td style="text-align: right;">0.054</td>
+<td style="text-align: right;">0.04</td>
 <td style="text-align: right;">1.0</td>
 </tr>
 <tr class="dataRow even">
@@ -613,10 +614,10 @@ Note
 <td style="text-align: right;">1.0</td>
 <td style="text-align: right;">1.0</td>
 <td style="text-align: right;">1.0</td>
-<td style="text-align: right;">0.062</td>
+<td style="text-align: right;">0.061</td>
 <td style="text-align: right;">1.0</td>
-<td style="text-align: right;">0.047</td>
-<td style="text-align: right;">0.043</td>
+<td style="text-align: right;">0.05</td>
+<td style="text-align: right;">0.045</td>
 <td style="text-align: right;">1.0</td>
 </tr>
 </tbody>
@@ -674,56 +675,56 @@ Note
 <td style="text-align: right;">100</td>
 <td style="text-align: left;">H</td>
 <td style="text-align: right;">0.25</td>
-<td style="text-align: right;">0.265</td>
-<td style="text-align: right;">0.015</td>
+<td style="text-align: right;">0.259</td>
+<td style="text-align: right;">0.009</td>
 </tr>
 <tr class="dataRow even">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">2</td>
 <td style="text-align: right;">100</td>
 <td style="text-align: left;">Hex</td>
 <td style="text-align: right;">0.266</td>
-<td style="text-align: right;">0.282</td>
-<td style="text-align: right;">0.016</td>
+<td style="text-align: right;">0.278</td>
+<td style="text-align: right;">0.012</td>
 </tr>
 <tr class="dataRow odd">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">3</td>
 <td style="text-align: right;">100</td>
 <td style="text-align: left;">Δ²</td>
 <td style="text-align: right;">0.256</td>
-<td style="text-align: right;">0.27</td>
-<td style="text-align: right;">0.014</td>
+<td style="text-align: right;">0.269</td>
+<td style="text-align: right;">0.013</td>
 </tr>
 <tr class="dataRow even">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">4</td>
 <td style="text-align: right;">100</td>
 <td style="text-align: left;">β</td>
 <td style="text-align: right;">0.051</td>
-<td style="text-align: right;">0.057</td>
-<td style="text-align: right;">0.006</td>
+<td style="text-align: right;">0.056</td>
+<td style="text-align: right;">0.005</td>
 </tr>
 <tr class="dataRow odd">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">5</td>
 <td style="text-align: right;">100</td>
 <td style="text-align: left;">τ</td>
 <td style="text-align: right;">0.556</td>
-<td style="text-align: right;">0.556</td>
-<td style="text-align: right;">-0.001</td>
+<td style="text-align: right;">0.545</td>
+<td style="text-align: right;">-0.011</td>
 </tr>
 <tr class="dataRow even">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">6</td>
 <td style="text-align: right;">100</td>
 <td style="text-align: left;">γ</td>
 <td style="text-align: right;">0.043</td>
-<td style="text-align: right;">0.046</td>
-<td style="text-align: right;">0.003</td>
+<td style="text-align: right;">0.042</td>
+<td style="text-align: right;">-0.001</td>
 </tr>
 <tr class="dataRow odd">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">7</td>
 <td style="text-align: right;">100</td>
 <td style="text-align: left;">δ</td>
 <td style="text-align: right;">0.044</td>
-<td style="text-align: right;">0.048</td>
-<td style="text-align: right;">0.004</td>
+<td style="text-align: right;">0.045</td>
+<td style="text-align: right;">0.001</td>
 </tr>
 <tr class="dataRow even">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">8</td>
@@ -738,40 +739,40 @@ Note
 <td style="text-align: right;">250</td>
 <td style="text-align: left;">H</td>
 <td style="text-align: right;">0.614</td>
-<td style="text-align: right;">0.609</td>
-<td style="text-align: right;">-0.005</td>
+<td style="text-align: right;">0.611</td>
+<td style="text-align: right;">-0.003</td>
 </tr>
 <tr class="dataRow even">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">10</td>
 <td style="text-align: right;">250</td>
 <td style="text-align: left;">Hex</td>
 <td style="text-align: right;">0.634</td>
-<td style="text-align: right;">0.627</td>
-<td style="text-align: right;">-0.007</td>
+<td style="text-align: right;">0.628</td>
+<td style="text-align: right;">-0.006</td>
 </tr>
 <tr class="dataRow odd">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">11</td>
 <td style="text-align: right;">250</td>
 <td style="text-align: left;">Δ²</td>
 <td style="text-align: right;">0.63</td>
-<td style="text-align: right;">0.624</td>
-<td style="text-align: right;">-0.006</td>
+<td style="text-align: right;">0.625</td>
+<td style="text-align: right;">-0.005</td>
 </tr>
 <tr class="dataRow even">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">12</td>
 <td style="text-align: right;">250</td>
 <td style="text-align: left;">β</td>
 <td style="text-align: right;">0.065</td>
-<td style="text-align: right;">0.067</td>
-<td style="text-align: right;">0.002</td>
+<td style="text-align: right;">0.065</td>
+<td style="text-align: right;">-0.0</td>
 </tr>
 <tr class="dataRow odd">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">13</td>
 <td style="text-align: right;">250</td>
 <td style="text-align: left;">τ</td>
 <td style="text-align: right;">0.882</td>
-<td style="text-align: right;">0.877</td>
-<td style="text-align: right;">-0.005</td>
+<td style="text-align: right;">0.881</td>
+<td style="text-align: right;">-0.001</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">⋮</td>
@@ -794,16 +795,16 @@ Note
 <td style="text-align: right;">1500</td>
 <td style="text-align: left;">γ</td>
 <td style="text-align: right;">0.053</td>
-<td style="text-align: right;">0.05</td>
-<td style="text-align: right;">-0.003</td>
+<td style="text-align: right;">0.054</td>
+<td style="text-align: right;">0.001</td>
 </tr>
 <tr class="dataRow odd">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">39</td>
 <td style="text-align: right;">1500</td>
 <td style="text-align: left;">δ</td>
 <td style="text-align: right;">0.043</td>
-<td style="text-align: right;">0.045</td>
-<td style="text-align: right;">0.002</td>
+<td style="text-align: right;">0.04</td>
+<td style="text-align: right;">-0.003</td>
 </tr>
 <tr class="dataRow even">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">40</td>
@@ -842,8 +843,8 @@ Note
 <td style="text-align: right;">2500</td>
 <td style="text-align: left;">β</td>
 <td style="text-align: right;">0.056</td>
-<td style="text-align: right;">0.062</td>
-<td style="text-align: right;">0.006</td>
+<td style="text-align: right;">0.061</td>
+<td style="text-align: right;">0.005</td>
 </tr>
 <tr class="dataRow odd">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">45</td>
@@ -858,16 +859,16 @@ Note
 <td style="text-align: right;">2500</td>
 <td style="text-align: left;">γ</td>
 <td style="text-align: right;">0.052</td>
-<td style="text-align: right;">0.047</td>
-<td style="text-align: right;">-0.005</td>
+<td style="text-align: right;">0.05</td>
+<td style="text-align: right;">-0.001</td>
 </tr>
 <tr class="dataRow odd">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">47</td>
 <td style="text-align: right;">2500</td>
 <td style="text-align: left;">δ</td>
 <td style="text-align: right;">0.042</td>
-<td style="text-align: right;">0.043</td>
-<td style="text-align: right;">0.001</td>
+<td style="text-align: right;">0.045</td>
+<td style="text-align: right;">0.003</td>
 </tr>
 <tr class="dataRow even">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">48</td>
@@ -884,7 +885,7 @@ Note
 </div>
 <div id="20" class="cell" data-execution_count="1">
 <div class="cell-output cell-output-stdout">
-<pre><code>largest absolute deviation: 0.016
+<pre><code>largest absolute deviation: 0.013
 mean absolute deviation:    0.003
 Monte Carlo standard error: at most 0.005</code></pre>
 </div>
