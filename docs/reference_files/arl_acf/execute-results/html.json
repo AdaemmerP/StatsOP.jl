@@ -1,0 +1,12 @@
+{
+  "hash": "315bec7e28267410df514d0a2b5c3d64",
+  "result": {
+    "engine": "julia",
+    "markdown": "---\nengine: julia\n---\n\n# arl_acf {#sec-doc}\n    \n\n::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n\n\n::: {#2 .cell execution_count=0}\n``` {.julia .cell-code}\narl_acf(lam, cl, acf_dgp, reps=10000)\n\n```\n:::\n\n\n\nFunction to compute the average run length (ARL) for a specified DGP using the ACF statistic by XXX.\n \n  * `lam::Float64`: Smoothing parameter for the EWMA statistic.\n  * `cl::Float64`: Control limit for the ACF statistic.\n  * `acf_dgp::Union{IC, AR1, TEAR1}`: DGP.\n  * `reps::Int64`: Number of replications.\n\n::: {#4 .cell execution_count=0}\n``` {.julia .cell-code}\narl_acf(0.1, 3.0, IC(Normal(0, 1)), 10000)\n\n```\n:::\n\n\n\n\n\n:::\n\n\n",
+    "supporting": [
+      "arl_acf_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

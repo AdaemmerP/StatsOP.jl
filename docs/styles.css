@@ -643,6 +643,17 @@
   padding-inline: 1.75rem;
 }
 
+/* --- Navbar brand -------------------------------------------------------- */
+
+/* The package name is the site title now that the hero no longer carries a
+   heading, so it needs more weight than the nav links beside it. */
+.navbar-brand,
+.navbar .navbar-brand .navbar-title {
+  font-weight: 700;
+  font-size: 1.12rem;
+  letter-spacing: -0.01em;
+}
+
 /* --- Hero ---------------------------------------------------------------- */
 
 .sop-hero {

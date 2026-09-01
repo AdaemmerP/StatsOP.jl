@@ -1,0 +1,12 @@
+{
+  "hash": "07bdfc1e98082b36655bb3db81a1f9e5",
+  "result": {
+    "engine": "julia",
+    "markdown": "---\nengine: julia\n---\n\n# ICSP {#sec-doc}\n    \n\n::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n\n\n::: {#2 .cell execution_count=0}\n``` {.julia .cell-code}\nICSP(M_rows, N_cols, dist)\n\n```\n:::\n\n\n\nA struct to define an independent and identically distributed (IID) process for in-control\n \n  * `M_rows::Int`: The number of rows for the image.\n  * `N_cols::Int`: The number of columns for image.\n  * `dist::UnivariateDistribution`: A distribution from the Distributions.jl package.\n\n\n:::\n\n\n",
+    "supporting": [
+      "ICSP_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

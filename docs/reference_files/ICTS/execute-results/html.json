@@ -1,0 +1,12 @@
+{
+  "hash": "038d9fadb3d1b84fdf7cccb6bbd2f6db",
+  "result": {
+    "engine": "julia",
+    "markdown": "---\nengine: julia\n---\n\n# ICTS {#sec-doc}\n    \n\n::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n\n\n::: {#2 .cell execution_count=0}\n``` {.julia .cell-code}\nIC(dist::UnivariateDistribution)\n\n```\n:::\n\n\n\nA struct to define the in-control (IC) process. The struct contains one field, namely `dist::UnivariateDistribution`, which is the distribution of the in-control process.   \n\n\n::: {#4 .cell execution_count=0}\n``` {.julia .cell-code}\nic = IC(Normal(0, 1))\n\n```\n:::\n\n\n\n\n\n:::\n\n\n",
+    "supporting": [
+      "ICTS_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

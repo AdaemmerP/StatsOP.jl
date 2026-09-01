@@ -25,10 +25,11 @@ website:
     # which is not one of the Julia colours.
     background: "#4063d8"
     logo: op_logo.svg
+    # The package name sits in the brand slot beside the logo rather than as a
+    # nav link, so it reads as the site title. Weight is set in styles.css.
+    title: "StatsOrdinalPatterns.jl"
 
     left:
-      - text: "StatsOrdinalPatterns.jl"
-        href: index.qmd      
       - text: "Ordinal Patterns"
         href: page_files/op.qmd
       - text: "Spatial Ordinal Patterns"
@@ -97,6 +98,12 @@ website:
         - page_files/sop.qmd
         - page_files/sop_tutorial.qmd
         - page_files/sop_sequential.qmd
+        - section: "Replications"
+          contents:
+            - text: "Weiß and Kim (2024)"
+              href: page_files/sop_replication_weiss_kim_2024.qmd
+            - text: "Weiß and Kim (2025)"
+              href: page_files/sop_replication_weiss_kim_2025.qmd
         # - page_files/sop_replication.qmd
     - title: "OPs"
       style: "docked"

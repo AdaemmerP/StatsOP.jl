@@ -1,0 +1,12 @@
+{
+  "hash": "c77152bc6780f78f20570991b2ce9b6f",
+  "result": {
+    "engine": "julia",
+    "markdown": "---\nengine: julia\n---\n\n# rl_acf {#sec-doc}\n    \n\n::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n\n\n::: {#2 .cell execution_count=0}\n``` {.julia .cell-code}\nrl_acf(lam, cl, p_reps, acf_dgp)\n\n```\n:::\n\n\n\nFunction to compute the run length (RL) for a specified DGP using the ACF statistic by XXX.\n \n  * `lam::Float64`: Smoothing parameter for the EWMA statistic.\n  * `cl::Float64`: Control limit for the ACF statistic.\n  * `p_reps::Vector{Int64}`: Unit range for number of replications.\n  * `acf_dgp::Union{IC, AR1, TEAR1}`: DGP.\n\n::: {#4 .cell execution_count=0}\n``` {.julia .cell-code}\nrl_acf(0.1, 3.0, 10_000, IC(Normal(0, 1)))\n\n```\n:::\n\n\n\n\n\n:::\n\n\n",
+    "supporting": [
+      "rl_acf_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

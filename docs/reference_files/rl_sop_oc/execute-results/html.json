@@ -1,0 +1,12 @@
+{
+  "hash": "534babe23ecc2683ab8703101a8ffc3c",
+  "result": {
+    "engine": "julia",
+    "markdown": "---\nengine: julia\n---\n\n# rl_sop_oc {#sec-doc}\n    \n\n::: {.callout-note appearance=\"simple\" title=\"docblock\" collapse=false}    \n\n\n::: {#2 .cell execution_count=0}\n``` {.julia .cell-code}\nrl_sop_oc(\n\n```\n:::\n\n\n\nspatial*dgp::SpatialDGP, lam, cl, lookup*array*sop, p*reps::UnitRange{Int}, dist*error::UnivariateDistribution,   dist*ao::Union{Nothing,UnivariateDistribution}, chart_choice, m, n, d1::Int, d2::Int   )\n \nComputes the run length for a given out-of-control DGP. The input parameters are:\n \n  * `spatial_dgp::SpatialDGP`: A struct for the out-of-control spatial DGP.\n  * `lam::Float64`: A scalar value for lambda for the EWMA chart.\n  * `cl::Float64`: A scalar value for the control limit.\n  * `lookup_array_sop::Array{Int, 4}`: A 4D array with the lookup array for the sops,\nwhich will be computed computed using `lookup_array_sop = compute_lookup_array_sop()`.\n \n  * `p_reps::UnitRange{Int}`: A range of integers for the number of repetitions.\n  * `dist_error::UnivariateDistribution`: A distribution for the error term. Here you can use any\nunivariate distribution from the `Distributions.jl` package.\n \n  * `dist_ao::Union{Nothing,UnivariateDistribution}`: A distribution for the additive outlier.\n  * `chart_choice::Int`: An integer value for the chart choice. The options are 1-4.\n  * `m::Int`: An integer value for the number of rows for the final \"SOP\" matrix.\n  * `n::Int`: An integer value for the number of columns for the final \"SOP\" matrix.\n  * `d1::Int`: An integer value for the first delay (d₁).\n  * `d2::Int`: An integer value for the second delay (d₂).\n\n\n:::\n\n\n",
+    "supporting": [
+      "rl_sop_oc_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}
