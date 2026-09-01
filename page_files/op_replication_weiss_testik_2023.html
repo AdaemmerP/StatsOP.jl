@@ -90,7 +90,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../page_files/op_sequential.html" rel="prev">
+<link href="../page_files/op_replication_weiss_2022.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -215,7 +215,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../page_files/op_replication_weiss_testik_2023.html">Replications</a></li><li class="breadcrumb-item"><a href="../page_files/op_replication_weiss_testik_2023.html">Weiß and Testik (2023)</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../page_files/op_replication_weiss_2022.html">Replications</a></li><li class="breadcrumb-item"><a href="../page_files/op_replication_weiss_testik_2023.html">Weiß and Testik (2023)</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -256,6 +256,12 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../page_files/op_replication_weiss_2022.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Weiß (2022)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../page_files/op_replication_weiss_testik_2023.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Weiß and Testik (2023)</span></a>
   </div>
@@ -289,14 +295,13 @@ window.Quarto = {
   <li><a href="#lambda-0.05" id="toc-lambda-0.05" class="nav-link" data-scroll-target="#lambda-0.05"><span class="math inline">\(\lambda = 0.05\)</span></a></li>
   <li><a href="#comparison-with-the-published-arls" id="toc-comparison-with-the-published-arls" class="nav-link" data-scroll-target="#comparison-with-the-published-arls">Comparison with the published ARLs</a></li>
   </ul></li>
-  <li><a href="#two-cells-that-look-wrong-but-are-not" id="toc-two-cells-that-look-wrong-but-are-not" class="nav-link" data-scroll-target="#two-cells-that-look-wrong-but-are-not">Two cells that look wrong but are not</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../page_files/op_replication_weiss_testik_2023.html">Replications</a></li><li class="breadcrumb-item"><a href="../page_files/op_replication_weiss_testik_2023.html">Weiß and Testik (2023)</a></li></ol></nav></header>
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../page_files/op_replication_weiss_2022.html">Replications</a></li><li class="breadcrumb-item"><a href="../page_files/op_replication_weiss_testik_2023.html">Weiß and Testik (2023)</a></li></ol></nav></header>
 
 
 
@@ -368,12 +373,6 @@ window.Quarto = {
 </tr>
 </tbody>
 </table>
-<p>Two conventions are worth stating, because they decide whether the numbers below can match the paper at all:</p>
-<ul>
-<li><strong>Pattern indexing.</strong> The package indexes patterns by their Lehmer code (see <a href="../reference/perm_to_lehm_idx.html"><code>perm_to_lehm_idx</code></a>). For <span class="math inline">\(m = 3\)</span> this coincides with the lexicographic numbering <span class="math inline">\(\hat p_1, \ldots, \hat p_6\)</span> of the paper, so index 1 is the increasing and index 6 the decreasing pattern. The statistics that single out individual patterns — <span class="math inline">\(\hat{\beta}\)</span>, <span class="math inline">\(\hat{\tau}\)</span>, <span class="math inline">\(\hat{\delta}\)</span> — therefore pick the same components as in the paper.</li>
-<li><strong>Signs.</strong> <code>UpDownBalance()</code> and <code>UpDownScaling()</code> return <span class="math inline">\(-\hat\beta\)</span> and <span class="math inline">\(-\hat\delta\)</span>, i.e.&nbsp;the differences with the opposite orientation. Both charts are two-sided, so the run lengths are unaffected.</li>
-</ul>
-<p>The direction of the alarm rule follows the statistic: dependence <em>reduces</em> entropy and extropy, which makes the <span class="math inline">\(H\)</span>- and <span class="math inline">\(H_{\text{ex}}\)</span>-charts lower-sided, while the <span class="math inline">\(\Delta\)</span>-chart is upper-sided. <code>cl_op</code> accounts for this internally when it searches for the critical limit.</p>
 </section>
 <section id="setup" class="level2">
 <h2 class="anchored" data-anchor-id="setup">Setup</h2>
@@ -487,15 +486,15 @@ Note
 <td style="text-align: right;">1.0128</td>
 <td style="text-align: right;">376.4</td>
 <td style="text-align: right;">0.66182</td>
-<td style="text-align: right;">372.4</td>
+<td style="text-align: right;">372.5</td>
 <td style="text-align: right;">0.33441</td>
-<td style="text-align: right;">372.8</td>
+<td style="text-align: right;">372.9</td>
 <td style="text-align: right;">0.64436</td>
 <td style="text-align: right;">376.8</td>
 <td style="text-align: right;">0.42556</td>
 <td style="text-align: right;">370.7</td>
-<td style="text-align: right;">0.76511</td>
-<td style="text-align: right;">362.6</td>
+<td style="text-align: right;">0.76512</td>
+<td style="text-align: right;">362.7</td>
 </tr>
 <tr class="dataRow even">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">2</td>
@@ -504,11 +503,11 @@ Note
 <td style="text-align: right;">368.3</td>
 <td style="text-align: right;">0.84063</td>
 <td style="text-align: right;">367.8</td>
-<td style="text-align: right;">0.11139</td>
+<td style="text-align: right;">0.11138</td>
 <td style="text-align: right;">364.3</td>
 <td style="text-align: right;">0.364</td>
-<td style="text-align: right;">371.0</td>
-<td style="text-align: right;">0.25319</td>
+<td style="text-align: right;">371.1</td>
+<td style="text-align: right;">0.2532</td>
 <td style="text-align: right;">374.5</td>
 <td style="text-align: right;">0.48763</td>
 <td style="text-align: right;">376.2</td>
@@ -519,10 +518,10 @@ Note
 <td style="text-align: right;">1.6358</td>
 <td style="text-align: right;">365.3</td>
 <td style="text-align: right;">0.88015</td>
-<td style="text-align: right;">364.9</td>
-<td style="text-align: right;">0.051295</td>
+<td style="text-align: right;">365.0</td>
+<td style="text-align: right;">0.051296</td>
 <td style="text-align: right;">372.4</td>
-<td style="text-align: right;">0.23318</td>
+<td style="text-align: right;">0.23317</td>
 <td style="text-align: right;">373.8</td>
 <td style="text-align: right;">0.16772</td>
 <td style="text-align: right;">363.3</td>
@@ -602,7 +601,7 @@ Note
 <td style="text-align: left;">Hex</td>
 <td style="text-align: right;">0.6621</td>
 <td style="text-align: right;">0.66182</td>
-<td style="text-align: right;">372.4</td>
+<td style="text-align: right;">372.5</td>
 <td style="text-align: right;">3.6</td>
 <td style="text-align: right;">-0.04</td>
 </tr>
@@ -612,7 +611,7 @@ Note
 <td style="text-align: left;">Δ</td>
 <td style="text-align: right;">0.3338</td>
 <td style="text-align: right;">0.33441</td>
-<td style="text-align: right;">372.8</td>
+<td style="text-align: right;">372.9</td>
 <td style="text-align: right;">3.7</td>
 <td style="text-align: right;">0.18</td>
 </tr>
@@ -641,8 +640,8 @@ Note
 <td style="text-align: right;">0.25</td>
 <td style="text-align: left;">δ</td>
 <td style="text-align: right;">0.7656</td>
-<td style="text-align: right;">0.76511</td>
-<td style="text-align: right;">362.6</td>
+<td style="text-align: right;">0.76512</td>
+<td style="text-align: right;">362.7</td>
 <td style="text-align: right;">3.5</td>
 <td style="text-align: right;">-0.06</td>
 </tr>
@@ -671,10 +670,10 @@ Note
 <td style="text-align: right;">0.1</td>
 <td style="text-align: left;">Δ</td>
 <td style="text-align: right;">0.1115</td>
-<td style="text-align: right;">0.11139</td>
+<td style="text-align: right;">0.11138</td>
 <td style="text-align: right;">364.3</td>
 <td style="text-align: right;">3.5</td>
-<td style="text-align: right;">-0.1</td>
+<td style="text-align: right;">-0.11</td>
 </tr>
 <tr class="dataRow even">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">10</td>
@@ -682,7 +681,7 @@ Note
 <td style="text-align: left;">β</td>
 <td style="text-align: right;">0.3638</td>
 <td style="text-align: right;">0.364</td>
-<td style="text-align: right;">371.0</td>
+<td style="text-align: right;">371.1</td>
 <td style="text-align: right;">3.6</td>
 <td style="text-align: right;">0.05</td>
 </tr>
@@ -691,10 +690,10 @@ Note
 <td style="text-align: right;">0.1</td>
 <td style="text-align: left;">τ</td>
 <td style="text-align: right;">0.2529</td>
-<td style="text-align: right;">0.25319</td>
+<td style="text-align: right;">0.2532</td>
 <td style="text-align: right;">374.5</td>
 <td style="text-align: right;">3.7</td>
-<td style="text-align: right;">0.11</td>
+<td style="text-align: right;">0.12</td>
 </tr>
 <tr class="dataRow even">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">12</td>
@@ -722,7 +721,7 @@ Note
 <td style="text-align: left;">Hex</td>
 <td style="text-align: right;">0.88017</td>
 <td style="text-align: right;">0.88015</td>
-<td style="text-align: right;">364.9</td>
+<td style="text-align: right;">365.0</td>
 <td style="text-align: right;">3.5</td>
 <td style="text-align: right;">-0.0</td>
 </tr>
@@ -731,7 +730,7 @@ Note
 <td style="text-align: right;">0.05</td>
 <td style="text-align: left;">Δ</td>
 <td style="text-align: right;">0.05125</td>
-<td style="text-align: right;">0.051295</td>
+<td style="text-align: right;">0.051296</td>
 <td style="text-align: right;">372.4</td>
 <td style="text-align: right;">3.6</td>
 <td style="text-align: right;">0.09</td>
@@ -741,10 +740,10 @@ Note
 <td style="text-align: right;">0.05</td>
 <td style="text-align: left;">β</td>
 <td style="text-align: right;">0.233</td>
-<td style="text-align: right;">0.23318</td>
+<td style="text-align: right;">0.23317</td>
 <td style="text-align: right;">373.8</td>
 <td style="text-align: right;">3.6</td>
-<td style="text-align: right;">0.08</td>
+<td style="text-align: right;">0.07</td>
 </tr>
 <tr class="dataRow odd">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">17</td>
@@ -787,7 +786,7 @@ in-control ARLs: min 362.5, max 376.8 (target 370)</code></pre>
 <p>The charts keep the designs computed above, so this section also propagates any error in the critical limits.</p>
 <div id="16" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>charts2 <span class="op">=</span> [(<span class="st">"H"</span>, <span class="fu">Shannon</span>()), (<span class="st">"Hex"</span>, <span class="fu">ShannonExtropy</span>()),</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>           (<span class="st">"Δ"</span>, <span class="fu">DistanceToWhiteNoise</span>()), (<span class="st">"τ"</span>, <span class="fu">Persistence</span>())]</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Δ"</span>, <span class="fu">DistanceToWhiteNoise</span>()), (<span class="st">"τ"</span>, <span class="fu">Persistence</span>())]</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>alphas <span class="op">=</span> (<span class="fl">0.2</span>, <span class="fl">0.4</span>, <span class="fl">0.6</span>, <span class="fl">0.8</span>, <span class="op">-</span><span class="fl">0.2</span>, <span class="op">-</span><span class="fl">0.4</span>, <span class="op">-</span><span class="fl">0.6</span>, <span class="op">-</span><span class="fl">0.8</span>)</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>oc <span class="op">=</span> <span class="fu">Dict</span>(</span>
@@ -865,32 +864,32 @@ in-control ARLs: min 362.5, max 376.8 (target 370)</code></pre>
 <td style="text-align: right;">-0.2</td>
 <td style="text-align: right;">595.4</td>
 <td style="text-align: right;">649.9</td>
-<td style="text-align: right;">647.8</td>
-<td style="text-align: right;">800.6</td>
+<td style="text-align: right;">648.0</td>
+<td style="text-align: right;">800.7</td>
 </tr>
 <tr class="dataRow even">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">6</td>
 <td style="text-align: right;">-0.4</td>
 <td style="text-align: right;">942.4</td>
 <td style="text-align: right;">1177.6</td>
-<td style="text-align: right;">1163.2</td>
-<td style="text-align: right;">1835.0</td>
+<td style="text-align: right;">1163.3</td>
+<td style="text-align: right;">1835.1</td>
 </tr>
 <tr class="dataRow odd">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">7</td>
 <td style="text-align: right;">-0.6</td>
-<td style="text-align: right;">1289.2</td>
+<td style="text-align: right;">1289.3</td>
 <td style="text-align: right;">2338.2</td>
 <td style="text-align: right;">2375.7</td>
-<td style="text-align: right;">4656.2</td>
+<td style="text-align: right;">4656.0</td>
 </tr>
 <tr class="dataRow even">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">8</td>
 <td style="text-align: right;">-0.8</td>
 <td style="text-align: right;">512.8</td>
 <td style="text-align: right;">5629.8</td>
-<td style="text-align: right;">5264.8</td>
-<td style="text-align: right;">13596.5</td>
+<td style="text-align: right;">5264.9</td>
+<td style="text-align: right;">13592.8</td>
 </tr>
 </tbody>
 </table>
@@ -928,22 +927,22 @@ in-control ARLs: min 362.5, max 376.8 (target 370)</code></pre>
 <td style="text-align: right;">0.2</td>
 <td style="text-align: right;">300.5</td>
 <td style="text-align: right;">231.7</td>
-<td style="text-align: right;">240.1</td>
-<td style="text-align: right;">193.0</td>
+<td style="text-align: right;">240.0</td>
+<td style="text-align: right;">192.8</td>
 </tr>
 <tr class="dataRow even">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">2</td>
 <td style="text-align: right;">0.4</td>
-<td style="text-align: right;">212.5</td>
+<td style="text-align: right;">212.4</td>
 <td style="text-align: right;">144.1</td>
-<td style="text-align: right;">153.8</td>
-<td style="text-align: right;">100.3</td>
+<td style="text-align: right;">153.7</td>
+<td style="text-align: right;">100.2</td>
 </tr>
 <tr class="dataRow odd">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">3</td>
 <td style="text-align: right;">0.6</td>
 <td style="text-align: right;">134.7</td>
-<td style="text-align: right;">88.4</td>
+<td style="text-align: right;">88.3</td>
 <td style="text-align: right;">94.9</td>
 <td style="text-align: right;">59.0</td>
 </tr>
@@ -951,32 +950,32 @@ in-control ARLs: min 362.5, max 376.8 (target 370)</code></pre>
 <td class="rowLabel" style="text-align: right; font-weight: bold;">4</td>
 <td style="text-align: right;">0.8</td>
 <td style="text-align: right;">81.3</td>
-<td style="text-align: right;">54.8</td>
+<td style="text-align: right;">54.7</td>
 <td style="text-align: right;">57.4</td>
 <td style="text-align: right;">40.2</td>
 </tr>
 <tr class="dataRow odd">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">5</td>
 <td style="text-align: right;">-0.2</td>
-<td style="text-align: right;">410.1</td>
+<td style="text-align: right;">410.2</td>
 <td style="text-align: right;">553.0</td>
-<td style="text-align: right;">518.0</td>
-<td style="text-align: right;">412.3</td>
+<td style="text-align: right;">517.9</td>
+<td style="text-align: right;">412.6</td>
 </tr>
 <tr class="dataRow even">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">6</td>
 <td style="text-align: right;">-0.4</td>
-<td style="text-align: right;">388.4</td>
-<td style="text-align: right;">766.9</td>
-<td style="text-align: right;">670.3</td>
+<td style="text-align: right;">388.5</td>
+<td style="text-align: right;">766.8</td>
+<td style="text-align: right;">669.9</td>
 <td style="text-align: right;">202.4</td>
 </tr>
 <tr class="dataRow odd">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">7</td>
 <td style="text-align: right;">-0.6</td>
-<td style="text-align: right;">240.4</td>
-<td style="text-align: right;">675.9</td>
-<td style="text-align: right;">563.5</td>
+<td style="text-align: right;">240.5</td>
+<td style="text-align: right;">675.8</td>
+<td style="text-align: right;">563.3</td>
 <td style="text-align: right;">83.6</td>
 </tr>
 <tr class="dataRow even">
@@ -1022,7 +1021,7 @@ in-control ARLs: min 362.5, max 376.8 (target 370)</code></pre>
 <td class="rowLabel" style="text-align: right; font-weight: bold;">1</td>
 <td style="text-align: right;">0.2</td>
 <td style="text-align: right;">298.4</td>
-<td style="text-align: right;">260.0</td>
+<td style="text-align: right;">260.1</td>
 <td style="text-align: right;">270.6</td>
 <td style="text-align: right;">202.8</td>
 </tr>
@@ -1038,7 +1037,7 @@ in-control ARLs: min 362.5, max 376.8 (target 370)</code></pre>
 <td class="rowLabel" style="text-align: right; font-weight: bold;">3</td>
 <td style="text-align: right;">0.6</td>
 <td style="text-align: right;">133.1</td>
-<td style="text-align: right;">103.1</td>
+<td style="text-align: right;">103.0</td>
 <td style="text-align: right;">107.9</td>
 <td style="text-align: right;">63.6</td>
 </tr>
@@ -1055,24 +1054,24 @@ in-control ARLs: min 362.5, max 376.8 (target 370)</code></pre>
 <td style="text-align: right;">-0.2</td>
 <td style="text-align: right;">348.1</td>
 <td style="text-align: right;">420.9</td>
-<td style="text-align: right;">407.5</td>
+<td style="text-align: right;">407.6</td>
 <td style="text-align: right;">273.1</td>
 </tr>
 <tr class="dataRow even">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">6</td>
 <td style="text-align: right;">-0.4</td>
 <td style="text-align: right;">236.0</td>
-<td style="text-align: right;">343.9</td>
+<td style="text-align: right;">344.0</td>
 <td style="text-align: right;">327.3</td>
 <td style="text-align: right;">118.6</td>
 </tr>
 <tr class="dataRow odd">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">7</td>
 <td style="text-align: right;">-0.6</td>
-<td style="text-align: right;">118.8</td>
+<td style="text-align: right;">118.9</td>
 <td style="text-align: right;">183.8</td>
-<td style="text-align: right;">166.9</td>
-<td style="text-align: right;">57.0</td>
+<td style="text-align: right;">167.0</td>
+<td style="text-align: right;">57.1</td>
 </tr>
 <tr class="dataRow even">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">8</td>
@@ -1152,14 +1151,14 @@ in-control ARLs: min 362.5, max 376.8 (target 370)</code></pre>
 <tr class="dataRow even">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">2</td>
 <td style="text-align: right;">0.1</td>
-<td style="text-align: right;">3.07</td>
-<td style="text-align: right;">0.89</td>
+<td style="text-align: right;">3.06</td>
+<td style="text-align: right;">0.9</td>
 </tr>
 <tr class="dataRow odd">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">3</td>
 <td style="text-align: right;">0.05</td>
-<td style="text-align: right;">1.77</td>
-<td style="text-align: right;">0.73</td>
+<td style="text-align: right;">1.78</td>
+<td style="text-align: right;">0.74</td>
 </tr>
 </tbody>
 </table>
@@ -1217,7 +1216,7 @@ in-control ARLs: min 362.5, max 376.8 (target 370)</code></pre>
 <td style="text-align: left;">Hex</td>
 <td style="text-align: right;">570.5</td>
 <td style="text-align: right;">553.0</td>
-<td style="text-align: right;">-3.07</td>
+<td style="text-align: right;">-3.06</td>
 </tr>
 <tr class="dataRow even">
 <td class="rowLabel" style="text-align: right; font-weight: bold;">4</td>
@@ -1225,7 +1224,7 @@ in-control ARLs: min 362.5, max 376.8 (target 370)</code></pre>
 <td style="text-align: right;">-0.6</td>
 <td style="text-align: left;">H</td>
 <td style="text-align: right;">1255.2</td>
-<td style="text-align: right;">1289.2</td>
+<td style="text-align: right;">1289.3</td>
 <td style="text-align: right;">2.71</td>
 </tr>
 <tr class="dataRow odd">
@@ -1234,8 +1233,8 @@ in-control ARLs: min 362.5, max 376.8 (target 370)</code></pre>
 <td style="text-align: right;">-0.4</td>
 <td style="text-align: left;">Hex</td>
 <td style="text-align: right;">786.8</td>
-<td style="text-align: right;">766.9</td>
-<td style="text-align: right;">-2.53</td>
+<td style="text-align: right;">766.8</td>
+<td style="text-align: right;">-2.54</td>
 </tr>
 </tbody>
 </table>
@@ -1244,13 +1243,6 @@ in-control ARLs: min 362.5, max 376.8 (target 370)</code></pre>
 </div>
 <p>Every cell is reproduced to within a few percent, which is the resolution that 10 000 replications provide. The largest deviations occur exactly where they should: in the cells with ARLs of several thousand, where the run-length distribution is most dispersed.</p>
 </section>
-</section>
-<section id="two-cells-that-look-wrong-but-are-not" class="level2">
-<h2 class="anchored" data-anchor-id="two-cells-that-look-wrong-but-are-not">Two cells that look wrong but are not</h2>
-<ul>
-<li>For <span class="math inline">\(\lambda = 0.25\)</span> and <span class="math inline">\(\alpha = -0.8\)</span> the <span class="math inline">\(\tau\)</span>-chart has an ARL of roughly 13 650, i.e.&nbsp;it is effectively blind. The reason is structural: since <span class="math inline">\(\hat p_1 + \hat p_6 \geq 0\)</span>, the statistic satisfies <span class="math inline">\(\hat{\tau} \geq -1/3\)</span>, so the lower arm of the two-sided rule <span class="math inline">\(\lvert\hat\tau\rvert &gt; 0.4253\)</span> can never fire. Alarms have to come from the upper arm, which strong negative dependence makes very unlikely.</li>
-<li>The <span class="math inline">\(H\)</span>-chart is not monotone in <span class="math inline">\(\alpha\)</span> on the negative side: at <span class="math inline">\(\lambda = 0.25\)</span> the ARL rises from 588 at <span class="math inline">\(\alpha = -0.2\)</span> to 1255 at <span class="math inline">\(\alpha = -0.6\)</span> and then falls back to 492 at <span class="math inline">\(\alpha = -0.8\)</span>. Moderate negative dependence spreads the pattern distribution more evenly than white noise does, which raises the entropy and therefore <em>delays</em> an alarm of a lower-sided chart; only strong negative dependence concentrates the distribution on the alternating patterns again.</li>
-</ul>
 </section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">References</h2>
@@ -1670,8 +1662,8 @@ Weiß, Christian H, and Murat Caner Testik. 2023. <span>“Nonparametric Control
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../page_files/op_sequential.html" class="pagination-link" aria-label="Tutorial for sequential ordinal pattern tests">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Tutorial for sequential ordinal pattern tests</span>
+      <a href="../page_files/op_replication_weiss_2022.html" class="pagination-link" aria-label="Weiß (2022)">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Weiß (2022)</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
